@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, User, Save } from "lucide-react";
+import { CalendarIcon, User, Save, MapPin, Phone, Mail, Home, Building } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -110,8 +110,16 @@ const Profile: React.FC = () => {
     setConfirmPassword("");
   };
 
+  // Add a debug message to check if the profile component is rendering
+  console.log("Profile component rendering, user:", user);
+
   return (
     <Layout>
+      {/* Debug information - remove after fixing the issue */}
+      <div className="bg-yellow-100 p-2 mb-4 rounded border border-yellow-400">
+        Debug: Profile component is rendering. User data {user ? "is available" : "is NOT available"}
+      </div>
+      
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Meu Perfil</h1>
@@ -138,12 +146,15 @@ const Profile: React.FC = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -158,12 +169,15 @@ const Profile: React.FC = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefone</Label>
-                  <Input
-                    id="phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(00) 00000-0000"
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -182,14 +196,17 @@ const Profile: React.FC = () => {
                         {birthDate ? format(birthDate, "dd/MM/yyyy", { locale: ptBR }) : <span>Selecionar data</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 pointer-events-auto">
+                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                       <Calendar
                         mode="single"
                         selected={birthDate}
                         onSelect={setBirthDate}
                         initialFocus
                         locale={ptBR}
-                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        disabled={(date) => date > new Date()}
+                        fromYear={1940}
+                        toYear={new Date().getFullYear() - 18}
+                        captionLayout="dropdown-buttons"
                         className="pointer-events-auto"
                       />
                     </PopoverContent>
@@ -215,21 +232,27 @@ const Profile: React.FC = () => {
               <form className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="address">Endereço</Label>
-                  <Input
-                    id="address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Rua, número, complemento"
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Home className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="address"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Rua, número, complemento"
+                    />
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="city">Cidade</Label>
-                  <Input
-                    id="city"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Building className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -250,12 +273,15 @@ const Profile: React.FC = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="zipCode">CEP</Label>
-                  <Input
-                    id="zipCode"
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                    placeholder="00000-000"
-                  />
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="zipCode"
+                      value={zipCode}
+                      onChange={(e) => setZipCode(e.target.value)}
+                      placeholder="00000-000"
+                    />
+                  </div>
                 </div>
                 
                 <Button type="submit" className="w-full" onClick={handleUpdateProfile}>
