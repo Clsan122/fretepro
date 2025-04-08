@@ -2,29 +2,14 @@
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Label } from "@/components/ui/label";
-import { format, parse } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { CalendarIcon, User, Save, MapPin, Phone, Mail, Home, Building } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { BRAZILIAN_STATES } from "@/utils/constants";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
+// Import the refactored components
+import PersonalInfoCard from "@/components/profile/PersonalInfoCard";
+import AddressCard from "@/components/profile/AddressCard";
+import PasswordCard from "@/components/profile/PasswordCard";
+import AccountInfoCard from "@/components/profile/AccountInfoCard";
+import DebugInfo from "@/components/profile/DebugInfo";
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -37,7 +22,7 @@ const Profile: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
-  // Novos campos para dados pessoais
+  // Personal data fields
   const [cpf, setCpf] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
@@ -115,10 +100,8 @@ const Profile: React.FC = () => {
 
   return (
     <Layout>
-      {/* Debug information - remove after fixing the issue */}
-      <div className="bg-yellow-100 p-2 mb-4 rounded border border-yellow-400">
-        Debug: Profile component is rendering. User data {user ? "is available" : "is NOT available"}
-      </div>
+      {/* Debug information */}
+      <DebugInfo user={user} />
       
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -126,241 +109,45 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Informações Pessoais</CardTitle>
-              <CardDescription>
-                Atualize suas informações pessoais
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUpdateProfile} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-mail</Label>
-                  <div className="flex items-center space-x-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
-                  <Input
-                    id="cpf"
-                    value={cpf}
-                    onChange={(e) => setCpf(e.target.value)}
-                    placeholder="000.000.000-00"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone</Label>
-                  <div className="flex items-center space-x-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="(00) 00000-0000"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="birthDate">Data de Nascimento</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="birthDate"
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !birthDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {birthDate ? format(birthDate, "dd/MM/yyyy", { locale: ptBR }) : <span>Selecionar data</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={birthDate}
-                        onSelect={setBirthDate}
-                        initialFocus
-                        locale={ptBR}
-                        disabled={(date) => date > new Date()}
-                        fromYear={1940}
-                        toYear={new Date().getFullYear() - 18}
-                        captionLayout="dropdown-buttons"
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                <Button type="submit" className="w-full">
-                  <Save className="mr-2 h-4 w-4" />
-                  Atualizar Perfil
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+          <PersonalInfoCard 
+            user={user}
+            name={name}
+            email={email}
+            birthDate={birthDate}
+            cpf={cpf}
+            phone={phone}
+            setName={setName}
+            setEmail={setEmail}
+            setBirthDate={setBirthDate}
+            setCpf={setCpf}
+            setPhone={setPhone}
+            handleUpdateProfile={handleUpdateProfile}
+          />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Endereço</CardTitle>
-              <CardDescription>
-                Informe seu endereço completo
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="address">Endereço</Label>
-                  <div className="flex items-center space-x-2">
-                    <Home className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="address"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Rua, número, complemento"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="city">Cidade</Label>
-                  <div className="flex items-center space-x-2">
-                    <Building className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="city"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="state">Estado</Label>
-                  <Select value={state} onValueChange={setState}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um estado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BRAZILIAN_STATES.map((brazilianState) => (
-                        <SelectItem key={brazilianState.abbreviation} value={brazilianState.abbreviation}>
-                          {brazilianState.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="zipCode">CEP</Label>
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="zipCode"
-                      value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value)}
-                      placeholder="00000-000"
-                    />
-                  </div>
-                </div>
-                
-                <Button type="submit" className="w-full" onClick={handleUpdateProfile}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Salvar Endereço
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+          <AddressCard 
+            address={address}
+            city={city}
+            state={state}
+            zipCode={zipCode}
+            setAddress={setAddress}
+            setCity={setCity}
+            setState={setState}
+            setZipCode={setZipCode}
+            handleUpdateProfile={handleUpdateProfile}
+          />
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Alterar Senha</CardTitle>
-            <CardDescription>
-              Atualize sua senha de acesso
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Senha Atual</Label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">Nova Senha</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
-              
-              <Button type="submit" className="w-full">
-                Alterar Senha
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <PasswordCard 
+          currentPassword={currentPassword}
+          newPassword={newPassword}
+          confirmPassword={confirmPassword}
+          setCurrentPassword={setCurrentPassword}
+          setNewPassword={setNewPassword}
+          setConfirmPassword={setConfirmPassword}
+          handleChangePassword={handleChangePassword}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações da Conta</CardTitle>
-            <CardDescription>
-              Detalhes da sua conta no Frete Pro
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start space-x-4">
-              <div className="bg-muted rounded-full p-3">
-                <User className="h-10 w-10" />
-              </div>
-              <div>
-                <h3 className="font-semibold">{user?.name}</h3>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Membro desde: {user?.createdAt ? format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ptBR }) : "Data desconhecida"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <AccountInfoCard user={user} />
       </div>
     </Layout>
   );
