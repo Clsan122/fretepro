@@ -497,7 +497,8 @@ const Freights: React.FC = () => {
             <div className="mt-6">
               <ReceiptGenerator 
                 freight={selectedFreight} 
-                clients={clients} 
+                clients={clients}
+                user={user!} 
               />
             </div>
           )}
