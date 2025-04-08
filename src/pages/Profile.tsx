@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
-import { CalendarIcon, User } from "lucide-react";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon, User, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -16,6 +17,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { BRAZILIAN_STATES } from "@/utils/constants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -28,10 +37,25 @@ const Profile: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
+  // Novos campos para dados pessoais
+  const [cpf, setCpf] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [phone, setPhone] = useState("");
+  
   useEffect(() => {
     if (user) {
       setName(user.name);
       setEmail(user.email);
+      setCpf(user.cpf || "");
+      setAddress(user.address || "");
+      setCity(user.city || "");
+      setState(user.state || "");
+      setZipCode(user.zipCode || "");
+      setPhone(user.phone || "");
+      
       if (user.birthDate) {
         setBirthDate(new Date(user.birthDate));
       }
@@ -41,7 +65,21 @@ const Profile: React.FC = () => {
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // In a real app, this would call an API to update the user profile
+    // Simulação de atualização do perfil (em um app real, isso chamaria uma API)
+    const updatedUser = {
+      ...user!,
+      name,
+      email,
+      birthDate: birthDate ? birthDate.toISOString() : "",
+      cpf,
+      address,
+      city,
+      state,
+      zipCode,
+      phone
+    };
+    
+    // Em um app real, você chamaria uma API para atualizar o usuário no banco de dados
     toast({
       title: "Perfil atualizado",
       description: "Suas informações foram atualizadas com sucesso!",
@@ -60,7 +98,7 @@ const Profile: React.FC = () => {
       return;
     }
     
-    // In a real app, this would call an API to change the password
+    // Em um app real, isso chamaria uma API para alterar a senha
     toast({
       title: "Senha alterada",
       description: "Sua senha foi alterada com sucesso!",
@@ -109,6 +147,26 @@ const Profile: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
+                  <Label htmlFor="cpf">CPF</Label>
+                  <Input
+                    id="cpf"
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                    placeholder="000.000.000-00"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="(00) 00000-0000"
+                  />
+                </div>
+                
+                <div className="space-y-2">
                   <Label htmlFor="birthDate">Data de Nascimento</Label>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -121,7 +179,7 @@ const Profile: React.FC = () => {
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {birthDate ? format(birthDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
+                        {birthDate ? format(birthDate, "dd/MM/yyyy", { locale: ptBR }) : <span>Selecionar data</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 pointer-events-auto">
@@ -130,13 +188,16 @@ const Profile: React.FC = () => {
                         selected={birthDate}
                         onSelect={setBirthDate}
                         initialFocus
-                        disabled={(date) => date > new Date() || date < new Date("1920-01-01")}
+                        locale={ptBR}
+                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        className="pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
                 
                 <Button type="submit" className="w-full">
+                  <Save className="mr-2 h-4 w-4" />
                   Atualizar Perfil
                 </Button>
               </form>
@@ -145,50 +206,112 @@ const Profile: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Alterar Senha</CardTitle>
+              <CardTitle>Endereço</CardTitle>
               <CardDescription>
-                Atualize sua senha de acesso
+                Informe seu endereço completo
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleChangePassword} className="space-y-4">
+              <form className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Senha Atual</Label>
+                  <Label htmlFor="address">Endereço</Label>
                   <Input
-                    id="currentPassword"
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    id="address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Rua, número, complemento"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="newPassword">Nova Senha</Label>
+                  <Label htmlFor="city">Cidade</Label>
                   <Input
-                    id="newPassword"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    id="city"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                  <Label htmlFor="state">Estado</Label>
+                  <Select value={state} onValueChange={setState}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BRAZILIAN_STATES.map((brazilianState) => (
+                        <SelectItem key={brazilianState.abbreviation} value={brazilianState.abbreviation}>
+                          {brazilianState.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="zipCode">CEP</Label>
                   <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    id="zipCode"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    placeholder="00000-000"
                   />
                 </div>
                 
-                <Button type="submit" className="w-full">
-                  Alterar Senha
+                <Button type="submit" className="w-full" onClick={handleUpdateProfile}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Salvar Endereço
                 </Button>
               </form>
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Alterar Senha</CardTitle>
+            <CardDescription>
+              Atualize sua senha de acesso
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Senha Atual</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Nova Senha</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+              
+              <Button type="submit" className="w-full">
+                Alterar Senha
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -206,7 +329,7 @@ const Profile: React.FC = () => {
                 <h3 className="font-semibold">{user?.name}</h3>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Membro desde: {user?.createdAt ? format(new Date(user.createdAt), "dd/MM/yyyy") : "Data desconhecida"}
+                  Membro desde: {user?.createdAt ? format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ptBR }) : "Data desconhecida"}
                 </p>
               </div>
             </div>

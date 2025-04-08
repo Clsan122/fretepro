@@ -5,6 +5,12 @@ export interface User {
   email: string;
   birthDate: string;
   createdAt: string;
+  cpf?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  phone?: string;
 }
 
 export interface Client {
