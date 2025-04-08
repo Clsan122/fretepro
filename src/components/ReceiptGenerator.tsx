@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { Freight, Client } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,8 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients })
   const client = clients.find((c) => c.id === freight.clientId);
 
   const handlePrint = useReactToPrint({
+    documentTitle: `Recibo de Frete - ${client?.name || "Cliente"}`,
+    onAfterPrint: () => console.log("Printed successfully"),
     documentTitle: `Recibo de Frete - ${client?.name || "Cliente"}`,
     onAfterPrint: () => console.log("Printed successfully"),
     content: () => componentRef.current,
