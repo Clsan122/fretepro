@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker, CaptionProps } from "react-day-picker";
+import { DayPicker, DropdownProps } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -64,12 +64,13 @@ function Calendar({
       components={{
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
-        Dropdown: (props) => {
-          const { value, onChange, children, name } = props;
+        Dropdown: (props: DropdownProps) => {
+          const { value, onChange, children } = props;
+          
           return (
             <Select
               value={String(value)}
-              onValueChange={onChange}
+              onValueChange={(selectedValue) => onChange(selectedValue)}
             >
               <SelectTrigger className="h-7 w-auto text-xs border border-input bg-background px-2">
                 <SelectValue>{String(value)}</SelectValue>
@@ -78,20 +79,6 @@ function Calendar({
                 {children}
               </SelectContent>
             </Select>
-          );
-        },
-        DropdownItem: ({ value, children, onClick }: { 
-          value: string;
-          children: React.ReactNode;
-          onClick: () => void;
-        }) => {
-          return (
-            <SelectItem 
-              value={value}
-              className="text-xs py-1.5"
-            >
-              {children}
-            </SelectItem>
           );
         },
       }}
