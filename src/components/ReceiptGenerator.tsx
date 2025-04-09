@@ -1,9 +1,9 @@
 
 import React, { useRef } from "react";
-import { Freight, Client, User } from "@/types";
+import { Freight, Client, User, Driver } from "@/types";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Truck, Download } from "lucide-react";
+import { Truck, Download, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -12,9 +12,10 @@ interface ReceiptGeneratorProps {
   freight: Freight;
   clients: Client[];
   user: User;
+  driver?: Driver;
 }
 
-const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, user }) => {
+const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, user, driver }) => {
   const client = clients.find((c) => c.id === freight.clientId);
   const receiptRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +40,17 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
       toco: "Toco",
       truck: "Truck",
       trailer: "Carreta",
+    };
+    return types[value as keyof typeof types] || value;
+  };
+
+  const getBodyTypeLabel = (value: string) => {
+    const types = {
+      open: "Aberto",
+      closed: "Fechado (Baú)",
+      sider: "Fechado (Sider)",
+      van: "Furgão",
+      utility: "Utilitário",
     };
     return types[value as keyof typeof types] || value;
   };
@@ -111,7 +123,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
 
         {/* Dados do Cobrador/Motorista */}
         <div className="border-t border-b border-gray-200 py-4 mb-6">
-          <h2 className="text-lg font-semibold mb-2">Dados do Cobrador/Motorista</h2>
+          <h2 className="text-lg font-semibold mb-2">Dados do Cobrador</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p><span className="font-medium">Nome:</span> {user?.name || "N/A"}</p>
@@ -125,6 +137,24 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
             </div>
           </div>
         </div>
+
+        {/* Dados do Motorista */}
+        {driver && (
+          <div className="border-b border-gray-200 py-4 mb-6">
+            <h2 className="text-lg font-semibold mb-2">Dados do Motorista</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p><span className="font-medium">Nome:</span> {driver.name}</p>
+                <p><span className="font-medium">CPF:</span> {driver.cpf}</p>
+              </div>
+              <div>
+                <p><span className="font-medium">Placa:</span> {driver.licensePlate} {driver.trailerPlate && `/ ${driver.trailerPlate}`}</p>
+                <p><span className="font-medium">Tipo de Veículo:</span> {getVehicleTypeLabel(driver.vehicleType)}</p>
+                <p><span className="font-medium">Tipo de Carroceria:</span> {getBodyTypeLabel(driver.bodyType)}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="border-b border-gray-200 py-4 mb-6">
           <h2 className="text-lg font-semibold mb-2">Dados do Cliente</h2>

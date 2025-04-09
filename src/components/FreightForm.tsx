@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
-import { Freight, Client } from "@/types";
+import { Freight, Client, Driver } from "@/types";
 import { BRAZILIAN_STATES, CARGO_TYPES, VEHICLE_TYPES } from "@/utils/constants";
 import { useAuth } from "@/context/AuthContext";
-import { getClientsByUserId } from "@/utils/storage";
+import { getClientsByUserId, getDriversByUserId } from "@/utils/storage";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
@@ -69,6 +70,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   const [totalValue, setTotalValue] = useState<number>(0);
   const [proofImage, setProofImage] = useState<string>("");
   const [clients, setClients] = useState<Client[]>([]);
+  const [driverId, setDriverId] = useState<string>("");
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   
   const [pixKey, setPixKey] = useState("");
   const [paymentTerm, setPaymentTerm] = useState("");
@@ -79,6 +82,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   useEffect(() => {
     if (user) {
       setClients(getClientsByUserId(user.id));
+      setDrivers(getDriversByUserId(user.id));
     }
   }, [user]);
 
@@ -105,6 +109,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       setProofImage(freightToEdit.proofOfDeliveryImage || "");
       setPixKey(freightToEdit.pixKey || "");
       setPaymentTerm(freightToEdit.paymentTerm || "");
+      setDriverId(freightToEdit.driverId || "");
     }
   }, [freightToEdit]);
 
@@ -170,6 +175,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       userId: user.id,
       pixKey: pixKey || undefined,
       paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
+      driverId: driverId || undefined,
     };
 
     onSave(newFreight);
@@ -196,6 +202,34 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
                 {clients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
                     {client.name} - {client.city}/{client.state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Motorista</CardTitle>
+          <CardDescription>Selecione o motorista para este frete (opcional)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="driverId">Motorista</Label>
+            <Select
+              value={driverId}
+              onValueChange={(value) => setDriverId(value)}
+            >
+              <SelectTrigger id="driverId">
+                <SelectValue placeholder="Selecione um motorista" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Nenhum</SelectItem>
+                {drivers.map((driver) => (
+                  <SelectItem key={driver.id} value={driver.id}>
+                    {driver.name} - {driver.licensePlate}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -263,6 +297,10 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
                     selected={departureDate}
                     onSelect={setDepartureDate}
                     initialFocus
+                    formatters={{
+                      formatCaption: (date, options) => format(date, "MMMM yyyy", { locale: ptBR }),
+                      formatWeekday: (date) => format(date, "EEE", { locale: ptBR }).charAt(0).toUpperCase() + format(date, "EEE", { locale: ptBR }).slice(1),
+                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -322,6 +360,10 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
                     selected={arrivalDate}
                     onSelect={setArrivalDate}
                     initialFocus
+                    formatters={{
+                      formatCaption: (date, options) => format(date, "MMMM yyyy", { locale: ptBR }),
+                      formatWeekday: (date) => format(date, "EEE", { locale: ptBR }).charAt(0).toUpperCase() + format(date, "EEE", { locale: ptBR }).slice(1),
+                    }}
                   />
                 </PopoverContent>
               </Popover>

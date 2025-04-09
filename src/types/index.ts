@@ -21,6 +21,18 @@ export interface Client {
   userId: string;
 }
 
+export interface Driver {
+  id: string;
+  name: string;
+  cpf: string;
+  licensePlate: string;
+  trailerPlate?: string;
+  vehicleType: VehicleType;
+  bodyType: BodyType;
+  createdAt: string;
+  userId: string;
+}
+
 export interface Freight {
   id: string;
   clientId: string;
@@ -47,6 +59,8 @@ export interface Freight {
   // Campos de pagamento
   pixKey?: string;
   paymentTerm?: PaymentTerm;
+  // Novo campo para o motorista
+  driverId?: string;
 }
 
 export type PaymentTerm = 
@@ -73,6 +87,13 @@ export type VehicleType =
   | 'toco'
   | 'truck'
   | 'trailer';
+
+export type BodyType =
+  | 'open'
+  | 'closed'
+  | 'sider'
+  | 'van'
+  | 'utility';
 
 export interface BrazilianState {
   name: string;

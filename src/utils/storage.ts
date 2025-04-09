@@ -1,4 +1,4 @@
-import { User, Client, Freight } from "@/types";
+import { User, Client, Freight, Driver } from "@/types";
 
 // User storage
 export const getUsers = (): User[] => {
@@ -112,4 +112,39 @@ export const getFreightsByUserId = (userId: string): Freight[] => {
 export const getFreightsByClientId = (clientId: string): Freight[] => {
   const freights = getFreights();
   return freights.filter(freight => freight.clientId === clientId);
+};
+
+// Drivers
+export const getDrivers = (): Driver[] => {
+  const data = localStorage.getItem("drivers");
+  return data ? JSON.parse(data) : [];
+};
+
+export const getDriversByUserId = (userId: string): Driver[] => {
+  const drivers = getDrivers();
+  return drivers.filter((driver) => driver.userId === userId);
+};
+
+export const getDriverById = (id: string): Driver | undefined => {
+  const drivers = getDrivers();
+  return drivers.find((driver) => driver.id === id);
+};
+
+export const addDriver = (driver: Driver): void => {
+  const drivers = getDrivers();
+  localStorage.setItem("drivers", JSON.stringify([...drivers, driver]));
+};
+
+export const updateDriver = (driver: Driver): void => {
+  const drivers = getDrivers();
+  const index = drivers.findIndex((c) => c.id === driver.id);
+  if (index !== -1) {
+    drivers[index] = driver;
+    localStorage.setItem("drivers", JSON.stringify(drivers));
+  }
+};
+
+export const deleteDriver = (id: string): void => {
+  const drivers = getDrivers();
+  localStorage.setItem("drivers", JSON.stringify(drivers.filter((driver) => driver.id !== id)));
 };

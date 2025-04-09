@@ -49,3 +49,11 @@ export const VEHICLE_TYPES = [
   { value: "truck", label: "Truck" },
   { value: "trailer", label: "Carreta" }
 ];
+
+export const BODY_TYPES = [
+  { value: "open", label: "Aberto" },
+  { value: "closed", label: "Fechado (Baú)" },
+  { value: "sider", label: "Fechado (Sider)" },
+  { value: "van", label: "Furgão" },
+  { value: "utility", label: "Utilitário" }
+];
