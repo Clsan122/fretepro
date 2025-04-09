@@ -65,18 +65,18 @@ function Calendar({
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
         Dropdown: ({ value, onChange, children, ...props }: { 
-          value: string;
+          value: string | number;
           onChange: (value: string) => void;
           children: React.ReactNode;
           name: string;
         }) => {
           return (
             <Select
-              value={value}
+              value={String(value)}
               onValueChange={onChange}
             >
               <SelectTrigger className="h-7 w-auto text-xs border border-input bg-background px-2">
-                <SelectValue>{value}</SelectValue>
+                <SelectValue>{String(value)}</SelectValue>
               </SelectTrigger>
               <SelectContent className="pointer-events-auto" position="item-aligned">
                 {children}
