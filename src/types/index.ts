@@ -1,16 +1,15 @@
-
 export interface User {
   id: string;
   name: string;
   email: string;
-  birthDate: string;
+  phone: string;
   createdAt: string;
+  birthDate?: string;
   cpf?: string;
   address?: string;
   city?: string;
   state?: string;
   zipCode?: string;
-  phone?: string;
 }
 
 export interface Client {

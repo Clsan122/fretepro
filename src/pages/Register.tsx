@@ -7,18 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Truck, UserPlus, CalendarIcon, Phone, Sun, Moon } from "lucide-react";
+import { Truck, UserPlus, Phone, Sun, Moon } from "lucide-react";
 import { User } from "@/types";
 import { saveUser, getUserByEmail } from "@/utils/storage";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +21,6 @@ import {
 const Register: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [birthDate, setBirthDate] = useState<Date>();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -55,7 +46,7 @@ const Register: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!name || !email || !birthDate || !password || !confirmPassword) {
+    if (!name || !email || !phone || !password || !confirmPassword) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios!",
@@ -92,7 +83,6 @@ const Register: React.FC = () => {
       id: uuidv4(),
       name,
       email,
-      birthDate: birthDate.toISOString(),
       phone,
       createdAt: new Date().toISOString(),
     };
@@ -160,6 +150,7 @@ const Register: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                required
               />
             </div>
             
@@ -172,11 +163,14 @@ const Register: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="phone" className="dark:text-white">Telefone</Label>
+              <Label htmlFor="phone" className="dark:text-white">
+                Telefone <span className="text-red-500">*</span>
+              </Label>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
                 <Input
@@ -186,41 +180,9 @@ const Register: React.FC = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  required
                 />
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="birthDate" className="dark:text-white">Data de Nascimento</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="birthDate"
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal dark:bg-gray-700 dark:text-white dark:border-gray-600",
-                      !birthDate && "text-muted-foreground dark:text-gray-400"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {birthDate ? format(birthDate, "dd/MM/yyyy", { locale: ptBR }) : <span>Selecionar data (DD/MM/AAAA)</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 pointer-events-auto dark:bg-gray-800">
-                  <Calendar
-                    mode="single"
-                    selected={birthDate}
-                    onSelect={setBirthDate}
-                    initialFocus
-                    locale={ptBR}
-                    disabled={(date) => date > new Date() || date < new Date("1920-01-01")}
-                    fromYear={1920}
-                    toYear={new Date().getFullYear()}
-                    captionLayout="dropdown-buttons"
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
             </div>
             
             <div className="space-y-2">
@@ -231,6 +193,7 @@ const Register: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                required
               />
             </div>
             
@@ -242,6 +205,7 @@ const Register: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                required
               />
             </div>
             

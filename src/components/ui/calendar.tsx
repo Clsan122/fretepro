@@ -71,9 +71,9 @@ function Calendar({
             <Select
               value={String(value)}
               onValueChange={(selectedValue) => {
-                // Call onChange with the string value directly
-                // This matches what the DropdownProps expects
-                onChange(selectedValue);
+                // We're calling onChange with the string value
+                // This is type-safe since onChange expects a string
+                onChange?.(selectedValue);
               }}
             >
               <SelectTrigger className="h-7 w-auto text-xs border border-input bg-background px-2">
