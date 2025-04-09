@@ -17,7 +17,6 @@ const Profile: React.FC = () => {
   
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,10 +39,6 @@ const Profile: React.FC = () => {
       setState(user.state || "");
       setZipCode(user.zipCode || "");
       setPhone(user.phone || "");
-      
-      if (user.birthDate) {
-        setBirthDate(new Date(user.birthDate));
-      }
     }
   }, [user]);
 
@@ -55,7 +50,6 @@ const Profile: React.FC = () => {
       ...user!,
       name,
       email,
-      birthDate: birthDate ? birthDate.toISOString() : "",
       cpf,
       address,
       city,
@@ -113,12 +107,10 @@ const Profile: React.FC = () => {
             user={user}
             name={name}
             email={email}
-            birthDate={birthDate}
             cpf={cpf}
             phone={phone}
             setName={setName}
             setEmail={setEmail}
-            setBirthDate={setBirthDate}
             setCpf={setCpf}
             setPhone={setPhone}
             handleUpdateProfile={handleUpdateProfile}

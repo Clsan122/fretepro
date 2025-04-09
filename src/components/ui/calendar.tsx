@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker, DropdownProps } from "react-day-picker";
@@ -59,7 +58,6 @@ function Calendar({
         day_range_middle:
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
-        ...classNames,
       }}
       components={{
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
@@ -70,9 +68,7 @@ function Calendar({
           return (
             <Select
               value={String(value)}
-              onValueChange={(selectedValue) => {
-                // We're calling onChange with the string value
-                // This is type-safe since onChange expects a string
+              onValueChange={(selectedValue: string) => {
                 onChange?.(selectedValue);
               }}
             >
