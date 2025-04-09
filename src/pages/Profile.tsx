@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import { getUserByEmail, updateUser } from "@/utils/storage";
 
 // Import the refactored components
 import PersonalInfoCard from "@/components/profile/PersonalInfoCard";
@@ -12,7 +13,7 @@ import AccountInfoCard from "@/components/profile/AccountInfoCard";
 import DebugInfo from "@/components/profile/DebugInfo";
 
 const Profile: React.FC = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { toast } = useToast();
   
   const [name, setName] = useState("");
@@ -45,9 +46,11 @@ const Profile: React.FC = () => {
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulação de atualização do perfil (em um app real, isso chamaria uma API)
+    if (!user) return;
+    
+    // Atualiza o usuário com os novos dados
     const updatedUser = {
-      ...user!,
+      ...user,
       name,
       email,
       cpf,
@@ -58,7 +61,12 @@ const Profile: React.FC = () => {
       phone
     };
     
-    // Em um app real, você chamaria uma API para atualizar o usuário no banco de dados
+    // Atualiza o usuário no localStorage
+    updateUser(updatedUser);
+    
+    // Atualiza o usuário no contexto
+    setUser(updatedUser);
+    
     toast({
       title: "Perfil atualizado",
       description: "Suas informações foram atualizadas com sucesso!",

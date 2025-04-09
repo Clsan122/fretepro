@@ -1,4 +1,3 @@
-
 import { User, Client, Freight } from "@/types";
 
 // User storage
@@ -11,6 +10,21 @@ export const saveUser = (user: User): void => {
   const users = getUsers();
   users.push(user);
   localStorage.setItem("users", JSON.stringify(users));
+};
+
+export const updateUser = (updatedUser: User): void => {
+  const users = getUsers();
+  const index = users.findIndex(user => user.id === updatedUser.id);
+  if (index !== -1) {
+    users[index] = updatedUser;
+    localStorage.setItem("users", JSON.stringify(users));
+    
+    // Atualizar o currentUser se for o usuário logado
+    const currentUser = getCurrentUser();
+    if (currentUser && currentUser.id === updatedUser.id) {
+      setCurrentUser(updatedUser);
+    }
+  }
 };
 
 export const getUserByEmail = (email: string): User | undefined => {

@@ -43,6 +43,20 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
     return types[value as keyof typeof types] || value;
   };
 
+  const getPaymentTermLabel = (value: string | undefined) => {
+    if (!value) return "Não informado";
+    
+    const terms = {
+      upfront: "À vista",
+      tenDays: "10 dias",
+      fifteenDays: "15 dias",
+      twentyDays: "20 dias",
+      thirtyDays: "30 dias",
+      custom: "A combinar",
+    };
+    return terms[value as keyof typeof terms] || value;
+  };
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
     try {
@@ -95,15 +109,10 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         </div>
 
+        {/* Dados do Cobrador/Motorista */}
         <div className="border-t border-b border-gray-200 py-4 mb-6">
-          <h2 className="text-lg font-semibold mb-2">Dados do Cliente</h2>
-          <p><span className="font-medium">Nome:</span> {client?.name || "Cliente não encontrado"}</p>
-          <p><span className="font-medium">Localização:</span> {client?.city || "N/A"} - {client?.state || "N/A"}</p>
-        </div>
-
-        <div className="border-b border-gray-200 py-4 mb-6">
-          <h2 className="text-lg font-semibold mb-2">Dados do Motorista</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <h2 className="text-lg font-semibold mb-2">Dados do Cobrador/Motorista</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p><span className="font-medium">Nome:</span> {user?.name || "N/A"}</p>
               <p><span className="font-medium">CPF:</span> {user?.cpf || "N/A"}</p>
@@ -115,6 +124,12 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
               <p><span className="font-medium">CEP:</span> {user?.zipCode || "N/A"}</p>
             </div>
           </div>
+        </div>
+
+        <div className="border-b border-gray-200 py-4 mb-6">
+          <h2 className="text-lg font-semibold mb-2">Dados do Cliente</h2>
+          <p><span className="font-medium">Nome:</span> {client?.name || "Cliente não encontrado"}</p>
+          <p><span className="font-medium">Localização:</span> {client?.city || "N/A"} - {client?.state || "N/A"}</p>
         </div>
 
         <div className="mb-6">
@@ -142,6 +157,21 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
             <p><span className="font-medium">Cubagem:</span> {freight.cubicMeasurement} m³</p>
           </div>
         </div>
+
+        {/* Dados de Pagamento */}
+        {(freight.pixKey || freight.paymentTerm) && (
+          <div className="mb-6 border-t border-gray-200 pt-4">
+            <h2 className="text-lg font-semibold mb-2">Dados de Pagamento</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {freight.pixKey && (
+                <p><span className="font-medium">Chave PIX:</span> {freight.pixKey}</p>
+              )}
+              {freight.paymentTerm && (
+                <p><span className="font-medium">Prazo de Pagamento:</span> {getPaymentTermLabel(freight.paymentTerm)}</p>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-2">Composição do Valor</h2>

@@ -44,7 +44,18 @@ export interface Freight {
   proofOfDeliveryImage?: string;
   createdAt: string;
   userId: string;
+  // Campos de pagamento
+  pixKey?: string;
+  paymentTerm?: PaymentTerm;
 }
+
+export type PaymentTerm = 
+  | 'upfront' 
+  | 'tenDays'
+  | 'fifteenDays'
+  | 'twentyDays'
+  | 'thirtyDays'
+  | 'custom';
 
 export type CargoType = 
   | 'general'

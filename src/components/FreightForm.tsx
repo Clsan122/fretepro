@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Freight, Client } from "@/types";
 import { BRAZILIAN_STATES, CARGO_TYPES, VEHICLE_TYPES } from "@/utils/constants";
@@ -40,6 +39,15 @@ interface FreightFormProps {
   freightToEdit?: Freight;
 }
 
+const PAYMENT_TERMS = [
+  { value: "upfront", label: "À vista" },
+  { value: "tenDays", label: "10 dias" },
+  { value: "fifteenDays", label: "15 dias" },
+  { value: "twentyDays", label: "20 dias" },
+  { value: "thirtyDays", label: "30 dias" },
+  { value: "custom", label: "A combinar" },
+];
+
 const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEdit }) => {
   const [clientId, setClientId] = useState("");
   const [originCity, setOriginCity] = useState("");
@@ -61,6 +69,9 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   const [totalValue, setTotalValue] = useState<number>(0);
   const [proofImage, setProofImage] = useState<string>("");
   const [clients, setClients] = useState<Client[]>([]);
+  
+  const [pixKey, setPixKey] = useState("");
+  const [paymentTerm, setPaymentTerm] = useState("");
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -92,10 +103,11 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       setTollCosts(freightToEdit.tollCosts);
       setTotalValue(freightToEdit.totalValue);
       setProofImage(freightToEdit.proofOfDeliveryImage || "");
+      setPixKey(freightToEdit.pixKey || "");
+      setPaymentTerm(freightToEdit.paymentTerm || "");
     }
   }, [freightToEdit]);
 
-  // Calculate total value whenever any cost value changes
   useEffect(() => {
     const total = freightValue + dailyRate + otherCosts + tollCosts;
     setTotalValue(total);
@@ -156,6 +168,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       proofOfDeliveryImage: proofImage,
       createdAt: freightToEdit ? freightToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
+      pixKey: pixKey || undefined,
+      paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
     };
 
     onSave(newFreight);
@@ -401,6 +415,45 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
                   {VEHICLE_TYPES.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Dados de Pagamento</CardTitle>
+          <CardDescription>Informe os dados para pagamento do frete</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="pixKey">Chave PIX</Label>
+              <Input
+                id="pixKey"
+                value={pixKey}
+                onChange={(e) => setPixKey(e.target.value)}
+                placeholder="Informe sua chave PIX"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="paymentTerm">Prazo de Pagamento</Label>
+              <Select
+                value={paymentTerm}
+                onValueChange={(value) => setPaymentTerm(value)}
+              >
+                <SelectTrigger id="paymentTerm">
+                  <SelectValue placeholder="Selecione o prazo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_TERMS.map((term) => (
+                    <SelectItem key={term.value} value={term.value}>
+                      {term.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
