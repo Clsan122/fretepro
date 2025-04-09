@@ -1,9 +1,17 @@
+
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, CaptionProps } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -16,12 +24,14 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-3 pointer-events-auto", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
+        caption_dropdowns: "flex justify-center gap-1 items-center",
+        dropdown: "pointer-events-auto",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
@@ -54,6 +64,40 @@ function Calendar({
       components={{
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
+        Dropdown: ({ value, onChange, children, ...props }: { 
+          value: string;
+          onChange: (value: string) => void;
+          children: React.ReactNode;
+          name: string;
+        }) => {
+          return (
+            <Select
+              value={value}
+              onValueChange={onChange}
+            >
+              <SelectTrigger className="h-7 w-auto text-xs border border-input bg-background px-2">
+                <SelectValue>{value}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="pointer-events-auto" position="item-aligned">
+                {children}
+              </SelectContent>
+            </Select>
+          );
+        },
+        DropdownItem: ({ value, children, onClick }: { 
+          value: string;
+          children: React.ReactNode;
+          onClick: () => void;
+        }) => {
+          return (
+            <SelectItem 
+              value={value}
+              className="text-xs py-1.5"
+            >
+              {children}
+            </SelectItem>
+          );
+        },
       }}
       {...props}
     />

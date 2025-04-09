@@ -11,6 +11,7 @@ import { Truck, UserPlus, CalendarIcon } from "lucide-react";
 import { User } from "@/types";
 import { saveUser, getUserByEmail } from "@/utils/storage";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import {
@@ -139,7 +140,7 @@ const Register: React.FC = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {birthDate ? format(birthDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
+                    {birthDate ? format(birthDate, "dd/MM/yyyy", { locale: ptBR }) : <span>Selecionar data (DD/MM/AAAA)</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 pointer-events-auto">
@@ -148,7 +149,12 @@ const Register: React.FC = () => {
                     selected={birthDate}
                     onSelect={setBirthDate}
                     initialFocus
+                    locale={ptBR}
                     disabled={(date) => date > new Date() || date < new Date("1920-01-01")}
+                    fromYear={1920}
+                    toYear={new Date().getFullYear()}
+                    captionLayout="dropdown-buttons"
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
