@@ -44,6 +44,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Package className="h-5 w-5 mr-3" />
             <span>Fretes</span>
           </Link>
+          <Link to="/drivers" className="flex items-center p-3 rounded-lg hover:bg-freight-700 transition-colors">
+            <User className="h-5 w-5 mr-3" />
+            <span>Motoristas</span>
+          </Link>
           <Link to="/profile" className="flex items-center p-3 rounded-lg hover:bg-freight-700 transition-colors">
             <User className="h-5 w-5 mr-3" />
             <span>Perfil</span>
