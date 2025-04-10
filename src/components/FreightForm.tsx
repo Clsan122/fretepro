@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Freight, Client, Driver } from "@/types";
 import { BRAZILIAN_STATES, CARGO_TYPES, VEHICLE_TYPES } from "@/utils/constants";
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
+import { pt } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -298,8 +298,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
                     onSelect={setDepartureDate}
                     initialFocus
                     formatters={{
-                      formatCaption: (date, options) => format(date, "MMMM yyyy", { locale: ptBR }),
-                      formatWeekday: (date) => format(date, "EEE", { locale: ptBR }).charAt(0).toUpperCase() + format(date, "EEE", { locale: ptBR }).slice(1),
+                      formatCaption: (date) => format(date, "MMMM yyyy", { locale: pt }),
+                      formatDay: (date) => format(date, "d", { locale: pt })
                     }}
                   />
                 </PopoverContent>
@@ -361,8 +361,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
                     onSelect={setArrivalDate}
                     initialFocus
                     formatters={{
-                      formatCaption: (date, options) => format(date, "MMMM yyyy", { locale: ptBR }),
-                      formatWeekday: (date) => format(date, "EEE", { locale: ptBR }).charAt(0).toUpperCase() + format(date, "EEE", { locale: ptBR }).slice(1),
+                      formatCaption: (date) => format(date, "MMMM yyyy", { locale: pt }),
+                      formatDay: (date) => format(date, "d", { locale: pt })
                     }}
                   />
                 </PopoverContent>
