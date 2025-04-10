@@ -45,7 +45,7 @@ export const DriverSelectionSection: React.FC<DriverSelectionProps> = ({
               <SelectValue placeholder="Selecione um motorista" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Nenhum</SelectItem>
+              <SelectItem value="none">Nenhum</SelectItem>
               {drivers.map((driver) => (
                 <SelectItem key={driver.id} value={driver.id}>
                   {driver.name} - {driver.licensePlate}

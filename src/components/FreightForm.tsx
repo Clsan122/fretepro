@@ -43,7 +43,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   const [totalValue, setTotalValue] = useState<number>(0);
   const [proofImage, setProofImage] = useState<string>("");
   const [clients, setClients] = useState<Client[]>([]);
-  const [driverId, setDriverId] = useState<string>("");
+  const [driverId, setDriverId] = useState<string>("none");
   const [drivers, setDrivers] = useState<Driver[]>([]);
   
   const [pixKey, setPixKey] = useState("");
@@ -82,7 +82,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       setProofImage(freightToEdit.proofOfDeliveryImage || "");
       setPixKey(freightToEdit.pixKey || "");
       setPaymentTerm(freightToEdit.paymentTerm || "");
-      setDriverId(freightToEdit.driverId || "");
+      setDriverId(freightToEdit.driverId || "none");
     }
   }, [freightToEdit]);
 
@@ -148,7 +148,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       userId: user.id,
       pixKey: pixKey || undefined,
       paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
-      driverId: driverId || undefined,
+      driverId: driverId !== "none" ? driverId : undefined,
     };
 
     onSave(newFreight);
