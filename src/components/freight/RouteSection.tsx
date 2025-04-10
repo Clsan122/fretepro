@@ -123,6 +123,7 @@ export const RouteSection: React.FC<RouteProps> = ({
                     formatCaption: (date) => format(date, "MMMM yyyy", { locale: pt }),
                     formatDay: (date) => format(date, "d", { locale: pt })
                   }}
+                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
@@ -186,6 +187,7 @@ export const RouteSection: React.FC<RouteProps> = ({
                     formatCaption: (date) => format(date, "MMMM yyyy", { locale: pt }),
                     formatDay: (date) => format(date, "d", { locale: pt })
                   }}
+                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
