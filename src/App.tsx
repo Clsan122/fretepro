@@ -13,6 +13,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Freights from "./pages/Freights";
+import Drivers from "./pages/Drivers";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -51,6 +52,7 @@ const AppRoutes = () => {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
       <Route path="/freights" element={<ProtectedRoute><Freights /></ProtectedRoute>} />
+      <Route path="/drivers" element={<ProtectedRoute><Drivers /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       
       <Route path="*" element={<NotFound />} />
