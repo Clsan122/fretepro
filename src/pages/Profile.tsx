@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
@@ -11,6 +10,9 @@ import AddressCard from "@/components/profile/AddressCard";
 import PasswordCard from "@/components/profile/PasswordCard";
 import AccountInfoCard from "@/components/profile/AccountInfoCard";
 import DebugInfo from "@/components/profile/DebugInfo";
+
+// Set this to false to disable debug information
+const SHOW_DEBUG_INFO = false;
 
 const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
@@ -97,13 +99,10 @@ const Profile: React.FC = () => {
     setConfirmPassword("");
   };
 
-  // Add a debug message to check if the profile component is rendering
-  console.log("Profile component rendering, user:", user);
-
   return (
     <Layout>
-      {/* Debug information */}
-      <DebugInfo user={user} />
+      {/* Only show debug information if enabled */}
+      {SHOW_DEBUG_INFO && <DebugInfo user={user} />}
       
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
