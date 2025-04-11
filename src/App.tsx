@@ -14,6 +14,8 @@ import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Freights from "./pages/Freights";
 import Drivers from "./pages/Drivers";
+import DriverRegister from "./pages/DriverRegister";
+import DriverEdit from "./pages/DriverEdit";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +55,8 @@ const AppRoutes = () => {
       <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
       <Route path="/freights" element={<ProtectedRoute><Freights /></ProtectedRoute>} />
       <Route path="/drivers" element={<ProtectedRoute><Drivers /></ProtectedRoute>} />
+      <Route path="/drivers/new" element={<ProtectedRoute><DriverRegister /></ProtectedRoute>} />
+      <Route path="/drivers/edit/:id" element={<ProtectedRoute><DriverEdit /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       
       <Route path="*" element={<NotFound />} />

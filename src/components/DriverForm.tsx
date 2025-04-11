@@ -22,14 +22,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface DriverFormProps {
   onSave: (driver: Driver) => void;
   onCancel: () => void;
   driverToEdit?: Driver;
+  isStandalone?: boolean;
 }
 
-const DriverForm: React.FC<DriverFormProps> = ({ onSave, onCancel, driverToEdit }) => {
+const DriverForm: React.FC<DriverFormProps> = ({ 
+  onSave, 
+  onCancel, 
+  driverToEdit,
+  isStandalone = false
+}) => {
   const [name, setName] = useState("");
   const [cpf, setCpf] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
@@ -39,6 +47,7 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSave, onCancel, driverToEdit 
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (driverToEdit) {
@@ -128,119 +137,137 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSave, onCancel, driverToEdit 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados do Motorista</CardTitle>
-          <CardDescription>Informe os dados do motorista</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome Completo</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nome completo do motorista"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cpf">CPF</Label>
-              <Input
-                id="cpf"
-                value={cpf}
-                onChange={handleCPFChange}
-                placeholder="CPF do motorista"
-                maxLength={14}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados do Veículo</CardTitle>
-          <CardDescription>Informe os dados do veículo</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="licensePlate">Placa do Veículo</Label>
-              <Input
-                id="licensePlate"
-                value={licensePlate}
-                onChange={handleLicensePlateChange}
-                placeholder="Placa do veículo"
-                maxLength={8}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="trailerPlate">Placa da Carreta (Opcional)</Label>
-              <Input
-                id="trailerPlate"
-                value={trailerPlate}
-                onChange={handleTrailerPlateChange}
-                placeholder="Placa da carreta (se aplicável)"
-                maxLength={8}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="w-full max-w-4xl mx-auto">
+      {isStandalone && (
+        <div className="flex items-center mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="mr-2"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
+          </Button>
+          <h1 className="text-2xl font-bold">
+            {driverToEdit ? "Editar Motorista" : "Cadastrar Motorista"}
+          </h1>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Dados do Motorista</CardTitle>
+            <CardDescription>Informe os dados do motorista</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="vehicleType">Tipo de Veículo</Label>
-                <Select
-                  value={vehicleType}
-                  onValueChange={(value) => setVehicleType(value)}
-                >
-                  <SelectTrigger id="vehicleType">
-                    <SelectValue placeholder="Selecione o tipo de veículo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {VEHICLE_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="name">Nome Completo</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Nome completo do motorista"
+                />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bodyType">Tipo de Carroceria</Label>
-                <Select
-                  value={bodyType}
-                  onValueChange={(value) => setBodyType(value)}
-                >
-                  <SelectTrigger id="bodyType">
-                    <SelectValue placeholder="Selecione o tipo de carroceria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BODY_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="cpf">CPF</Label>
+                <Input
+                  id="cpf"
+                  value={cpf}
+                  onChange={handleCPFChange}
+                  placeholder="CPF do motorista"
+                  maxLength={14}
+                />
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <div className="flex justify-end space-x-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit" className="bg-freight-600 hover:bg-freight-700">
-          {driverToEdit ? "Atualizar Motorista" : "Cadastrar Motorista"}
-        </Button>
-      </div>
-    </form>
+        <Card>
+          <CardHeader>
+            <CardTitle>Dados do Veículo</CardTitle>
+            <CardDescription>Informe os dados do veículo</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="licensePlate">Placa do Veículo</Label>
+                <Input
+                  id="licensePlate"
+                  value={licensePlate}
+                  onChange={handleLicensePlateChange}
+                  placeholder="Placa do veículo"
+                  maxLength={8}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="trailerPlate">Placa da Carreta (Opcional)</Label>
+                <Input
+                  id="trailerPlate"
+                  value={trailerPlate}
+                  onChange={handleTrailerPlateChange}
+                  placeholder="Placa da carreta (se aplicável)"
+                  maxLength={8}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="vehicleType">Tipo de Veículo</Label>
+                  <Select
+                    value={vehicleType}
+                    onValueChange={(value) => setVehicleType(value)}
+                  >
+                    <SelectTrigger id="vehicleType">
+                      <SelectValue placeholder="Selecione o tipo de veículo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VEHICLE_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bodyType">Tipo de Carroceria</Label>
+                  <Select
+                    value={bodyType}
+                    onValueChange={(value) => setBodyType(value)}
+                  >
+                    <SelectTrigger id="bodyType">
+                      <SelectValue placeholder="Selecione o tipo de carroceria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BODY_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end space-x-2 pt-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button type="submit" className="bg-freight-600 hover:bg-freight-700">
+            {driverToEdit ? "Atualizar Motorista" : "Cadastrar Motorista"}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
