@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
-import { Freight, Client } from "@/types";
+import { Freight, Client, Driver } from "@/types";
 import { 
   getFreightsByUserId, 
   saveFreight, 
   updateFreight, 
   deleteFreight,
-  getClientsByUserId 
+  getClientsByUserId,
+  getDriversByUserId
 } from "@/utils/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,6 +72,7 @@ const Freights: React.FC = () => {
   const [freights, setFreights] = useState<Freight[]>([]);
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [clientFilter, setClientFilter] = useState("all");
   const [sortField, setSortField] = useState<keyof Freight>("createdAt");
@@ -87,14 +88,16 @@ const Freights: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Load freights and clients on component mount
+  // Load freights, clients and drivers on component mount
   useEffect(() => {
     if (user) {
       const userFreights = getFreightsByUserId(user.id);
       const userClients = getClientsByUserId(user.id);
+      const userDrivers = getDriversByUserId(user.id);
       setFreights(userFreights);
       setFilteredFreights(userFreights);
       setClients(userClients);
+      setDrivers(userDrivers);
     }
   }, [user]);
 
@@ -228,6 +231,12 @@ const Freights: React.FC = () => {
     } catch {
       return "Data inválida";
     }
+  };
+
+  // Function to get the driver for a freight
+  const getDriverForFreight = (driverId?: string) => {
+    if (!driverId || driverId === 'none') return undefined;
+    return drivers.find(driver => driver.id === driverId);
   };
 
   return (
@@ -499,6 +508,7 @@ const Freights: React.FC = () => {
                 freight={selectedFreight} 
                 clients={clients}
                 user={user!} 
+                driver={getDriverForFreight(selectedFreight.driverId)}
               />
             </div>
           )}

@@ -121,8 +121,13 @@ export const getDrivers = (): Driver[] => {
 };
 
 export const getDriversByUserId = (userId: string): Driver[] => {
-  const drivers = getDrivers();
-  return drivers.filter((driver) => driver.userId === userId);
+  try {
+    const drivers = JSON.parse(localStorage.getItem('drivers') || '[]');
+    return drivers.filter((driver: Driver) => driver.userId === userId);
+  } catch (error) {
+    console.error('Error getting drivers:', error);
+    return [];
+  }
 };
 
 export const getDriverById = (id: string): Driver | undefined => {
