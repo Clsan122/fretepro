@@ -1,3 +1,4 @@
+
 import { User, Client, Freight, Driver } from "@/types";
 
 // User storage
@@ -19,7 +20,7 @@ export const updateUser = (updatedUser: User): void => {
     users[index] = updatedUser;
     localStorage.setItem("users", JSON.stringify(users));
     
-    // Atualizar o currentUser se for o usuário logado
+    // Update currentUser if it's the logged in user
     const currentUser = getCurrentUser();
     if (currentUser && currentUser.id === updatedUser.id) {
       setCurrentUser(updatedUser);
@@ -33,12 +34,21 @@ export const getUserByEmail = (email: string): User | undefined => {
 };
 
 export const getCurrentUser = (): User | null => {
-  const currentUser = localStorage.getItem("currentUser");
-  return currentUser ? JSON.parse(currentUser) : null;
+  try {
+    const currentUser = localStorage.getItem("currentUser");
+    return currentUser ? JSON.parse(currentUser) : null;
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    return null;
+  }
 };
 
 export const setCurrentUser = (user: User): void => {
-  localStorage.setItem("currentUser", JSON.stringify(user));
+  try {
+    localStorage.setItem("currentUser", JSON.stringify(user));
+  } catch (error) {
+    console.error("Error setting current user:", error);
+  }
 };
 
 export const logoutUser = (): void => {
@@ -75,6 +85,11 @@ export const deleteClient = (clientId: string): void => {
 export const getClientsByUserId = (userId: string): Client[] => {
   const clients = getClients();
   return clients.filter(client => client.userId === userId);
+};
+
+export const getClientById = (clientId: string): Client | undefined => {
+  const clients = getClients();
+  return clients.find(client => client.id === clientId);
 };
 
 // Freight storage
@@ -114,42 +129,69 @@ export const getFreightsByClientId = (clientId: string): Freight[] => {
   return freights.filter(freight => freight.clientId === clientId);
 };
 
-// Drivers
-export const getDrivers = (): Driver[] => {
-  const data = localStorage.getItem("drivers");
-  return data ? JSON.parse(data) : [];
+export const getFreightById = (freightId: string): Freight | undefined => {
+  const freights = getFreights();
+  return freights.find(freight => freight.id === freightId);
 };
 
-export const getDriversByUserId = (userId: string): Driver[] => {
+// Drivers
+export const getDrivers = (): Driver[] => {
   try {
-    const drivers = JSON.parse(localStorage.getItem('drivers') || '[]');
-    return drivers.filter((driver: Driver) => driver.userId === userId);
+    const data = localStorage.getItem("drivers");
+    return data ? JSON.parse(data) : [];
   } catch (error) {
     console.error('Error getting drivers:', error);
     return [];
   }
 };
 
+export const getDriversByUserId = (userId: string): Driver[] => {
+  try {
+    const drivers = getDrivers();
+    return drivers.filter((driver: Driver) => driver.userId === userId);
+  } catch (error) {
+    console.error('Error getting drivers by user ID:', error);
+    return [];
+  }
+};
+
 export const getDriverById = (id: string): Driver | undefined => {
-  const drivers = getDrivers();
-  return drivers.find((driver) => driver.id === id);
+  try {
+    const drivers = getDrivers();
+    return drivers.find((driver) => driver.id === id);
+  } catch (error) {
+    console.error('Error getting driver by ID:', error);
+    return undefined;
+  }
 };
 
 export const addDriver = (driver: Driver): void => {
-  const drivers = getDrivers();
-  localStorage.setItem("drivers", JSON.stringify([...drivers, driver]));
+  try {
+    const drivers = getDrivers();
+    localStorage.setItem("drivers", JSON.stringify([...drivers, driver]));
+  } catch (error) {
+    console.error('Error adding driver:', error);
+  }
 };
 
 export const updateDriver = (driver: Driver): void => {
-  const drivers = getDrivers();
-  const index = drivers.findIndex((c) => c.id === driver.id);
-  if (index !== -1) {
-    drivers[index] = driver;
-    localStorage.setItem("drivers", JSON.stringify(drivers));
+  try {
+    const drivers = getDrivers();
+    const index = drivers.findIndex((c) => c.id === driver.id);
+    if (index !== -1) {
+      drivers[index] = driver;
+      localStorage.setItem("drivers", JSON.stringify(drivers));
+    }
+  } catch (error) {
+    console.error('Error updating driver:', error);
   }
 };
 
 export const deleteDriver = (id: string): void => {
-  const drivers = getDrivers();
-  localStorage.setItem("drivers", JSON.stringify(drivers.filter((driver) => driver.id !== id)));
+  try {
+    const drivers = getDrivers();
+    localStorage.setItem("drivers", JSON.stringify(drivers.filter((driver) => driver.id !== id)));
+  } catch (error) {
+    console.error('Error deleting driver:', error);
+  }
 };
