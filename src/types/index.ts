@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -98,4 +97,34 @@ export type BodyType =
 export interface BrazilianState {
   name: string;
   abbreviation: string;
+}
+
+export interface CollectionOrder {
+  id: string;
+  sender: string;               // Remetente/exportador
+  recipient: string;            // Destinatário/importador
+  originCity: string;           // Cidade origem
+  originState: string;          // Estado origem
+  destinationCity: string;      // Cidade destino
+  destinationState: string;     // Estado destino
+  receiver: string;             // Recebedor/destinatário
+  volumes: number;              // Quantidade de volumes
+  weight: number;               // Peso
+  measurements: Measurement[];  // Medidas
+  cubicMeasurement: number;     // Cubagem
+  merchandiseValue: number;     // Valor da mercadoria
+  driverId?: string;            // ID do motorista
+  driverName?: string;          // Nome do motorista (para exibição)
+  licensePlate?: string;        // Placa do veículo
+  companyLogo?: string;         // Logo da empresa (base64)
+  createdAt: string;            // Data de criação
+  userId: string;               // ID do usuário que criou
+}
+
+export interface Measurement {
+  id: string;
+  length: number;
+  width: number;
+  height: number;
+  quantity: number;
 }

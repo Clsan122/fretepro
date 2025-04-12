@@ -1,197 +1,147 @@
+import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
 
-import { User, Client, Freight, Driver } from "@/types";
-
-// User storage
-export const getUsers = (): User[] => {
-  const users = localStorage.getItem("users");
-  return users ? JSON.parse(users) : [];
-};
-
-export const saveUser = (user: User): void => {
-  const users = getUsers();
-  users.push(user);
-  localStorage.setItem("users", JSON.stringify(users));
-};
-
-export const updateUser = (updatedUser: User): void => {
-  const users = getUsers();
-  const index = users.findIndex(user => user.id === updatedUser.id);
-  if (index !== -1) {
-    users[index] = updatedUser;
-    localStorage.setItem("users", JSON.stringify(users));
-    
-    // Update currentUser if it's the logged in user
-    const currentUser = getCurrentUser();
-    if (currentUser && currentUser.id === updatedUser.id) {
-      setCurrentUser(updatedUser);
+// Generic function to get items from localStorage
+const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
+  try {
+    const serializedValue = localStorage.getItem(key);
+    if (serializedValue === null) {
+      return defaultValue;
     }
+    return JSON.parse(serializedValue) as T;
+  } catch (error) {
+    console.error(`Error getting item from localStorage with key "${key}":`, error);
+    return defaultValue;
   }
+};
+
+// Generic function to set items in localStorage
+const setLocalStorageItem = <T>(key: string, value: T): void => {
+  try {
+    const serializedValue = JSON.stringify(value);
+    localStorage.setItem(key, serializedValue);
+  } catch (error) {
+    console.error(`Error setting item in localStorage with key "${key}":`, error);
+  }
+};
+
+// Users
+export const saveUser = (user: User): void => {
+  setLocalStorageItem('user', user);
+};
+
+export const getUser = (): User | null => {
+  return getLocalStorageItem<User | null>('user', null);
 };
 
 export const getUserByEmail = (email: string): User | undefined => {
-  const users = getUsers();
+  const users = getLocalStorageItem<User[]>('users', []);
   return users.find(user => user.email === email);
 };
 
-export const getCurrentUser = (): User | null => {
-  try {
-    const currentUser = localStorage.getItem("currentUser");
-    return currentUser ? JSON.parse(currentUser) : null;
-  } catch (error) {
-    console.error("Error getting current user:", error);
-    return null;
-  }
+export const addUser = (user: User): void => {
+  const users = getLocalStorageItem<User[]>('users', []);
+  users.push(user);
+  setLocalStorageItem('users', users);
 };
 
-export const setCurrentUser = (user: User): void => {
-  try {
-    localStorage.setItem("currentUser", JSON.stringify(user));
-  } catch (error) {
-    console.error("Error setting current user:", error);
-  }
-};
-
-export const logoutUser = (): void => {
-  localStorage.removeItem("currentUser");
-};
-
-// Client storage
-export const getClients = (): Client[] => {
-  const clients = localStorage.getItem("clients");
-  return clients ? JSON.parse(clients) : [];
-};
-
-export const saveClient = (client: Client): void => {
-  const clients = getClients();
-  clients.push(client);
-  localStorage.setItem("clients", JSON.stringify(clients));
-};
-
-export const updateClient = (updatedClient: Client): void => {
-  const clients = getClients();
-  const index = clients.findIndex(client => client.id === updatedClient.id);
-  if (index !== -1) {
-    clients[index] = updatedClient;
-    localStorage.setItem("clients", JSON.stringify(clients));
-  }
-};
-
-export const deleteClient = (clientId: string): void => {
-  const clients = getClients();
-  const updatedClients = clients.filter(client => client.id !== clientId);
-  localStorage.setItem("clients", JSON.stringify(updatedClients));
-};
-
+// Clients
 export const getClientsByUserId = (userId: string): Client[] => {
-  const clients = getClients();
+  const clients = getLocalStorageItem<Client[]>('clients', []);
   return clients.filter(client => client.userId === userId);
 };
 
-export const getClientById = (clientId: string): Client | undefined => {
-  const clients = getClients();
-  return clients.find(client => client.id === clientId);
+export const addClient = (client: Client): void => {
+  const clients = getLocalStorageItem<Client[]>('clients', []);
+  clients.push(client);
+  setLocalStorageItem('clients', clients);
 };
 
-// Freight storage
-export const getFreights = (): Freight[] => {
-  const freights = localStorage.getItem("freights");
-  return freights ? JSON.parse(freights) : [];
+export const updateClient = (client: Client): void => {
+  const clients = getLocalStorageItem<Client[]>('clients', []);
+  const updatedClients = clients.map(c => c.id === client.id ? client : c);
+  setLocalStorageItem('clients', updatedClients);
 };
 
-export const saveFreight = (freight: Freight): void => {
-  const freights = getFreights();
-  freights.push(freight);
-  localStorage.setItem("freights", JSON.stringify(freights));
-};
-
-export const updateFreight = (updatedFreight: Freight): void => {
-  const freights = getFreights();
-  const index = freights.findIndex(freight => freight.id === updatedFreight.id);
-  if (index !== -1) {
-    freights[index] = updatedFreight;
-    localStorage.setItem("freights", JSON.stringify(freights));
-  }
-};
-
-export const deleteFreight = (freightId: string): void => {
-  const freights = getFreights();
-  const updatedFreights = freights.filter(freight => freight.id !== freightId);
-  localStorage.setItem("freights", JSON.stringify(updatedFreights));
-};
-
-export const getFreightsByUserId = (userId: string): Freight[] => {
-  const freights = getFreights();
-  return freights.filter(freight => freight.userId === userId);
-};
-
-export const getFreightsByClientId = (clientId: string): Freight[] => {
-  const freights = getFreights();
-  return freights.filter(freight => freight.clientId === clientId);
-};
-
-export const getFreightById = (freightId: string): Freight | undefined => {
-  const freights = getFreights();
-  return freights.find(freight => freight.id === freightId);
+export const deleteClient = (id: string): void => {
+  const clients = getLocalStorageItem<Client[]>('clients', []);
+  const updatedClients = clients.filter(client => client.id !== id);
+  setLocalStorageItem('clients', updatedClients);
 };
 
 // Drivers
-export const getDrivers = (): Driver[] => {
-  try {
-    const data = localStorage.getItem("drivers");
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error('Error getting drivers:', error);
-    return [];
-  }
-};
-
 export const getDriversByUserId = (userId: string): Driver[] => {
-  try {
-    const drivers = getDrivers();
-    return drivers.filter((driver: Driver) => driver.userId === userId);
-  } catch (error) {
-    console.error('Error getting drivers by user ID:', error);
-    return [];
-  }
-};
-
-export const getDriverById = (id: string): Driver | undefined => {
-  try {
-    const drivers = getDrivers();
-    return drivers.find((driver) => driver.id === id);
-  } catch (error) {
-    console.error('Error getting driver by ID:', error);
-    return undefined;
-  }
+  const drivers = getLocalStorageItem<Driver[]>('drivers', []);
+  return drivers.filter(driver => driver.userId === userId);
 };
 
 export const addDriver = (driver: Driver): void => {
-  try {
-    const drivers = getDrivers();
-    localStorage.setItem("drivers", JSON.stringify([...drivers, driver]));
-  } catch (error) {
-    console.error('Error adding driver:', error);
-  }
+  const drivers = getLocalStorageItem<Driver[]>('drivers', []);
+  drivers.push(driver);
+  setLocalStorageItem('drivers', drivers);
 };
 
 export const updateDriver = (driver: Driver): void => {
-  try {
-    const drivers = getDrivers();
-    const index = drivers.findIndex((c) => c.id === driver.id);
-    if (index !== -1) {
-      drivers[index] = driver;
-      localStorage.setItem("drivers", JSON.stringify(drivers));
-    }
-  } catch (error) {
-    console.error('Error updating driver:', error);
-  }
+  const drivers = getLocalStorageItem<Driver[]>('drivers', []);
+  const updatedDrivers = drivers.map(d => d.id === driver.id ? driver : d);
+  setLocalStorageItem('drivers', updatedDrivers);
 };
 
 export const deleteDriver = (id: string): void => {
-  try {
-    const drivers = getDrivers();
-    localStorage.setItem("drivers", JSON.stringify(drivers.filter((driver) => driver.id !== id)));
-  } catch (error) {
-    console.error('Error deleting driver:', error);
+  const drivers = getLocalStorageItem<Driver[]>('drivers', []);
+  const updatedDrivers = drivers.filter(driver => driver.id !== id);
+  setLocalStorageItem('drivers', updatedDrivers);
+};
+
+// Freights
+export const getFreightsByUserId = (userId: string): Freight[] => {
+  const freights = getLocalStorageItem<Freight[]>('freights', []);
+  return freights.filter(freight => freight.userId === userId);
+};
+
+export const addFreight = (freight: Freight): void => {
+  const freights = getLocalStorageItem<Freight[]>('freights', []);
+  freights.push(freight);
+  setLocalStorageItem('freights', freights);
+};
+
+export const updateFreight = (freight: Freight): void => {
+  const freights = getLocalStorageItem<Freight[]>('freights', []);
+  const updatedFreights = freights.map(f => f.id === freight.id ? freight : f);
+  setLocalStorageItem('freights', updatedFreights);
+};
+
+export const deleteFreight = (id: string): void => {
+  const freights = getLocalStorageItem<Freight[]>('freights', []);
+  const updatedFreights = freights.filter(freight => freight.id !== id);
+  setLocalStorageItem('freights', updatedFreights);
+};
+
+// Collection Orders
+export const getCollectionOrdersByUserId = (userId: string): CollectionOrder[] => {
+  const collectionOrders = getLocalStorageItem<CollectionOrder[]>('collectionOrders', []);
+  return collectionOrders.filter(order => order.userId === userId);
+};
+
+export const getCollectionOrderById = (id: string): CollectionOrder | undefined => {
+  const collectionOrders = getLocalStorageItem<CollectionOrder[]>('collectionOrders', []);
+  return collectionOrders.find(order => order.id === id);
+};
+
+export const saveCollectionOrder = (order: CollectionOrder): void => {
+  const collectionOrders = getLocalStorageItem<CollectionOrder[]>('collectionOrders', []);
+  const existingIndex = collectionOrders.findIndex(o => o.id === order.id);
+
+  if (existingIndex >= 0) {
+    collectionOrders[existingIndex] = order;
+  } else {
+    collectionOrders.push(order);
   }
+
+  setLocalStorageItem('collectionOrders', collectionOrders);
+};
+
+export const deleteCollectionOrder = (id: string): void => {
+  const collectionOrders = getLocalStorageItem<CollectionOrder[]>('collectionOrders', []);
+  const updatedOrders = collectionOrders.filter(order => order.id !== id);
+  setLocalStorageItem('collectionOrders', updatedOrders);
 };
