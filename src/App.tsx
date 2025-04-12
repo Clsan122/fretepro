@@ -18,6 +18,8 @@ import DriverRegister from "./pages/DriverRegister";
 import DriverEdit from "./pages/DriverEdit";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import CollectionOrders from "./pages/CollectionOrders";
+import CollectionOrderPage from "./pages/CollectionOrder";
 
 const queryClient = new QueryClient();
 

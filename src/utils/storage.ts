@@ -1,3 +1,4 @@
+
 import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
 
 // Generic function to get items from localStorage
@@ -25,6 +26,18 @@ const setLocalStorageItem = <T>(key: string, value: T): void => {
 };
 
 // Users
+export const getCurrentUser = (): User | null => {
+  return getLocalStorageItem<User | null>('user', null);
+};
+
+export const setCurrentUser = (user: User): void => {
+  setLocalStorageItem('user', user);
+};
+
+export const logoutUser = (): void => {
+  localStorage.removeItem('user');
+};
+
 export const saveUser = (user: User): void => {
   setLocalStorageItem('user', user);
 };
@@ -44,10 +57,33 @@ export const addUser = (user: User): void => {
   setLocalStorageItem('users', users);
 };
 
+export const updateUser = (user: User): void => {
+  // Update the current user
+  setCurrentUser(user);
+  
+  // Also update in the users array
+  const users = getLocalStorageItem<User[]>('users', []);
+  const updatedUsers = users.map(u => u.id === user.id ? user : u);
+  setLocalStorageItem('users', updatedUsers);
+};
+
 // Clients
 export const getClientsByUserId = (userId: string): Client[] => {
   const clients = getLocalStorageItem<Client[]>('clients', []);
   return clients.filter(client => client.userId === userId);
+};
+
+export const saveClient = (client: Client): void => {
+  const clients = getLocalStorageItem<Client[]>('clients', []);
+  const existingIndex = clients.findIndex(c => c.id === client.id);
+  
+  if (existingIndex >= 0) {
+    clients[existingIndex] = client;
+  } else {
+    clients.push(client);
+  }
+  
+  setLocalStorageItem('clients', clients);
 };
 
 export const addClient = (client: Client): void => {
@@ -74,6 +110,11 @@ export const getDriversByUserId = (userId: string): Driver[] => {
   return drivers.filter(driver => driver.userId === userId);
 };
 
+export const getDriverById = (id: string): Driver | undefined => {
+  const drivers = getLocalStorageItem<Driver[]>('drivers', []);
+  return drivers.find(driver => driver.id === id);
+};
+
 export const addDriver = (driver: Driver): void => {
   const drivers = getLocalStorageItem<Driver[]>('drivers', []);
   drivers.push(driver);
@@ -96,6 +137,19 @@ export const deleteDriver = (id: string): void => {
 export const getFreightsByUserId = (userId: string): Freight[] => {
   const freights = getLocalStorageItem<Freight[]>('freights', []);
   return freights.filter(freight => freight.userId === userId);
+};
+
+export const saveFreight = (freight: Freight): void => {
+  const freights = getLocalStorageItem<Freight[]>('freights', []);
+  const existingIndex = freights.findIndex(f => f.id === freight.id);
+  
+  if (existingIndex >= 0) {
+    freights[existingIndex] = freight;
+  } else {
+    freights.push(freight);
+  }
+  
+  setLocalStorageItem('freights', freights);
 };
 
 export const addFreight = (freight: Freight): void => {

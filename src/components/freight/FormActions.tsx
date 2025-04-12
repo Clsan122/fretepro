@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 interface FormActionsProps {
   onCancel: () => void;
   isEditing: boolean;
+  submitLabel?: string;
 }
 
 export const FormActions: React.FC<FormActionsProps> = ({
   onCancel,
-  isEditing
+  isEditing,
+  submitLabel
 }) => {
   return (
     <div className="flex justify-end space-x-2 pt-4">
@@ -17,7 +19,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
         Cancelar
       </Button>
       <Button type="submit" className="bg-freight-600 hover:bg-freight-700">
-        {isEditing ? "Atualizar Frete" : "Cadastrar Frete"}
+        {submitLabel || (isEditing ? "Atualizar Frete" : "Cadastrar Frete")}
       </Button>
     </div>
   );
