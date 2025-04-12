@@ -82,19 +82,61 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
     if (!receiptRef.current) return;
     
     try {
-      const canvas = await html2canvas(receiptRef.current, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      // Create a PDF with A4 dimensions (210mm x 297mm)
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+      
+      // Get dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 30;
-
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      pdf.save(`recibo-frete-${freight.id}.pdf`);
+      
+      // Adjust scale for better quality and fit
+      const scale = 2;
+      const canvas = await html2canvas(receiptRef.current, { 
+        scale: scale,
+        useCORS: true,
+        logging: false,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      // Calculate dimensions to fit content properly on the A4 page
+      const imgWidth = canvas.width / scale;
+      const imgHeight = canvas.height / scale;
+      
+      // Calculate scaling to fit content on the page with margins
+      const margin = 10; // 10mm margin
+      const availableWidth = pdfWidth - (margin * 2);
+      const availableHeight = pdfHeight - (margin * 2);
+      
+      let ratio = Math.min(
+        availableWidth / imgWidth, 
+        availableHeight / imgHeight
+      );
+      
+      // If the content is too small, don't scale it up too much
+      ratio = Math.min(ratio, 1.2);
+      
+      // Calculate centered position
+      const x = margin + (availableWidth - (imgWidth * ratio)) / 2;
+      const y = margin;
+      
+      // Add the image to the PDF
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(
+        imgData, 
+        'PNG', 
+        x, 
+        y, 
+        imgWidth * ratio, 
+        imgHeight * ratio
+      );
+      
+      // Save the PDF
+      pdf.save(`recibo-frete-${freight.id.substring(0, 8)}.pdf`);
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
     }
@@ -109,7 +151,11 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
         </Button>
       </div>
       
-      <div ref={receiptRef} className="p-8 max-w-4xl mx-auto bg-white">
+      <div 
+        ref={receiptRef} 
+        className="p-8 max-w-[210mm] mx-auto bg-white border border-gray-200 shadow-sm"
+        style={{ minHeight: '900px' }}
+      >
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center">
             <Truck className="h-10 w-10 text-freight-600 mr-3" />
