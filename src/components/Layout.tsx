@@ -1,380 +1,349 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
-  Truck, 
-  Users, 
-  Package, 
-  BarChart3, 
+  ChevronLeft, 
+  ChevronRight, 
   LogOut, 
   User, 
-  Menu, 
-  X, 
-  ChevronLeft,
-  ChevronRight,
-  Laptop,
-  Smartphone,
-  Tablet
+  Home, 
+  Users,
+  Truck,
+  Package,
+  FileText,
+  Settings,
+  Menu as MenuIcon,
+  Sun,
+  Moon
 } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Sheet, 
   SheetContent, 
-  SheetTrigger,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription
+  SheetHeader, 
+  SheetTitle 
 } from "@/components/ui/sheet";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useMobile } from "@/hooks/use-mobile";
+import BottomNavigation from "./BottomNavigation";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, logout, isAuthenticated, userDevices } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(isMobile);
-
-  // Set sidebar collapsed state based on viewport width
-  useEffect(() => {
-    setSidebarCollapsed(isMobile);
-  }, [isMobile]);
-
+  const [theme, setTheme] = useState(() => {
+    // Get theme from localStorage or default to 'light'
+    return localStorage.getItem("theme") || "light";
+  });
+  
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+  
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
+  
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+  
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-
-  if (!isAuthenticated) {
-    return <>{children}</>;
-  }
-
-  const isFormPath = location.pathname.includes("/new") || 
-                     location.pathname.includes("/edit") || 
-                     location.pathname === "/profile";
-
-  const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: BarChart3 },
-    { path: "/clients", label: "Clientes", icon: Users },
-    { path: "/freights", label: "Fretes", icon: Package },
-    { path: "/drivers", label: "Motoristas", icon: User },
+  
+  const menuItems = [
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: Home
+    },
+    {
+      name: "Clientes",
+      path: "/clients",
+      icon: Users
+    },
+    {
+      name: "Motoristas",
+      path: "/drivers",
+      icon: Truck
+    },
+    {
+      name: "Fretes",
+      path: "/freights",
+      icon: Package
+    },
+    {
+      name: "Ordens de Coleta",
+      path: "/collection-orders",
+      icon: FileText
+    }
   ];
-
-  const isCurrentPath = (path: string) => {
-    if (path === "/dashboard") {
-      return location.pathname === path;
-    }
-    // Check if the path is a prefix of the current path
-    return location.pathname.startsWith(path);
-  };
-
-  // Function to get the device icon
-  const getDeviceIcon = (deviceId: string) => {
-    const deviceHash = deviceId.split('-')[1]?.charAt(0) || '0';
-    const hashCode = parseInt(deviceHash, 36) % 3;
-    
-    switch(hashCode) {
-      case 0: return <Laptop className="h-4 w-4 mr-2" />;
-      case 1: return <Smartphone className="h-4 w-4 mr-2" />;
-      case 2: return <Tablet className="h-4 w-4 mr-2" />;
-      default: return <Laptop className="h-4 w-4 mr-2" />;
-    }
-  };
-
-  const NavLinks = () => (
-    <nav className="space-y-2">
-      {navItems.map((item) => (
-        <Link 
-          key={item.path}
-          to={item.path} 
-          className={cn(
-            "flex items-center p-3 rounded-lg transition-colors",
-            isCurrentPath(item.path) 
-              ? "bg-freight-700 text-white font-medium" 
-              : "hover:bg-freight-700"
-          )}
-          onClick={() => isMobile && setSidebarOpen(false)}
-        >
-          <item.icon className="h-5 w-5 mr-3" />
-          <span>{item.label}</span>
-        </Link>
-      ))}
-      <Link 
-        to="/profile" 
-        className={cn(
-          "flex items-center p-3 rounded-lg transition-colors",
-          isCurrentPath("/profile") 
-            ? "bg-freight-700 text-white font-medium" 
-            : "hover:bg-freight-700"
-        )}
-        onClick={() => isMobile && setSidebarOpen(false)}
-      >
-        <User className="h-5 w-5 mr-3" />
-        <span>Perfil</span>
-      </Link>
-    </nav>
-  );
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      {/* Top Header */}
-      <header className="bg-freight-600 text-white p-3 flex items-center justify-between sticky top-0 z-10 shadow-md">
-        <div className="flex items-center">
-          {!isMobile && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-white mr-2"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              {sidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-            </Button>
-          )}
-          
-          <div className="flex items-center">
-            <Truck className="h-6 w-6 mr-2" />
-            <h1 className="text-xl font-bold">Frete Pro</h1>
-          </div>
-          
-          <NavigationMenu className="ml-6 hidden sm:flex">
-            <NavigationMenuList>
-              {navItems.map((item) => (
-                <NavigationMenuItem key={item.path}>
-                  <NavigationMenuLink 
-                    asChild
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      "bg-transparent hover:bg-freight-700 focus:bg-freight-700",
-                      isCurrentPath(item.path) && "bg-freight-700 font-medium"
-                    )}
-                  >
-                    <Link to={item.path}>{item.label}</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
-        
-        {isMobile && (
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-white">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="bg-freight-600 text-white p-4 w-64 z-50">
-              <SheetHeader className="mb-6">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <Truck className="h-6 w-6 mr-2" />
-                    <SheetTitle className="text-xl font-bold text-white">Frete Pro</SheetTitle>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => setSidebarOpen(false)}
-                    className="text-white"
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-                <SheetDescription className="text-gray-300">
-                  Olá, {user?.name}
-                </SheetDescription>
-              </SheetHeader>
-              <NavLinks />
-            </SheetContent>
-          </Sheet>
-        )}
-        
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-white hover:bg-freight-700">
-                      <User className="h-4 w-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline-block max-w-[100px] truncate">{user?.name}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end">
-                    <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem onClick={() => navigate('/profile')}>
-                        <User className="h-4 w-4 mr-2" />
-                        <span>Perfil</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Dispositivos conectados ({userDevices.length})</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <div className="max-h-[150px] overflow-y-auto">
-                      {userDevices.map((deviceId, index) => (
-                        <DropdownMenuItem key={deviceId} className="cursor-default">
-                          {getDeviceIcon(deviceId)}
-                          <span>Dispositivo {index + 1}</span>
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      <span>Sair</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Conta</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </header>
-
-      <div className="flex flex-1">
-        {/* Sidebar - hidden on mobile and conditionally collapsed on desktop */}
-        {!isMobile && (
-          <div 
-            className={cn(
-              "bg-freight-600 text-white min-h-[calc(100vh-57px)] transition-all duration-300 ease-in-out",
-              sidebarCollapsed ? "w-16" : "w-64",
-              isFormPath ? "hidden md:block" : "hidden md:block"
-            )}
+  
+  // Sidebar Component
+  const Sidebar = () => (
+    <aside className={`
+      fixed top-0 left-0 z-40 h-screen transition-transform
+      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+      md:translate-x-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700
+    `}>
+      <div className="h-full flex flex-col">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Sistema de Fretes</h2>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="md:hidden"
+            onClick={toggleSidebar}
           >
-            <div className="p-3">
-              {sidebarCollapsed ? (
-                <div className="flex flex-col items-center space-y-6 py-4">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={cn(
-                        "flex justify-center items-center p-2 rounded-lg w-10 h-10 transition-colors",
-                        isCurrentPath(item.path) 
-                          ? "bg-freight-700 text-white" 
-                          : "hover:bg-freight-700"
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                    </Link>
-                  ))}
-                  <Link
-                    to="/profile"
-                    className={cn(
-                      "flex justify-center items-center p-2 rounded-lg w-10 h-10 transition-colors",
-                      isCurrentPath("/profile") 
-                        ? "bg-freight-700 text-white" 
-                        : "hover:bg-freight-700"
-                    )}
-                  >
-                    <User className="h-5 w-5" />
-                  </Link>
-                </div>
-              ) : (
-                <NavLinks />
-              )}
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto py-4 px-3">
+          <ul className="space-y-2">
+            {menuItems.map((item) => (
+              <li key={item.path}>
+                <button
+                  onClick={() => handleNavigate(item.path)}
+                  className={`
+                    flex items-center p-2 text-base font-normal rounded-lg w-full
+                    ${location.pathname === item.path
+                      ? "bg-freight-100 text-freight-900 dark:bg-freight-900 dark:text-freight-100"
+                      : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }
+                  `}
+                >
+                  <item.icon className="w-5 h-5 mr-3" />
+                  <span>{item.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center mb-4">
+            <div className="h-10 w-10 rounded-full bg-freight-200 flex items-center justify-center text-freight-800 mr-3">
+              {user?.name?.charAt(0) || "U"}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || "Usuário"}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || ""}</p>
             </div>
           </div>
-        )}
-
-        {/* Main content - full width on forms, responsive otherwise */}
-        <div className={cn(
-          "flex-1 overflow-auto p-4 md:p-6",
-          isFormPath ? "w-full" : ""
-        )}>
-          {isFormPath && !isMobile && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(-1)}
-              className="mb-4"
+          
+          <div className="flex flex-col space-y-2">
+            <Button 
+              variant="outline" 
+              className="justify-start w-full"
+              onClick={() => handleNavigate("/profile")}
             >
-              <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
+              <User className="mr-2 h-4 w-4" />
+              Perfil
             </Button>
-          )}
-          {children}
+            
+            <Button 
+              variant="outline" 
+              className="justify-start w-full"
+              onClick={toggleTheme}
+            >
+              {theme === "light" ? (
+                <>
+                  <Moon className="mr-2 h-4 w-4" />
+                  Modo Escuro
+                </>
+              ) : (
+                <>
+                  <Sun className="mr-2 h-4 w-4" />
+                  Modo Claro
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              variant="destructive" 
+              className="justify-start w-full"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair
+            </Button>
+          </div>
         </div>
       </div>
-
-      {/* Bottom navigation for mobile on form pages */}
-      {isMobile && isFormPath && (
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button 
-              className="fixed bottom-4 right-4 rounded-full h-12 w-12 flex items-center justify-center bg-freight-600 hover:bg-freight-700 shadow-lg"
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="px-4 pb-4">
-            <DrawerHeader>
-              <DrawerTitle>Navegação</DrawerTitle>
-              <DrawerDescription>Acesse outras áreas do sistema</DrawerDescription>
-            </DrawerHeader>
-            <div className="grid grid-cols-4 gap-4 py-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-100 text-center"
+    </aside>
+  );
+  
+  // Mobile Sheet Sidebar
+  const MobileSidebar = () => (
+    <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+      <SheetContent side="left" className="p-0 w-64">
+        <SheetHeader className="h-16 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
+          <SheetTitle className="text-left">Sistema de Fretes</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto py-4 px-3">
+          <ul className="space-y-2">
+            {menuItems.map((item) => (
+              <li key={item.path}>
+                <button
+                  onClick={() => handleNavigate(item.path)}
+                  className={`
+                    flex items-center p-2 text-base font-normal rounded-lg w-full
+                    ${location.pathname === item.path
+                      ? "bg-freight-100 text-freight-900 dark:bg-freight-900 dark:text-freight-100"
+                      : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }
+                  `}
                 >
-                  <item.icon className="h-6 w-6 mb-1" />
-                  <span className="text-xs">{item.label}</span>
-                </Link>
-              ))}
+                  <item.icon className="w-5 h-5 mr-3" />
+                  <span>{item.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center mb-4">
+            <div className="h-10 w-10 rounded-full bg-freight-200 flex items-center justify-center text-freight-800 mr-3">
+              {user?.name?.charAt(0) || "U"}
             </div>
-            <DrawerFooter>
-              <DrawerClose asChild>
-                <Button variant="outline">Fechar</Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-      )}
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || "Usuário"}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || ""}</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col space-y-2">
+            <Button 
+              variant="outline" 
+              className="justify-start w-full"
+              onClick={() => handleNavigate("/profile")}
+            >
+              <User className="mr-2 h-4 w-4" />
+              Perfil
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="justify-start w-full"
+              onClick={toggleTheme}
+            >
+              {theme === "light" ? (
+                <>
+                  <Moon className="mr-2 h-4 w-4" />
+                  Modo Escuro
+                </>
+              ) : (
+                <>
+                  <Sun className="mr-2 h-4 w-4" />
+                  Modo Claro
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              variant="destructive" 
+              className="justify-start w-full"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+  
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Desktop Sidebar */}
+      <Sidebar />
+      
+      {/* Mobile Sidebar */}
+      {isMobile && <MobileSidebar />}
+      
+      {/* Main Content */}
+      <div className={`md:ml-64 min-h-screen pb-16 md:pb-0`}>
+        {/* Top Bar */}
+        <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="md:hidden"
+              onClick={toggleSidebar}
+            >
+              <MenuIcon className="h-5 w-5" />
+            </Button>
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-white ml-2">
+              Sistema de Fretes
+            </h1>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={toggleTheme}
+              className="hidden md:flex"
+            >
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              onClick={() => handleNavigate("/profile")}
+              className="flex items-center hidden md:flex"
+            >
+              <div className="h-8 w-8 rounded-full bg-freight-200 flex items-center justify-center text-freight-800 mr-2">
+                {user?.name?.charAt(0) || "U"}
+              </div>
+              <span className="hidden lg:inline-block">{user?.name || "Usuário"}</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleLogout}
+              className="hidden md:flex"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
+        </header>
+        
+        {/* Content */}
+        <main>
+          {children}
+        </main>
+      </div>
+      
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 };

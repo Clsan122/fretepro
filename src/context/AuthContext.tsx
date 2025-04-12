@@ -6,120 +6,130 @@ import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
-  login: (user: User) => void;
-  logout: () => void;
   isAuthenticated: boolean;
-  setUser: (user: User) => void;
-  userDevices: string[];
-  addDevice: (deviceId: string) => void;
+  login: (email: string, password: string) => Promise<void>;
+  googleLogin: () => Promise<void>;
+  register: (userData: Omit<User, "id" | "createdAt">) => Promise<void>;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  login: () => {},
-  logout: () => {},
-  isAuthenticated: false,
-  setUser: () => {},
-  userDevices: [],
-  addDevice: () => {}
-});
-
-export const useAuth = () => useContext(AuthContext);
-
-// Simple function to generate a device ID
-const generateDeviceId = () => {
-  return `device-${Math.random().toString(36).substring(2, 15)}`;
-};
-
-// Get or create a device ID for the current browser
-const getOrCreateDeviceId = () => {
-  let deviceId = localStorage.getItem('deviceId');
-  if (!deviceId) {
-    deviceId = generateDeviceId();
-    localStorage.setItem('deviceId', deviceId);
-  }
-  return deviceId;
-};
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userDevices, setUserDevices] = useState<string[]>([]);
-  const currentDeviceId = getOrCreateDeviceId();
-
+  
   useEffect(() => {
-    // Check if user is logged in on initial load
+    // Load user from localStorage on initial load
     const storedUser = getCurrentUser();
     if (storedUser) {
       setUser(storedUser);
-      setIsAuthenticated(true);
-      
-      // Load user devices
-      const devices = localStorage.getItem(`devices_${storedUser.id}`);
-      const devicesList = devices ? JSON.parse(devices) : [];
-      
-      // Add current device if not already in the list
-      if (!devicesList.includes(currentDeviceId)) {
-        devicesList.push(currentDeviceId);
-        localStorage.setItem(`devices_${storedUser.id}`, JSON.stringify(devicesList));
-      }
-      
-      setUserDevices(devicesList);
     }
   }, []);
-
-  const login = (userData: User) => {
-    setCurrentUser(userData);
-    setUser(userData);
-    setIsAuthenticated(true);
-    
-    // Initialize or update device list for this user
-    const devices = localStorage.getItem(`devices_${userData.id}`);
-    const devicesList = devices ? JSON.parse(devices) : [];
-    
-    // Add current device if not already in the list
-    if (!devicesList.includes(currentDeviceId)) {
-      devicesList.push(currentDeviceId);
-      localStorage.setItem(`devices_${userData.id}`, JSON.stringify(devicesList));
+  
+  const login = async (email: string, password: string) => {
+    // This is a mock implementation - in a real app, you'd call your backend
+    try {
+      const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
+      const matchedUser = storedUsers.find(
+        (u: any) => u.email === email && u.password === password
+      );
+      
+      if (!matchedUser) {
+        throw new Error("Email ou senha inválidos");
+      }
+      
+      // Remove password from user object before storing in state
+      const { password: _, ...userWithoutPassword } = matchedUser;
+      setUser(userWithoutPassword);
+      setCurrentUser(userWithoutPassword);
+      toast.success("Login realizado com sucesso!");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao realizar login");
+      throw error;
     }
-    
-    setUserDevices(devicesList);
-    toast.success(`Bem-vindo, ${userData.name}!`);
   };
-
+  
+  const googleLogin = async () => {
+    // This is a mock implementation - in a real app, you'd integrate Google OAuth
+    try {
+      toast.info("Funcionalidade em desenvolvimento. Por favor, use o login normal.");
+      
+      // For demo purposes, we'll just create a mock user
+      const mockGoogleUser: User = {
+        id: "google-user-123",
+        name: "Usuário Google",
+        email: "google@example.com",
+        phone: "123456789",
+        createdAt: new Date().toISOString()
+      };
+      
+      setUser(mockGoogleUser);
+      setCurrentUser(mockGoogleUser);
+      toast.success("Login com Google realizado com sucesso (simulado)!");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao realizar login com Google");
+      throw error;
+    }
+  };
+  
+  const register = async (userData: Omit<User, "id" | "createdAt">) => {
+    try {
+      const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
+      
+      // Check if user already exists
+      if (storedUsers.some((u: any) => u.email === userData.email)) {
+        throw new Error("Este email já está cadastrado");
+      }
+      
+      // Create new user with ID and createdAt
+      const newUser = {
+        ...userData,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString()
+      };
+      
+      // Add to users array
+      storedUsers.push(newUser);
+      localStorage.setItem("users", JSON.stringify(storedUsers));
+      
+      // Remove password before setting state
+      const { password: _, ...userWithoutPassword } = newUser;
+      setUser(userWithoutPassword);
+      setCurrentUser(userWithoutPassword);
+      
+      toast.success("Cadastro realizado com sucesso!");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao realizar cadastro");
+      throw error;
+    }
+  };
+  
   const logout = () => {
-    logoutUser();
     setUser(null);
-    setIsAuthenticated(false);
-    setUserDevices([]);
-    toast.info("Você foi desconectado com sucesso");
+    logoutUser();
+    toast.success("Logout realizado com sucesso!");
   };
-
-  const updateUser = (updatedUser: User) => {
-    setCurrentUser(updatedUser);
-    setUser(updatedUser);
-    toast.success("Perfil atualizado com sucesso");
-  };
-
-  const addDevice = (deviceId: string) => {
-    if (user) {
-      const updatedDevices = [...userDevices, deviceId];
-      setUserDevices(updatedDevices);
-      localStorage.setItem(`devices_${user.id}`, JSON.stringify(updatedDevices));
-    }
-  };
-
+  
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      isAuthenticated, 
-      setUser: updateUser,
-      userDevices,
-      addDevice
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
+        googleLogin,
+        register,
+        logout
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };

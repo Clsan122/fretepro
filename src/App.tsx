@@ -20,6 +20,8 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import CollectionOrders from "./pages/CollectionOrders";
 import CollectionOrderPage from "./pages/CollectionOrder";
+import CollectionOrderView from "./pages/CollectionOrderView";
+import CollectionOrderEdit from "./pages/CollectionOrderEdit";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,8 @@ const AppRoutes = () => {
       {/* Collection Orders Routes */}
       <Route path="/collection-orders" element={<ProtectedRoute><CollectionOrders /></ProtectedRoute>} />
       <Route path="/collection-order/new" element={<ProtectedRoute><CollectionOrderPage /></ProtectedRoute>} />
+      <Route path="/collection-order/:id" element={<ProtectedRoute><CollectionOrderView /></ProtectedRoute>} />
+      <Route path="/collection-order/edit/:id" element={<ProtectedRoute><CollectionOrderEdit /></ProtectedRoute>} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
