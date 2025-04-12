@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -24,7 +23,7 @@ import {
   SheetHeader, 
   SheetTitle 
 } from "@/components/ui/sheet";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import BottomNavigation from "./BottomNavigation";
 
 interface LayoutProps {
@@ -34,10 +33,9 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
-    // Get theme from localStorage or default to 'light'
     return localStorage.getItem("theme") || "light";
   });
   
@@ -97,7 +95,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   ];
   
-  // Sidebar Component
   const Sidebar = () => (
     <aside className={`
       fixed top-0 left-0 z-40 h-screen transition-transform
@@ -192,7 +189,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     </aside>
   );
   
-  // Mobile Sheet Sidebar
   const MobileSidebar = () => (
     <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
       <SheetContent side="left" className="p-0 w-64">
@@ -276,15 +272,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Desktop Sidebar */}
       <Sidebar />
       
-      {/* Mobile Sidebar */}
       {isMobile && <MobileSidebar />}
       
-      {/* Main Content */}
       <div className={`md:ml-64 min-h-screen pb-16 md:pb-0`}>
-        {/* Top Bar */}
         <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
           <div className="flex items-center">
             <Button 
@@ -336,13 +328,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
         
-        {/* Content */}
         <main>
           {children}
         </main>
       </div>
       
-      {/* Bottom Navigation */}
       <BottomNavigation />
     </div>
   );

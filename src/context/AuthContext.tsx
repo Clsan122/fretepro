@@ -1,135 +1,118 @@
 
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
+import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser, setCurrentUser, logoutUser } from "@/utils/storage";
-import { toast } from "sonner";
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  googleLogin: () => Promise<void>;
-  register: (userData: Omit<User, "id" | "createdAt">) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
-}
+  setUser: (user: User) => void;
+};
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isAuthenticated: false,
+  login: async () => false,
+  register: async () => false,
+  logout: () => {},
+  setUser: () => {},
+});
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  
+  const [user, setUserState] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
-    // Load user from localStorage on initial load
-    const storedUser = getCurrentUser();
-    if (storedUser) {
-      setUser(storedUser);
+    // Check if user is already logged in
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      setUserState(currentUser);
+      setIsAuthenticated(true);
     }
   }, []);
-  
-  const login = async (email: string, password: string) => {
-    // This is a mock implementation - in a real app, you'd call your backend
-    try {
-      const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-      const matchedUser = storedUsers.find(
-        (u: any) => u.email === email && u.password === password
-      );
-      
-      if (!matchedUser) {
-        throw new Error("Email ou senha inválidos");
-      }
-      
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    // This is a mock implementation for demo purposes
+    // In a real app, you would call an API to authenticate the user
+    
+    // Get users from local storage
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    
+    // Find user with matching email and password
+    const user = users.find((u: any) => 
+      u.email === email && u.password === password
+    );
+    
+    if (user) {
       // Remove password from user object before storing in state
-      const { password: _, ...userWithoutPassword } = matchedUser;
-      setUser(userWithoutPassword);
+      const { password, ...userWithoutPassword } = user;
+      
+      setUserState(userWithoutPassword);
+      setIsAuthenticated(true);
       setCurrentUser(userWithoutPassword);
-      toast.success("Login realizado com sucesso!");
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao realizar login");
-      throw error;
+      return true;
     }
+    
+    return false;
   };
-  
-  const googleLogin = async () => {
-    // This is a mock implementation - in a real app, you'd integrate Google OAuth
-    try {
-      toast.info("Funcionalidade em desenvolvimento. Por favor, use o login normal.");
-      
-      // For demo purposes, we'll just create a mock user
-      const mockGoogleUser: User = {
-        id: "google-user-123",
-        name: "Usuário Google",
-        email: "google@example.com",
-        phone: "123456789",
-        createdAt: new Date().toISOString()
-      };
-      
-      setUser(mockGoogleUser);
-      setCurrentUser(mockGoogleUser);
-      toast.success("Login com Google realizado com sucesso (simulado)!");
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao realizar login com Google");
-      throw error;
+
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    // This is a mock implementation for demo purposes
+    // In a real app, you would call an API to register the user
+    
+    // Get users from local storage
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    
+    // Check if user with email already exists
+    const existingUser = users.find((u: any) => u.email === email);
+    if (existingUser) {
+      return false;
     }
+    
+    // Create new user
+    const newUser = {
+      id: uuidv4(),
+      createdAt: new Date().toISOString(),
+      name,
+      email,
+      password, // In a real app, this would be hashed
+    };
+    
+    // Add new user to users array
+    users.push(newUser);
+    
+    // Save users array to local storage
+    localStorage.setItem("users", JSON.stringify(users));
+    
+    // Remove password from user object before storing in state
+    const { password: pwd, ...userWithoutPassword } = newUser;
+    
+    setUserState(userWithoutPassword);
+    setIsAuthenticated(true);
+    setCurrentUser(userWithoutPassword);
+    
+    return true;
   };
-  
-  const register = async (userData: Omit<User, "id" | "createdAt">) => {
-    try {
-      const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-      
-      // Check if user already exists
-      if (storedUsers.some((u: any) => u.email === userData.email)) {
-        throw new Error("Este email já está cadastrado");
-      }
-      
-      // Create new user with ID and createdAt
-      const newUser = {
-        ...userData,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString()
-      };
-      
-      // Add to users array
-      storedUsers.push(newUser);
-      localStorage.setItem("users", JSON.stringify(storedUsers));
-      
-      // Remove password before setting state
-      const { password: _, ...userWithoutPassword } = newUser;
-      setUser(userWithoutPassword);
-      setCurrentUser(userWithoutPassword);
-      
-      toast.success("Cadastro realizado com sucesso!");
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao realizar cadastro");
-      throw error;
-    }
-  };
-  
+
   const logout = () => {
-    setUser(null);
+    setUserState(null);
+    setIsAuthenticated(false);
     logoutUser();
-    toast.success("Logout realizado com sucesso!");
   };
-  
+
+  const setUser = (updatedUser: User) => {
+    setUserState(updatedUser);
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        login,
-        googleLogin,
-        register,
-        logout
-      }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };
