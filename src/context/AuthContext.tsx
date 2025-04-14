@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -30,11 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUserState] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Google API Key - Para produção, você deve substituir esta chave pela sua chave de produção
-  // Crie uma chave em: https://console.cloud.google.com/apis/credentials
-  // **ATENÇÃO:** A aplicação está configurada atualmente com uma chave inválida/de teste
-  // É necessário substituir por uma chave válida para o domínio em que será hospedado
-  const GOOGLE_API_KEY = "YOUR_GOOGLE_CLIENT_ID";  // Substitua por sua chave real em produção
+  // Google API Key - Updated with the provided key
+  const GOOGLE_API_KEY = "AIzaSyCqysfLqP8UBCdhQ44_nIruQxjFK4gLY3E";
   
   // Flag para controlar se estamos em ambiente de produção
   const isProduction = window.location.hostname !== 'localhost' && 
