@@ -25,11 +25,11 @@ export const SenderRecipientSection: React.FC<SenderRecipientProps> = ({
 }) => {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4 sm:p-6">
         <CardTitle>Informações de Remetente e Destinatário</CardTitle>
         <CardDescription>Informe os dados do remetente e destinatário</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6 pt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="sender">Remetente / Exportador</Label>

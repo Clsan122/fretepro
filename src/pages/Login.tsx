@@ -12,7 +12,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login, googleLogin } = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,18 +22,6 @@ const Login: React.FC = () => {
       await login(email, password);
     } catch (error) {
       console.error("Login error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    
-    try {
-      await googleLogin();
-    } catch (error) {
-      console.error("Google login error:", error);
     } finally {
       setLoading(false);
     }
@@ -101,42 +89,6 @@ const Login: React.FC = () => {
                 <LogIn className="ml-2 h-4 w-4" />
               </Button>
             </form>
-            
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-300"></span>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white dark:bg-gray-800 px-2 text-gray-500">
-                  Ou continue com
-                </span>
-              </div>
-            </div>
-            
-            <Button
-              variant="outline"
-              type="button"
-              className="w-full"
-              onClick={handleGoogleLogin}
-              disabled={loading}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-2 h-4 w-4"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M8 12h8M12 8v8" />
-              </svg>
-              Google
-            </Button>
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-2">

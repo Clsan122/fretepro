@@ -8,7 +8,6 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  googleLogin: () => Promise<boolean>; // Add googleLogin function
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   setUser: (user: User) => void;
@@ -18,7 +17,6 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   login: async () => false,
-  googleLogin: async () => false, // Initialize googleLogin function
   register: async () => false,
   logout: () => {},
   setUser: () => {},
@@ -62,31 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     return false;
-  };
-
-  // Add googleLogin function implementation
-  const googleLogin = async (): Promise<boolean> => {
-    // This is a mock implementation for demo purposes
-    // In a real app, you would use Google OAuth or Firebase Authentication
-    
-    try {
-      // Mock successful Google login
-      const mockGoogleUser = {
-        id: uuidv4(),
-        name: "Google User",
-        email: "google.user@example.com",
-        phone: "", // Add required phone property
-        createdAt: new Date().toISOString(),
-      };
-      
-      setUserState(mockGoogleUser);
-      setIsAuthenticated(true);
-      setCurrentUser(mockGoogleUser);
-      return true;
-    } catch (error) {
-      console.error("Google login error:", error);
-      return false;
-    }
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
@@ -139,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, googleLogin, register, logout, setUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Freight, Client, Driver } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -51,7 +50,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   useEffect(() => {
     if (user) {
       setClients(getClientsByUserId(user.id));
@@ -155,7 +154,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 p-1 sm:p-2">
       <ClientSelectionSection 
         clientId={clientId} 
         clients={clients} 

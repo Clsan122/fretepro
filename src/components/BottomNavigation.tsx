@@ -30,9 +30,10 @@ const BottomNavigation: React.FC = () => {
                 ? "text-freight-600 dark:text-freight-400" 
                 : "text-gray-500 dark:text-gray-400"
             }`}
+            aria-label={item.name}
           >
-            <item.icon className="h-5 w-5 mb-1" />
-            <span className="text-xs">{item.name}</span>
+            <item.icon className="h-5 w-5 mb-0.5" />
+            <span className="text-[10px] leading-tight">{item.name}</span>
           </button>
         ))}
       </div>

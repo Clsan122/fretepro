@@ -49,11 +49,11 @@ export const CargoDetailsSection: React.FC<CargoDetailsProps> = ({
 }) => {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4 sm:p-6">
         <CardTitle>Dados da Carga</CardTitle>
         <CardDescription>Informe as características da carga transportada</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6 pt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="volumes">Volume</Label>

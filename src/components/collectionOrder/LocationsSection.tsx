@@ -29,6 +29,8 @@ interface LocationsProps {
   setDestinationState: (value: string) => void;
   receiver: string;
   setReceiver: (value: string) => void;
+  receiverAddress: string;
+  setReceiverAddress: (value: string) => void;
 }
 
 export const LocationsSection: React.FC<LocationsProps> = ({
@@ -41,7 +43,9 @@ export const LocationsSection: React.FC<LocationsProps> = ({
   destinationState,
   setDestinationState,
   receiver,
-  setReceiver
+  setReceiver,
+  receiverAddress,
+  setReceiverAddress
 }) => {
   return (
     <Card>
@@ -120,14 +124,26 @@ export const LocationsSection: React.FC<LocationsProps> = ({
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="receiver">Recebedor / Destinatário</Label>
-          <Input
-            id="receiver"
-            value={receiver}
-            onChange={(e) => setReceiver(e.target.value)}
-            placeholder="Nome de quem vai receber a mercadoria no destino"
-          />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="receiver">Recebedor / Destinatário</Label>
+            <Input
+              id="receiver"
+              value={receiver}
+              onChange={(e) => setReceiver(e.target.value)}
+              placeholder="Nome de quem vai receber a mercadoria no destino"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="receiverAddress">Endereço do Destinatário</Label>
+            <Input
+              id="receiverAddress"
+              value={receiverAddress}
+              onChange={(e) => setReceiverAddress(e.target.value)}
+              placeholder="Endereço completo do destinatário"
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
