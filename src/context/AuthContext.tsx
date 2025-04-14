@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -94,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async (): Promise<boolean> => {
     try {
       // Se estamos em produção e não há chave válida configurada, alertar
-      if (isProduction && (GOOGLE_API_KEY === "YOUR_GOOGLE_CLIENT_ID" || !GOOGLE_API_KEY)) {
+      if (isProduction && !GOOGLE_API_KEY) {
         console.error("Google API Key não configurada para produção");
         return false;
       }
