@@ -1,27 +1,49 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AtSign, Lock, LogIn } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      await login(email, password);
+      const success = await login(email, password);
+      if (success) {
+        toast({
+          title: "Login realizado com sucesso",
+          description: "Você está sendo redirecionado para a página inicial.",
+          variant: "default",
+        });
+        navigate("/dashboard");
+      } else {
+        toast({
+          title: "Erro ao fazer login",
+          description: "Email ou senha inválidos.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Login error:", error);
+      toast({
+        title: "Erro ao fazer login",
+        description: "Ocorreu um erro ao processar sua solicitação.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
