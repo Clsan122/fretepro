@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -236,9 +235,16 @@ const CollectionOrderView: React.FC = () => {
               
               <Separator className="my-4" />
               
-              <div>
-                <p className="font-semibold">Recebedor / Destinatário:</p>
-                <p>{order.receiver || "Não informado"}</p>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-semibold">Recebedor / Destinatário:</p>
+                  <p>{order.receiver || "Não informado"}</p>
+                </div>
+                
+                <div>
+                  <p className="font-semibold">Endereço do Destinatário:</p>
+                  <p>{order.receiverAddress || "Não informado"}</p>
+                </div>
               </div>
             </CardContent>
           </Card>

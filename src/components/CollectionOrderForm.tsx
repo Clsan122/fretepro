@@ -33,6 +33,7 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   const [destinationCity, setDestinationCity] = useState("");
   const [destinationState, setDestinationState] = useState("");
   const [receiver, setReceiver] = useState("");
+  const [receiverAddress, setReceiverAddress] = useState("");
   const [volumes, setVolumes] = useState<number>(0);
   const [weight, setWeight] = useState<number>(0);
   const [measurements, setMeasurements] = useState<Measurement[]>([
@@ -62,6 +63,7 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       setDestinationCity(orderToEdit.destinationCity);
       setDestinationState(orderToEdit.destinationState);
       setReceiver(orderToEdit.receiver);
+      setReceiverAddress(orderToEdit.receiverAddress || "");
       setVolumes(orderToEdit.volumes);
       setWeight(orderToEdit.weight);
       setMeasurements(orderToEdit.measurements);
@@ -144,6 +146,7 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       destinationCity,
       destinationState,
       receiver,
+      receiverAddress,
       volumes,
       weight,
       measurements,
@@ -185,6 +188,8 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
         setDestinationState={setDestinationState}
         receiver={receiver}
         setReceiver={setReceiver}
+        receiverAddress={receiverAddress}
+        setReceiverAddress={setReceiverAddress}
       />
       
       <CargoSection 

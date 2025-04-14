@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -108,6 +109,7 @@ export interface CollectionOrder {
   destinationCity: string;      // Cidade destino
   destinationState: string;     // Estado destino
   receiver: string;             // Recebedor/destinatário
+  receiverAddress: string;      // Endereço do recebedor/destinatário
   volumes: number;              // Quantidade de volumes
   weight: number;               // Peso
   measurements: Measurement[];  // Medidas
