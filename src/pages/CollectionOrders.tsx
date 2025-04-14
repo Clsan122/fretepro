@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { getCollectionOrdersByUserId } from "@/utils/storage";
 import { CollectionOrder } from "@/types";
 import { Button } from "@/components/ui/button";
