@@ -3,7 +3,7 @@ import React, { useRef } from "react";
 import { Freight, Client, User, Driver } from "@/types";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Truck, Download, User as UserIcon } from "lucide-react";
+import { Truck, Download, User as UserIcon, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -14,6 +14,67 @@ interface ReceiptGeneratorProps {
   user: User;
   driver?: Driver;
 }
+
+export const PrintStyles = () => {
+  return (
+    <style type="text/css" media="print">
+      {`
+        @page {
+          size: A4;
+          margin: 10mm;
+        }
+        body {
+          font-size: 12px;
+          background-color: white !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .print-hidden {
+          display: none !important;
+        }
+        .card-compact .card-header {
+          padding: 12px;
+        }
+        .card-compact .card-content {
+          padding: 12px;
+        }
+        
+        /* Hides all elements except the print container */
+        body > *:not(.print-container) {
+          display: none !important;
+        }
+        
+        header, nav, footer, .sidebar, .bottom-navigation {
+          display: none !important;
+        }
+        
+        #receipt-print {
+          width: 100%;
+          max-width: 100%;
+          box-shadow: none !important;
+          padding: 5mm !important;
+          margin: 0 !important;
+          background-color: white !important;
+        }
+        
+        .layout-main {
+          padding: 0 !important;
+          background: none !important;
+        }
+        
+        #root > div > div:not(.print-container) {
+          display: none !important;
+        }
+        
+        #root {
+          padding: 0 !important;
+          margin: 0 !important;
+          background: white !important;
+        }
+      `}
+    </style>
+  );
+};
 
 const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, user, driver }) => {
   const client = clients.find((c) => c.id === freight.clientId);
@@ -44,17 +105,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
     return types[value as keyof typeof types] || value;
   };
 
-  const getBodyTypeLabel = (value: string) => {
-    const types = {
-      open: "Aberto",
-      closed: "Fechado (Baú)",
-      sider: "Fechado (Sider)",
-      van: "Furgão",
-      utility: "Utilitário",
-    };
-    return types[value as keyof typeof types] || value;
-  };
-
   const getPaymentTermLabel = (value: string | undefined) => {
     if (!value) return "Não informado";
     
@@ -76,6 +126,10 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
     } catch {
       return "Data inválida";
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const downloadReceipt = async () => {
@@ -132,17 +186,28 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
   };
 
   return (
-    <div className="p-2 md:p-4">
-      <div className="flex justify-end mb-2 md:mb-4">
+    <div className="p-2 md:p-4 print-container">
+      <div className="flex justify-end mb-2 md:mb-4 print-hidden">
+        <Button 
+          onClick={handlePrint} 
+          className="flex items-center mr-2"
+          variant="outline"
+        >
+          <Printer className="mr-2 h-4 w-4" />
+          Imprimir
+        </Button>
         <Button onClick={downloadReceipt} className="flex items-center">
           <Download className="mr-2 h-4 w-4" />
           Salvar como PDF
         </Button>
       </div>
       
+      <PrintStyles />
+      
       <div 
         ref={receiptRef} 
-        className="p-4 md:p-6 max-w-[210mm] mx-auto bg-white border border-gray-200 shadow-sm text-sm"
+        id="receipt-print"
+        className="p-4 md:p-6 max-w-[210mm] mx-auto bg-white border border-gray-200 shadow-sm text-sm print:border-0 print:shadow-none"
         style={{ minHeight: '900px' }}
       >
         <div className="flex justify-between items-center mb-4">
@@ -238,7 +303,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
             <p><span className="font-medium">Volumes:</span> {freight.volumes}</p>
             <p><span className="font-medium">Peso:</span> {freight.weight} kg</p>
             <p><span className="font-medium">Dimensões:</span> {freight.dimensions || "N/A"}</p>
-            <p><span className="font-medium">Cubagem:</span> {freight.cubicMeasurement} m³</p>
           </div>
         </div>
 

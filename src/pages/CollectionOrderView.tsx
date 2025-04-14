@@ -12,6 +12,7 @@ import { CollectionOrderHeader } from "@/components/collectionOrder/CollectionOr
 import { CollectionOrderDocument } from "@/components/collectionOrder/CollectionOrderDocument";
 import { PrintStyles } from "@/components/collectionOrder/PrintStyles";
 import { usePDFGenerator } from "@/components/collectionOrder/PDFGenerator";
+import { Printer } from "lucide-react";
 
 const CollectionOrderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -89,12 +90,22 @@ const CollectionOrderView: React.FC = () => {
   return (
     <Layout>
       <div className="p-4 md:p-6 print-container">
-        <CollectionOrderHeader
-          id={id || ''}
-          handleDelete={handleDelete}
-          handlePrint={handlePrint}
-          handleSavePDF={handleSavePDF}
-        />
+        <div className="flex justify-between items-center mb-4 print-hidden">
+          <CollectionOrderHeader
+            id={id || ''}
+            handleDelete={handleDelete}
+            handlePrint={handlePrint}
+            handleSavePDF={handleSavePDF}
+          />
+          <Button
+            onClick={handlePrint}
+            className="flex items-center ml-auto"
+            variant="outline"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Imprimir
+          </Button>
+        </div>
         
         <PrintStyles />
         
