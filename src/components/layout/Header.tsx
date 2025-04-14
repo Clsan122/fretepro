@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) =>
   };
   
   return (
-    <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
+    <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 transition-colors duration-300">
       <div className="flex items-center">
         <Button 
           variant="ghost" 
@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) =>
         >
           <MenuIcon className="h-5 w-5" />
         </Button>
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-white ml-2">
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-white ml-2 transition-colors duration-300">
           Sistema de Fretes
         </h1>
       </div>
@@ -50,31 +50,31 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) =>
           variant="ghost" 
           size="icon"
           onClick={toggleTheme}
-          className="hidden md:flex"
+          className="hidden md:flex relative overflow-hidden"
         >
           {theme === "light" ? (
-            <Moon className="h-5 w-5" />
+            <Moon className="h-5 w-5 transform transition-transform duration-300 rotate-0" />
           ) : (
-            <Sun className="h-5 w-5" />
+            <Sun className="h-5 w-5 transform transition-transform duration-300 rotate-0" />
           )}
         </Button>
         
         <Button 
           variant="ghost" 
           onClick={() => handleNavigate("/profile")}
-          className="flex items-center hidden md:flex"
+          className="flex items-center hidden md:flex transition-transform hover:scale-105 duration-200"
         >
-          <div className="h-8 w-8 rounded-full bg-freight-200 flex items-center justify-center text-freight-800 mr-2">
+          <div className="h-8 w-8 rounded-full bg-freight-200 flex items-center justify-center text-freight-800 mr-2 transition-colors duration-300">
             {user?.name?.charAt(0) || "U"}
           </div>
-          <span className="hidden lg:inline-block">{user?.name || "Usuário"}</span>
+          <span className="hidden lg:inline-block transition-colors duration-300">{user?.name || "Usuário"}</span>
         </Button>
         
         <Button 
           variant="ghost" 
           size="icon"
           onClick={handleLogout}
-          className="hidden md:flex"
+          className="hidden md:flex transition-transform hover:scale-105 duration-200"
         >
           <LogOut className="h-5 w-5" />
         </Button>

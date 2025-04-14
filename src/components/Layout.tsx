@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Sidebar 
         sidebarOpen={sidebarOpen} 
         toggleSidebar={toggleSidebar} 
@@ -42,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       )}
       
-      <div className={`md:ml-64 min-h-screen pb-16 md:pb-0`}>
+      <div className={`md:ml-64 min-h-screen pb-16 md:pb-0 transition-all duration-300`}>
         <Header 
           toggleSidebar={toggleSidebar} 
           theme={theme}
