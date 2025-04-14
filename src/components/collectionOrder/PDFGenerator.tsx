@@ -56,7 +56,7 @@ export const usePDFGenerator = () => {
       const pageHeight = pdf.internal.pageSize.getHeight();
       
       // Calculate the dimensions to fit the content on one page
-      const imgWidth = pageWidth - 20; // 10mm margin on each side
+      let imgWidth = pageWidth - 20; // Changed from const to let since we might modify it later
       let imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       // If the height exceeds the page height, scale to fit
