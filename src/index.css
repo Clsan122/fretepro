@@ -95,16 +95,6 @@
   body {
     @apply bg-background text-foreground font-inter;
   }
-
-  /* Theme transition */
-  html, body {
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  /* Smooth transitions for elements */
-  button, a, svg, .transition-all {
-    transition: all 0.3s ease;
-  }
 }
 
 .form-container {

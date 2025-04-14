@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Driver } from "@/types";
 import { VEHICLE_TYPES, BODY_TYPES } from "@/utils/constants";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";

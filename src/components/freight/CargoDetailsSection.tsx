@@ -25,8 +25,8 @@ interface CargoDetailsProps {
   setWeight: (value: number) => void;
   dimensions: string;
   setDimensions: (value: string) => void;
-  cubicMeasurement: number; // Keep this for compatibility
-  setCubicMeasurement: (value: number) => void; // Keep this for compatibility
+  cubicMeasurement: number;
+  setCubicMeasurement: (value: number) => void;
   cargoType: string;
   setCargoType: (value: string) => void;
   vehicleType: string;
@@ -40,6 +40,8 @@ export const CargoDetailsSection: React.FC<CargoDetailsProps> = ({
   setWeight,
   dimensions,
   setDimensions,
+  cubicMeasurement,
+  setCubicMeasurement,
   cargoType,
   setCargoType,
   vehicleType,
@@ -82,6 +84,18 @@ export const CargoDetailsSection: React.FC<CargoDetailsProps> = ({
               value={dimensions}
               onChange={(e) => setDimensions(e.target.value)}
               placeholder="Ex: 100x80x120 cm"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cubicMeasurement">Cubagem (m³)</Label>
+            <Input
+              id="cubicMeasurement"
+              type="number"
+              step="0.01"
+              value={cubicMeasurement.toString()}
+              onChange={(e) => setCubicMeasurement(Number(e.target.value))}
+              placeholder="Cubagem em metros cúbicos"
             />
           </div>
         </div>

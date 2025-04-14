@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { getUserByEmail, updateUser } from "@/utils/storage";
 

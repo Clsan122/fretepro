@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { Client } from "@/types";
 import { getClientsByUserId, saveClient, updateClient, deleteClient } from "@/utils/storage";
 import { Button } from "@/components/ui/button";

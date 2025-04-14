@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { Freight, Client, Driver } from "@/types";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { getClientsByUserId, getDriversByUserId } from "@/utils/storage";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,20 +14,11 @@ import { PaymentInfoSection } from "./freight/PaymentInfoSection";
 import { PricingSection } from "./freight/PricingSection";
 import { DeliveryProofSection } from "./freight/DeliveryProofSection";
 import { FormActions } from "./freight/FormActions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 interface FreightFormProps {
   onSave: (freight: Freight) => void;
   onCancel: () => void;
   freightToEdit?: Freight;
-}
-
-interface CubageMeasurements {
-  length: number;
-  width: number;
-  height: number;
 }
 
 const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEdit }) => {
@@ -42,6 +32,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   const [volumes, setVolumes] = useState<number>(0);
   const [weight, setWeight] = useState<number>(0);
   const [dimensions, setDimensions] = useState("");
+  const [cubicMeasurement, setCubicMeasurement] = useState<number>(0);
   const [cargoType, setCargoType] = useState("");
   const [vehicleType, setVehicleType] = useState("");
   const [freightValue, setFreightValue] = useState<number>(0);
@@ -56,13 +47,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   
   const [pixKey, setPixKey] = useState("");
   const [paymentTerm, setPaymentTerm] = useState("");
-  
-  // Add state for cubage calculator
-  const [cubageMeasurements, setCubageMeasurements] = useState<CubageMeasurements>({
-    length: 0,
-    width: 0,
-    height: 0
-  });
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -86,6 +70,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       setVolumes(freightToEdit.volumes);
       setWeight(freightToEdit.weight);
       setDimensions(freightToEdit.dimensions);
+      setCubicMeasurement(freightToEdit.cubicMeasurement);
       setCargoType(freightToEdit.cargoType);
       setVehicleType(freightToEdit.vehicleType);
       setFreightValue(freightToEdit.freightValue);
@@ -105,14 +90,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
     setTotalValue(total);
   }, [freightValue, dailyRate, otherCosts, tollCosts]);
 
-  // Add calculation for cubage
-  useEffect(() => {
-    if (cubageMeasurements.length > 0 && cubageMeasurements.width > 0 && cubageMeasurements.height > 0) {
-      const cubage = (cubageMeasurements.length * cubageMeasurements.width * cubageMeasurements.height) / 1000000; // convert cm³ to m³
-      setDimensions(`${cubageMeasurements.length}x${cubageMeasurements.width}x${cubageMeasurements.height} cm`);
-    }
-  }, [cubageMeasurements]);
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -122,10 +99,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleCubageMeasurementChange = (field: keyof CubageMeasurements, value: number) => {
-    setCubageMeasurements(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -161,7 +134,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       volumes,
       weight,
       dimensions,
-      cubicMeasurement: 0, // Set default value as it's required by type but removed from form
+      cubicMeasurement,
       cargoType: cargoType as any,
       vehicleType: vehicleType as any,
       freightValue,
@@ -209,57 +182,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
         setArrivalDate={setArrivalDate}
       />
 
-      {/* Cubage Calculator - kept but cubicMeasurement field removed */}
-      <Card className="border rounded-lg shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold">Calculadora de Dimensões</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="length">Comprimento (cm)</Label>
-              <Input
-                id="length"
-                type="number"
-                min="0"
-                step="0.01"
-                value={cubageMeasurements.length || ""}
-                onChange={(e) => handleCubageMeasurementChange("length", parseFloat(e.target.value) || 0)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="width">Largura (cm)</Label>
-              <Input
-                id="width"
-                type="number"
-                min="0"
-                step="0.01"
-                value={cubageMeasurements.width || ""}
-                onChange={(e) => handleCubageMeasurementChange("width", parseFloat(e.target.value) || 0)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="height">Altura (cm)</Label>
-              <Input
-                id="height"
-                type="number"
-                min="0"
-                step="0.01"
-                value={cubageMeasurements.height || ""}
-                onChange={(e) => handleCubageMeasurementChange("height", parseFloat(e.target.value) || 0)}
-              />
-            </div>
-          </div>
-          
-          {dimensions && (
-            <div className="mt-4 p-3 bg-muted rounded-md">
-              <p className="font-medium">Resultado do cálculo:</p>
-              <p>Dimensões: <span className="font-medium">{dimensions}</span></p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       <CargoDetailsSection 
         volumes={volumes}
         setVolumes={setVolumes}
@@ -267,8 +189,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
         setWeight={setWeight}
         dimensions={dimensions}
         setDimensions={setDimensions}
-        cubicMeasurement={0} // Passing default value since it's required by component
-        setCubicMeasurement={() => {}} // Empty function as we no longer use this field
+        cubicMeasurement={cubicMeasurement}
+        setCubicMeasurement={setCubicMeasurement}
         cargoType={cargoType}
         setCargoType={setCargoType}
         vehicleType={vehicleType}
