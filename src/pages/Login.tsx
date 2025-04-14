@@ -44,7 +44,6 @@ const Login: React.FC = () => {
         toast({
           title: "Login realizado com sucesso",
           description: "Você está sendo redirecionado para a página inicial.",
-          variant: "default",
         });
         navigate("/dashboard");
       } else {

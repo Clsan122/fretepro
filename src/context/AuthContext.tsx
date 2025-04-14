@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -10,6 +11,7 @@ type AuthContextType = {
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   setUser: (user: User) => void;
+  forgotPassword: (email: string) => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   register: async () => false,
   logout: () => {},
   setUser: () => {},
+  forgotPassword: async () => false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -104,6 +107,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const forgotPassword = async (email: string): Promise<boolean> => {
+    try {
+      // Get users from local storage
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      
+      // Check if user with email exists
+      const existingUser = users.find((u: any) => u.email === email);
+      if (!existingUser) {
+        return false;
+      }
+      
+      // In a real app, you would send a password reset email here
+      console.log(`Password reset requested for email: ${email}`);
+      
+      return true;
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      return false;
+    }
+  };
+
   const logout = () => {
     setUserState(null);
     setIsAuthenticated(false);
@@ -117,7 +141,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, setUser }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        isAuthenticated, 
+        login, 
+        register, 
+        logout, 
+        setUser,
+        forgotPassword 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
