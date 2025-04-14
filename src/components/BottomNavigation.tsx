@@ -1,8 +1,7 @@
-
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, Users, Truck, Package, FileText, User } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 const BottomNavigation: React.FC = () => {
   const navigate = useNavigate();

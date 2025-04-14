@@ -1,7 +1,7 @@
 
 import { User } from "@/types";
 
-export const sanitizeUser = (user: User): User => {
+export const sanitizeUser = (user: User & { password?: string }): User => {
   // Remove sensitive information like password
   const { password, ...sanitizedUser } = user;
   return sanitizedUser;
