@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,7 @@ import CollectionOrders from "./pages/CollectionOrders";
 import CollectionOrderPage from "./pages/CollectionOrder";
 import CollectionOrderView from "./pages/CollectionOrderView";
 import CollectionOrderEdit from "./pages/CollectionOrderEdit";
+import ResetPassword from "./pages/ResetPassword";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient({
@@ -76,6 +76,8 @@ const AppRoutes = () => {
       <Route path="/collection-order/new" element={<ProtectedRoute><CollectionOrderPage /></ProtectedRoute>} />
       <Route path="/collection-order/:id" element={<ProtectedRoute><CollectionOrderView /></ProtectedRoute>} />
       <Route path="/collection-order/edit/:id" element={<ProtectedRoute><CollectionOrderEdit /></ProtectedRoute>} />
+      
+      <Route path="/reset-password" element={<ResetPassword />} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
