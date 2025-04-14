@@ -1,4 +1,3 @@
-
 import React from "react";
 
 export const PrintStyles: React.FC = () => {
@@ -15,6 +14,19 @@ export const PrintStyles: React.FC = () => {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
+        
+        /* Hide navigation elements when printing */
+        header, 
+        nav, 
+        footer,
+        .sidebar,
+        .bottom-navigation,
+        [role="navigation"],
+        .print-hidden {
+          display: none !important;
+        }
+        
+        /* Additional print styles */
         .card-compact .card-header {
           padding: 12px;
         }
@@ -33,16 +45,9 @@ export const PrintStyles: React.FC = () => {
         .print-compact-grid {
           gap: 8px !important;
         }
-        .print-hidden {
-          display: none !important;
-        }
         
         /* Hides all elements except the print container */
         body > *:not(.print-container) {
-          display: none !important;
-        }
-        
-        header, nav, footer, .sidebar, .bottom-navigation {
           display: none !important;
         }
         
@@ -91,6 +96,23 @@ export const PrintStyles: React.FC = () => {
           position: relative;
           page-break-after: always;
         }
+        
+        /* Hide specific layout components */
+        .layout-header,
+        .layout-footer,
+        .layout-sidebar,
+        .bottom-nav {
+          display: none !important;
+        }
+        
+        /* Ensure content takes full width when printing */
+        .layout-main {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+        }
+        
+        /* Additional print optimizations */
       `}
     </style>
   );
