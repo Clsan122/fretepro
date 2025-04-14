@@ -12,6 +12,8 @@ export const PrintStyles: React.FC = () => {
         body {
           font-size: 12px;
           background-color: white !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
         .card-compact .card-header {
           padding: 12px;
@@ -35,6 +37,7 @@ export const PrintStyles: React.FC = () => {
           display: none !important;
         }
         
+        /* Hides all elements except the print container */
         body > *:not(.print-container) {
           display: none !important;
         }
@@ -58,6 +61,7 @@ export const PrintStyles: React.FC = () => {
           box-shadow: none !important;
           padding: 5mm !important;
           margin: 0 !important;
+          background-color: white !important;
         }
         
         .layout-main {
@@ -73,6 +77,12 @@ export const PrintStyles: React.FC = () => {
           padding: 0 !important;
           margin: 0 !important;
           background: white !important;
+        }
+        
+        /* Ajustes para impressão A4 */
+        .print-container {
+          width: 210mm !important;
+          min-height: 297mm !important;
         }
       `}
     </style>

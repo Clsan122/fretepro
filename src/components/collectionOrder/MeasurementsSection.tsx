@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,15 @@ interface MeasurementsProps {
   handleAddMeasurement: () => void;
   handleRemoveMeasurement: (id: string) => void;
   handleMeasurementChange: (id: string, field: keyof Measurement, value: number) => void;
+  cubicMeasurement: number;
 }
 
 export const MeasurementsSection: React.FC<MeasurementsProps> = ({
   measurements,
   handleAddMeasurement,
   handleRemoveMeasurement,
-  handleMeasurementChange
+  handleMeasurementChange,
+  cubicMeasurement
 }) => {
   return (
     <Card>
@@ -133,6 +135,10 @@ export const MeasurementsSection: React.FC<MeasurementsProps> = ({
             </div>
           </div>
         ))}
+        
+        <div className="mt-4 text-right font-medium">
+          <span>Cubagem total: {cubicMeasurement.toFixed(3)} m³</span>
+        </div>
       </CardContent>
     </Card>
   );

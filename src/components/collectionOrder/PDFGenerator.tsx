@@ -30,11 +30,12 @@ export const usePDFGenerator = () => {
     
     try {
       const canvas = await html2canvas(printElement, {
-        scale: 1.5,
+        scale: 2, // Aumentado para melhor qualidade
         useCORS: true,
         logging: false,
-        windowWidth: 800,
-        windowHeight: 1200
+        backgroundColor: '#FFFFFF',
+        windowWidth: printElement.offsetWidth,
+        windowHeight: printElement.offsetHeight
       });
       
       const imgData = canvas.toDataURL('image/png');
@@ -45,10 +46,10 @@ export const usePDFGenerator = () => {
       });
       
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pageWidth;
+      const imgWidth = pageWidth - 20; // Margem de 10mm em cada lado
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(fileName);
       
       toast({

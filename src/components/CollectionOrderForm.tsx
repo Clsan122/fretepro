@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Measurement } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -74,14 +73,19 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
     }
   }, [orderToEdit]);
 
-  // Calculate cubic measurement when measurements change
   useEffect(() => {
     const totalCubic = measurements.reduce((sum, item) => {
-      const itemCubic = (item.length * item.width * item.height * item.quantity) / 1000000; // convert cm³ to m³
-      return sum + itemCubic;
+      if (item.length > 0 && item.width > 0 && item.height > 0 && item.quantity > 0) {
+        const itemCubic = (item.length * item.width * item.height * item.quantity) / 1000000; // convert cm³ to m³
+        return sum + itemCubic;
+      }
+      return sum;
     }, 0);
     
     setCubicMeasurement(totalCubic);
+    
+    const totalVolumes = measurements.reduce((sum, item) => sum + item.quantity, 0);
+    setVolumes(totalVolumes);
   }, [measurements]);
 
   const handleAddMeasurement = () => {
@@ -207,6 +211,7 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
         handleAddMeasurement={handleAddMeasurement}
         handleRemoveMeasurement={handleRemoveMeasurement}
         handleMeasurementChange={handleMeasurementChange}
+        cubicMeasurement={cubicMeasurement}
       />
       
       <DriverSection 
