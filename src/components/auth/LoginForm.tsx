@@ -7,20 +7,18 @@ import { AtSign, LogIn, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import PasswordInput from "./PasswordInput";
-import GoogleLoginButton from "./GoogleLoginButton";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
-  onGoogleLogin: () => Promise<void>;
   error: string | null;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onGoogleLogin, error }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, error }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const { toast } = useToast();
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -41,16 +39,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onGoogleLogin, error })
       await onSubmit(email, password);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
-    
-    try {
-      await onGoogleLogin();
-    } finally {
-      setGoogleLoading(false);
     }
   };
 
@@ -93,23 +81,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onGoogleLogin, error })
           {loading ? "Carregando..." : "Entrar"}
           <LogIn className="ml-2 h-4 w-4" />
         </Button>
+
+        <div className="text-center text-sm text-gray-500">
+          Não tem uma conta?{' '}
+          <Link to="/register" className="text-freight-600 hover:underline">
+            Registre-se aqui
+          </Link>
+        </div>
       </form>
-      
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <Separator className="w-full" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white dark:bg-gray-800 px-2 text-muted-foreground">
-            Ou continue com
-          </span>
-        </div>
-      </div>
-      
-      <GoogleLoginButton 
-        onClick={handleGoogleLogin}
-        loading={googleLoading}
-      />
     </div>
   );
 };
