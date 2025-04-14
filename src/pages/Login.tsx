@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -53,20 +52,20 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const { data, error } = await supabase.functions.invoke('send-temp-password', {
+        body: { email: resetEmail }
       });
 
       if (error) throw error;
 
       toast({
-        title: "Email enviado",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        title: "Senha temporária enviada",
+        description: "Verifique seu email para obter sua senha temporária.",
       });
       setResetDialogOpen(false);
     } catch (error: any) {
       toast({
-        title: "Erro ao enviar email",
+        title: "Erro ao enviar senha temporária",
         description: error.message,
         variant: "destructive",
       });
