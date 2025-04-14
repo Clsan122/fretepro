@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -7,6 +8,7 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   setUser: (user: User) => void;
@@ -16,6 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   login: async () => false,
+  loginWithGoogle: async () => false,
   register: async () => false,
   logout: () => {},
   setUser: () => {},
@@ -27,6 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUserState] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Google API Key
+  const GOOGLE_API_KEY = "AIzaSyCqysfLqP8UBCdhQ44_nIruQxjFK4gLY3E";
+
   useEffect(() => {
     // Check if user is already logged in on component mount
     const currentUser = getCurrentUser();
@@ -34,6 +40,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserState(currentUser);
       setIsAuthenticated(true);
     }
+
+    // Load Google API
+    const loadGoogleAPI = () => {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+      
+      script.onload = () => {
+        console.log("Google API loaded successfully");
+      };
+      
+      script.onerror = () => {
+        console.error("Error loading Google API");
+      };
+    };
+    
+    loadGoogleAPI();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -59,6 +84,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (error) {
       console.error("Login error:", error);
+      return false;
+    }
+  };
+
+  const loginWithGoogle = async (): Promise<boolean> => {
+    try {
+      return new Promise((resolve) => {
+        // @ts-ignore - Google API is loaded dynamically
+        if (window.google && window.google.accounts) {
+          // @ts-ignore - Google API is loaded dynamically
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_API_KEY,
+            callback: async (response: any) => {
+              if (response.credential) {
+                // Decode the JWT token
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                  return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                
+                const { name, email, sub: googleId, picture } = JSON.parse(jsonPayload);
+                
+                // Get users from local storage
+                const users = JSON.parse(localStorage.getItem("users") || "[]");
+                
+                // Check if user with this Google ID or email already exists
+                let user = users.find((u: any) => u.googleId === googleId || u.email === email);
+                
+                if (!user) {
+                  // Create new user if not exists
+                  user = {
+                    id: uuidv4(),
+                    createdAt: new Date().toISOString(),
+                    name,
+                    email,
+                    phone: "",
+                    googleId,
+                    picture,
+                  };
+                  
+                  users.push(user);
+                  localStorage.setItem("users", JSON.stringify(users));
+                } else {
+                  // Update existing user with latest Google info
+                  user.name = name;
+                  user.picture = picture;
+                  user.googleId = googleId;
+                  
+                  // Update the user in the array
+                  const userIndex = users.findIndex((u: any) => u.id === user.id);
+                  users[userIndex] = user;
+                  localStorage.setItem("users", JSON.stringify(users));
+                }
+                
+                setUserState(user);
+                setIsAuthenticated(true);
+                setCurrentUser(user);
+                resolve(true);
+              } else {
+                resolve(false);
+              }
+            },
+            auto_select: false,
+          });
+          
+          // @ts-ignore - Google API is loaded dynamically
+          window.google.accounts.id.prompt();
+        } else {
+          console.error("Google API not loaded");
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error("Google login error:", error);
       return false;
     }
   };
@@ -117,7 +217,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, setUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, loginWithGoogle, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
