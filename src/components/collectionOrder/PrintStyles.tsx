@@ -84,6 +84,13 @@ export const PrintStyles: React.FC = () => {
           width: 210mm !important;
           min-height: 297mm !important;
         }
+        
+        /* Scale to fit on one page */
+        #collection-order-print {
+          transform-origin: top center;
+          position: relative;
+          page-break-after: always;
+        }
       `}
     </style>
   );

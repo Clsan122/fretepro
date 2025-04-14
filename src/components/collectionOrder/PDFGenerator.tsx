@@ -6,12 +6,19 @@ import jsPDF from "jspdf";
 interface PDFGeneratorProps {
   elementId: string;
   fileName: string;
+  format?: "a4" | "letter";
+  orientation?: "portrait" | "landscape";
 }
 
 export const usePDFGenerator = () => {
   const { toast } = useToast();
   
-  const generatePDF = async ({ elementId, fileName }: PDFGeneratorProps) => {
+  const generatePDF = async ({ 
+    elementId, 
+    fileName, 
+    format = "a4",
+    orientation = "portrait" 
+  }: PDFGeneratorProps) => {
     const printElement = document.getElementById(elementId);
     
     if (!printElement) {
@@ -30,7 +37,7 @@ export const usePDFGenerator = () => {
     
     try {
       const canvas = await html2canvas(printElement, {
-        scale: 2, // Aumentado para melhor qualidade
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#FFFFFF',
@@ -40,16 +47,31 @@ export const usePDFGenerator = () => {
       
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: orientation,
         unit: 'mm',
-        format: 'a4'
+        format: format
       });
       
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pageWidth - 20; // Margem de 10mm em cada lado
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+      // Calculate the dimensions to fit the content on one page
+      const imgWidth = pageWidth - 20; // 10mm margin on each side
+      let imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // If the height exceeds the page height, scale to fit
+      if (imgHeight > pageHeight - 20) {
+        imgHeight = pageHeight - 20;
+        // Adjust width proportionally
+        const widthToHeight = canvas.width / canvas.height;
+        imgWidth = imgHeight * widthToHeight;
+      }
+      
+      // Center the image on the page
+      const xPos = (pageWidth - imgWidth) / 2;
+      const yPos = (pageHeight - imgHeight) / 2;
+      
+      pdf.addImage(imgData, 'PNG', xPos, yPos, imgWidth, imgHeight);
       pdf.save(fileName);
       
       toast({

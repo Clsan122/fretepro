@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Freight, Client, Driver } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -14,11 +15,21 @@ import { PaymentInfoSection } from "./freight/PaymentInfoSection";
 import { PricingSection } from "./freight/PricingSection";
 import { DeliveryProofSection } from "./freight/DeliveryProofSection";
 import { FormActions } from "./freight/FormActions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 interface FreightFormProps {
   onSave: (freight: Freight) => void;
   onCancel: () => void;
   freightToEdit?: Freight;
+}
+
+interface CubageMeasurements {
+  length: number;
+  width: number;
+  height: number;
 }
 
 const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEdit }) => {
@@ -47,6 +58,13 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   
   const [pixKey, setPixKey] = useState("");
   const [paymentTerm, setPaymentTerm] = useState("");
+  
+  // Add state for cubage calculator
+  const [cubageMeasurements, setCubageMeasurements] = useState<CubageMeasurements>({
+    length: 0,
+    width: 0,
+    height: 0
+  });
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -90,6 +108,15 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
     setTotalValue(total);
   }, [freightValue, dailyRate, otherCosts, tollCosts]);
 
+  // Add calculation for cubage
+  useEffect(() => {
+    if (cubageMeasurements.length > 0 && cubageMeasurements.width > 0 && cubageMeasurements.height > 0) {
+      const cubage = (cubageMeasurements.length * cubageMeasurements.width * cubageMeasurements.height) / 1000000; // convert cm³ to m³
+      setCubicMeasurement(cubage);
+      setDimensions(`${cubageMeasurements.length}x${cubageMeasurements.width}x${cubageMeasurements.height} cm`);
+    }
+  }, [cubageMeasurements]);
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -99,6 +126,10 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCubageMeasurementChange = (field: keyof CubageMeasurements, value: number) => {
+    setCubageMeasurements(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -181,6 +212,58 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
         arrivalDate={arrivalDate}
         setArrivalDate={setArrivalDate}
       />
+
+      {/* Add Cubage Calculator */}
+      <Card className="border rounded-lg shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-semibold">Calculadora de Cubagem</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="length">Comprimento (cm)</Label>
+              <Input
+                id="length"
+                type="number"
+                min="0"
+                step="0.01"
+                value={cubageMeasurements.length || ""}
+                onChange={(e) => handleCubageMeasurementChange("length", parseFloat(e.target.value) || 0)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="width">Largura (cm)</Label>
+              <Input
+                id="width"
+                type="number"
+                min="0"
+                step="0.01"
+                value={cubageMeasurements.width || ""}
+                onChange={(e) => handleCubageMeasurementChange("width", parseFloat(e.target.value) || 0)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="height">Altura (cm)</Label>
+              <Input
+                id="height"
+                type="number"
+                min="0"
+                step="0.01"
+                value={cubageMeasurements.height || ""}
+                onChange={(e) => handleCubageMeasurementChange("height", parseFloat(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          
+          {cubicMeasurement > 0 && (
+            <div className="mt-4 p-3 bg-muted rounded-md">
+              <p className="font-medium">Resultado do cálculo:</p>
+              <p>Cubagem: <span className="font-bold">{cubicMeasurement.toFixed(4)} m³</span></p>
+              <p>Dimensões: <span className="font-medium">{dimensions}</span></p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <CargoDetailsSection 
         volumes={volumes}

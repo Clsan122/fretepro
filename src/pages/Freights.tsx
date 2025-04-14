@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { Freight, Client, Driver } from "@/types";
@@ -53,7 +53,9 @@ import {
   FileText, 
   Eye, 
   Package, 
-  ArrowUpDown 
+  ArrowUpDown,
+  Printer,
+  Download
 } from "lucide-react";
 import { format } from "date-fns";
 import { 
@@ -67,6 +69,8 @@ import { Label } from "@/components/ui/label";
 import FreightForm from "@/components/FreightForm";
 import ReceiptGenerator from "@/components/ReceiptGenerator";
 import { CARGO_TYPES, VEHICLE_TYPES } from "@/utils/constants";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { usePDFGenerator } from "@/components/collectionOrder/PDFGenerator";
 
 const Freights: React.FC = () => {
   const [freights, setFreights] = useState<Freight[]>([]);
@@ -85,10 +89,14 @@ const Freights: React.FC = () => {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
   
+  const [isClientReportOpen, setIsClientReportOpen] = useState(false);
+  const [reportClientId, setReportClientId] = useState<string>("all");
+  const clientReportRef = useRef<HTMLDivElement>(null);
+  
   const { user } = useAuth();
   const { toast } = useToast();
+  const { generatePDF } = usePDFGenerator();
   
-  // Load freights, clients and drivers on component mount
   useEffect(() => {
     if (user) {
       const userFreights = getFreightsByUserId(user.id);
@@ -101,11 +109,9 @@ const Freights: React.FC = () => {
     }
   }, [user]);
 
-  // Apply filters and sorting when freights, searchTerm or clientFilter changes
   useEffect(() => {
     let filtered = [...freights];
     
-    // Filter by search term
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter(freight => {
         const client = clients.find(c => c.id === freight.clientId);
@@ -117,17 +123,14 @@ const Freights: React.FC = () => {
       });
     }
     
-    // Filter by client
     if (clientFilter !== "all") {
       filtered = filtered.filter(freight => freight.clientId === clientFilter);
     }
     
-    // Apply sorting
     filtered.sort((a, b) => {
       let valueA: string | number | Date = a[sortField] as string;
       let valueB: string | number | Date = b[sortField] as string;
       
-      // Convert to appropriate type for comparison
       if (sortField === "createdAt" || sortField === "departureDate" || sortField === "arrivalDate") {
         valueA = new Date(valueA || 0);
         valueB = new Date(valueB || 0);
@@ -156,13 +159,10 @@ const Freights: React.FC = () => {
   const handleAddFreight = (freight: Freight) => {
     saveFreight(freight);
     
-    // Update local state
     setFreights(prevFreights => [...prevFreights, freight]);
     
-    // Close dialog
     setIsAddDialogOpen(false);
     
-    // Show success message
     toast({
       title: "Frete registrado",
       description: "O frete foi registrado com sucesso!",
@@ -172,16 +172,13 @@ const Freights: React.FC = () => {
   const handleEditFreight = (freight: Freight) => {
     updateFreight(freight);
     
-    // Update local state
     setFreights(prevFreights => 
       prevFreights.map(f => (f.id === freight.id ? freight : f))
     );
     
-    // Close dialog
     setIsEditDialogOpen(false);
     setSelectedFreight(null);
     
-    // Show success message
     toast({
       title: "Frete atualizado",
       description: "As informações do frete foram atualizadas com sucesso!",
@@ -192,19 +189,34 @@ const Freights: React.FC = () => {
     if (selectedFreight) {
       deleteFreight(selectedFreight.id);
       
-      // Update local state
       setFreights(prevFreights => 
         prevFreights.filter(f => f.id !== selectedFreight.id)
       );
       
-      // Close dialog
       setIsDeleteDialogOpen(false);
       setSelectedFreight(null);
       
-      // Show success message
       toast({
         title: "Frete removido",
         description: "O frete foi removido com sucesso!",
+      });
+    }
+  };
+
+  const handleGenerateClientReport = () => {
+    setIsClientReportOpen(true);
+  };
+
+  const handleSaveClientReport = () => {
+    if (clientReportRef.current) {
+      const client = clients.find(c => c.id === reportClientId);
+      const clientName = client ? client.name.replace(/\s+/g, '-').toLowerCase() : 'todos-clientes';
+      
+      generatePDF({
+        elementId: 'client-report-container',
+        fileName: `relatorio-fretes-${clientName}.pdf`,
+        format: "a4",
+        orientation: "portrait"
       });
     }
   };
@@ -233,10 +245,26 @@ const Freights: React.FC = () => {
     }
   };
 
-  // Function to get the driver for a freight
   const getDriverForFreight = (driverId?: string) => {
     if (!driverId || driverId === 'none') return undefined;
     return drivers.find(driver => driver.id === driverId);
+  };
+
+  const getFreightsByClient = (clientId: string) => {
+    if (clientId === 'all') {
+      return freights;
+    } else {
+      return freights.filter(freight => freight.clientId === clientId);
+    }
+  };
+
+  const calculateReportTotals = (freightsList: Freight[]) => {
+    return {
+      count: freightsList.length,
+      totalValue: freightsList.reduce((sum, freight) => sum + freight.totalValue, 0),
+      totalWeight: freightsList.reduce((sum, freight) => sum + freight.weight, 0),
+      totalVolumes: freightsList.reduce((sum, freight) => sum + freight.volumes, 0)
+    };
   };
 
   return (
@@ -249,6 +277,11 @@ const Freights: React.FC = () => {
             <Button onClick={() => setIsAddDialogOpen(true)} className="bg-freight-600 hover:bg-freight-700">
               <Plus className="mr-2 h-4 w-4" />
               Novo Frete
+            </Button>
+            
+            <Button variant="outline" onClick={handleGenerateClientReport}>
+              <FileText className="mr-2 h-4 w-4" />
+              Relatório por Cliente
             </Button>
           </div>
         </div>
@@ -434,7 +467,6 @@ const Freights: React.FC = () => {
         )}
       </div>
 
-      {/* Add Freight Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -450,7 +482,6 @@ const Freights: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Freight Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -472,7 +503,6 @@ const Freights: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -493,7 +523,6 @@ const Freights: React.FC = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Receipt Generator */}
       <Sheet open={isReceiptSheetOpen} onOpenChange={setIsReceiptSheetOpen}>
         <SheetContent className="sm:max-w-[800px]">
           <SheetHeader>
@@ -515,7 +544,6 @@ const Freights: React.FC = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Freight Details Dialog */}
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -645,6 +673,156 @@ const Freights: React.FC = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isClientReportOpen} onOpenChange={setIsClientReportOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Relatório de Fretes por Cliente</DialogTitle>
+            <DialogDescription>
+              Selecione um cliente para gerar um relatório de todos os fretes.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="my-4">
+            <Label htmlFor="reportClient">Cliente</Label>
+            <Select
+              value={reportClientId}
+              onValueChange={setReportClientId}
+            >
+              <SelectTrigger id="reportClient">
+                <SelectValue placeholder="Selecionar cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os clientes</SelectItem>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex justify-end gap-2 mb-4">
+            <Button variant="outline" onClick={handleSaveClientReport}>
+              <Download className="h-4 w-4 mr-2" />
+              Salvar PDF
+            </Button>
+            <Button variant="outline" onClick={() => window.print()}>
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir
+            </Button>
+          </div>
+          
+          <div id="client-report-container" ref={clientReportRef} className="bg-white p-4 rounded border">
+            <div className="text-center mb-4">
+              <h2 className="text-2xl font-bold">Relatório de Fretes</h2>
+              <p className="text-gray-500">
+                {reportClientId === 'all' 
+                  ? 'Todos os clientes' 
+                  : `Cliente: ${getClientName(reportClientId)}`}
+              </p>
+              <p className="text-gray-500 text-sm">
+                Data de geração: {new Date().toLocaleDateString('pt-BR')}
+              </p>
+            </div>
+            
+            {reportClientId !== 'all' && (
+              <Card className="mb-4">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Informações do Cliente</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {clients.find(c => c.id === reportClientId) && (
+                    <div>
+                      <p><strong>Nome:</strong> {getClientName(reportClientId)}</p>
+                      <p><strong>Cidade/Estado:</strong> {clients.find(c => c.id === reportClientId)?.city}/{clients.find(c => c.id === reportClientId)?.state}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            
+            <Card className="mb-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Resumo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  const reportFreights = getFreightsByClient(reportClientId);
+                  const totals = calculateReportTotals(reportFreights);
+                  
+                  return (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                      <div className="bg-muted p-3 rounded-md">
+                        <p className="text-sm text-muted-foreground">Total de Fretes</p>
+                        <p className="text-2xl font-bold">{totals.count}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-md">
+                        <p className="text-sm text-muted-foreground">Valor Total (R$)</p>
+                        <p className="text-2xl font-bold">{totals.totalValue.toFixed(2)}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-md">
+                        <p className="text-sm text-muted-foreground">Peso Total (kg)</p>
+                        <p className="text-2xl font-bold">{totals.totalWeight.toFixed(2)}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-md">
+                        <p className="text-sm text-muted-foreground">Volumes</p>
+                        <p className="text-2xl font-bold">{totals.totalVolumes}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+            
+            <div className="rounded-md border overflow-x-auto mb-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {reportClientId === 'all' && <TableHead>Cliente</TableHead>}
+                    <TableHead>Origem</TableHead>
+                    <TableHead>Destino</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Peso (kg)</TableHead>
+                    <TableHead className="text-right">Valor (R$)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {getFreightsByClient(reportClientId).map((freight) => (
+                    <TableRow key={freight.id}>
+                      {reportClientId === 'all' && (
+                        <TableCell className="font-medium">
+                          {getClientName(freight.clientId)}
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        {freight.originCity}/{freight.originState}
+                      </TableCell>
+                      <TableCell>
+                        {freight.destinationCity}/{freight.destinationState}
+                      </TableCell>
+                      <TableCell>
+                        {formatDate(freight.departureDate)}
+                      </TableCell>
+                      <TableCell>
+                        {freight.weight}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {freight.totalValue.toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            
+            <div className="text-center text-sm text-gray-500 mt-8">
+              <p>Documento gerado pelo sistema de gerenciamento de fretes.</p>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </Layout>
