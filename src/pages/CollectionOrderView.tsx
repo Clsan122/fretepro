@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -73,11 +72,9 @@ const CollectionOrderView: React.FC = () => {
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
-      // Calculate the dimensions to fit on a single page
       const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      // Add the image to the PDF
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       
       pdf.save(`ordem-coleta-${id}.pdf`);
@@ -128,8 +125,8 @@ const CollectionOrderView: React.FC = () => {
   
   return (
     <Layout>
-      <div className="p-4 md:p-6">
-        <div className="flex flex-wrap items-center justify-between mb-4">
+      <div className="p-4 md:p-6 print-container">
+        <div className="flex flex-wrap items-center justify-between mb-4 print:hidden">
           <div className="flex items-center mb-2 md:mb-0">
             <Button
               variant="outline"
@@ -142,7 +139,7 @@ const CollectionOrderView: React.FC = () => {
             <h1 className="text-2xl font-bold">Ordem de Coleta</h1>
           </div>
           
-          <div className="flex space-x-2 print:hidden">
+          <div className="flex space-x-2">
             <Button
               variant="outline"
               size="sm"
@@ -202,6 +199,7 @@ const CollectionOrderView: React.FC = () => {
             }
             body {
               font-size: 12px;
+              background-color: white !important;
             }
             .card-compact .card-header {
               padding: 12px;
@@ -223,6 +221,46 @@ const CollectionOrderView: React.FC = () => {
             }
             .print-hidden {
               display: none !important;
+            }
+            
+            body > *:not(.print-container) {
+              display: none !important;
+            }
+            
+            header, nav, footer, .sidebar, .bottom-navigation {
+              display: none !important;
+            }
+            
+            .print-container {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            
+            #collection-order-print {
+              width: 100%;
+              max-width: 100%;
+              box-shadow: none !important;
+              padding: 5mm !important;
+              margin: 0 !important;
+            }
+            
+            .layout-main {
+              padding: 0 !important;
+              background: none !important;
+            }
+            
+            #root > div > div:not(.print-container) {
+              display: none !important;
+            }
+            
+            #root {
+              padding: 0 !important;
+              margin: 0 !important;
+              background: white !important;
             }
           `}
         </style>
