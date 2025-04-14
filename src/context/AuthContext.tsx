@@ -30,8 +30,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUserState] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Google API Key
-  const GOOGLE_API_KEY = "AIzaSyCqysfLqP8UBCdhQ44_nIruQxjFK4gLY3E";
+  // Google API Key - Para produção, você deve substituir esta chave pela sua chave de produção
+  // Crie uma chave em: https://console.cloud.google.com/apis/credentials
+  // **ATENÇÃO:** A aplicação está configurada atualmente com uma chave inválida/de teste
+  // É necessário substituir por uma chave válida para o domínio em que será hospedado
+  const GOOGLE_API_KEY = "YOUR_GOOGLE_CLIENT_ID";  // Substitua por sua chave real em produção
+  
+  // Flag para controlar se estamos em ambiente de produção
+  const isProduction = window.location.hostname !== 'localhost' && 
+                      !window.location.hostname.includes('lovableproject.com');
 
   useEffect(() => {
     // Check if user is already logged in on component mount
@@ -90,6 +97,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async (): Promise<boolean> => {
     try {
+      // Se estamos em produção e não há chave válida configurada, alertar
+      if (isProduction && (GOOGLE_API_KEY === "YOUR_GOOGLE_CLIENT_ID" || !GOOGLE_API_KEY)) {
+        console.error("Google API Key não configurada para produção");
+        return false;
+      }
+      
       return new Promise((resolve) => {
         // @ts-ignore - Google API is loaded dynamically
         if (window.google && window.google.accounts) {
@@ -98,51 +111,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             client_id: GOOGLE_API_KEY,
             callback: async (response: any) => {
               if (response.credential) {
-                // Decode the JWT token
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                  return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                
-                const { name, email, sub: googleId, picture } = JSON.parse(jsonPayload);
-                
-                // Get users from local storage
-                const users = JSON.parse(localStorage.getItem("users") || "[]");
-                
-                // Check if user with this Google ID or email already exists
-                let user = users.find((u: any) => u.googleId === googleId || u.email === email);
-                
-                if (!user) {
-                  // Create new user if not exists
-                  user = {
-                    id: uuidv4(),
-                    createdAt: new Date().toISOString(),
-                    name,
-                    email,
-                    phone: "",
-                    googleId,
-                    picture,
-                  };
+                try {
+                  // Decode the JWT token
+                  const base64Url = response.credential.split('.')[1];
+                  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                  const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                  }).join(''));
                   
-                  users.push(user);
-                  localStorage.setItem("users", JSON.stringify(users));
-                } else {
-                  // Update existing user with latest Google info
-                  user.name = name;
-                  user.picture = picture;
-                  user.googleId = googleId;
+                  const { name, email, sub: googleId, picture } = JSON.parse(jsonPayload);
                   
-                  // Update the user in the array
-                  const userIndex = users.findIndex((u: any) => u.id === user.id);
-                  users[userIndex] = user;
-                  localStorage.setItem("users", JSON.stringify(users));
+                  // Get users from local storage
+                  const users = JSON.parse(localStorage.getItem("users") || "[]");
+                  
+                  // Check if user with this Google ID or email already exists
+                  let user = users.find((u: any) => u.googleId === googleId || u.email === email);
+                  
+                  if (!user) {
+                    // Create new user if not exists
+                    user = {
+                      id: uuidv4(),
+                      createdAt: new Date().toISOString(),
+                      name,
+                      email,
+                      phone: "",
+                      googleId,
+                      picture,
+                    };
+                    
+                    users.push(user);
+                    localStorage.setItem("users", JSON.stringify(users));
+                  } else {
+                    // Update existing user with latest Google info
+                    user.name = name;
+                    user.picture = picture;
+                    user.googleId = googleId;
+                    
+                    // Update the user in the array
+                    const userIndex = users.findIndex((u: any) => u.id === user.id);
+                    users[userIndex] = user;
+                    localStorage.setItem("users", JSON.stringify(users));
+                  }
+                  
+                  setUserState(user);
+                  setIsAuthenticated(true);
+                  setCurrentUser(user);
+                  resolve(true);
+                } catch (error) {
+                  console.error("Error processing Google login:", error);
+                  resolve(false);
                 }
-                
-                setUserState(user);
-                setIsAuthenticated(true);
-                setCurrentUser(user);
-                resolve(true);
               } else {
                 resolve(false);
               }
@@ -151,7 +169,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
           
           // @ts-ignore - Google API is loaded dynamically
-          window.google.accounts.id.prompt();
+          window.google.accounts.id.prompt((notification: any) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+              console.log("Google login prompt not displayed:", notification.getNotDisplayedReason() || notification.getSkippedReason());
+            }
+          });
         } else {
           console.error("Google API not loaded");
           resolve(false);

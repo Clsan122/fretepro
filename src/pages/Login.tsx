@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AtSign, Lock, LogIn, Eye, EyeOff, LogOut } from "lucide-react";
+import { AtSign, Lock, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -29,8 +31,10 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError(null);
     
     if (!email || !password) {
+      setLoginError("Por favor, preencha todos os campos.");
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha todos os campos.",
@@ -51,6 +55,7 @@ const Login: React.FC = () => {
         });
         navigate("/dashboard");
       } else {
+        setLoginError("Email ou senha inválidos.");
         toast({
           title: "Erro ao fazer login",
           description: "Email ou senha inválidos.",
@@ -59,6 +64,7 @@ const Login: React.FC = () => {
       }
     } catch (error) {
       console.error("Login error:", error);
+      setLoginError("Ocorreu um erro ao processar sua solicitação.");
       toast({
         title: "Erro ao fazer login",
         description: "Ocorreu um erro ao processar sua solicitação.",
@@ -70,6 +76,7 @@ const Login: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
+    setLoginError(null);
     setGoogleLoading(true);
     
     try {
@@ -81,9 +88,17 @@ const Login: React.FC = () => {
           variant: "default",
         });
         navigate("/dashboard");
+      } else {
+        setLoginError("Não foi possível fazer login com o Google. Por favor, tente novamente mais tarde.");
+        toast({
+          title: "Erro ao fazer login com Google",
+          description: "Não foi possível fazer login com o Google. Verifique se você permitiu os popups ou tente novamente mais tarde.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Google login error:", error);
+      setLoginError("Ocorreu um erro ao processar sua solicitação.");
       toast({
         title: "Erro ao fazer login com Google",
         description: "Ocorreu um erro ao processar sua solicitação.",
@@ -110,6 +125,13 @@ const Login: React.FC = () => {
           </CardHeader>
           
           <CardContent className="space-y-4">
+            {loginError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{loginError}</AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -168,7 +190,7 @@ const Login: React.FC = () => {
               
               <Button 
                 type="submit" 
-                className="w-full bg-freight-600 hover:bg-freight-700"
+                className="w-full bg-freight-600 hover:bg-freight-700 transition-all duration-300"
                 disabled={loading}
               >
                 {loading ? "Carregando..." : "Entrar"}
