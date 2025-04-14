@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,17 +20,19 @@ const Register = () => {
   const { toast } = useToast();
 
   const formatPhone = (value: string) => {
-    // Remove all non-digit characters
     const digits = value.replace(/\D/g, '');
-    
-    // Format as (XX) XXXXX-XXXX
-    if (digits.length <= 11) {
-      return digits.replace(/(\d{2})?(\d{5})?(\d{4})?/, (match, ddd, first, last) => {
-        if (last) return `(${ddd}) ${first}-${last}`;
-        if (first) return `(${ddd}) ${first}`;
-        if (ddd) return `(${ddd}`;
-        return '';
-      });
+    if (digits.length <= 13) {
+      let formatted = "+55 ";
+      if (digits.length > 0) {
+        formatted += "(" + digits.slice(0, 2);
+        if (digits.length > 2) {
+          formatted += ") " + digits.slice(2, 7);
+          if (digits.length > 7) {
+            formatted += "-" + digits.slice(7, 11);
+          }
+        }
+      }
+      return formatted;
     }
     return value;
   };
@@ -128,8 +129,8 @@ const Register = () => {
                   value={phone}
                   onChange={(e) => setPhone(formatPhone(e.target.value))}
                   className="pl-10"
-                  placeholder="(00) 00000-0000"
-                  maxLength={15}
+                  placeholder="+55 (00) 00000-0000"
+                  maxLength={18}
                   required
                 />
               </div>
