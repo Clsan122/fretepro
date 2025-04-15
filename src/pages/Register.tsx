@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -18,24 +19,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length <= 13) {
-      let formatted = "+55 ";
-      if (digits.length > 0) {
-        formatted += "(" + digits.slice(0, 2);
-        if (digits.length > 2) {
-          formatted += ") " + digits.slice(2, 7);
-          if (digits.length > 7) {
-            formatted += "-" + digits.slice(7, 11);
-          }
-        }
-      }
-      return formatted;
-    }
-    return value;
-  };
 
   const formatCPF = (value: string) => {
     const digits = value.replace(/\D/g, '');
@@ -62,6 +45,9 @@ const Register = () => {
     setLoading(true);
 
     try {
+      // Prepare unformatted phone for database storage
+      const cleanPhone = phone.replace(/\D/g, '');
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -69,7 +55,7 @@ const Register = () => {
           data: {
             full_name: fullName,
             cpf,
-            phone,
+            phone: cleanPhone, // Store clean digits for consistency
           },
         },
       });
