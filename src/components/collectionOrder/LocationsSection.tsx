@@ -47,6 +47,11 @@ export const LocationsSection: React.FC<LocationsProps> = ({
   receiverAddress,
   setReceiverAddress
 }) => {
+  const stateOptions = [
+    { abbreviation: "EX", name: "Exterior (Exportação)" },
+    ...BRAZILIAN_STATES
+  ];
+
   return (
     <Card>
       <CardHeader>
@@ -54,7 +59,7 @@ export const LocationsSection: React.FC<LocationsProps> = ({
         <CardDescription>Informe os dados de origem e destino</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <h3 className="text-sm font-medium mb-2">Origem</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -78,7 +83,7 @@ export const LocationsSection: React.FC<LocationsProps> = ({
                     <SelectValue placeholder="UF" />
                   </SelectTrigger>
                   <SelectContent>
-                    {BRAZILIAN_STATES.map((state) => (
+                    {stateOptions.map((state) => (
                       <SelectItem key={state.abbreviation} value={state.abbreviation}>
                         {state.abbreviation}
                       </SelectItem>
@@ -112,7 +117,7 @@ export const LocationsSection: React.FC<LocationsProps> = ({
                     <SelectValue placeholder="UF" />
                   </SelectTrigger>
                   <SelectContent>
-                    {BRAZILIAN_STATES.map((state) => (
+                    {stateOptions.map((state) => (
                       <SelectItem key={state.abbreviation} value={state.abbreviation}>
                         {state.abbreviation}
                       </SelectItem>
@@ -124,7 +129,7 @@ export const LocationsSection: React.FC<LocationsProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="receiver">Recebedor / Destinatário</Label>
             <Input

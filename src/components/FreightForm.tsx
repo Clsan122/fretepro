@@ -4,6 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import { getClientsByUserId, getDriversByUserId } from "@/utils/storage";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/components/ui/use-toast";
+import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Import the section components
 import { ClientSelectionSection } from "./freight/ClientSelectionSection";
@@ -153,6 +155,48 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
     onSave(newFreight);
   };
 
+  const handleGenerateReceipt = () => {
+    if (!clientId || !originCity || !originState || !destinationCity || !destinationState) {
+      toast({
+        title: "Erro",
+        description: "Preencha os dados básicos antes de gerar o recibo",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const freightData: Freight = {
+      id: freightToEdit ? freightToEdit.id : uuidv4(),
+      clientId,
+      originCity,
+      originState,
+      departureDate: departureDate ? departureDate.toISOString() : "",
+      destinationCity,
+      destinationState,
+      arrivalDate: arrivalDate ? arrivalDate.toISOString() : "",
+      volumes,
+      weight,
+      dimensions,
+      cubicMeasurement,
+      cargoType: cargoType as any,
+      vehicleType: vehicleType as any,
+      freightValue,
+      dailyRate,
+      otherCosts,
+      tollCosts,
+      totalValue,
+      proofOfDeliveryImage: proofImage,
+      createdAt: freightToEdit ? freightToEdit.createdAt : new Date().toISOString(),
+      userId: user!.id,
+      pixKey: pixKey || undefined,
+      paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
+      driverId: driverId !== "none" ? driverId : undefined,
+    };
+
+    const receiptWindow = window.open(`/freight/${freightData.id}/receipt`, '_blank');
+    if (receiptWindow) receiptWindow.focus();
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-1 sm:p-2">
       <ClientSelectionSection 
@@ -222,10 +266,29 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
         handleImageUpload={handleImageUpload}
       />
 
-      <FormActions 
-        onCancel={onCancel}
-        isEditing={Boolean(freightToEdit)}
-      />
+      <div className="flex justify-between items-center">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleGenerateReceipt}
+          className="gap-2"
+        >
+          <FileText className="h-4 w-4" />
+          Gerar Recibo
+        </Button>
+        <div className="space-x-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+          <Button type="submit">
+            {freightToEdit ? "Atualizar" : "Cadastrar"}
+          </Button>
+        </div>
+      </div>
     </form>
   );
 };
