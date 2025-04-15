@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Edit, Share, Trash2 } from "lucide-react";
+import { ChevronLeft, Edit, Share2, Trash2, Printer, Download } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,17 +14,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ActionButtonsProps {
   id?: string;
   onDelete: () => void;
   onShare: () => void;
+  onDownload?: () => void;
+  onPrint?: () => void;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
   id,
   onDelete,
   onShare,
+  onDownload,
+  onPrint,
 }) => {
   const navigate = useNavigate();
 
@@ -43,13 +53,31 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       </div>
       
       <div className="flex space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onShare}
-        >
-          <Share className="h-4 w-4 mr-1" /> Compartilhar
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+            >
+              <Share2 className="h-4 w-4 mr-1" /> Compartilhar
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onShare}>
+              <Share2 className="h-4 w-4 mr-2" /> Compartilhar PDF
+            </DropdownMenuItem>
+            {onDownload && (
+              <DropdownMenuItem onClick={onDownload}>
+                <Download className="h-4 w-4 mr-2" /> Baixar PDF
+              </DropdownMenuItem>
+            )}
+            {onPrint && (
+              <DropdownMenuItem onClick={onPrint}>
+                <Printer className="h-4 w-4 mr-2" /> Imprimir
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
         
         <Button
           variant="outline"
