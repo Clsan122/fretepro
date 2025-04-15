@@ -6,8 +6,6 @@ import { CollectionOrder } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 import { ActionButtons } from "@/components/collectionOrder/view/ActionButtons";
 import { OrderHeader } from "@/components/collectionOrder/view/OrderHeader";
 import { OrderContent } from "@/components/collectionOrder/view/OrderContent";
@@ -78,7 +76,7 @@ const CollectionOrderView: React.FC = () => {
     return pdf.output('blob');
   };
 
-  const handleShareViaWhatsApp = async () => {
+  const handleShare = async () => {
     if (!order) return;
     
     toast({
@@ -88,43 +86,32 @@ const CollectionOrderView: React.FC = () => {
     
     try {
       const pdfBlob = await generatePDF();
-      const pdfFile = new File([pdfBlob], `ordem-coleta-${id}.pdf`, { type: 'application/pdf' });
-      
-      const createdAt = new Date(order.createdAt).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
+      const file = new File([pdfBlob], `ordem-coleta-${id}.pdf`, { type: 'application/pdf' });
 
-      const message = `*ORDEM DE COLETA*\n\n` +
-        `📅 Data: ${createdAt}\n\n` +
-        `*REMETENTE*\n${order.sender}\n\n` +
-        `*DESTINATÁRIO*\n${order.recipient}\n\n` +
-        `*ORIGEM*\n${order.originCity} - ${order.originState}\n\n` +
-        `*DESTINO*\n${order.destinationCity} - ${order.destinationState}\n\n` +
-        `*RECEBEDOR*\n${order.receiver}\n` +
-        `${order.receiverAddress}\n\n` +
-        `*DADOS DA CARGA*\n` +
-        `Volumes: ${order.volumes}\n` +
-        `Peso: ${order.weight} kg\n` +
-        `Cubagem: ${order.cubicMeasurement.toFixed(3)} m³\n` +
-        `Valor: ${order.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n\n` +
-        `${order.driverName ? `*MOTORISTA*\n${order.driverName}${order.licensePlate ? `\nPlaca: ${order.licensePlate}` : ''}\n\n` : ''}`;
-
-      if (navigator.share && navigator.canShare({ files: [pdfFile] })) {
+      if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          files: [pdfFile],
-          text: message,
+          files: [file],
+        });
+        
+        toast({
+          title: "Sucesso",
+          description: "Documento compartilhado com sucesso!"
         });
       } else {
-        const encodedMessage = encodeURIComponent(message);
-        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ordem-coleta-${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: "PDF gerado",
+          description: "O PDF foi baixado automaticamente."
+        });
       }
-      
-      toast({
-        title: "Sucesso",
-        description: "Documento gerado com sucesso!"
-      });
     } catch (error) {
       toast({
         title: "Erro",
@@ -166,7 +153,7 @@ const CollectionOrderView: React.FC = () => {
         <ActionButtons
           id={id}
           onDelete={handleDelete}
-          onShare={handleShareViaWhatsApp}
+          onShare={handleShare}
         />
         
         <style type="text/css" media="print">
