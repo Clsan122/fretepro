@@ -42,6 +42,21 @@ const Register = () => {
     return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   };
 
+  const formatBrazilianPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 11) {
+      let formatted = digits;
+      if (digits.length > 2) {
+        formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+      }
+      if (digits.length > 7) {
+        formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+      }
+      return formatted;
+    }
+    return value;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -127,10 +142,10 @@ const Register = () => {
                 <Input
                   id="phone"
                   value={phone}
-                  onChange={(e) => setPhone(formatPhone(e.target.value))}
+                  onChange={(e) => setPhone(formatBrazilianPhone(e.target.value))}
                   className="pl-10"
-                  placeholder="+55 (00) 00000-0000"
-                  maxLength={18}
+                  placeholder="(00) 00000-0000"
+                  maxLength={15}
                   required
                 />
               </div>
