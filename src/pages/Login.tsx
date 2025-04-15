@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AtSign, Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 
 const Login = () => {
@@ -17,9 +15,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
-  
-  // Redirecionamento automático se o usuário já estiver autenticado
+  const { login, isAuthenticated } = useAuth();
+
+  // Redirecionamento automático se já estiver autenticado
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/dashboard");
@@ -29,26 +27,23 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
-      // Tentativa de login com Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const success = await login(email, password);
 
-      if (error) throw error;
+      if (success) {
+        toast({
+          title: "Login realizado com sucesso",
+          description: "Bem-vindo de volta!",
+        });
 
-      // Exibir mensagem de sucesso
-      toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo de volta!",
-      });
-      
-      // Garantir que o redirecionamento aconteça depois que o toast é exibido
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 500);
+        // Garantir que o redirecionamento aconteça após o toast
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 500);
+      } else {
+        throw new Error("Falha na autenticação");
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",

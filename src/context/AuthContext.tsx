@@ -1,9 +1,9 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser, setCurrentUser, logoutUser } from "@/utils/storage";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthContextType = {
   user: User | null;
@@ -30,34 +30,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUserState(currentUser);
-      setIsAuthenticated(true);
-    }
+    // Verificar sessão do usuário no Supabase ao iniciar
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUserState({
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata.name || '',
+          phone: session.user.phone || '',
+          createdAt: session.user.created_at
+        });
+        setIsAuthenticated(true);
+        setCurrentUser({
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata.name || '',
+          phone: session.user.phone || '',
+          createdAt: session.user.created_at
+        });
+      }
+    });
+
+    // Listener para mudanças na autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        const userData = {
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata.name || '',
+          phone: session.user.phone || '',
+          createdAt: session.user.created_at
+        };
+        setUserState(userData);
+        setIsAuthenticated(true);
+        setCurrentUser(userData);
+      } else {
+        setUserState(null);
+        setIsAuthenticated(false);
+        logoutUser();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Get users from local storage
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    
-    // Find user with matching email and password
-    const user = users.find((u: any) => 
-      u.email === email && u.password === password
-    );
-    
-    if (user) {
-      // Remove password from user object before storing in state
-      const { password, ...userWithoutPassword } = user;
-      
-      setUserState(userWithoutPassword);
-      setIsAuthenticated(true);
-      setCurrentUser(userWithoutPassword);
-      return true;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        const userData = {
+          id: data.user.id,
+          email: data.user.email!,
+          name: data.user.user_metadata.name || '',
+          phone: data.user.phone || '',
+          createdAt: data.user.created_at
+        };
+        setUserState(userData);
+        setIsAuthenticated(true);
+        setCurrentUser(userData);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro no login:', error);
+      return false;
     }
-    
-    return false;
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
