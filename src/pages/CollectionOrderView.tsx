@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ChevronLeft, FileText, Printer, Trash2, Edit, Save, Download } from "lucide-react";
+import { ChevronLeft, FileText, Printer, Trash2, Edit, Save, Download, Share } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -96,6 +96,26 @@ const CollectionOrderView: React.FC = () => {
       navigate("/collection-orders");
     }
   };
+
+  const handleShareViaWhatsApp = () => {
+    const message = `*ORDEM DE COLETA*\n\n` +
+      `📅 Data: ${createdAt}\n\n` +
+      `*REMETENTE*\n${order?.sender}\n\n` +
+      `*DESTINATÁRIO*\n${order?.recipient}\n\n` +
+      `*ORIGEM*\n${order?.originCity} - ${order?.originState}\n\n` +
+      `*DESTINO*\n${order?.destinationCity} - ${order?.destinationState}\n\n` +
+      `*RECEBEDOR*\n${order?.receiver}\n` +
+      `${order?.receiverAddress}\n\n` +
+      `*DADOS DA CARGA*\n` +
+      `Volumes: ${order?.volumes}\n` +
+      `Peso: ${order?.weight} kg\n` +
+      `Cubagem: ${order?.cubicMeasurement.toFixed(3)} m³\n` +
+      `Valor: ${order?.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n\n` +
+      `${order?.driverName ? `*MOTORISTA*\n${order.driverName}${order.licensePlate ? `\nPlaca: ${order.licensePlate}` : ''}\n\n` : ''}`;
+
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+  };
   
   if (!order) {
     return (
@@ -151,9 +171,9 @@ const CollectionOrderView: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={handlePrint}
+              onClick={handleShareViaWhatsApp}
             >
-              <Printer className="h-4 w-4 mr-1" /> Imprimir
+              <Share className="h-4 w-4 mr-1" /> Compartilhar
             </Button>
             
             <Button
