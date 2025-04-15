@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Edit, Download, Share, Trash2 } from "lucide-react";
+import { ChevronLeft, Edit, Share, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,14 +18,12 @@ import {
 interface ActionButtonsProps {
   id?: string;
   onDelete: () => void;
-  onSavePDF: () => void;
   onShare: () => void;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
   id,
   onDelete,
-  onSavePDF,
   onShare,
 }) => {
   const navigate = useNavigate();
@@ -45,14 +43,6 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       </div>
       
       <div className="flex space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onSavePDF}
-        >
-          <Download className="h-4 w-4 mr-1" /> Salvar PDF
-        </Button>
-        
         <Button
           variant="outline"
           size="sm"

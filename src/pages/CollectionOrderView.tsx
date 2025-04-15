@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -7,8 +6,8 @@ import { CollectionOrder } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Button } from "@/components/ui/button"; // Added this import
-import { ChevronLeft } from "lucide-react"; // Added this import
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import { ActionButtons } from "@/components/collectionOrder/view/ActionButtons";
 import { OrderHeader } from "@/components/collectionOrder/view/OrderHeader";
 import { OrderContent } from "@/components/collectionOrder/view/OrderContent";
@@ -46,79 +45,93 @@ const CollectionOrderView: React.FC = () => {
     }
   };
 
-  const handleSavePDF = () => {
+  const generatePDF = async (): Promise<Blob> => {
     const printElement = document.getElementById('collection-order-print');
     
     if (!printElement) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível gerar o PDF",
-        variant: "destructive"
-      });
-      return;
+      throw new Error("Elemento de impressão não encontrado");
     }
     
-    toast({
-      title: "Gerando PDF",
-      description: "Aguarde enquanto geramos o PDF..."
-    });
-    
-    html2canvas(printElement, {
+    const canvas = await html2canvas(printElement, {
       scale: 1.5,
       useCORS: true,
       logging: false,
       windowWidth: 800,
       windowHeight: 1200
-    }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`ordem-coleta-${id}.pdf`);
-      
-      toast({
-        title: "PDF gerado",
-        description: "O PDF foi gerado com sucesso!"
-      });
     });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    
+    return pdf.output('blob');
   };
 
-  const handleShareViaWhatsApp = () => {
+  const handleShareViaWhatsApp = async () => {
     if (!order) return;
     
-    const createdAt = new Date(order.createdAt).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    toast({
+      title: "Gerando PDF",
+      description: "Aguarde enquanto preparamos o documento..."
     });
+    
+    try {
+      const pdfBlob = await generatePDF();
+      const pdfFile = new File([pdfBlob], `ordem-coleta-${id}.pdf`, { type: 'application/pdf' });
+      
+      const createdAt = new Date(order.createdAt).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
 
-    const message = `*ORDEM DE COLETA*\n\n` +
-      `📅 Data: ${createdAt}\n\n` +
-      `*REMETENTE*\n${order.sender}\n\n` +
-      `*DESTINATÁRIO*\n${order.recipient}\n\n` +
-      `*ORIGEM*\n${order.originCity} - ${order.originState}\n\n` +
-      `*DESTINO*\n${order.destinationCity} - ${order.destinationState}\n\n` +
-      `*RECEBEDOR*\n${order.receiver}\n` +
-      `${order.receiverAddress}\n\n` +
-      `*DADOS DA CARGA*\n` +
-      `Volumes: ${order.volumes}\n` +
-      `Peso: ${order.weight} kg\n` +
-      `Cubagem: ${order.cubicMeasurement.toFixed(3)} m³\n` +
-      `Valor: ${order.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n\n` +
-      `${order.driverName ? `*MOTORISTA*\n${order.driverName}${order.licensePlate ? `\nPlaca: ${order.licensePlate}` : ''}\n\n` : ''}`;
+      const message = `*ORDEM DE COLETA*\n\n` +
+        `📅 Data: ${createdAt}\n\n` +
+        `*REMETENTE*\n${order.sender}\n\n` +
+        `*DESTINATÁRIO*\n${order.recipient}\n\n` +
+        `*ORIGEM*\n${order.originCity} - ${order.originState}\n\n` +
+        `*DESTINO*\n${order.destinationCity} - ${order.destinationState}\n\n` +
+        `*RECEBEDOR*\n${order.receiver}\n` +
+        `${order.receiverAddress}\n\n` +
+        `*DADOS DA CARGA*\n` +
+        `Volumes: ${order.volumes}\n` +
+        `Peso: ${order.weight} kg\n` +
+        `Cubagem: ${order.cubicMeasurement.toFixed(3)} m³\n` +
+        `Valor: ${order.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n\n` +
+        `${order.driverName ? `*MOTORISTA*\n${order.driverName}${order.licensePlate ? `\nPlaca: ${order.licensePlate}` : ''}\n\n` : ''}`;
 
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+      if (navigator.share && navigator.canShare({ files: [pdfFile] })) {
+        await navigator.share({
+          files: [pdfFile],
+          text: message,
+        });
+      } else {
+        const encodedMessage = encodeURIComponent(message);
+        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+      }
+      
+      toast({
+        title: "Sucesso",
+        description: "Documento gerado com sucesso!"
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF",
+        variant: "destructive"
+      });
+    }
   };
   
   if (!order) {
@@ -153,7 +166,6 @@ const CollectionOrderView: React.FC = () => {
         <ActionButtons
           id={id}
           onDelete={handleDelete}
-          onSavePDF={handleSavePDF}
           onShare={handleShareViaWhatsApp}
         />
         

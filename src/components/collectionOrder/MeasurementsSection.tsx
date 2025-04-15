@@ -46,11 +46,11 @@ export const MeasurementsSection: React.FC<MeasurementsProps> = ({
         {measurements.map((measurement, index) => (
           <div 
             key={measurement.id} 
-            className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end mb-3"
+            className="grid grid-cols-1 sm:grid-cols-7 gap-2 items-end mb-3"
           >
-            <div className="space-y-1">
-              <Label htmlFor={`length-${measurement.id}`} className="text-xs">
-                Comprimento (cm)
+            <div className="space-y-1 sm:col-span-2">
+              <Label htmlFor={`length-${measurement.id}`} className="text-xs flex items-center gap-1">
+                C <span className="text-muted-foreground">(cm)</span>
               </Label>
               <Input
                 id={`length-${measurement.id}`}
@@ -63,12 +63,13 @@ export const MeasurementsSection: React.FC<MeasurementsProps> = ({
                   Number(e.target.value)
                 )}
                 min="0"
+                className="text-sm"
               />
             </div>
             
-            <div className="space-y-1">
-              <Label htmlFor={`width-${measurement.id}`} className="text-xs">
-                Largura (cm)
+            <div className="space-y-1 sm:col-span-2">
+              <Label htmlFor={`width-${measurement.id}`} className="text-xs flex items-center gap-1">
+                L <span className="text-muted-foreground">(cm)</span>
               </Label>
               <Input
                 id={`width-${measurement.id}`}
@@ -81,12 +82,13 @@ export const MeasurementsSection: React.FC<MeasurementsProps> = ({
                   Number(e.target.value)
                 )}
                 min="0"
+                className="text-sm"
               />
             </div>
             
-            <div className="space-y-1">
-              <Label htmlFor={`height-${measurement.id}`} className="text-xs">
-                Altura (cm)
+            <div className="space-y-1 sm:col-span-2">
+              <Label htmlFor={`height-${measurement.id}`} className="text-xs flex items-center gap-1">
+                A <span className="text-muted-foreground">(cm)</span>
               </Label>
               <Input
                 id={`height-${measurement.id}`}
@@ -99,37 +101,38 @@ export const MeasurementsSection: React.FC<MeasurementsProps> = ({
                   Number(e.target.value)
                 )}
                 min="0"
+                className="text-sm"
               />
             </div>
             
             <div className="space-y-1">
               <Label htmlFor={`quantity-${measurement.id}`} className="text-xs">
-                Quantidade
+                Qtd
               </Label>
-              <Input
-                id={`quantity-${measurement.id}`}
-                type="number"
-                value={measurement.quantity.toString()}
-                onChange={(e) => handleMeasurementChange(
-                  measurement.id, 
-                  'quantity', 
-                  Number(e.target.value)
-                )}
-                min="1"
-              />
-            </div>
-            
-            <div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemoveMeasurement(measurement.id)}
-                disabled={measurements.length <= 1}
-                className="h-10 w-10 text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Input
+                  id={`quantity-${measurement.id}`}
+                  type="number"
+                  value={measurement.quantity.toString()}
+                  onChange={(e) => handleMeasurementChange(
+                    measurement.id, 
+                    'quantity', 
+                    Number(e.target.value)
+                  )}
+                  min="1"
+                  className="text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemoveMeasurement(measurement.id)}
+                  disabled={measurements.length <= 1}
+                  className="h-8 w-8 text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         ))}
