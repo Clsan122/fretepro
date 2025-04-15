@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,6 @@ const Login = () => {
         description: "Bem-vindo de volta!",
       });
       
-      // Redirect to dashboard after successful login
       navigate("/dashboard");
     } catch (error: any) {
       toast({
