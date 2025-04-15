@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -6,6 +7,8 @@ import { CollectionOrder } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { Button } from "@/components/ui/button"; // Added this import
+import { ChevronLeft } from "lucide-react"; // Added this import
 import { ActionButtons } from "@/components/collectionOrder/view/ActionButtons";
 import { OrderHeader } from "@/components/collectionOrder/view/OrderHeader";
 import { OrderContent } from "@/components/collectionOrder/view/OrderContent";
