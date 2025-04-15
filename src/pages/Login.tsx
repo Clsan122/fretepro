@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AtSign, Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,12 +17,21 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+  
+  // Redirecionamento automático se o usuário já estiver autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
+      // Tentativa de login com Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -29,12 +39,16 @@ const Login = () => {
 
       if (error) throw error;
 
+      // Exibir mensagem de sucesso
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!",
       });
       
-      navigate("/dashboard");
+      // Garantir que o redirecionamento aconteça depois que o toast é exibido
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
