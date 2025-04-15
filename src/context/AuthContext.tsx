@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser, setCurrentUser, logoutUser } from "@/utils/storage";
+import { useNavigate } from "react-router-dom";
 
 type AuthContextType = {
   user: User | null;
@@ -38,9 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // This is a mock implementation for demo purposes
-    // In a real app, you would call an API to authenticate the user
-    
     // Get users from local storage
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     
@@ -63,9 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    // This is a mock implementation for demo purposes
-    // In a real app, you would call an API to register the user
-    
     // Get users from local storage
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     
