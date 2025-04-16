@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, FileText, Truck, CheckSquare } from "lucide-react";
+import { CalendarIcon, FileText, Truck, CheckSquare, ArrowLeft } from "lucide-react";
 import { 
   Select, 
   SelectContent, 
@@ -53,7 +53,6 @@ const FreightSelection: React.FC = () => {
     }
   }, [user]);
 
-  // Filter freights by date range
   useEffect(() => {
     if (freights.length === 0) return;
 
@@ -89,13 +88,11 @@ const FreightSelection: React.FC = () => {
       return isWithinInterval(freightDate, { start, end });
     });
 
-    // Sort by date (newest first)
     filtered.sort((a, b) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
     setFilteredFreights(filtered);
-    // Reset selection when filter changes
     setSelectedFreights([]);
   }, [freights, period, selectedDate, customDateRange]);
 
@@ -111,10 +108,8 @@ const FreightSelection: React.FC = () => {
 
   const handleSelectAll = () => {
     if (selectedFreights.length === filteredFreights.length) {
-      // If all are selected, unselect all
       setSelectedFreights([]);
     } else {
-      // Otherwise, select all
       setSelectedFreights(filteredFreights.map(f => f.id));
     }
   };
@@ -155,34 +150,36 @@ const FreightSelection: React.FC = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto py-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Selecionar Fretes para Recibo</h1>
+      <div className="container mx-auto py-4 px-2 md:px-4 max-w-full overflow-x-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h1 className="text-xl md:text-2xl font-bold">Selecionar Fretes para Recibo</h1>
           
           <Button
             onClick={() => navigate("/freights")}
             variant="outline"
             size="sm"
+            className="gap-2"
           >
+            <ArrowLeft className="h-4 w-4" />
             Voltar para Fretes
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Filtrar por Período</CardTitle>
+        <Card className="mb-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Filtrar por Período</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex flex-wrap gap-3 items-center">
               <Select value={period} onValueChange={(value: FilterPeriod) => setPeriod(value)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[140px] md:w-[180px]">
                   <SelectValue placeholder="Selecione o período" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="day">Dia</SelectItem>
                   <SelectItem value="week">Semana</SelectItem>
                   <SelectItem value="month">Mês</SelectItem>
-                  <SelectItem value="custom">Período personalizado</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -192,19 +189,17 @@ const FreightSelection: React.FC = () => {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal",
+                        "justify-start text-left font-normal max-w-[220px] truncate",
                         !selectedDate && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDate ? (
-                        renderDateLabel()
-                      ) : (
-                        <span>Selecione a data</span>
-                      )}
+                      <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">
+                        {selectedDate ? renderDateLabel() : "Selecione a data"}
+                      </span>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={selectedDate}
@@ -219,23 +214,25 @@ const FreightSelection: React.FC = () => {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal",
+                        "justify-start text-left font-normal max-w-[220px] truncate",
                         !customDateRange && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {customDateRange?.from ? (
-                        customDateRange.to ? (
-                          <>
-                            {format(customDateRange.from, "dd/MM/yyyy")} -{" "}
-                            {format(customDateRange.to, "dd/MM/yyyy")}
-                          </>
+                      <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">
+                        {customDateRange?.from ? (
+                          customDateRange.to ? (
+                            <>
+                              {format(customDateRange.from, "dd/MM/yyyy")} -{" "}
+                              {format(customDateRange.to, "dd/MM/yyyy")}
+                            </>
+                          ) : (
+                            format(customDateRange.from, "dd/MM/yyyy")
+                          )
                         ) : (
-                          format(customDateRange.from, "dd/MM/yyyy")
-                        )
-                      ) : (
-                        <span>Selecione período personalizado</span>
-                      )}
+                          "Selecione período personalizado"
+                        )}
+                      </span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -243,22 +240,29 @@ const FreightSelection: React.FC = () => {
                       mode="range"
                       selected={customDateRange}
                       onSelect={setCustomDateRange}
-                      numberOfMonths={2}
+                      numberOfMonths={1}
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
               )}
 
-              <div className="flex items-center">
-                <Button onClick={handleSelectAll} variant="outline" size="sm" className="gap-2">
-                  <CheckSquare className="h-4 w-4" />
-                  {selectedFreights.length === filteredFreights.length && filteredFreights.length > 0 ? "Desmarcar Todos" : "Selecionar Todos"}
-                </Button>
-              </div>
+              <Button onClick={handleSelectAll} variant="outline" size="sm" className="gap-2 ml-auto">
+                <CheckSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {selectedFreights.length === filteredFreights.length && filteredFreights.length > 0 
+                    ? "Desmarcar Todos" 
+                    : "Selecionar Todos"}
+                </span>
+                <span className="sm:hidden">
+                  {selectedFreights.length === filteredFreights.length && filteredFreights.length > 0 
+                    ? "Desmarcar" 
+                    : "Selecionar"}
+                </span>
+              </Button>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex flex-wrap gap-2 justify-between">
             <p className="text-sm text-muted-foreground">
               {filteredFreights.length} fretes encontrados
             </p>
@@ -268,12 +272,14 @@ const FreightSelection: React.FC = () => {
               className="gap-2"
             >
               <FileText className="h-4 w-4" />
-              Gerar Recibo ({selectedFreights.length})
+              <span className="hidden sm:inline">Gerar Recibo</span>
+              <span className="sm:hidden">Recibo</span>
+              {selectedFreights.length > 0 && <span>({selectedFreights.length})</span>}
             </Button>
           </CardFooter>
         </Card>
 
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredFreights.map(freight => {
             const client = getClientById(freight.clientId);
             const isSelected = selectedFreights.includes(freight.id);
@@ -287,25 +293,28 @@ const FreightSelection: React.FC = () => {
                 )}
               >
                 <CardHeader className="pb-2 flex flex-row items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{client?.name || "Cliente não encontrado"}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="truncate mr-2">
+                    <CardTitle className="text-base truncate">{client?.name || "Cliente não encontrado"}</CardTitle>
+                    <p className="text-xs text-muted-foreground">
                       {format(new Date(freight.createdAt), "dd/MM/yyyy")}
                     </p>
                   </div>
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => handleFreightSelect(freight.id)}
+                    className="flex-shrink-0"
                   />
                 </CardHeader>
                 <CardContent className="pb-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Truck className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{freight.originCity}/{freight.originState} → {freight.destinationCity}/{freight.destinationState}</span>
+                  <div className="flex items-center gap-1 mb-2">
+                    <Truck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-xs truncate">
+                      {freight.originCity}/{freight.originState} → {freight.destinationCity}/{freight.destinationState}
+                    </span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between text-sm">
-                      <span>Valor do Frete:</span>
+                      <span>Valor:</span>
                       <span className="font-medium">R$ {freight.totalValue.toFixed(2)}</span>
                     </div>
                   </div>
@@ -315,7 +324,7 @@ const FreightSelection: React.FC = () => {
                     variant="ghost" 
                     size="sm" 
                     onClick={() => handleFreightSelect(freight.id)}
-                    className="w-full"
+                    className="w-full text-xs"
                   >
                     {isSelected ? "Remover" : "Selecionar"}
                   </Button>
@@ -325,7 +334,7 @@ const FreightSelection: React.FC = () => {
           })}
           
           {filteredFreights.length === 0 && (
-            <div className="col-span-full text-center p-8 bg-gray-50 rounded-lg">
+            <div className="col-span-full text-center p-6 bg-gray-50 rounded-lg">
               <p>Nenhum frete encontrado no período selecionado.</p>
             </div>
           )}

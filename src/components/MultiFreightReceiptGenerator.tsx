@@ -15,12 +15,10 @@ interface MultiFreightReceiptGeneratorProps {
 const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> = ({ freights }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
-  // Updated: Fix the useReactToPrint hook configuration
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    // Use the correct property name according to the library
-    contentRef: componentRef,
+    content: () => componentRef.current,
   });
 
   const getTotalAmount = () => {
@@ -71,7 +69,6 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   return (
     <div className="p-4">
       <div className="mb-4 flex justify-end">
-        {/* Updated: Fix the onClick handler to call handlePrint properly */}
         <Button 
           onClick={() => handlePrint()}
           variant="outline" 
@@ -82,30 +79,46 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         </Button>
       </div>
       
-      <div ref={componentRef} className="bg-white p-8 mx-auto max-w-4xl shadow-sm">
+      <div ref={componentRef} className="bg-white p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0">
         {/* Print styles will be applied only when printing */}
         <style type="text/css" media="print">
           {`
             @page {
               size: A4;
-              margin: 20mm 10mm;
+              margin: 10mm;
             }
             body {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
+            th, td {
+              padding: 4px !important;
+              font-size: 11px !important;
+            }
+            h1, h2 {
+              margin-bottom: 8px !important;
+            }
+            .print-compact {
+              margin-bottom: 8px !important;
+            }
+            .print-table {
+              font-size: 10px !important;
+            }
+            .print-hidden {
+              display: none !important;
+            }
           `}
         </style>
         
-        <div className="mb-6 text-center">
+        <div className="mb-4 text-center print-compact">
           <h1 className="text-2xl font-bold">RECIBO DE FRETE</h1>
-          <p className="text-gray-500">Período: {getDateRangeText()}</p>
+          <p className="text-gray-500 text-sm">Período: {getDateRangeText()}</p>
         </div>
         
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">RESUMO DE FRETES</h2>
+        <div className="mb-4 print-compact">
+          <h2 className="text-lg font-semibold mb-2">RESUMO DE FRETES</h2>
           
-          <table className="w-full border-collapse">
+          <table className="w-full border-collapse print-table">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2 text-left">Nº</th>
@@ -142,32 +155,32 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           </table>
         </div>
         
-        {/* Detailed section by client */}
+        {/* Detailed section by client - compacted for print */}
         {Object.values(freightsByClient).map(({ client, freights }) => (
-          <div key={client.id} className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">Cliente: {client.name}</h2>
-            {client.cnpj && <p className="text-sm mb-2">CNPJ: {client.cnpj}</p>}
-            {client.address && <p className="text-sm mb-4">Endereço: {client.address} - {client.city}/{client.state}</p>}
+          <div key={client.id} className="mb-4 print-compact">
+            <h2 className="text-lg font-semibold mb-1">Cliente: {client.name}</h2>
+            {client.cnpj && <p className="text-xs mb-1">CNPJ: {client.cnpj}</p>}
+            {client.address && <p className="text-xs mb-2">Endereço: {client.address} - {client.city}/{client.state}</p>}
             
-            <table className="w-full border-collapse mb-4">
+            <table className="w-full border-collapse mb-2 print-table">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border p-2 text-left">Data</th>
-                  <th className="border p-2 text-left">Origem-Destino</th>
-                  <th className="border p-2 text-left">Tipo de Carga</th>
-                  <th className="border p-2 text-right">Valor (R$)</th>
+                  <th className="border p-1 text-left">Data</th>
+                  <th className="border p-1 text-left">Origem-Destino</th>
+                  <th className="border p-1 text-left">Carga</th>
+                  <th className="border p-1 text-right">Valor (R$)</th>
                 </tr>
               </thead>
               <tbody>
                 {freights.map((freight) => (
                   <tr key={freight.id}>
-                    <td className="border p-2">
+                    <td className="border p-1">
                       {format(new Date(freight.createdAt), "dd/MM/yyyy")}
                     </td>
-                    <td className="border p-2">
+                    <td className="border p-1">
                       {freight.originCity}/{freight.originState} - {freight.destinationCity}/{freight.destinationState}
                     </td>
-                    <td className="border p-2">
+                    <td className="border p-1">
                       {freight.cargoType === "general" && "Carga Geral"}
                       {freight.cargoType === "dangerous" && "Carga Perigosa"}
                       {freight.cargoType === "liquid" && "Líquido"}
@@ -175,14 +188,14 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
                       {freight.cargoType === "drum" && "Tambores"}
                       {freight.cargoType === "pallet" && "Paletizada"}
                     </td>
-                    <td className="border p-2 text-right">
+                    <td className="border p-1 text-right">
                       {freight.totalValue.toFixed(2)}
                     </td>
                   </tr>
                 ))}
                 <tr className="font-bold">
-                  <td colSpan={3} className="border p-2 text-right">Subtotal:</td>
-                  <td className="border p-2 text-right">
+                  <td colSpan={3} className="border p-1 text-right">Subtotal:</td>
+                  <td className="border p-1 text-right">
                     R$ {freights.reduce((sum, f) => sum + f.totalValue, 0).toFixed(2)}
                   </td>
                 </tr>
@@ -191,15 +204,15 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           </div>
         ))}
         
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">RECIBO</h2>
-          <p className="mb-6">
+        <div className="mt-4 print-compact">
+          <h2 className="text-lg font-semibold mb-2">RECIBO</h2>
+          <p className="mb-4 text-sm">
             Recebi a importância de <strong>R$ {getTotalAmount().toFixed(2)}</strong> ({getTotalAmount().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$', '').trim()} reais) referente aos fretes acima listados.
           </p>
           
-          <div className="mt-16 pt-4 border-t border-gray-300 text-center">
+          <div className="mt-8 pt-2 border-t border-gray-300 text-center">
             <p>_______________________________________________________</p>
-            <p className="mt-2">Assinatura</p>
+            <p className="mt-1 text-sm">Assinatura</p>
           </div>
         </div>
       </div>

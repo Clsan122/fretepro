@@ -1,15 +1,20 @@
-
 export interface User {
   id: string;
   name: string;
   email: string;
-  phone: string;
+  password?: string;
   createdAt: string;
-  cpf?: string;
+  role?: 'user' | 'admin';
   address?: string;
   city?: string;
   state?: string;
   zipCode?: string;
+  phone?: string;
+  cpf?: string;
+  companyName?: string;
+  cnpj?: string;
+  pixKey?: string;
+  bankInfo?: string;
 }
 
 export interface Client {
