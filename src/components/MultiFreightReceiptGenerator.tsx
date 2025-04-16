@@ -18,8 +18,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    // The correct property according to the library API is 'print'
-    print: componentRef,
+    content: () => componentRef.current,
   });
 
   const getTotalAmount = () => {
