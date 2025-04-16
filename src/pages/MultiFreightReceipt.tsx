@@ -12,6 +12,7 @@ import { ArrowLeft } from "lucide-react";
 const MultiFreightReceipt: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [freights, setFreights] = useState<Freight[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -23,6 +24,7 @@ const MultiFreightReceipt: React.FC = () => {
         description: "Nenhum frete selecionado para o recibo.",
         variant: "destructive",
       });
+      setLoading(false);
       return;
     }
 
@@ -37,15 +39,15 @@ const MultiFreightReceipt: React.FC = () => {
         description: "Nenhum frete válido encontrado para os IDs fornecidos.",
         variant: "destructive",
       });
-      return;
     }
 
     setFreights(freightsList);
+    setLoading(false);
   }, [searchParams, toast]);
 
   return (
     <Layout>
-      <div className="container mx-auto py-4 px-2 md:px-4 max-w-full overflow-x-hidden">
+      <div className="container mx-auto py-4 px-2 md:px-4 max-w-full overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl md:text-2xl font-bold">Recibo de Múltiplos Fretes</h1>
           
@@ -60,13 +62,24 @@ const MultiFreightReceipt: React.FC = () => {
           </Button>
         </div>
         
-        {freights.length > 0 ? (
-          <div className="overflow-x-auto">
+        {loading ? (
+          <div className="text-center p-8 bg-gray-50 rounded-lg">
+            <p>Carregando fretes...</p>
+          </div>
+        ) : freights.length > 0 ? (
+          <div className="overflow-hidden">
             <MultiFreightReceiptGenerator freights={freights} />
           </div>
         ) : (
           <div className="text-center p-8 bg-gray-50 rounded-lg">
-            <p>Carregando fretes...</p>
+            <p>Nenhum frete válido encontrado para o recibo.</p>
+            <Button 
+              onClick={() => navigate("/freight-selection")}
+              variant="outline"
+              className="mt-4"
+            >
+              Selecionar Fretes
+            </Button>
           </div>
         )}
       </div>

@@ -1,4 +1,3 @@
-
 import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
 
 // Generic function to get items from localStorage
@@ -32,6 +31,38 @@ export const getCurrentUser = (): User | null => {
 
 export const setCurrentUser = (user: User): void => {
   setLocalStorageItem('user', user);
+  
+  // Se estiver usando Supabase, sincronizar com o perfil do usuário
+  try {
+    // @ts-ignore - supabase pode não estar disponível
+    if (typeof supabase !== 'undefined') {
+      // @ts-ignore
+      supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          full_name: user.name,
+          phone: user.phone,
+          // Armazenar dados adicionais no campo metadata
+          metadata: {
+            cpf: user.cpf,
+            address: user.address,
+            city: user.city,
+            state: user.state,
+            zipCode: user.zipCode,
+            companyName: user.companyName,
+            cnpj: user.cnpj,
+            pixKey: user.pixKey,
+            bankInfo: user.bankInfo
+          }
+        }, { onConflict: 'id' })
+        .then(({ error }) => {
+          if (error) console.error("Erro ao sincronizar perfil:", error);
+        });
+    }
+  } catch (error) {
+    console.error("Erro ao sincronizar perfil com Supabase:", error);
+  }
 };
 
 export const logoutUser = (): void => {

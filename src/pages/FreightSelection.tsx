@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -150,7 +151,7 @@ const FreightSelection: React.FC = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto py-4 px-2 md:px-4 max-w-full overflow-x-hidden">
+      <div className="container mx-auto py-4 px-2 md:px-4 max-w-full overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h1 className="text-xl md:text-2xl font-bold">Selecionar Fretes para Recibo</h1>
           
@@ -189,7 +190,7 @@ const FreightSelection: React.FC = () => {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal max-w-[220px] truncate",
+                        "justify-start text-left font-normal w-[150px] sm:w-[200px] truncate",
                         !selectedDate && "text-muted-foreground"
                       )}
                     >
@@ -214,7 +215,7 @@ const FreightSelection: React.FC = () => {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal max-w-[220px] truncate",
+                        "justify-start text-left font-normal w-[150px] sm:w-[200px] truncate",
                         !customDateRange && "text-muted-foreground"
                       )}
                     >
@@ -223,14 +224,14 @@ const FreightSelection: React.FC = () => {
                         {customDateRange?.from ? (
                           customDateRange.to ? (
                             <>
-                              {format(customDateRange.from, "dd/MM/yyyy")} -{" "}
-                              {format(customDateRange.to, "dd/MM/yyyy")}
+                              {format(customDateRange.from, "dd/MM")} -{" "}
+                              {format(customDateRange.to, "dd/MM")}
                             </>
                           ) : (
                             format(customDateRange.from, "dd/MM/yyyy")
                           )
                         ) : (
-                          "Selecione período personalizado"
+                          "Selecione período"
                         )}
                       </span>
                     </Button>
