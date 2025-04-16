@@ -12,9 +12,21 @@ export const formatBrazilianPhone = (value: string) => {
       formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
     }
     if (digits.length > 7) {
-      formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+      // For mobile numbers (with 9 digits)
+      if (digits.length > 10) {
+        formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
+      } else {
+        // For landline numbers (with 8 digits)
+        formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+      }
     }
     return formatted;
   }
   return value;
+};
+
+// Function to create a multi-freight receipt URL
+export const createMultiFreightReceiptUrl = (freightIds: string[]) => {
+  if (!freightIds.length) return "";
+  return `/multi-freight-receipt?ids=${freightIds.join(",")}`;
 };

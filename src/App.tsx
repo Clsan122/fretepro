@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,6 +24,8 @@ import CollectionOrderView from "./pages/CollectionOrderView";
 import CollectionOrderEdit from "./pages/CollectionOrderEdit";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import FreightSelection from "./pages/FreightSelection";
+import MultiFreightReceipt from "./pages/MultiFreightReceipt";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,6 +68,8 @@ const AppRoutes = () => {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
       <Route path="/freights" element={<ProtectedRoute><Freights /></ProtectedRoute>} />
+      <Route path="/freight-selection" element={<ProtectedRoute><FreightSelection /></ProtectedRoute>} />
+      <Route path="/multi-freight-receipt" element={<ProtectedRoute><MultiFreightReceipt /></ProtectedRoute>} />
       <Route path="/drivers" element={<ProtectedRoute><Drivers /></ProtectedRoute>} />
       <Route path="/drivers/new" element={<ProtectedRoute><DriverRegister /></ProtectedRoute>} />
       <Route path="/drivers/edit/:id" element={<ProtectedRoute><DriverEdit /></ProtectedRoute>} />

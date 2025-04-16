@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Freight, Client, Driver } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -15,6 +16,7 @@ import { CargoDetailsSection } from "./freight/CargoDetailsSection";
 import { PaymentInfoSection } from "./freight/PaymentInfoSection";
 import { PricingSection } from "./freight/PricingSection";
 import { DeliveryProofSection } from "./freight/DeliveryProofSection";
+import { ExpensesSection } from "./freight/ExpensesSection";
 import { FormActions } from "./freight/FormActions";
 
 interface FreightFormProps {
@@ -50,6 +52,16 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   const [pixKey, setPixKey] = useState("");
   const [paymentTerm, setPaymentTerm] = useState("");
   
+  // New expense state variables
+  const [thirdPartyDriverCost, setThirdPartyDriverCost] = useState<number>(0);
+  const [tollExpenses, setTollExpenses] = useState<number>(0);
+  const [fuelExpenses, setFuelExpenses] = useState<number>(0);
+  const [mealExpenses, setMealExpenses] = useState<number>(0);
+  const [helperExpenses, setHelperExpenses] = useState<number>(0);
+  const [accommodationExpenses, setAccommodationExpenses] = useState<number>(0);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0);
+  const [netProfit, setNetProfit] = useState<number>(0);
+  
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -84,6 +96,16 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       setPixKey(freightToEdit.pixKey || "");
       setPaymentTerm(freightToEdit.paymentTerm || "");
       setDriverId(freightToEdit.driverId || "none");
+      
+      // Initialize expense fields if they exist
+      setThirdPartyDriverCost(freightToEdit.thirdPartyDriverCost || 0);
+      setTollExpenses(freightToEdit.tollExpenses || 0);
+      setFuelExpenses(freightToEdit.fuelExpenses || 0);
+      setMealExpenses(freightToEdit.mealExpenses || 0);
+      setHelperExpenses(freightToEdit.helperExpenses || 0);
+      setAccommodationExpenses(freightToEdit.accommodationExpenses || 0);
+      setTotalExpenses(freightToEdit.totalExpenses || 0);
+      setNetProfit(freightToEdit.netProfit || 0);
     }
   }, [freightToEdit]);
 
@@ -91,6 +113,22 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
     const total = freightValue + dailyRate + otherCosts + tollCosts;
     setTotalValue(total);
   }, [freightValue, dailyRate, otherCosts, tollCosts]);
+
+  // Calculate total expenses and net profit
+  useEffect(() => {
+    const expenses = thirdPartyDriverCost + tollExpenses + fuelExpenses + 
+                     mealExpenses + helperExpenses + accommodationExpenses;
+    setTotalExpenses(expenses);
+    setNetProfit(totalValue - expenses);
+  }, [
+    thirdPartyDriverCost, 
+    tollExpenses, 
+    fuelExpenses, 
+    mealExpenses, 
+    helperExpenses, 
+    accommodationExpenses,
+    totalValue
+  ]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -150,6 +188,15 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       pixKey: pixKey || undefined,
       paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
       driverId: driverId !== "none" ? driverId : undefined,
+      // Add expense data
+      thirdPartyDriverCost,
+      tollExpenses,
+      fuelExpenses,
+      mealExpenses,
+      helperExpenses,
+      accommodationExpenses,
+      totalExpenses,
+      netProfit
     };
 
     onSave(newFreight);
@@ -191,6 +238,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       pixKey: pixKey || undefined,
       paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
       driverId: driverId !== "none" ? driverId : undefined,
+      // We don't include expense data in the receipt
     };
 
     const receiptWindow = window.open(`/freight/${freightData.id}/receipt`, '_blank');
@@ -258,6 +306,23 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
         tollCosts={tollCosts}
         setTollCosts={setTollCosts}
         totalValue={totalValue}
+      />
+
+      <ExpensesSection 
+        thirdPartyDriverCost={thirdPartyDriverCost}
+        setThirdPartyDriverCost={setThirdPartyDriverCost}
+        tollExpenses={tollExpenses}
+        setTollExpenses={setTollExpenses}
+        fuelExpenses={fuelExpenses}
+        setFuelExpenses={setFuelExpenses}
+        mealExpenses={mealExpenses}
+        setMealExpenses={setMealExpenses}
+        helperExpenses={helperExpenses}
+        setHelperExpenses={setHelperExpenses}
+        accommodationExpenses={accommodationExpenses}
+        setAccommodationExpenses={setAccommodationExpenses}
+        totalExpenses={totalExpenses}
+        netProfit={netProfit}
       />
 
       <DeliveryProofSection 

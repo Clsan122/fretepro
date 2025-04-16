@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -62,6 +63,16 @@ export interface Freight {
   pixKey?: string;
   paymentTerm?: PaymentTerm;
   driverId?: string;
+  
+  // New expense fields
+  thirdPartyDriverCost?: number;
+  tollExpenses?: number;
+  fuelExpenses?: number;
+  mealExpenses?: number;
+  helperExpenses?: number;
+  accommodationExpenses?: number;
+  totalExpenses?: number; // Sum of all expenses
+  netProfit?: number; // Difference between totalValue and totalExpenses
 }
 
 export type PaymentTerm = 
