@@ -42,6 +42,12 @@ const PrintStyles: React.FC = () => {
           transform: scale(0.95);
           transform-origin: top left;
         }
+        .page-break {
+          page-break-before: always;
+        }
+        header, nav, footer, .bottom-navigation, button, .print-exclude {
+          display: none !important;
+        }
       `}
     </style>
   );
