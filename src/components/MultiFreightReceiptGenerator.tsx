@@ -18,8 +18,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    // Using 'print' property instead of 'content' which is not valid
-    print: () => componentRef.current,
+    content: () => componentRef.current,
   });
 
   const getTotalAmount = () => {
@@ -71,7 +70,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     <div className="p-4">
       <div className="mb-4 flex justify-end">
         <Button 
-          onClick={handlePrint} 
+          onClick={() => handlePrint()}
           variant="outline" 
           className="gap-2"
         >
