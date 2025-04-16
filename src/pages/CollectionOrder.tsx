@@ -3,7 +3,7 @@ import React from "react";
 import Layout from "@/components/Layout";
 import CollectionOrderForm from "@/components/CollectionOrderForm";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { CollectionOrder } from "@/types";
 import { saveCollectionOrder } from "@/utils/storage";
 
