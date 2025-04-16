@@ -74,6 +74,10 @@ export const PrintStyles: React.FC = () => {
           margin: 0 !important;
           background: white !important;
         }
+        
+        .whitespace-pre-wrap {
+          white-space: pre-wrap !important;
+        }
       `}
     </style>
   );

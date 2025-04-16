@@ -115,8 +115,11 @@ export interface CollectionOrder {
   measurements: Measurement[];  // Medidas
   cubicMeasurement: number;     // Cubagem
   merchandiseValue: number;     // Valor da mercadoria
+  invoiceNumber?: string;       // Número da NF/Pedido
+  observations?: string;        // Observações
   driverId?: string;            // ID do motorista
   driverName?: string;          // Nome do motorista (para exibição)
+  driverCpf?: string;           // CPF do motorista (para exibição)
   licensePlate?: string;        // Placa do veículo
   companyLogo?: string;         // Logo da empresa (base64)
   createdAt: string;            // Data de criação

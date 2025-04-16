@@ -13,6 +13,7 @@ import { CargoSection } from "./collectionOrder/CargoSection";
 import { MeasurementsSection } from "./collectionOrder/MeasurementsSection";
 import { DriverSection } from "./collectionOrder/DriverSection";
 import { CompanyLogoSection } from "./collectionOrder/CompanyLogoSection";
+import { InvoiceNotesSection } from "./collectionOrder/InvoiceNotesSection";
 import { FormActions } from "./freight/FormActions";
 
 interface CollectionOrderFormProps {
@@ -41,6 +42,8 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   ]);
   const [cubicMeasurement, setCubicMeasurement] = useState<number>(0);
   const [merchandiseValue, setMerchandiseValue] = useState<number>(0);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [observations, setObservations] = useState("");
   const [driverId, setDriverId] = useState<string>("none");
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [companyLogo, setCompanyLogo] = useState<string>("");
@@ -69,6 +72,8 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       setMeasurements(orderToEdit.measurements);
       setCubicMeasurement(orderToEdit.cubicMeasurement);
       setMerchandiseValue(orderToEdit.merchandiseValue);
+      setInvoiceNumber(orderToEdit.invoiceNumber || "");
+      setObservations(orderToEdit.observations || "");
       setDriverId(orderToEdit.driverId || "none");
       setCompanyLogo(orderToEdit.companyLogo || "");
     }
@@ -152,8 +157,11 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       measurements,
       cubicMeasurement,
       merchandiseValue,
+      invoiceNumber: invoiceNumber || undefined,
+      observations: observations || undefined,
       driverId: driverId !== "none" ? driverId : undefined,
       driverName: selectedDriver?.name,
+      driverCpf: selectedDriver?.cpf,
       licensePlate: selectedDriver?.licensePlate,
       companyLogo,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
@@ -200,6 +208,13 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
         merchandiseValue={merchandiseValue}
         setMerchandiseValue={setMerchandiseValue}
         cubicMeasurement={cubicMeasurement}
+      />
+      
+      <InvoiceNotesSection
+        invoiceNumber={invoiceNumber}
+        setInvoiceNumber={setInvoiceNumber}
+        observations={observations}
+        setObservations={setObservations}
       />
       
       <MeasurementsSection 

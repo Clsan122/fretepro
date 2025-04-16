@@ -72,8 +72,25 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
               </p>
             </div>
           </div>
+          
+          {order.invoiceNumber && (
+            <div className="mt-2">
+              <p className="font-semibold text-xs">Número NF/Pedido:</p>
+              <p className="text-xs">{order.invoiceNumber}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Observations if present */}
+      {order.observations && (
+        <Card className="border print:border-0 print:shadow-none">
+          <CardContent className="p-3 print:p-2 text-sm">
+            <p className="font-semibold text-xs">Observações:</p>
+            <p className="text-xs whitespace-pre-wrap">{order.observations}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Measurements */}
       {order.measurements.length > 0 && (
@@ -107,6 +124,9 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
               <div>
                 <p className="font-semibold text-xs">Motorista:</p>
                 <p className="text-xs">{order.driverName}</p>
+                {order.driverCpf && (
+                  <p className="text-xs mt-1">CPF: {order.driverCpf}</p>
+                )}
               </div>
               {order.licensePlate && (
                 <div>
