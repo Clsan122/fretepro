@@ -14,7 +14,6 @@ import { DriverSection } from "./DriverSection";
 import { CompanyLogoSection } from "./CompanyLogoSection";
 import { InvoiceNotesSection } from "./InvoiceNotesSection";
 import { FormActions } from "../freight/FormActions";
-import { supabase } from "@/integrations/supabase/client";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -173,24 +172,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       userId: user.id
     };
 
-    // Store the order in Supabase if available
-    try {
-      if (supabase) {
-        const { error } = await supabase
-          .from('collection_orders')
-          .upsert({
-            id: newOrder.id,
-            user_id: user.id,
-            order_data: newOrder
-          });
-          
-        if (error) throw error;
-      }
-    } catch (error) {
-      console.error("Error saving to database:", error);
-      // Fall back to local storage if supabase fails
-    }
-
+    // Just use local storage instead of attempting to use Supabase
     onSave(newOrder);
   };
 
