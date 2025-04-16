@@ -67,7 +67,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   return (
     <div className="p-4">
       <div className="mb-4 flex justify-end">
-        <Button onClick={handlePrint} variant="outline" className="gap-2">
+        <Button onClick={() => handlePrint()} variant="outline" className="gap-2">
           <PrinterIcon className="h-4 w-4" />
           Imprimir Recibo
         </Button>

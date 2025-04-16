@@ -73,6 +73,12 @@ export const getClientsByUserId = (userId: string): Client[] => {
   return clients.filter(client => client.userId === userId);
 };
 
+// Add the missing getClientById function
+export const getClientById = (id: string): Client | undefined => {
+  const clients = getLocalStorageItem<Client[]>('clients', []);
+  return clients.find(client => client.id === id);
+};
+
 export const saveClient = (client: Client): void => {
   const clients = getLocalStorageItem<Client[]>('clients', []);
   const existingIndex = clients.findIndex(c => c.id === client.id);
@@ -137,6 +143,12 @@ export const deleteDriver = (id: string): void => {
 export const getFreightsByUserId = (userId: string): Freight[] => {
   const freights = getLocalStorageItem<Freight[]>('freights', []);
   return freights.filter(freight => freight.userId === userId);
+};
+
+// Add the missing getFreightById function
+export const getFreightById = (id: string): Freight | null => {
+  const freights = getLocalStorageItem<Freight[]>('freights', []);
+  return freights.find(freight => freight.id === id) || null;
 };
 
 export const saveFreight = (freight: Freight): void => {
