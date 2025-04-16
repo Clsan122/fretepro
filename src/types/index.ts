@@ -103,7 +103,9 @@ export interface BrazilianState {
 export interface CollectionOrder {
   id: string;
   sender: string;               // Remetente/exportador
+  senderAddress?: string;       // Endereço do remetente (novo campo)
   recipient: string;            // Destinatário/importador
+  recipientAddress?: string;    // Endereço do destinatário (novo campo)
   originCity: string;           // Cidade origem
   originState: string;          // Estado origem
   destinationCity: string;      // Cidade destino
