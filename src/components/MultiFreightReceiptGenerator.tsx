@@ -18,8 +18,8 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    // Removed 'removeAfterPrint' as it's not a valid option
-    content: () => componentRef.current,
+    // Using 'print' property instead of 'content' which is not valid
+    print: () => componentRef.current,
   });
 
   const getTotalAmount = () => {
@@ -70,8 +70,11 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   return (
     <div className="p-4">
       <div className="mb-4 flex justify-end">
-        {/* Fixed the onClick handler by not treating handlePrint as a function to call */}
-        <Button onClick={handlePrint} variant="outline" className="gap-2">
+        <Button 
+          onClick={handlePrint} 
+          variant="outline" 
+          className="gap-2"
+        >
           <PrinterIcon className="h-4 w-4" />
           Imprimir Recibo
         </Button>
