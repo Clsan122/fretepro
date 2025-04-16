@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Measurement } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -28,7 +27,9 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   orderToEdit 
 }) => {
   const [sender, setSender] = useState("");
+  const [senderAddress, setSenderAddress] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [recipientAddress, setRecipientAddress] = useState("");
   const [originCity, setOriginCity] = useState("");
   const [originState, setOriginState] = useState("");
   const [destinationCity, setDestinationCity] = useState("");
@@ -60,7 +61,9 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   useEffect(() => {
     if (orderToEdit) {
       setSender(orderToEdit.sender);
+      setSenderAddress(orderToEdit.senderAddress || "");
       setRecipient(orderToEdit.recipient);
+      setRecipientAddress(orderToEdit.recipientAddress || "");
       setOriginCity(orderToEdit.originCity);
       setOriginState(orderToEdit.originState);
       setDestinationCity(orderToEdit.destinationCity);
@@ -79,7 +82,6 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
     }
   }, [orderToEdit]);
 
-  // Calculate cubic measurement when measurements change
   useEffect(() => {
     const totalCubic = measurements.reduce((sum, item) => {
       const itemCubic = (item.length * item.width * item.height * item.quantity) / 1000000; // convert cm³ to m³
@@ -145,13 +147,15 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
     const newOrder: CollectionOrder = {
       id: orderToEdit ? orderToEdit.id : uuidv4(),
       sender,
+      senderAddress: senderAddress || undefined,
       recipient,
+      recipientAddress: recipientAddress || undefined,
       originCity,
       originState,
       destinationCity,
       destinationState,
       receiver,
-      receiverAddress,
+      receiverAddress: receiverAddress || undefined,
       volumes,
       weight,
       measurements,
@@ -181,8 +185,12 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       <SenderRecipientSection 
         sender={sender}
         setSender={setSender}
+        senderAddress={senderAddress}
+        setSenderAddress={setSenderAddress}
         recipient={recipient}
         setRecipient={setRecipient}
+        recipientAddress={recipientAddress}
+        setRecipientAddress={setRecipientAddress}
       />
       
       <LocationsSection 

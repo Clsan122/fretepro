@@ -13,15 +13,23 @@ import {
 interface SenderRecipientProps {
   sender: string;
   setSender: (value: string) => void;
+  senderAddress: string;
+  setSenderAddress: (value: string) => void;
   recipient: string;
   setRecipient: (value: string) => void;
+  recipientAddress: string;
+  setRecipientAddress: (value: string) => void;
 }
 
 export const SenderRecipientSection: React.FC<SenderRecipientProps> = ({
   sender,
   setSender,
+  senderAddress,
+  setSenderAddress,
   recipient,
-  setRecipient
+  setRecipient,
+  recipientAddress,
+  setRecipientAddress
 }) => {
   return (
     <Card>
@@ -39,6 +47,14 @@ export const SenderRecipientSection: React.FC<SenderRecipientProps> = ({
               onChange={(e) => setSender(e.target.value)}
               placeholder="Nome do remetente ou exportador"
             />
+            
+            <Label htmlFor="senderAddress" className="mt-2">Endereço do Remetente</Label>
+            <Input
+              id="senderAddress"
+              value={senderAddress}
+              onChange={(e) => setSenderAddress(e.target.value)}
+              placeholder="Endereço completo (opcional)"
+            />
           </div>
 
           <div className="space-y-2">
@@ -48,6 +64,14 @@ export const SenderRecipientSection: React.FC<SenderRecipientProps> = ({
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
               placeholder="Nome do destinatário ou importador"
+            />
+            
+            <Label htmlFor="recipientAddress" className="mt-2">Endereço do Destinatário</Label>
+            <Input
+              id="recipientAddress"
+              value={recipientAddress}
+              onChange={(e) => setRecipientAddress(e.target.value)}
+              placeholder="Endereço completo (opcional)"
             />
           </div>
         </div>
