@@ -15,11 +15,11 @@ interface MultiFreightReceiptGeneratorProps {
 const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> = ({ freights }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
-  // Fix 1: Correctly implement useReactToPrint with documentRef property
+  // Fixed: Use the correct properties for useReactToPrint
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    documentRef: componentRef,
+    content: () => componentRef.current,
   });
 
   const getTotalAmount = () => {
@@ -70,9 +70,9 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   return (
     <div className="p-4">
       <div className="mb-4 flex justify-end">
-        {/* Fix 2: Use the handlePrint function directly as the onClick handler */}
+        {/* Fixed: Create a wrapper function to handle the click event properly */}
         <Button 
-          onClick={handlePrint}
+          onClick={() => handlePrint()}
           variant="outline" 
           className="gap-2"
         >
