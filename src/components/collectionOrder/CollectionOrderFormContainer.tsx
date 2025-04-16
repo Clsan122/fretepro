@@ -10,11 +10,11 @@ import { useToast } from "@/hooks/use-toast";
 import { SenderRecipientSection } from "./SenderRecipientSection";
 import { LocationsSection } from "./LocationsSection";
 import { CargoSection } from "./CargoSection";
-import { MeasurementsSection } from "./MeasurementsSection";
 import { DriverSection } from "./DriverSection";
 import { CompanyLogoSection } from "./CompanyLogoSection";
 import { InvoiceNotesSection } from "./InvoiceNotesSection";
 import { FormActions } from "../freight/FormActions";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -122,7 +122,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!sender || !recipient || !originCity || !originState || !destinationCity || !destinationState) {
@@ -173,6 +173,24 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       userId: user.id
     };
 
+    // Store the order in Supabase if available
+    try {
+      if (supabase) {
+        const { error } = await supabase
+          .from('collection_orders')
+          .upsert({
+            id: newOrder.id,
+            user_id: user.id,
+            order_data: newOrder
+          });
+          
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error("Error saving to database:", error);
+      // Fall back to local storage if supabase fails
+    }
+
     onSave(newOrder);
   };
 
@@ -217,6 +235,10 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         merchandiseValue={merchandiseValue}
         setMerchandiseValue={setMerchandiseValue}
         cubicMeasurement={cubicMeasurement}
+        measurements={measurements}
+        handleAddMeasurement={handleAddMeasurement}
+        handleRemoveMeasurement={handleRemoveMeasurement}
+        handleMeasurementChange={handleMeasurementChange}
       />
       
       <InvoiceNotesSection
@@ -224,13 +246,6 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setInvoiceNumber={setInvoiceNumber}
         observations={observations}
         setObservations={setObservations}
-      />
-      
-      <MeasurementsSection 
-        measurements={measurements}
-        handleAddMeasurement={handleAddMeasurement}
-        handleRemoveMeasurement={handleRemoveMeasurement}
-        handleMeasurementChange={handleMeasurementChange}
       />
       
       <DriverSection 

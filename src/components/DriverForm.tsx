@@ -44,6 +44,8 @@ const DriverForm: React.FC<DriverFormProps> = ({
   const [trailerPlate, setTrailerPlate] = useState("");
   const [vehicleType, setVehicleType] = useState("");
   const [bodyType, setBodyType] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -57,6 +59,8 @@ const DriverForm: React.FC<DriverFormProps> = ({
       setTrailerPlate(driverToEdit.trailerPlate || "");
       setVehicleType(driverToEdit.vehicleType);
       setBodyType(driverToEdit.bodyType);
+      setAddress(driverToEdit.address || "");
+      setPhone(driverToEdit.phone || "");
     }
   }, [driverToEdit]);
 
@@ -100,6 +104,23 @@ const DriverForm: React.FC<DriverFormProps> = ({
     setTrailerPlate(formattedPlate);
   };
 
+  const formatPhone = (value: string) => {
+    // Remove non-digit characters
+    const nums = value.replace(/\D/g, '');
+    
+    // Apply phone mask: (XX) XXXXX-XXXX
+    let formatted = nums;
+    if (nums.length > 0) formatted = nums.replace(/^(\d{0,2})(.*)/, '($1) $2');
+    if (nums.length > 6) formatted = formatted.replace(/\(\d{2}\) (\d{0,5})(.*)/, '($1) $2-$3');
+    
+    return formatted.slice(0, 16); // Limit to 16 characters (including format)
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhone(e.target.value);
+    setPhone(formattedPhone);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -129,6 +150,8 @@ const DriverForm: React.FC<DriverFormProps> = ({
       trailerPlate: trailerPlate || undefined,
       vehicleType: vehicleType as any,
       bodyType: bodyType as any,
+      address: address || undefined,
+      phone: phone || undefined,
       createdAt: driverToEdit ? driverToEdit.createdAt : new Date().toISOString(),
       userId: user.id
     };
@@ -180,6 +203,26 @@ const DriverForm: React.FC<DriverFormProps> = ({
                   onChange={handleCPFChange}
                   placeholder="CPF do motorista"
                   maxLength={14}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefone (Opcional)</Label>
+                <Input
+                  id="phone"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address">Endereço (Opcional)</Label>
+                <Input
+                  id="address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Endereço completo"
                 />
               </div>
             </div>

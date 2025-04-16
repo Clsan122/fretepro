@@ -26,6 +26,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
   const [name, setName] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [address, setAddress] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -34,8 +36,29 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
       setName(clientToEdit.name);
       setState(clientToEdit.state);
       setCity(clientToEdit.city);
+      setCnpj(clientToEdit.cnpj || "");
+      setAddress(clientToEdit.address || "");
     }
   }, [clientToEdit]);
+
+  const formatCNPJ = (value: string) => {
+    // Remove non-digit characters
+    const nums = value.replace(/\D/g, '');
+    
+    // Apply CNPJ mask: XX.XXX.XXX/XXXX-XX
+    let formatted = nums;
+    if (nums.length > 2) formatted = nums.replace(/(\d{2})(\d)/, '$1.$2');
+    if (nums.length > 5) formatted = formatted.replace(/(\d{2}\.\d{3})(\d)/, '$1.$2');
+    if (nums.length > 8) formatted = formatted.replace(/(\d{2}\.\d{3}\.\d{3})(\d)/, '$1/$2');
+    if (nums.length > 12) formatted = formatted.replace(/(\d{2}\.\d{3}\.\d{3}\/\d{4})(\d)/, '$1-$2');
+    
+    return formatted.slice(0, 18); // Limit to 18 characters (including format)
+  };
+
+  const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedCNPJ = formatCNPJ(e.target.value);
+    setCnpj(formattedCNPJ);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +66,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
     if (!name || !state || !city) {
       toast({
         title: "Erro",
-        description: "Por favor, preencha todos os campos!",
+        description: "Por favor, preencha todos os campos obrigatórios!",
         variant: "destructive",
       });
       return;
@@ -63,6 +86,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
       name,
       state,
       city,
+      cnpj: cnpj || undefined,
+      address: address || undefined,
       createdAt: clientToEdit ? clientToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
     };
@@ -74,6 +99,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
       setName("");
       setState("");
       setCity("");
+      setCnpj("");
+      setAddress("");
     }
   };
 
@@ -86,6 +113,26 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nome completo do cliente"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="cnpj">CNPJ (Opcional)</Label>
+        <Input
+          id="cnpj"
+          value={cnpj}
+          onChange={handleCNPJChange}
+          placeholder="XX.XXX.XXX/XXXX-XX"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="address">Endereço (Opcional)</Label>
+        <Input
+          id="address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Endereço completo"
         />
       </div>
 

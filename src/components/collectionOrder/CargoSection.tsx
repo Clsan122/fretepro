@@ -2,6 +2,9 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Plus, Minus } from "lucide-react";
+import { Measurement } from "@/types";
 import {
   Card,
   CardContent,
@@ -18,6 +21,10 @@ interface CargoProps {
   merchandiseValue: number;
   setMerchandiseValue: (value: number) => void;
   cubicMeasurement: number;
+  measurements: Measurement[];
+  handleAddMeasurement: () => void;
+  handleRemoveMeasurement: (id: string) => void;
+  handleMeasurementChange: (id: string, field: keyof Measurement, value: number) => void;
 }
 
 export const CargoSection: React.FC<CargoProps> = ({
@@ -27,7 +34,11 @@ export const CargoSection: React.FC<CargoProps> = ({
   setWeight,
   merchandiseValue,
   setMerchandiseValue,
-  cubicMeasurement
+  cubicMeasurement,
+  measurements,
+  handleAddMeasurement,
+  handleRemoveMeasurement,
+  handleMeasurementChange
 }) => {
   return (
     <Card>
@@ -36,7 +47,7 @@ export const CargoSection: React.FC<CargoProps> = ({
         <CardDescription>Informe as características da carga a ser transportada</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="space-y-2">
             <Label htmlFor="volumes">Quantidade de Volumes</Label>
             <Input
@@ -85,6 +96,78 @@ export const CargoSection: React.FC<CargoProps> = ({
               placeholder="Valor da mercadoria"
               min="0"
             />
+          </div>
+        </div>
+
+        {/* Measurements Section (moved from separate component) */}
+        <div className="space-y-4 border-t pt-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Medidas</h3>
+            <Button 
+              type="button" 
+              onClick={handleAddMeasurement} 
+              size="sm" 
+              variant="outline"
+            >
+              <Plus className="h-4 w-4 mr-1" /> Adicionar Medida
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
+            {measurements.map((measurement, index) => (
+              <div key={measurement.id} className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1 flex-1 min-w-[100px]">
+                  <Label>Comprimento (cm)</Label>
+                  <Input
+                    type="number"
+                    value={measurement.length.toString()}
+                    onChange={(e) => handleMeasurementChange(measurement.id, "length", Number(e.target.value))}
+                    min="0"
+                    step="0.1"
+                  />
+                </div>
+                <div className="space-y-1 flex-1 min-w-[100px]">
+                  <Label>Largura (cm)</Label>
+                  <Input
+                    type="number"
+                    value={measurement.width.toString()}
+                    onChange={(e) => handleMeasurementChange(measurement.id, "width", Number(e.target.value))}
+                    min="0"
+                    step="0.1"
+                  />
+                </div>
+                <div className="space-y-1 flex-1 min-w-[100px]">
+                  <Label>Altura (cm)</Label>
+                  <Input
+                    type="number"
+                    value={measurement.height.toString()}
+                    onChange={(e) => handleMeasurementChange(measurement.id, "height", Number(e.target.value))}
+                    min="0"
+                    step="0.1"
+                  />
+                </div>
+                <div className="space-y-1 flex-1 min-w-[100px]">
+                  <Label>Quantidade</Label>
+                  <Input
+                    type="number"
+                    value={measurement.quantity.toString()}
+                    onChange={(e) => handleMeasurementChange(measurement.id, "quantity", Number(e.target.value))}
+                    min="1"
+                  />
+                </div>
+                {measurements.length > 1 && (
+                  <Button
+                    type="button"
+                    onClick={() => handleRemoveMeasurement(measurement.id)}
+                    variant="destructive"
+                    size="icon"
+                    className="h-10 w-10"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </CardContent>

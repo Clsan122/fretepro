@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -19,6 +18,8 @@ export interface Client {
   city: string;
   createdAt: string;
   userId: string;
+  cnpj?: string;
+  address?: string;
 }
 
 export interface Driver {
@@ -31,6 +32,8 @@ export interface Driver {
   bodyType: BodyType;
   createdAt: string;
   userId: string;
+  address?: string;
+  phone?: string;
 }
 
 export interface Freight {
@@ -56,10 +59,8 @@ export interface Freight {
   proofOfDeliveryImage?: string;
   createdAt: string;
   userId: string;
-  // Campos de pagamento
   pixKey?: string;
   paymentTerm?: PaymentTerm;
-  // Novo campo para o motorista
   driverId?: string;
 }
 
@@ -103,9 +104,9 @@ export interface BrazilianState {
 export interface CollectionOrder {
   id: string;
   sender: string;               // Remetente/exportador
-  senderAddress?: string;       // Endereço do remetente (novo campo)
+  senderAddress?: string;       // Endereço do remetente
   recipient: string;            // Destinatário/importador
-  recipientAddress?: string;    // Endereço do destinatário (novo campo)
+  recipientAddress?: string;    // Endereço do destinatário
   originCity: string;           // Cidade origem
   originState: string;          // Estado origem
   destinationCity: string;      // Cidade destino
