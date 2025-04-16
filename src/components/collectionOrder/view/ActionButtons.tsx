@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Edit, Share2, Trash2, Printer, Download } from "lucide-react";
+import { ChevronLeft, Edit, Share2, Trash2, Printer, Download, Truck } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +27,7 @@ interface ActionButtonsProps {
   onShare: () => void;
   onDownload?: () => void;
   onPrint?: () => void;
+  onGenerateFreight?: () => void;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -35,6 +36,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onShare,
   onDownload,
   onPrint,
+  onGenerateFreight,
 }) => {
   const navigate = useNavigate();
 
@@ -52,7 +54,16 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         <h1 className="text-2xl font-bold">Ordem de Coleta</h1>
       </div>
       
-      <div className="flex space-x-2">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onGenerateFreight}
+          className="gap-1"
+        >
+          <Truck className="h-4 w-4" /> Gerar Frete
+        </Button>
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

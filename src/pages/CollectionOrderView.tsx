@@ -1,16 +1,18 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Layout from "@/components/Layout";
-import { getCollectionOrderById, deleteCollectionOrder } from "@/utils/storage";
-import { CollectionOrder } from "@/types";
+import { getCollectionOrderById, deleteCollectionOrder, saveFreight } from "@/utils/storage";
+import { CollectionOrder, Freight } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import { ActionButtons } from "@/components/collectionOrder/view/ActionButtons";
 import { OrderHeader } from "@/components/collectionOrder/view/OrderHeader";
 import { OrderContent } from "@/components/collectionOrder/view/OrderContent";
 import { PrintStyles } from "@/components/collectionOrder/view/PrintStyles";
 import { useCollectionOrderPdf } from "@/hooks/useCollectionOrderPdf";
+import { v4 as uuidv4 } from "uuid";
 
 const CollectionOrderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +47,49 @@ const CollectionOrderView: React.FC = () => {
       });
       navigate("/collection-orders");
     }
+  };
+
+  const handleGenerateFreight = () => {
+    if (!order || !order.userId) return;
+
+    // Create a new freight from the collection order
+    const newFreight: Freight = {
+      id: uuidv4(),
+      clientId: "", // We don't have a direct mapping for clientId, leaving empty for user to fill
+      originCity: order.originCity,
+      originState: order.originState,
+      departureDate: "",
+      destinationCity: order.destinationCity,
+      destinationState: order.destinationState,
+      arrivalDate: "",
+      volumes: order.volumes,
+      weight: order.weight,
+      dimensions: order.measurements.map(m => 
+        `${m.length}x${m.width}x${m.height} (${m.quantity})`
+      ).join(", "),
+      cubicMeasurement: order.cubicMeasurement,
+      cargoType: "general", // Default value, user can change later
+      vehicleType: "truck", // Default value, user can change later
+      freightValue: 0,
+      dailyRate: 0,
+      otherCosts: 0,
+      tollCosts: 0,
+      totalValue: 0,
+      createdAt: new Date().toISOString(),
+      userId: order.userId,
+      driverId: order.driverId
+    };
+
+    // Save the new freight
+    saveFreight(newFreight);
+
+    toast({
+      title: "Frete gerado",
+      description: "Um novo frete foi criado com base nesta ordem de coleta!"
+    });
+
+    // Navigate to the freights page
+    navigate("/freights");
   };
 
   if (!order) {
@@ -82,6 +127,7 @@ const CollectionOrderView: React.FC = () => {
           onShare={handleShare}
           onDownload={handleDownload}
           onPrint={handlePrint}
+          onGenerateFreight={handleGenerateFreight}
         />
         
         <PrintStyles />
