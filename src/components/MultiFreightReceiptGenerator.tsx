@@ -4,7 +4,7 @@ import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
 import { getUser } from "@/utils/storage";
 import { Button } from "@/components/ui/button";
-import { PrinterIcon, Download, Share2 } from "lucide-react";
+import { PrinterIcon, Download, Share2, Check } from "lucide-react";
 import { 
   groupFreightsByClient, 
   getTotalAmount, 
@@ -24,6 +24,7 @@ import ReceiptHeader from "./multi-freight-receipt/ReceiptHeader";
 import SummaryTable from "./multi-freight-receipt/SummaryTable";
 import ClientDetailsSection from "./multi-freight-receipt/ClientDetailsSection";
 import ReceiptFooter from "./multi-freight-receipt/ReceiptFooter";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MultiFreightReceiptGeneratorProps {
   freights: Freight[];
@@ -33,7 +34,9 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const componentRef = useRef<HTMLDivElement>(null);
   const currentUser = getUser();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
@@ -131,6 +134,9 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           text: `Recibo de múltiplos fretes no período de ${dateRangeText}.`,
         });
         
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 3000);
+        
         toast({
           title: "Sucesso",
           description: "Recibo compartilhado com sucesso!"
@@ -141,44 +147,77 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
       }
     } catch (error) {
       console.error("Erro ao compartilhar:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível compartilhar o recibo",
-        variant: "destructive"
-      });
+      if (error instanceof Error && error.name !== 'AbortError') {
+        toast({
+          title: "Erro",
+          description: "Não foi possível compartilhar o recibo",
+          variant: "destructive"
+        });
+      }
     }
   };
 
   return (
-    <div className="p-4">
+    <div className="p-2 md:p-4">
       <div className="mb-4 flex justify-end gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="gap-2"
-            >
-              <Share2 className="h-4 w-4" />
-              Compartilhar
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" /> Compartilhar PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDownload}>
-              <Download className="h-4 w-4 mr-2" /> Baixar PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handlePrint()}>
-              <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {isMobile ? (
+          <Button 
+            variant="outline" 
+            className="gap-2 w-full"
+            onClick={handleShare}
+          >
+            {shareSuccess ? (
+              <>
+                <Check className="h-4 w-4" />
+                Compartilhado!
+              </>
+            ) : (
+              <>
+                <Share2 className="h-4 w-4" />
+                Compartilhar
+              </>
+            )}
+          </Button>
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="gap-2"
+              >
+                <Share2 className="h-4 w-4" />
+                Compartilhar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-2" /> Compartilhar PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownload}>
+                <Download className="h-4 w-4 mr-2" /> Baixar PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handlePrint()}>
+                <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        
+        {isMobile && (
+          <Button 
+            variant="outline" 
+            className="gap-2 w-full"
+            onClick={handlePrint} 
+          >
+            <PrinterIcon className="h-4 w-4" />
+            Imprimir
+          </Button>
+        )}
       </div>
       
       <div 
         ref={componentRef} 
-        className={`bg-white p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0 ${isGenerating ? 'opacity-0 absolute' : ''}`}
+        className={`bg-white p-2 md:p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0 ${isGenerating ? 'opacity-0 absolute' : ''}`}
       >
         <PrintStyles />
         

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -9,20 +9,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Save, Phone, Mail, MapPin, User, Lock, Key, Calendar, TruckIcon, Receipt } from "lucide-react";
+import { Save, Phone, Mail, MapPin, User, Lock, Key, Calendar, TruckIcon, Receipt, Camera, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatBrazilianPhone, formatCPF } from "@/utils/formatters";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Personal data fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
   const [phone, setPhone] = useState("");
+  const [avatar, setAvatar] = useState("");
   
   // Company data fields
   const [companyName, setCompanyName] = useState("");
@@ -57,30 +62,17 @@ const Profile: React.FC = () => {
       setCnpj(user.cnpj || "");
       setPixKey(user.pixKey || "");
       setBankInfo(user.bankInfo || "");
+      setAvatar(user.avatar || "");
     }
   }, [user]);
 
-  const formatCPF = (value: string) => {
-    // Remove qualquer caractere que não seja número
-    const cpfNumbers = value.replace(/\D/g, '');
-    
-    // Aplica a máscara de CPF: XXX.XXX.XXX-XX
-    let formattedCPF = cpfNumbers;
-    if (cpfNumbers.length > 3) formattedCPF = cpfNumbers.replace(/(\d{3})(\d)/, '$1.$2');
-    if (cpfNumbers.length > 6) formattedCPF = formattedCPF.replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-    if (cpfNumbers.length > 9) formattedCPF = formattedCPF.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
-    
-    return formattedCPF.slice(0, 14); // Limita a 14 caracteres (com máscara)
-  };
-
   const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedCPF = formatCPF(e.target.value);
-    setCpf(formattedCPF);
+    setCpf(formatCPF(e.target.value));
   };
 
-  const formatCNPJ = (value: string) => {
+  const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Remove qualquer caractere que não seja número
-    const cnpjNumbers = value.replace(/\D/g, '');
+    const cnpjNumbers = e.target.value.replace(/\D/g, '');
     
     // Aplica a máscara de CNPJ: XX.XXX.XXX/XXXX-XX
     let formattedCNPJ = cnpjNumbers;
@@ -89,12 +81,7 @@ const Profile: React.FC = () => {
     if (cnpjNumbers.length > 8) formattedCNPJ = formattedCNPJ.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4');
     if (cnpjNumbers.length > 12) formattedCNPJ = formattedCNPJ.replace(/(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3/$4-$5');
     
-    return formattedCNPJ.slice(0, 18); // Limita a 18 caracteres (com máscara)
-  };
-
-  const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedCNPJ = formatCNPJ(e.target.value);
-    setCnpj(formattedCNPJ);
+    setCnpj(formattedCNPJ.slice(0, 18)); // Limita a 18 caracteres (com máscara)
   };
 
   const formatZipCode = (value: string) => {
@@ -113,21 +100,19 @@ const Profile: React.FC = () => {
     setZipCode(formattedZipCode);
   };
 
-  const formatPhone = (value: string) => {
-    // Remove non-digit characters
-    const nums = value.replace(/\D/g, '');
-    
-    // Apply phone mask: (XX) XXXXX-XXXX
-    let formatted = nums;
-    if (nums.length > 0) formatted = nums.replace(/^(\d{0,2})(.*)/, '($1) $2');
-    if (nums.length > 6) formatted = formatted.replace(/\(\d{2}\) (\d{0,5})(.*)/, '($1) $2-$3');
-    
-    return formatted.slice(0, 16); // Limit to 16 characters (including format)
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(formatBrazilianPhone(e.target.value));
   };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedPhone = formatPhone(e.target.value);
-    setPhone(formattedPhone);
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -149,7 +134,8 @@ const Profile: React.FC = () => {
       companyName,
       cnpj,
       pixKey,
-      bankInfo
+      bankInfo,
+      avatar
     };
     
     // Atualizar no Supabase se disponível
@@ -169,7 +155,8 @@ const Profile: React.FC = () => {
             company_name: companyName,
             cnpj,
             pix_key: pixKey,
-            bank_info: bankInfo
+            bank_info: bankInfo,
+            avatar_url: avatar
           });
           
         if (error) throw error;
@@ -261,165 +248,119 @@ const Profile: React.FC = () => {
       <div className="container mx-auto py-4 px-2 md:px-4 max-w-full overflow-x-hidden">
         <h1 className="text-xl md:text-2xl font-bold mb-4">Meu Perfil</h1>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Informações Pessoais
-              </CardTitle>
-              <CardDescription>
-                Gerencie seus dados pessoais e de contato
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUpdateProfile} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome Completo</Label>
-                    <div className="flex items-center space-x-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    </div>
+        <Tabs defaultValue="personal" className="w-full">
+          <TabsList className="mb-4 w-full md:w-auto">
+            <TabsTrigger value="personal" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <span className="hidden md:inline">Dados Pessoais</span>
+              <span className="md:hidden">Pessoais</span>
+            </TabsTrigger>
+            <TabsTrigger value="company" className="flex items-center gap-2">
+              <TruckIcon className="h-4 w-4" />
+              <span className="hidden md:inline">Empresa e Endereço</span>
+              <span className="md:hidden">Empresa</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              <span className="hidden md:inline">Segurança</span>
+              <span className="md:hidden">Segurança</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="personal">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Informações Pessoais
+                </CardTitle>
+                <CardDescription>
+                  Gerencie seus dados pessoais e de contato
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateProfile} className="space-y-6">
+                  <div className="flex flex-col items-center space-y-3">
+                    <Avatar className="h-24 w-24 border-2 border-muted">
+                      <AvatarImage src={avatar} alt={name} />
+                      <AvatarFallback className="text-2xl bg-primary/10">
+                        {name?.charAt(0) || <User className="h-10 w-10" />}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera className="h-4 w-4" />
+                      Alterar foto
+                    </Button>
+                    
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                    />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
-                    <div className="flex items-center space-x-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="cpf">CPF</Label>
-                    <div className="flex items-center space-x-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="cpf"
-                        value={cpf}
-                        onChange={handleCPFChange}
-                        placeholder="000.000.000-00"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
-                    <div className="flex items-center space-x-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="phone"
-                        value={phone}
-                        onChange={handlePhoneChange}
-                        placeholder="(00) 00000-0000"
-                      />
-                    </div>
-                  </div>
-                </div>
                 
-                <Separator className="my-4" />
-                
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium flex items-center gap-2">
-                    <TruckIcon className="h-5 w-5" />
-                    Dados da Empresa
-                  </h3>
-                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="companyName">Nome da Empresa</Label>
-                      <Input
-                        id="companyName"
-                        value={companyName}
-                        onChange={(e) => setCompanyName(e.target.value)}
-                        placeholder="Nome da sua empresa"
-                      />
+                      <Label htmlFor="name">Nome Completo</Label>
+                      <div className="flex items-center space-x-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                        />
+                      </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="cnpj">CNPJ</Label>
-                      <Input
-                        id="cnpj"
-                        value={cnpj}
-                        onChange={handleCNPJChange}
-                        placeholder="00.000.000/0000-00"
-                      />
+                      <Label htmlFor="email">E-mail</Label>
+                      <div className="flex items-center space-x-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                <Separator className="my-4" />
-                
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Endereço
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="cpf">CPF</Label>
+                      <div className="flex items-center space-x-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="cpf"
+                          value={cpf}
+                          onChange={handleCPFChange}
+                          placeholder="000.000.000-00"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Telefone</Label>
+                      <div className="flex items-center space-x-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="phone"
+                          value={phone}
+                          onChange={handlePhoneChange}
+                          placeholder="(00) 00000-0000"
+                        />
+                      </div>
+                    </div>
+
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="address">Endereço Completo</Label>
-                      <Input
-                        id="address"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Rua, número, complemento"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="city">Cidade</Label>
-                      <Input
-                        id="city"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        placeholder="Sua cidade"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="state">Estado</Label>
-                      <Input
-                        id="state"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        placeholder="UF"
-                        maxLength={2}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="zipCode">CEP</Label>
-                      <Input
-                        id="zipCode"
-                        value={zipCode}
-                        onChange={handleZipCodeChange}
-                        placeholder="00000-000"
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <Separator className="my-4" />
-                
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium flex items-center gap-2">
-                    <Receipt className="h-5 w-5" />
-                    Dados para Recibos
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
                       <Label htmlFor="pixKey">Chave PIX</Label>
                       <Input
                         id="pixKey"
@@ -429,7 +370,7 @@ const Profile: React.FC = () => {
                       />
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="bankInfo">Dados Bancários</Label>
                       <Input
                         id="bankInfo"
@@ -439,99 +380,204 @@ const Profile: React.FC = () => {
                       />
                     </div>
                   </div>
-                </div>
-                
-                <Button type="submit" className="w-full">
-                  <Save className="mr-2 h-4 w-4" />
-                  Salvar Alterações
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="h-5 w-5" />
-                Alterar Senha
-              </CardTitle>
-              <CardDescription>
-                Atualize sua senha para manter sua conta segura
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleChangePassword} className="space-y-4">
-                <div className="space-y-3">
+                  
+                  <Button type="submit" className="w-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar Alterações
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="company">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TruckIcon className="h-5 w-5" />
+                  Dados da Empresa e Endereço
+                </CardTitle>
+                <CardDescription>
+                  Informe os dados da sua empresa e endereço completo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateProfile} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Senha Atual</Label>
-                    <div className="flex items-center space-x-2">
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="currentPassword"
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                      />
+                    <h3 className="text-lg font-medium flex items-center gap-2">
+                      <TruckIcon className="h-5 w-5" />
+                      Dados da Empresa
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="companyName">Nome da Empresa</Label>
+                        <Input
+                          id="companyName"
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          placeholder="Nome da sua empresa"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="cnpj">CNPJ</Label>
+                        <Input
+                          id="cnpj"
+                          value={cnpj}
+                          onChange={handleCNPJChange}
+                          placeholder="00.000.000/0000-00"
+                        />
+                      </div>
                     </div>
                   </div>
                   
+                  <Separator className="my-4" />
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">Nova Senha</Label>
-                    <div className="flex items-center space-x-2">
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                      />
+                    <h3 className="text-lg font-medium flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Endereço
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="address">Endereço Completo</Label>
+                        <Input
+                          id="address"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          placeholder="Rua, número, complemento"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="city">Cidade</Label>
+                        <Input
+                          id="city"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          placeholder="Sua cidade"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="state">Estado</Label>
+                        <Input
+                          id="state"
+                          value={state}
+                          onChange={(e) => setState(e.target.value)}
+                          placeholder="UF"
+                          maxLength={2}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="zipCode">CEP</Label>
+                        <Input
+                          id="zipCode"
+                          value={zipCode}
+                          onChange={handleZipCodeChange}
+                          placeholder="00000-000"
+                        />
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
-                    <div className="flex items-center space-x-2">
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <Button type="submit" variant="outline" className="w-full">
-                  <Lock className="mr-2 h-4 w-4" />
+                  <Button type="submit" className="w-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar Alterações
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="security">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="h-5 w-5" />
                   Alterar Senha
-                </Button>
-              </form>
-              
-              <div className="space-y-2 pt-6">
-                <Label>Informações de Cadastro</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-3 bg-muted rounded-md flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Data de Cadastro</p>
-                      <p className="text-sm text-muted-foreground">
-                        {user.createdAt ? format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ptBR }) : "N/A"}
-                      </p>
+                </CardTitle>
+                <CardDescription>
+                  Atualize sua senha para manter sua conta segura
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword">Senha Atual</Label>
+                      <div className="flex items-center space-x-2">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="currentPassword"
+                          type="password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">Nova Senha</Label>
+                      <div className="flex items-center space-x-2">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="newPassword"
+                          type="password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                      <div className="flex items-center space-x-2">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="p-3 bg-muted rounded-md flex items-center space-x-2">
-                    <Key className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">ID de Usuário</p>
-                      <p className="text-sm text-muted-foreground truncate max-w-[150px]">{user.id.substring(0, 8)}</p>
+                  
+                  <Button type="submit" variant="outline" className="w-full">
+                    <Lock className="mr-2 h-4 w-4" />
+                    Alterar Senha
+                  </Button>
+                </form>
+                
+                <div className="space-y-2 pt-6">
+                  <Label>Informações de Cadastro</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-3 bg-muted rounded-md flex items-center space-x-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">Data de Cadastro</p>
+                        <p className="text-sm text-muted-foreground">
+                          {user.createdAt ? format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ptBR }) : "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-muted rounded-md flex items-center space-x-2">
+                      <Key className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">ID de Usuário</p>
+                        <p className="text-sm text-muted-foreground truncate max-w-[150px]">{user.id.substring(0, 8)}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

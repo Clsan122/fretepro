@@ -1,28 +1,29 @@
 
 export const formatCPF = (value: string) => {
-  const digits = value.replace(/\D/g, '');
+  const digits = value.replace(/\D/g, '').slice(0, 11);
   return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 };
 
 export const formatBrazilianPhone = (value: string) => {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length <= 11) {
-    let formatted = digits;
-    if (digits.length > 2) {
-      formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    }
-    if (digits.length > 7) {
-      // For mobile numbers (with 9 digits)
-      if (digits.length > 10) {
-        formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
-      } else {
-        // For landline numbers (with 8 digits)
-        formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-      }
-    }
-    return formatted;
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  
+  if (digits.length === 0) return '';
+  
+  if (digits.length <= 2) {
+    return `(${digits}`;
   }
-  return value;
+  
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  }
+  
+  if (digits.length <= 10) {
+    // Telefone fixo (8 dígitos)
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+  
+  // Celular (9 dígitos com o 9 na frente)
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
 };
 
 // Function to create a multi-freight receipt URL
