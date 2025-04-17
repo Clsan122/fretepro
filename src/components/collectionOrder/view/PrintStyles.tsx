@@ -7,11 +7,12 @@ export const PrintStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 15mm 10mm;
+          margin: 10mm;
+          scale: 0.95;
         }
         
         body {
-          font-size: 12px;
+          font-size: 11px !important;
           background-color: white !important;
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
@@ -19,11 +20,11 @@ export const PrintStyles: React.FC = () => {
         }
         
         .card-compact .card-header {
-          padding: 12px;
+          padding: 8px !important;
         }
         
         .card-compact .card-content {
-          padding: 12px;
+          padding: 8px !important;
         }
         
         .print-no-margin {
@@ -31,15 +32,15 @@ export const PrintStyles: React.FC = () => {
         }
         
         .print-small-text {
-          font-size: 11px !important;
-        }
-        
-        .print-smaller-text {
           font-size: 10px !important;
         }
         
+        .print-smaller-text {
+          font-size: 9px !important;
+        }
+        
         .print-compact-grid {
-          gap: 8px !important;
+          gap: 4px !important;
         }
         
         .print-hidden {
@@ -56,21 +57,23 @@ export const PrintStyles: React.FC = () => {
         }
         
         .print-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
           padding: 0 !important;
           margin: 0 !important;
+          page-break-inside: avoid !important;
         }
         
         #collection-order-print {
-          width: 210mm;
-          max-width: 100%;
+          width: 210mm !important;
+          max-width: 100% !important;
           box-shadow: none !important;
           padding: 5mm !important;
           margin: 0 auto !important;
           border: none !important;
+          page-break-inside: avoid !important;
         }
         
         .layout-main {
@@ -95,24 +98,34 @@ export const PrintStyles: React.FC = () => {
         table {
           width: 100% !important;
           border-collapse: collapse !important;
+          font-size: 10px !important;
         }
         
         table td, table th {
           border: 1px solid #ddd !important;
-          padding: 4px !important;
+          padding: 3px !important;
+          font-size: 9px !important;
         }
         
         img {
           max-width: 100% !important;
+          display: block !important;
+          print-color-adjust: exact !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          page-break-inside: avoid !important;
         }
         
         .divider {
-          margin: 5px 0 !important;
+          margin: 3px 0 !important;
           border-color: #ddd !important;
         }
         
         * {
           box-shadow: none !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
       `}
     </style>
