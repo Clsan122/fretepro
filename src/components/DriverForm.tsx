@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Driver } from "@/types";
 import { VEHICLE_TYPES, BODY_TYPES } from "@/utils/constants";
@@ -47,7 +46,10 @@ const DriverForm: React.FC<DriverFormProps> = ({
   const [bodyType, setBodyType] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  
+  const [anttCode, setAnttCode] = useState(driverToEdit?.anttCode || "");
+  const [vehicleYear, setVehicleYear] = useState(driverToEdit?.vehicleYear || "");
+  const [vehicleModel, setVehicleModel] = useState(driverToEdit?.vehicleModel || "");
+
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -62,16 +64,17 @@ const DriverForm: React.FC<DriverFormProps> = ({
       setBodyType(driverToEdit.bodyType);
       setAddress(driverToEdit.address || "");
       setPhone(driverToEdit.phone || "");
+      setAnttCode(driverToEdit.anttCode || "");
+      setVehicleYear(driverToEdit.vehicleYear || "");
+      setVehicleModel(driverToEdit.vehicleModel || "");
     }
   }, [driverToEdit]);
 
   const formatLicensePlate = (value: string) => {
-    // Formata placa no padrão XXX-XXXX ou XXX-XXXX
     const plateText = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     
     if (plateText.length <= 3) return plateText;
     
-    // Para o padrão novo (Mercosul)
     if (plateText.length > 3) return `${plateText.slice(0, 3)}-${plateText.slice(3, 7)}`;
     
     return plateText;
@@ -88,21 +91,20 @@ const DriverForm: React.FC<DriverFormProps> = ({
   };
 
   const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Apenas números para o CPF
     const cpfValue = e.target.value.replace(/\D/g, '');
     setCpf(cpfValue);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Apenas números para o telefone
     const phoneValue = e.target.value.replace(/\D/g, '');
-    setPhone(phoneValue);
+    const formattedPhone = formatBrazilianPhone(phoneValue);
+    setPhone(formattedPhone);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !cpf || !licensePlate || !vehicleType || !bodyType) {
+    if (!name || !cpf || !licensePlate || !vehicleType || !bodyType || !phone || !anttCode || !vehicleYear || !vehicleModel) {
       toast({
         title: "Erro",
         description: "Por favor, preencha todos os campos obrigatórios!",
@@ -129,7 +131,10 @@ const DriverForm: React.FC<DriverFormProps> = ({
       vehicleType: vehicleType as any,
       bodyType: bodyType as any,
       address: address || undefined,
-      phone: phone || undefined,
+      phone,
+      anttCode,
+      vehicleYear,
+      vehicleModel,
       createdAt: driverToEdit ? driverToEdit.createdAt : new Date().toISOString(),
       userId: user.id
     };
@@ -191,20 +196,15 @@ const DriverForm: React.FC<DriverFormProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefone (Opcional)</Label>
+                <Label htmlFor="phone">Telefone</Label>
                 <Input
                   id="phone"
                   value={phone}
                   onChange={handlePhoneChange}
-                  placeholder="Apenas números"
-                  inputMode="numeric"
-                  maxLength={11}
+                  placeholder="(XX) XXXXX-XXXX"
+                  required
+                  maxLength={15}
                 />
-                {phone && (
-                  <p className="text-xs text-muted-foreground">
-                    Formato: {formatBrazilianPhone(phone)}
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -286,6 +286,41 @@ const DriverForm: React.FC<DriverFormProps> = ({
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="anttCode">Código ANTT</Label>
+                <Input
+                  id="anttCode"
+                  value={anttCode}
+                  onChange={(e) => setAnttCode(e.target.value)}
+                  placeholder="Digite o código ANTT"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="vehicleYear">Ano do Veículo</Label>
+                  <Input
+                    id="vehicleYear"
+                    value={vehicleYear}
+                    onChange={(e) => setVehicleYear(e.target.value)}
+                    placeholder="Ano do veículo"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="vehicleModel">Modelo do Veículo</Label>
+                  <Input
+                    id="vehicleModel"
+                    value={vehicleModel}
+                    onChange={(e) => setVehicleModel(e.target.value)}
+                    placeholder="Modelo do veículo"
+                    required
+                  />
                 </div>
               </div>
             </div>

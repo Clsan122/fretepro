@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -44,7 +43,10 @@ export interface Driver {
   createdAt: string;
   userId: string;
   address?: string;
-  phone?: string;
+  phone: string;
+  anttCode: string;
+  vehicleYear: string;
+  vehicleModel: string;
 }
 
 export interface Freight {

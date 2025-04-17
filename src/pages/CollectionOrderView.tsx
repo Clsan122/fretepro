@@ -82,8 +82,8 @@ const CollectionOrderView: React.FC = () => {
         `${m.length}x${m.width}x${m.height} (${m.quantity})`
       ).join(", "),
       cubicMeasurement: order.cubicMeasurement,
-      cargoType: "general", // Default value, user can change later
-      vehicleType: "truck", // Default value, user can change later
+      cargoType: "general", // Default value
+      vehicleType: "truck", // Default value
       freightValue: 0,
       dailyRate: 0,
       otherCosts: 0,
@@ -91,7 +91,11 @@ const CollectionOrderView: React.FC = () => {
       totalValue: 0,
       createdAt: new Date().toISOString(),
       userId: order.userId,
-      driverId: order.driverId
+      driverId: order.driverId,
+      // Add client information from order
+      clientName: order.recipient,
+      clientAddress: order.recipientAddress,
+      
     };
 
     // Save the new freight
