@@ -5,8 +5,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Header from "./navigation/Header";
-import BottomNavigationBar from "./navigation/BottomNavigationBar";
+import BottomNavigation from "./BottomNavigation";
 import SidebarNavigation from "./navigation/SidebarNavigation";
+import { Button } from "@/components/ui/button";
+import { navigationItems } from "./navigation/BottomNavigation";
+import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -94,7 +97,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </main>
         </div>
         
-        <BottomNavigationBar />
+        <BottomNavigation />
       </div>
     </SidebarProvider>
   );
