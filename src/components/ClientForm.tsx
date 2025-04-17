@@ -1,21 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/AuthContext";
 import { Client } from "@/types";
 import { v4 as uuidv4 } from "uuid";
-import { BRAZILIAN_STATES } from "@/utils/constants";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -24,7 +15,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Upload, Image } from "lucide-react";
+import { LogoUpload } from "./client/LogoUpload";
+import { ClientFormFields } from "./client/ClientFormFields";
+import { LocationFields } from "./client/LocationFields";
 
 const clientSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
@@ -48,7 +41,6 @@ const ClientForm: React.FC<ClientFormProps> = ({
 }) => {
   const { user } = useAuth();
   const [logo, setLogo] = useState<string>("");
-  const logoInputRef = useRef<HTMLInputElement>(null);
   
   const {
     register,
@@ -75,17 +67,6 @@ const ClientForm: React.FC<ClientFormProps> = ({
       setLogo(initialData.logo);
     }
   }, [initialData]);
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogo(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const onSubmit = (data: z.infer<typeof clientSchema>) => {
     if (!user) return;
@@ -128,114 +109,14 @@ const ClientForm: React.FC<ClientFormProps> = ({
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
-          <div className="flex flex-col space-y-2">
-            <Label>Logotipo do Cliente</Label>
-            <div className="flex items-center gap-2">
-              {logo ? (
-                <div className="relative">
-                  <img 
-                    src={logo} 
-                    alt="Logotipo" 
-                    className="h-16 w-auto object-contain border rounded p-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-0 right-0 h-6 w-6 bg-white rounded-full"
-                    onClick={() => setLogo("")}
-                  >
-                    <span className="sr-only">Remover</span>
-                    ×
-                  </Button>
-                </div>
-              ) : (
-                <div className="h-16 w-32 border-2 border-dashed rounded flex items-center justify-center">
-                  <Image className="h-6 w-6 text-gray-400" />
-                </div>
-              )}
-              <Button 
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => logoInputRef.current?.click()}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Enviar Logotipo
-              </Button>
-              <input
-                type="file"
-                ref={logoInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleLogoUpload}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome do Cliente</Label>
-            <Input id="name" {...register("name")} />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cnpj">CNPJ</Label>
-            <Input id="cnpj" {...register("cnpj")} />
-            {errors.cnpj && (
-              <p className="text-sm text-red-500">{errors.cnpj.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="address">Endereço</Label>
-            <Input id="address" {...register("address")} />
-            {errors.address && (
-              <p className="text-sm text-red-500">{errors.address.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefone</Label>
-            <Input id="phone" {...register("phone")} />
-            {errors.phone && (
-              <p className="text-sm text-red-500">{errors.phone.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="city">Cidade</Label>
-              <Input id="city" {...register("city")} />
-              {errors.city && (
-                <p className="text-sm text-red-500">{errors.city.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="state">Estado</Label>
-              <Select
-                value={watchedState}
-                onValueChange={handleSetState}
-              >
-                <SelectTrigger id="state">
-                  <SelectValue placeholder="UF" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BRAZILIAN_STATES.map((state) => (
-                    <SelectItem key={state.abbreviation} value={state.abbreviation}>
-                      {state.abbreviation} - {state.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.state && (
-                <p className="text-sm text-red-500">{errors.state.message}</p>
-              )}
-            </div>
-          </div>
+          <LogoUpload logo={logo} setLogo={setLogo} />
+          <ClientFormFields register={register} errors={errors} />
+          <LocationFields 
+            register={register}
+            errors={errors}
+            watchedState={watchedState}
+            handleSetState={handleSetState}
+          />
         </CardContent>
         <CardFooter className="justify-between">
           <Button variant="outline" onClick={onCancel} type="button">
