@@ -3,20 +3,11 @@ import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-
-// This interface must match the FormData type in the parent component
-interface FormData {
-  name: string;  // Required field
-  city: string;  // Required field
-  state: string; // Required field
-  cnpj?: string;
-  address?: string;
-  phone?: string;
-}
+import { ClientFormData } from "@/types/client";
 
 interface ClientFormFieldsProps {
-  register: UseFormRegister<FormData>;
-  errors: FieldErrors<FormData>;
+  register: UseFormRegister<ClientFormData>;
+  errors: FieldErrors<ClientFormData>;
 }
 
 export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({

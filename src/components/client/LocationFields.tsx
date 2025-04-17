@@ -11,20 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// This interface must match the FormData type in the parent component
-interface FormData {
-  name: string;  // Required field
-  city: string;  // Required field
-  state: string; // Required field
-  cnpj?: string;
-  address?: string;
-  phone?: string;
-}
+import { ClientFormData } from "@/types/client";
 
 interface LocationFieldsProps {
-  register: UseFormRegister<FormData>;
-  errors: FieldErrors<FormData>;
+  register: UseFormRegister<ClientFormData>;
+  errors: FieldErrors<ClientFormData>;
   watchedState: string;
   handleSetState: (value: string) => void;
 }

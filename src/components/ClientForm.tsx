@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/AuthContext";
 import { Client } from "@/types";
+import { ClientFormData } from "@/types/client";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,6 @@ import { ClientFormFields } from "./client/ClientFormFields";
 import { LocationFields } from "./client/LocationFields";
 
 // This schema defines validation rules for our form
-// and will be used to infer our FormData type
 const clientSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
   city: z.string().min(2, "Cidade é obrigatória"),
@@ -30,8 +30,8 @@ const clientSchema = z.object({
   phone: z.string().optional(),
 });
 
-// Define the form data type based on our schema
-type FormData = z.infer<typeof clientSchema>;
+// Use the shared type for the form data
+type FormData = ClientFormData;
 
 interface ClientFormProps {
   onSave: (client: Client) => void;
