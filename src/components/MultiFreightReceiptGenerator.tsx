@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
 import { getUser } from "@/utils/storage";
@@ -38,11 +38,20 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
+  // Fix 1: Using the correct syntax for useReactToPrint
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    content: () => componentRef.current,
+    // Using contentRef to specify the element to be printed
+    contentRef: componentRef,
   });
+
+  // Fix 2: Create wrapper functions for onClick handlers
+  const onPrintClick = useCallback(() => {
+    if (handlePrint) {
+      handlePrint();
+    }
+  }, [handlePrint]);
 
   // Calcular informações necessárias para os componentes
   const freightsByClient = groupFreightsByClient(freights);
@@ -196,7 +205,8 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
               <DropdownMenuItem onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" /> Baixar PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handlePrint}>
+              {/* Fix 3: Use the wrapper function for the onClick handler */}
+              <DropdownMenuItem onClick={onPrintClick}>
                 <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -207,7 +217,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           <Button 
             variant="outline" 
             className="gap-2 w-full"
-            onClick={handlePrint} 
+            onClick={onPrintClick} 
           >
             <PrinterIcon className="h-4 w-4" />
             Imprimir
