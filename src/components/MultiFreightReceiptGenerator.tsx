@@ -37,12 +37,10 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
-  // Prepare data
   const dateRangeText = getDateRangeText(freights);
   const totalAmount = getTotalAmount(freights);
   const freightsByClient = groupFreightsByClient(freights);
 
-  // Função para gerar PDF
   const generatePDF = async (): Promise<Blob> => {
     if (!componentRef.current) throw new Error("Elemento de recibo não encontrado");
     
@@ -155,7 +153,6 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Correctly implement the useReactToPrint hook
   const reactToPrintContent = useCallback(() => {
     return componentRef.current;
   }, []);
@@ -163,10 +160,10 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    content: reactToPrintContent
+    pageStyle: "@page { size: A4; margin: 10mm; }",
+    removeAfterPrint: true,
   });
 
-  // Create wrapper functions to handle the type issues
   const handlePrintButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     handlePrint();
   };
@@ -242,9 +239,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         className={`bg-white p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0 print-container ${isGenerating ? 'opacity-0 absolute' : ''}`}
       >
         <PrintStyles />
-        
         <ReceiptHeader dateRangeText={dateRangeText} currentUser={currentUser} />
-        <SummaryTable freights={freights} />
         <ClientDetailsSection freightsByClient={freightsByClient} />
         <ReceiptFooter totalAmount={totalAmount} currentUser={currentUser} />
       </div>

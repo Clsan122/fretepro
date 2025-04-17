@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -18,6 +17,7 @@ import {
   Package,
   FileText
 } from "lucide-react";
+import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -68,7 +68,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Coletas", path: "/collection-orders", icon: FileText }
   ];
 
-  // Mobile sidebar component
   const MobileSidebar = () => {
     if (!sidebarOpen) return null;
 
@@ -134,6 +133,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </li>
             ))}
           </ul>
+
+          <div className="mt-auto pt-4">
+            <ProfileMenuGroup />
+          </div>
         </div>
       </aside>
 
@@ -155,50 +158,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </h1>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => handleNavigate("/dashboard")}
-              className="gap-1 hidden md:flex"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={toggleTheme}
-              className="hidden md:flex"
-            >
-              {theme === "light" ? (
-                <Moon className="h-5 w-5" />
-              ) : (
-                <Sun className="h-5 w-5" />
-              )}
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              onClick={() => handleNavigate("/profile")}
-              className="flex items-center hidden md:flex"
-            >
-              <div className="h-8 w-8 rounded-full bg-freight-200 flex items-center justify-center text-freight-800 mr-2">
-                {user?.name?.charAt(0) || "U"}
-              </div>
-              <span className="hidden lg:inline-block">{user?.name || "Usuário"}</span>
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={handleLogout}
-              className="hidden md:flex"
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={toggleTheme}
+          >
+            {theme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
+          </Button>
         </header>
         
         <main>
@@ -211,7 +181,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-// Bottom navigation component for mobile
 const BottomNavigationBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
