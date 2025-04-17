@@ -14,9 +14,9 @@ import {
 
 // This interface must match the FormData type in the parent component
 interface FormData {
-  name: string;
-  city: string;
-  state: string;
+  name: string;  // Required field
+  city: string;  // Required field
+  state: string; // Required field
   cnpj?: string;
   address?: string;
   phone?: string;
