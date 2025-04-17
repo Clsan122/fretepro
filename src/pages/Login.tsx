@@ -20,7 +20,9 @@ const Login = () => {
 
   // Redirecionamento automático se já estiver autenticado
   useEffect(() => {
+    console.log("Estado de autenticação:", isAuthenticated);
     if (isAuthenticated) {
+      console.log("Usuário autenticado, redirecionando para o dashboard");
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
@@ -40,10 +42,9 @@ const Login = () => {
           description: "Bem-vindo de volta!",
         });
 
-        // Garantir que o redirecionamento aconteça após o toast
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 500);
+        // Forçar o redirecionamento mesmo que o efeito não seja acionado
+        console.log("Redirecionando para o dashboard após login bem-sucedido");
+        navigate("/dashboard");
       } else {
         throw new Error("Falha na autenticação");
       }

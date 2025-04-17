@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser, setCurrentUser, logoutUser } from "@/utils/storage";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SupabaseProfile } from "@/types/profile";
 import { useToast } from "@/hooks/use-toast";
@@ -36,66 +35,88 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Função para buscar o perfil do usuário e definir o estado do usuário
+  const fetchUserProfileAndSetState = async (userId: string, email: string, createdAt: string, fullName: string = '') => {
+    try {
+      console.log("Buscando perfil do usuário:", userId);
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error("Erro ao buscar perfil:", error);
+        // Criar um usuário básico sem dados de perfil
+        const basicUserData = {
+          id: userId,
+          email: email,
+          name: fullName,
+          phone: '',
+          createdAt: createdAt,
+          cpf: '',
+          address: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          companyName: '',
+          cnpj: '',
+          companyLogo: '',
+          pixKey: '',
+        };
+        
+        setUserState(basicUserData);
+        setIsAuthenticated(true);
+        setCurrentUser(basicUserData);
+        return;
+      }
+
+      // Cast profile to our SupabaseProfile type
+      const profileData = profile as unknown as SupabaseProfile;
+      console.log("Perfil obtido:", profileData);
+
+      const userData = {
+        id: userId,
+        email: email,
+        name: profileData?.full_name || fullName || '',
+        phone: profileData?.phone || '',
+        createdAt: createdAt,
+        cpf: profileData?.cpf || '',
+        address: profileData?.address || '',
+        city: profileData?.city || '',
+        state: profileData?.state || '',
+        zipCode: profileData?.zip_code || '',
+        companyName: profileData?.company_name || '',
+        cnpj: profileData?.cnpj || '',
+        companyLogo: profileData?.company_logo || '',
+        pixKey: profileData?.pix_key || '',
+      };
+
+      console.log("Definindo usuário:", userData);
+      setUserState(userData);
+      setIsAuthenticated(true);
+      setCurrentUser(userData);
+    } catch (error) {
+      console.error("Erro ao processar perfil do usuário:", error);
+    }
+  };
+
+  // Verifica se há uma sessão existente ao carregar a página
   useEffect(() => {
+    console.log("Inicializando AuthContext");
     setLoading(true);
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session?.user?.id);
       if (session?.user) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          // Cast profile to our SupabaseProfile type
-          const profileData = profile as unknown as SupabaseProfile;
-
-          const userData = {
-            id: session.user.id,
-            email: session.user.email!,
-            name: profileData?.full_name || session.user.user_metadata.name || '',
-            phone: profileData?.phone || '',
-            createdAt: session.user.created_at,
-            cpf: profileData?.cpf || '',
-            address: profileData?.address || '',
-            city: profileData?.city || '',
-            state: profileData?.state || '',
-            zipCode: profileData?.zip_code || '',
-            companyName: profileData?.company_name || '',
-            cnpj: profileData?.cnpj || '',
-            companyLogo: profileData?.company_logo || '',
-            pixKey: profileData?.pix_key || '',
-          };
-
-          setUserState(userData);
-          setIsAuthenticated(true);
-          setCurrentUser(userData);
-        } catch (error) {
-          console.error("Erro ao buscar perfil:", error);
-          // Ainda considerar o usuário autenticado mesmo se falhar a busca do perfil
-          const userData = {
-            id: session.user.id,
-            email: session.user.email!,
-            name: session.user.user_metadata.name || '',
-            phone: '',
-            createdAt: session.user.created_at,
-            cpf: '',
-            address: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            companyName: '',
-            cnpj: '',
-            companyLogo: '',
-            pixKey: '',
-          };
-          setUserState(userData);
-          setIsAuthenticated(true);
-          setCurrentUser(userData);
-        }
+        const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || '';
+        await fetchUserProfileAndSetState(
+          session.user.id, 
+          session.user.email!, 
+          session.user.created_at,
+          fullName
+        );
       } else {
         setUserState(null);
         setIsAuthenticated(false);
@@ -108,61 +129,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       console.log("Verificando sessão existente:", session?.user?.id);
       if (session?.user) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          // Cast profile to our SupabaseProfile type
-          const profileData = profile as unknown as SupabaseProfile;
-
-          const userData = {
-            id: session.user.id,
-            email: session.user.email!,
-            name: profileData?.full_name || session.user.user_metadata.name || '',
-            phone: profileData?.phone || '',
-            createdAt: session.user.created_at,
-            cpf: profileData?.cpf || '',
-            address: profileData?.address || '',
-            city: profileData?.city || '',
-            state: profileData?.state || '',
-            zipCode: profileData?.zip_code || '',
-            companyName: profileData?.company_name || '',
-            cnpj: profileData?.cnpj || '',
-            companyLogo: profileData?.company_logo || '',
-            pixKey: profileData?.pix_key || '',
-          };
-
-          setUserState(userData);
-          setIsAuthenticated(true);
-          setCurrentUser(userData);
-        } catch (error) {
-          console.error("Erro ao buscar perfil:", error);
-          // Ainda considerar o usuário autenticado mesmo se falhar a busca do perfil
-          const userData = {
-            id: session.user.id,
-            email: session.user.email!,
-            name: session.user.user_metadata.name || '',
-            phone: '',
-            createdAt: session.user.created_at,
-            cpf: '',
-            address: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            companyName: '',
-            cnpj: '',
-            companyLogo: '',
-            pixKey: '',
-          };
-          setUserState(userData);
-          setIsAuthenticated(true);
-          setCurrentUser(userData);
-        }
+        const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || '';
+        await fetchUserProfileAndSetState(
+          session.user.id, 
+          session.user.email!, 
+          session.user.created_at,
+          fullName
+        );
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {
@@ -175,7 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       console.log("Iniciando login para:", email);
       
-      // Desativar temporariamente o captcha em desenvolvimento
+      // Tenta fazer login com captcha desativado
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -186,25 +162,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Erro no login:', error);
-        toast({
-          title: "Erro ao fazer login",
-          description: error.message,
-          variant: "destructive",
+        
+        // Tenta novamente sem especificar captchaToken
+        console.log("Tentando login sem especificar captchaToken");
+        const secondAttempt = await supabase.auth.signInWithPassword({
+          email,
+          password
         });
-        setLoading(false);
-        throw error;
-      }
-
-      console.log("Login bem-sucedido:", data.user?.id);
-      
-      if (data.user) {
-        // O usuário será configurado pelo listener onAuthStateChange
+        
+        if (secondAttempt.error) {
+          console.error('Erro na segunda tentativa de login:', secondAttempt.error);
+          setLoading(false);
+          throw secondAttempt.error;
+        }
+        
+        console.log("Login bem-sucedido na segunda tentativa:", secondAttempt.data.user?.id);
         setLoading(false);
         return true;
       }
-      
+
+      console.log("Login bem-sucedido:", data.user?.id);
       setLoading(false);
-      return false;
+      return true;
     } catch (error) {
       console.error('Erro no login:', error);
       setLoading(false);
@@ -213,46 +192,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    setLoading(true);
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    
-    const existingUser = users.find((u: any) => u.email === email);
-    if (existingUser) {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          },
+          captchaToken: 'disabled'
+        }
+      });
+      
+      if (error) {
+        console.error('Erro no registro:', error);
+        setLoading(false);
+        throw error;
+      }
+      
+      console.log("Registro bem-sucedido:", data);
       setLoading(false);
-      return false;
+      return true;
+    } catch (error) {
+      console.error('Erro no registro:', error);
+      setLoading(false);
+      throw error;
     }
-    
-    const newUser = {
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-      name,
-      email,
-      phone: "",
-      password,
-    };
-    
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-    
-    const { password: pwd, ...userWithoutPassword } = newUser;
-    
-    setUserState(userWithoutPassword);
-    setIsAuthenticated(true);
-    setCurrentUser(userWithoutPassword);
-    setLoading(false);
-    return true;
   };
 
-  const logout = () => {
+  const logout = async () => {
     setLoading(true);
-    setUserState(null);
-    setIsAuthenticated(false);
-    logoutUser();
-    setLoading(false);
+    try {
+      await supabase.auth.signOut();
+      // O estado será atualizado pelo listener onAuthStateChange
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      // Mesmo com erro, limpa os estados locais
+      setUserState(null);
+      setIsAuthenticated(false);
+      logoutUser();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const setUser = (updatedUser: User) => {
     setUserState(updatedUser);
+    setCurrentUser(updatedUser);
   };
 
   return (
