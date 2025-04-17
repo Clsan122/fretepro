@@ -43,19 +43,16 @@ export const setCurrentUser = (user: User): void => {
           id: user.id,
           full_name: user.name,
           phone: user.phone,
-          // Armazenar dados adicionais no campo metadata
-          metadata: {
-            cpf: user.cpf,
-            address: user.address,
-            city: user.city,
-            state: user.state,
-            zipCode: user.zipCode,
-            companyName: user.companyName,
-            cnpj: user.cnpj,
-            pixKey: user.pixKey,
-            bankInfo: user.bankInfo
-          }
-        }, { onConflict: 'id' })
+          cpf: user.cpf,
+          address: user.address,
+          city: user.city,
+          state: user.state,
+          zip_code: user.zipCode,
+          company_name: user.companyName,
+          cnpj: user.cnpj,
+          company_logo: user.companyLogo,
+          pix_key: user.pixKey,
+        })
         .then(({ error }) => {
           if (error) console.error("Erro ao sincronizar perfil:", error);
         });
@@ -96,6 +93,33 @@ export const updateUser = (user: User): void => {
   const users = getLocalStorageItem<User[]>('users', []);
   const updatedUsers = users.map(u => u.id === user.id ? user : u);
   setLocalStorageItem('users', updatedUsers);
+  
+  // Sync with Supabase profile
+  try {
+    if (supabase) {
+      supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          full_name: user.name,
+          phone: user.phone,
+          cpf: user.cpf,
+          address: user.address,
+          city: user.city,
+          state: user.state,
+          zip_code: user.zipCode,
+          company_name: user.companyName,
+          cnpj: user.cnpj,
+          company_logo: user.companyLogo,
+          pix_key: user.pixKey,
+        })
+        .then(({ error }) => {
+          if (error) console.error("Erro ao sincronizar perfil:", error);
+        });
+    }
+  } catch (error) {
+    console.error("Erro ao sincronizar perfil com Supabase:", error);
+  }
 };
 
 // Clients

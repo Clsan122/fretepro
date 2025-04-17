@@ -34,39 +34,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
-    // Verificar sessão do usuário no Supabase ao iniciar
-    setLoading(true); // Set loading to true when starting to check auth
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    setLoading(true);
+    
+    // Get initial session and fetch profile data
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
-        setUserState({
-          id: session.user.id,
-          email: session.user.email!,
-          name: session.user.user_metadata.name || '',
-          phone: session.user.phone || '',
-          createdAt: session.user.created_at
-        });
-        setIsAuthenticated(true);
-        setCurrentUser({
-          id: session.user.id,
-          email: session.user.email!,
-          name: session.user.user_metadata.name || '',
-          phone: session.user.phone || '',
-          createdAt: session.user.created_at
-        });
-      }
-      setLoading(false); // Set loading to false after auth check completes
-    });
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
 
-    // Listener para mudanças na autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
         const userData = {
           id: session.user.id,
           email: session.user.email!,
-          name: session.user.user_metadata.name || '',
-          phone: session.user.phone || '',
-          createdAt: session.user.created_at
+          name: profile?.full_name || session.user.user_metadata.name || '',
+          phone: profile?.phone || '',
+          createdAt: session.user.created_at,
+          cpf: profile?.cpf || '',
+          address: profile?.address || '',
+          city: profile?.city || '',
+          state: profile?.state || '',
+          zipCode: profile?.zip_code || '',
+          companyName: profile?.company_name || '',
+          cnpj: profile?.cnpj || '',
+          companyLogo: profile?.company_logo || '',
+          pixKey: profile?.pix_key || '',
         };
+
+        setUserState(userData);
+        setIsAuthenticated(true);
+        setCurrentUser(userData);
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        const userData = {
+          id: session.user.id,
+          email: session.user.email!,
+          name: profile?.full_name || session.user.user_metadata.name || '',
+          phone: profile?.phone || '',
+          createdAt: session.user.created_at,
+          cpf: profile?.cpf || '',
+          address: profile?.address || '',
+          city: profile?.city || '',
+          state: profile?.state || '',
+          zipCode: profile?.zip_code || '',
+          companyName: profile?.company_name || '',
+          cnpj: profile?.cnpj || '',
+          companyLogo: profile?.company_logo || '',
+          pixKey: profile?.pix_key || '',
+        };
+
         setUserState(userData);
         setIsAuthenticated(true);
         setCurrentUser(userData);
@@ -75,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         logoutUser();
       }
-      setLoading(false); // Set loading to false after auth state changes
+      setLoading(false);
     });
 
     return () => {
