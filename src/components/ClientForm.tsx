@@ -19,7 +19,8 @@ import { LogoUpload } from "./client/LogoUpload";
 import { ClientFormFields } from "./client/ClientFormFields";
 import { LocationFields } from "./client/LocationFields";
 
-// This schema should match the FormData interface in the child components
+// This schema defines validation rules for our form
+// and will be used to infer our FormData type
 const clientSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
   city: z.string().min(2, "Cidade é obrigatória"),
@@ -114,7 +115,10 @@ const ClientForm: React.FC<ClientFormProps> = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           <LogoUpload logo={logo} setLogo={setLogo} />
-          <ClientFormFields register={register} errors={errors} />
+          <ClientFormFields 
+            register={register} 
+            errors={errors} 
+          />
           <LocationFields 
             register={register}
             errors={errors}
