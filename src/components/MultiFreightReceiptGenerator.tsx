@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useCallback } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -36,6 +37,11 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const [shareSuccess, setShareSuccess] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  
+  // Prepare data
+  const dateRangeText = getDateRangeText(freights);
+  const totalAmount = getTotalAmount(freights);
+  const freightsByClient = groupFreightsByClient(freights);
 
   // Função para gerar PDF
   const generatePDF = async (): Promise<Blob> => {
@@ -150,6 +156,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
+  // Fix: Properly use useReactToPrint hook
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
