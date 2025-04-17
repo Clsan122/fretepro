@@ -30,7 +30,9 @@ const Login = () => {
     setLoading(true);
 
     try {
+      console.log("Tentando fazer login com:", email);
       const success = await login(email, password);
+      console.log("Resultado do login:", success);
 
       if (success) {
         toast({
@@ -46,6 +48,7 @@ const Login = () => {
         throw new Error("Falha na autenticação");
       }
     } catch (error: any) {
+      console.error("Erro completo:", error);
       toast({
         title: "Erro ao fazer login",
         description: error.message || "Credenciais inválidas",
