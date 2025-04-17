@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useCallback } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -156,15 +155,15 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Fix: Correctly use the useReactToPrint hook
-  const reactToPrintContent = React.useCallback(() => {
+  // Correctly implement the useReactToPrint hook
+  const reactToPrintContent = useCallback(() => {
     return componentRef.current;
   }, []);
 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    content: reactToPrintContent,
+    content: reactToPrintContent
   });
 
   // Create wrapper functions to handle the type issues
