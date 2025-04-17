@@ -7,56 +7,62 @@ const PrintStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 10mm;
+          margin: 15mm 10mm;
         }
+        
         body {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          background-color: white !important;
         }
-        th, td {
-          padding: 3px !important;
-          font-size: 10px !important;
+        
+        .print-container {
+          display: block !important;
+          position: relative !important;
+          width: 100% !important;
+          background: white !important;
+          padding: 0 !important;
+          margin: 0 !important;
         }
-        h1, h2 {
-          margin-bottom: 5px !important;
-          font-size: 16px !important;
+        
+        .print-exclude, 
+        header, 
+        nav, 
+        footer, 
+        .bottom-navigation, 
+        button,
+        .dropdown-menu {
+          display: none !important;
         }
+        
         .print-compact {
           margin-bottom: 5px !important;
         }
+        
+        .scale-down {
+          transform-origin: top left;
+          transform: scale(0.95);
+        }
+        
         .print-table {
-          font-size: 9px !important;
+          width: 100% !important;
+          border-collapse: collapse !important;
         }
-        .print-hidden {
-          display: none !important;
+        
+        .print-table td,
+        .print-table th {
+          border: 1px solid #ddd !important;
+          padding: 4px !important;
+          font-size: 10px !important;
         }
+        
         .print-small-text {
-          font-size: 8px !important;
+          font-size: 9px !important;
           line-height: 1.2 !important;
         }
+        
         .print-tight {
-          padding-top: 2px !important;
-          padding-bottom: 2px !important;
-        }
-        .scale-down {
-          transform: scale(0.95);
-          transform-origin: top left;
-        }
-        .page-break {
-          page-break-before: always;
-        }
-        header, nav, footer, .bottom-navigation, button, .print-exclude {
-          display: none !important;
-        }
-        /* Ocultar elementos que não fazem parte do recibo na impressão */
-        body > *:not(.print-container) {
-          display: none !important;
-        }
-        .print-container {
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100% !important;
+          padding: 2px !important;
         }
       `}
     </style>

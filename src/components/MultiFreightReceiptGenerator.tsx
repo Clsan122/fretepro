@@ -37,25 +37,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  // Usando a sintaxe correta para useReactToPrint
-  const handlePrint = useReactToPrint({
-    documentTitle: "Recibo de Múltiplos Fretes",
-    onAfterPrint: () => console.log("Impressão concluída!"),
-    contentRef: componentRef,
-  });
-
-  // Funções wrapper para manipuladores onClick
-  const onPrintClick = useCallback(() => {
-    if (handlePrint) {
-      handlePrint();
-    }
-  }, [handlePrint]);
-
-  // Calcular informações necessárias para os componentes
-  const freightsByClient = groupFreightsByClient(freights);
-  const totalAmount = getTotalAmount(freights);
-  const dateRangeText = getDateRangeText(freights);
-
+  // Função para gerar PDF
   const generatePDF = async (): Promise<Blob> => {
     if (!componentRef.current) throw new Error("Elemento de recibo não encontrado");
     
@@ -68,7 +50,6 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         format: 'a4',
       });
       
-      // Isolar o conteúdo para captura
       componentRef.current.classList.add('print-mode');
       
       const canvas = await html2canvas(componentRef.current, { 
@@ -76,14 +57,9 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         useCORS: true,
         logging: false,
         allowTaint: true,
-        backgroundColor: '#FFFFFF',
-        // Remover elementos que não devem ser incluídos
-        ignoreElements: (element) => {
-          return element.classList.contains('print-exclude');
-        }
+        backgroundColor: '#FFFFFF'
       });
       
-      // Remover classe após captura
       componentRef.current.classList.remove('print-mode');
       
       const imgWidth = pdf.internal.pageSize.getWidth();
@@ -122,7 +98,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
       URL.revokeObjectURL(url);
       
       toast({
-        title: "Recibo gerado",
+        title: "PDF gerado",
         description: "O PDF foi baixado com sucesso."
       });
     } catch (error) {
@@ -138,7 +114,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const handleShare = async () => {
     toast({
       title: "Gerando PDF",
-      description: "Aguarde enquanto preparamos o documento para compartilhamento..."
+      description: "Aguarde enquanto preparamos o documento..."
     });
     
     try {
@@ -148,8 +124,8 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: `Recibo de Múltiplos Fretes - ${dateRangeText}`,
-          text: `Recibo de múltiplos fretes no período de ${dateRangeText}.`,
+          title: `Recibo de Múltiplos Fretes`,
+          text: `Recibo de fretes - ${new Date().toLocaleDateString()}`
         });
         
         setShareSuccess(true);
@@ -160,7 +136,6 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           description: "Recibo compartilhado com sucesso!"
         });
       } else {
-        // Fallback para navegadores que não suportam Web Share API
         handleDownload();
       }
     } catch (error) {
@@ -175,34 +150,55 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
+  const handlePrint = useReactToPrint({
+    documentTitle: "Recibo de Múltiplos Fretes",
+    onAfterPrint: () => console.log("Impressão concluída!"),
+    content: () => componentRef.current,
+  });
+
   return (
     <div className="p-2 md:p-4">
       <div className="mb-4 flex justify-end gap-2">
         {isMobile ? (
-          <Button 
-            variant="outline" 
-            className="gap-2 w-full"
-            onClick={handleShare}
-          >
-            {shareSuccess ? (
-              <>
-                <Check className="h-4 w-4" />
-                Compartilhado!
-              </>
-            ) : (
-              <>
-                <Share2 className="h-4 w-4" />
-                Compartilhar
-              </>
-            )}
-          </Button>
+          <>
+            <Button 
+              variant="outline" 
+              className="gap-2 w-full"
+              onClick={handleDownload}
+            >
+              <Download className="h-4 w-4" />
+              Baixar PDF
+            </Button>
+            <Button 
+              variant="outline" 
+              className="gap-2 w-full"
+              onClick={handleShare}
+            >
+              {shareSuccess ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Compartilhado!
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4" />
+                  Compartilhar
+                </>
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              className="gap-2 w-full"
+              onClick={handlePrint}
+            >
+              <PrinterIcon className="h-4 w-4" />
+              Imprimir
+            </Button>
+          </>
         ) : (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="gap-2"
-              >
+              <Button variant="outline" className="gap-2">
                 <Share2 className="h-4 w-4" />
                 Compartilhar
               </Button>
@@ -214,41 +210,23 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
               <DropdownMenuItem onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" /> Baixar PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onPrintClick}>
+              <DropdownMenuItem onClick={handlePrint}>
                 <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-        
-        {isMobile && (
-          <Button 
-            variant="outline" 
-            className="gap-2 w-full"
-            onClick={onPrintClick} 
-          >
-            <PrinterIcon className="h-4 w-4" />
-            Imprimir
-          </Button>
-        )}
       </div>
-      
+
       <div 
         ref={componentRef} 
-        className={`bg-white p-2 md:p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0 print-container ${isGenerating ? 'opacity-0 absolute' : ''}`}
+        className={`bg-white p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0 print-container ${isGenerating ? 'opacity-0 absolute' : ''}`}
       >
         <PrintStyles />
         
-        {/* Cabeçalho do recibo com dados da empresa */}
         <ReceiptHeader dateRangeText={dateRangeText} currentUser={currentUser} />
-        
-        {/* Tabela de resumo de todos os fretes */}
         <SummaryTable freights={freights} />
-        
-        {/* Seção detalhada por cliente */}
         <ClientDetailsSection freightsByClient={freightsByClient} />
-        
-        {/* Rodapé com recibo e assinatura */}
         <ReceiptFooter totalAmount={totalAmount} currentUser={currentUser} />
       </div>
     </div>
