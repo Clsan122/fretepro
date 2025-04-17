@@ -15,6 +15,7 @@ export interface User {
   cnpj?: string;
   pixKey?: string;
   bankInfo?: string;
+  avatar?: string;
 }
 
 export interface Client {
