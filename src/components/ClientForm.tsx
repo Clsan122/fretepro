@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -225,7 +224,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
                   <SelectValue placeholder="UF" />
                 </SelectTrigger>
                 <SelectContent>
-                  {brazilianStates.map((state) => (
+                  {BRAZILIAN_STATES.map((state) => (
                     <SelectItem key={state.abbreviation} value={state.abbreviation}>
                       {state.abbreviation} - {state.name}
                     </SelectItem>
