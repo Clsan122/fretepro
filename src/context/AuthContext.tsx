@@ -1,15 +1,15 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser, setCurrentUser, logoutUser } from "@/utils/storage";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { SupabaseProfile } from "@/types/profile";
 
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  loading: boolean; // Add loading property to the type
+  loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -19,7 +19,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
-  loading: false, // Add default value for loading
+  loading: false,
   login: async () => false,
   register: async () => false,
   logout: () => {},
@@ -31,7 +31,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUserState] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -45,21 +45,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .eq('id', session.user.id)
           .single();
 
+        // Cast profile to our SupabaseProfile type
+        const profileData = profile as unknown as SupabaseProfile;
+
         const userData = {
           id: session.user.id,
           email: session.user.email!,
-          name: profile?.full_name || session.user.user_metadata.name || '',
-          phone: profile?.phone || '',
+          name: profileData?.full_name || session.user.user_metadata.name || '',
+          phone: profileData?.phone || '',
           createdAt: session.user.created_at,
-          cpf: profile?.cpf || '',
-          address: profile?.address || '',
-          city: profile?.city || '',
-          state: profile?.state || '',
-          zipCode: profile?.zip_code || '',
-          companyName: profile?.company_name || '',
-          cnpj: profile?.cnpj || '',
-          companyLogo: profile?.company_logo || '',
-          pixKey: profile?.pix_key || '',
+          cpf: profileData?.cpf || '',
+          address: profileData?.address || '',
+          city: profileData?.city || '',
+          state: profileData?.state || '',
+          zipCode: profileData?.zip_code || '',
+          companyName: profileData?.company_name || '',
+          cnpj: profileData?.cnpj || '',
+          companyLogo: profileData?.company_logo || '',
+          pixKey: profileData?.pix_key || '',
         };
 
         setUserState(userData);
@@ -78,21 +81,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .eq('id', session.user.id)
           .single();
 
+        // Cast profile to our SupabaseProfile type
+        const profileData = profile as unknown as SupabaseProfile;
+
         const userData = {
           id: session.user.id,
           email: session.user.email!,
-          name: profile?.full_name || session.user.user_metadata.name || '',
-          phone: profile?.phone || '',
+          name: profileData?.full_name || session.user.user_metadata.name || '',
+          phone: profileData?.phone || '',
           createdAt: session.user.created_at,
-          cpf: profile?.cpf || '',
-          address: profile?.address || '',
-          city: profile?.city || '',
-          state: profile?.state || '',
-          zipCode: profile?.zip_code || '',
-          companyName: profile?.company_name || '',
-          cnpj: profile?.cnpj || '',
-          companyLogo: profile?.company_logo || '',
-          pixKey: profile?.pix_key || '',
+          cpf: profileData?.cpf || '',
+          address: profileData?.address || '',
+          city: profileData?.city || '',
+          state: profileData?.state || '',
+          zipCode: profileData?.zip_code || '',
+          companyName: profileData?.company_name || '',
+          cnpj: profileData?.cnpj || '',
+          companyLogo: profileData?.company_logo || '',
+          pixKey: profileData?.pix_key || '',
         };
 
         setUserState(userData);
@@ -113,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      setLoading(true); // Set loading to true when starting login
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -132,63 +138,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserState(userData);
         setIsAuthenticated(true);
         setCurrentUser(userData);
-        setLoading(false); // Set loading to false after successful login
+        setLoading(false);
         return true;
       }
-      setLoading(false); // Set loading to false after failed login
+      setLoading(false);
       return false;
     } catch (error) {
       console.error('Erro no login:', error);
-      setLoading(false); // Set loading to false after error
+      setLoading(false);
       return false;
     }
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    setLoading(true); // Set loading to true when starting registration
-    // Get users from local storage
+    setLoading(true);
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     
-    // Check if user with email already exists
     const existingUser = users.find((u: any) => u.email === email);
     if (existingUser) {
       setLoading(false);
       return false;
     }
     
-    // Create new user
     const newUser = {
       id: uuidv4(),
       createdAt: new Date().toISOString(),
       name,
       email,
-      phone: "", // Add default empty phone to meet User type requirements
-      password, // In a real app, this would be hashed
+      phone: "",
+      password,
     };
     
-    // Add new user to users array
     users.push(newUser);
-    
-    // Save users array to local storage
     localStorage.setItem("users", JSON.stringify(users));
     
-    // Remove password from user object before storing in state
     const { password: pwd, ...userWithoutPassword } = newUser;
     
     setUserState(userWithoutPassword);
     setIsAuthenticated(true);
     setCurrentUser(userWithoutPassword);
-    setLoading(false); // Set loading to false after successful registration
-    
+    setLoading(false);
     return true;
   };
 
   const logout = () => {
-    setLoading(true); // Set loading to true when starting logout
+    setLoading(true);
     setUserState(null);
     setIsAuthenticated(false);
     logoutUser();
-    setLoading(false); // Set loading to false after logout completes
+    setLoading(false);
   };
 
   const setUser = (updatedUser: User) => {

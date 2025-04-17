@@ -1,4 +1,5 @@
 import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 // Generic function to get items from localStorage
 const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
@@ -34,9 +35,7 @@ export const setCurrentUser = (user: User): void => {
   
   // Se estiver usando Supabase, sincronizar com o perfil do usuário
   try {
-    // @ts-ignore - supabase pode não estar disponível
-    if (typeof supabase !== 'undefined') {
-      // @ts-ignore
+    if (supabase) {
       supabase
         .from('profiles')
         .upsert({
@@ -128,7 +127,6 @@ export const getClientsByUserId = (userId: string): Client[] => {
   return clients.filter(client => client.userId === userId);
 };
 
-// Add the missing getClientById function
 export const getClientById = (id: string): Client | undefined => {
   const clients = getLocalStorageItem<Client[]>('clients', []);
   return clients.find(client => client.id === id);
@@ -200,7 +198,6 @@ export const getFreightsByUserId = (userId: string): Freight[] => {
   return freights.filter(freight => freight.userId === userId);
 };
 
-// Add the missing getFreightById function
 export const getFreightById = (id: string): Freight | null => {
   const freights = getLocalStorageItem<Freight[]>('freights', []);
   return freights.find(freight => freight.id === id) || null;
