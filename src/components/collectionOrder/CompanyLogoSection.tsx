@@ -1,74 +1,89 @@
 
 import React from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Image, Upload, Trash2 } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/AuthContext";
+import { getClientsByUserId } from "@/utils/storage";
 
-interface CompanyLogoProps {
+interface CompanyLogoSectionProps {
   companyLogo: string;
   handleLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedIssuerId?: string;
+  onIssuerChange?: (id: string) => void;
 }
 
-export const CompanyLogoSection: React.FC<CompanyLogoProps> = ({
+export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
   companyLogo,
-  handleLogoUpload
+  handleLogoUpload,
+  selectedIssuerId,
+  onIssuerChange,
 }) => {
+  const { user } = useAuth();
+  const clients = user ? getClientsByUserId(user.id) : [];
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Logotipo da Empresa</CardTitle>
-        <CardDescription>Adicione o logotipo da sua empresa (opcional)</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center space-y-4">
-          {companyLogo ? (
-            <div className="relative">
-              <img
-                src={companyLogo}
-                alt="Logotipo da empresa"
-                className="h-32 object-contain mx-auto rounded-md"
+      <CardContent className="space-y-4 pt-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start">
+          <div className="flex-1">
+            <div className="mb-4">
+              <Label htmlFor="logo">Logo da Empresa</Label>
+              <input
+                type="file"
+                id="logo"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
               />
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-0 right-0 h-8 w-8"
-                onClick={() => document.getElementById('logo-upload')?.click()}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-2">
-              <div className="border-2 border-dashed border-gray-300 rounded-md p-8 flex flex-col items-center justify-center">
-                <Image className="h-10 w-10 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">Clique para adicionar um logotipo</p>
+              <div className="mt-2 flex items-center justify-center border-2 border-dashed border-gray-300 p-4 rounded-lg">
+                {companyLogo ? (
+                  <img
+                    src={companyLogo}
+                    alt="Logo da empresa"
+                    className="max-h-32 object-contain"
+                  />
+                ) : (
+                  <label
+                    htmlFor="logo"
+                    className="cursor-pointer text-sm text-gray-600 dark:text-gray-400"
+                  >
+                    Clique para fazer upload do logo
+                  </label>
+                )}
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                className="mt-2"
-                onClick={() => document.getElementById('logo-upload')?.click()}
-              >
-                <Upload className="h-4 w-4 mr-2" /> Selecionar imagem
-              </Button>
             </div>
-          )}
-          <Input
-            id="logo-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleLogoUpload}
-            className="hidden"
-          />
+          </div>
+
+          <div className="flex-1">
+            <Label htmlFor="issuer">Emissor da Ordem</Label>
+            <Select
+              value={selectedIssuerId}
+              onValueChange={onIssuerChange}
+            >
+              <SelectTrigger id="issuer" className="w-full">
+                <SelectValue placeholder="Selecione o emissor" />
+              </SelectTrigger>
+              <SelectContent>
+                {user && (
+                  <SelectItem value={user.id}>
+                    {user.name || "Minha Empresa"}
+                  </SelectItem>
+                )}
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardContent>
     </Card>

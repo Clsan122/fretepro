@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -20,7 +19,6 @@ import { LogoUpload } from "./client/LogoUpload";
 import { ClientFormFields } from "./client/ClientFormFields";
 import { LocationFields } from "./client/LocationFields";
 
-// This schema defines validation rules for our form
 const clientSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
   city: z.string().min(2, "Cidade é obrigatória"),
@@ -30,7 +28,6 @@ const clientSchema = z.object({
   phone: z.string().optional(),
 });
 
-// Use the shared type for the form data
 type FormData = ClientFormData;
 
 interface ClientFormProps {
@@ -46,7 +43,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
 }) => {
   const { user } = useAuth();
   const [logo, setLogo] = useState<string>("");
-  
+
   const {
     register,
     handleSubmit,
@@ -66,7 +63,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
   });
 
   const watchedState = watch("state");
-  
+
   useEffect(() => {
     if (initialData?.logo) {
       setLogo(initialData.logo);
@@ -101,54 +98,56 @@ const ClientForm: React.FC<ClientFormProps> = ({
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>
-          {initialData ? "Editar Cliente" : "Novo Cliente"}
-        </CardTitle>
-        <CardDescription>
-          {initialData
-            ? "Atualize as informações do cliente"
-            : "Cadastre um novo cliente"}
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
-          <LogoUpload logo={logo} setLogo={setLogo} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ClientFormFields 
-              register={register} 
-              errors={errors} 
-            />
-            <div className="md:col-span-2">
-              <LocationFields 
-                register={register}
-                errors={errors}
-                watchedState={watchedState}
-                handleSetState={handleSetState}
+    <div className="max-h-[calc(100vh-8rem)] overflow-y-auto pb-4">
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle>
+            {initialData ? "Editar Cliente" : "Novo Cliente"}
+          </CardTitle>
+          <CardDescription>
+            {initialData
+              ? "Atualize as informações do cliente"
+              : "Cadastre um novo cliente"}
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <CardContent className="space-y-4">
+            <LogoUpload logo={logo} setLogo={setLogo} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ClientFormFields 
+                register={register} 
+                errors={errors} 
               />
+              <div className="md:col-span-2">
+                <LocationFields 
+                  register={register}
+                  errors={errors}
+                  watchedState={watchedState}
+                  handleSetState={handleSetState}
+                />
+              </div>
             </div>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-          <Button 
-            variant="outline" 
-            onClick={onCancel} 
-            type="button"
-            className="w-full sm:w-auto"
-          >
-            Cancelar
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full sm:w-auto"
-          >
-            {initialData ? "Atualizar" : "Cadastrar"}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+          </CardContent>
+          <CardFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+            <Button 
+              variant="outline" 
+              onClick={onCancel} 
+              type="button"
+              className="w-full sm:w-auto"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
+              {initialData ? "Atualizar" : "Cadastrar"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   );
 };
 

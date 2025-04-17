@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Measurement } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -48,6 +47,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   const [driverId, setDriverId] = useState<string>("none");
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [companyLogo, setCompanyLogo] = useState<string>("");
+  const [selectedIssuerId, setSelectedIssuerId] = useState<string>(
+    orderToEdit?.issuerId || (user ? user.id : '')
+  );
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -168,11 +170,11 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       driverCpf: selectedDriver?.cpf,
       licensePlate: selectedDriver?.licensePlate,
       companyLogo,
+      issuerId: selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id
     };
 
-    // Just use local storage instead of attempting to use Supabase
     onSave(newOrder);
   };
 
@@ -180,7 +182,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     <form onSubmit={handleSubmit} className="space-y-6">
       <CompanyLogoSection 
         companyLogo={companyLogo} 
-        handleLogoUpload={handleLogoUpload} 
+        handleLogoUpload={handleLogoUpload}
+        selectedIssuerId={selectedIssuerId}
+        onIssuerChange={setSelectedIssuerId}
       />
       
       <SenderRecipientSection 
