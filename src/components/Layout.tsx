@@ -1,21 +1,16 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { 
   ChevronLeft, 
-  ChevronRight, 
   LogOut, 
   User, 
   Home, 
-  Users,
-  Truck,
-  Package,
-  FileText,
-  Settings,
-  Menu as MenuIcon,
   Sun,
-  Moon
+  Moon,
+  Menu as MenuIcon
 } from "lucide-react";
 import { 
   Sheet, 
@@ -67,34 +62,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     navigate("/login");
   };
   
-  const menuItems = [
-    {
-      name: "Dashboard",
-      path: "/dashboard",
-      icon: Home
-    },
-    {
-      name: "Clientes",
-      path: "/clients",
-      icon: Users
-    },
-    {
-      name: "Motoristas",
-      path: "/drivers",
-      icon: Truck
-    },
-    {
-      name: "Fretes",
-      path: "/freights",
-      icon: Package
-    },
-    {
-      name: "Ordens de Coleta",
-      path: "/collection-orders",
-      icon: FileText
-    }
-  ];
-  
   const Sidebar = () => (
     <aside className={`
       fixed top-0 left-0 z-40 h-screen transition-transform
@@ -115,25 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         <div className="flex-1 overflow-y-auto py-4 px-3">
-          <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.path}>
-                <button
-                  onClick={() => handleNavigate(item.path)}
-                  className={`
-                    flex items-center p-2 text-base font-normal rounded-lg w-full
-                    ${location.pathname === item.path
-                      ? "bg-freight-100 text-freight-900 dark:bg-freight-900 dark:text-freight-100"
-                      : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                    }
-                  `}
-                >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  <span>{item.name}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {/* Menu removido conforme solicitado */}
         </div>
         
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
@@ -196,25 +145,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <SheetTitle className="text-left">Sistema de Fretes</SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto py-4 px-3">
-          <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.path}>
-                <button
-                  onClick={() => handleNavigate(item.path)}
-                  className={`
-                    flex items-center p-2 text-base font-normal rounded-lg w-full
-                    ${location.pathname === item.path
-                      ? "bg-freight-100 text-freight-900 dark:bg-freight-900 dark:text-freight-100"
-                      : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                    }
-                  `}
-                >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  <span>{item.name}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {/* Menu removido conforme solicitado */}
         </div>
         
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">

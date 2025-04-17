@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Freight, Client, Driver } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -15,7 +14,6 @@ import { RouteSection } from "./freight/RouteSection";
 import { CargoDetailsSection } from "./freight/CargoDetailsSection";
 import { PaymentInfoSection } from "./freight/PaymentInfoSection";
 import { PricingSection } from "./freight/PricingSection";
-import { DeliveryProofSection } from "./freight/DeliveryProofSection";
 import { ExpensesSection } from "./freight/ExpensesSection";
 import { FormActions } from "./freight/FormActions";
 
@@ -52,7 +50,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   const [pixKey, setPixKey] = useState("");
   const [paymentTerm, setPaymentTerm] = useState("");
   
-  // New expense state variables
   const [thirdPartyDriverCost, setThirdPartyDriverCost] = useState<number>(0);
   const [tollExpenses, setTollExpenses] = useState<number>(0);
   const [fuelExpenses, setFuelExpenses] = useState<number>(0);
@@ -97,7 +94,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       setPaymentTerm(freightToEdit.paymentTerm || "");
       setDriverId(freightToEdit.driverId || "none");
       
-      // Initialize expense fields if they exist
       setThirdPartyDriverCost(freightToEdit.thirdPartyDriverCost || 0);
       setTollExpenses(freightToEdit.tollExpenses || 0);
       setFuelExpenses(freightToEdit.fuelExpenses || 0);
@@ -114,7 +110,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
     setTotalValue(total);
   }, [freightValue, dailyRate, otherCosts, tollCosts]);
 
-  // Calculate total expenses and net profit
   useEffect(() => {
     const expenses = thirdPartyDriverCost + tollExpenses + fuelExpenses + 
                      mealExpenses + helperExpenses + accommodationExpenses;
@@ -188,7 +183,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       pixKey: pixKey || undefined,
       paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
       driverId: driverId !== "none" ? driverId : undefined,
-      // Add expense data
       thirdPartyDriverCost,
       tollExpenses,
       fuelExpenses,
@@ -238,7 +232,6 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       pixKey: pixKey || undefined,
       paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
       driverId: driverId !== "none" ? driverId : undefined,
-      // We don't include expense data in the receipt
     };
 
     const receiptWindow = window.open(`/freight/${freightData.id}/receipt`, '_blank');
@@ -325,31 +318,27 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
         netProfit={netProfit}
       />
 
-      <DeliveryProofSection 
-        proofImage={proofImage}
-        setProofImage={setProofImage}
-        handleImageUpload={handleImageUpload}
-      />
-
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
         <Button
           type="button"
           variant="outline"
           onClick={handleGenerateReceipt}
-          className="gap-2"
+          className="w-full sm:w-auto gap-2"
         >
           <FileText className="h-4 w-4" />
           Gerar Recibo
         </Button>
-        <div className="space-x-2">
+        
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
+            className="w-full sm:w-auto"
           >
             Cancelar
           </Button>
-          <Button type="submit">
+          <Button type="submit" className="w-full sm:w-auto">
             {freightToEdit ? "Atualizar" : "Cadastrar"}
           </Button>
         </div>

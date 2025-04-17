@@ -14,11 +14,11 @@ export const FormActions: React.FC<FormActionsProps> = ({
   submitLabel
 }) => {
   return (
-    <div className="flex justify-end space-x-2 pt-4">
-      <Button type="button" variant="outline" onClick={onCancel}>
+    <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-4">
+      <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
         Cancelar
       </Button>
-      <Button type="submit" className="bg-freight-600 hover:bg-freight-700">
+      <Button type="submit" className="bg-freight-600 hover:bg-freight-700 w-full sm:w-auto">
         {submitLabel || (isEditing ? "Atualizar Frete" : "Cadastrar Frete")}
       </Button>
     </div>

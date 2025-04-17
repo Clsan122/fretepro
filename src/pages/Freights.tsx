@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -91,18 +90,24 @@ const Freights: React.FC = () => {
   return (
     <Layout>
       <div className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold tracking-tight">Fretes</h1>
-          <div className="flex gap-2">
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold tracking-tight">Fretes</h1>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Button
               onClick={() => navigate("/freight-selection")}
               variant="outline"
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <FileText className="h-4 w-4" />
               Recibo Múltiplo
             </Button>
-            <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
+            <Button 
+              onClick={() => setIsCreateDialogOpen(true)} 
+              className="gap-2 w-full sm:w-auto"
+            >
               <Plus className="h-4 w-4" />
               Novo Frete
             </Button>
@@ -204,7 +209,6 @@ const Freights: React.FC = () => {
           </div>
         )}
 
-        {/* Create Freight Dialog */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -217,7 +221,6 @@ const Freights: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Freight Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -236,7 +239,6 @@ const Freights: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>
