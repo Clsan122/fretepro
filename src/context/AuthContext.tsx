@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -8,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
+  loading: boolean; // Add loading property to the type
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -17,6 +19,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
+  loading: false, // Add default value for loading
   login: async () => false,
   register: async () => false,
   logout: () => {},
@@ -28,9 +31,11 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUserState] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     // Verificar sessão do usuário no Supabase ao iniciar
+    setLoading(true); // Set loading to true when starting to check auth
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUserState({
@@ -49,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: session.user.created_at
         });
       }
+      setLoading(false); // Set loading to false after auth check completes
     });
 
     // Listener para mudanças na autenticação
@@ -69,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         logoutUser();
       }
+      setLoading(false); // Set loading to false after auth state changes
     });
 
     return () => {
@@ -78,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      setLoading(true); // Set loading to true when starting login
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -96,22 +104,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserState(userData);
         setIsAuthenticated(true);
         setCurrentUser(userData);
+        setLoading(false); // Set loading to false after successful login
         return true;
       }
+      setLoading(false); // Set loading to false after failed login
       return false;
     } catch (error) {
       console.error('Erro no login:', error);
+      setLoading(false); // Set loading to false after error
       return false;
     }
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    setLoading(true); // Set loading to true when starting registration
     // Get users from local storage
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     
     // Check if user with email already exists
     const existingUser = users.find((u: any) => u.email === email);
     if (existingUser) {
+      setLoading(false);
       return false;
     }
     
@@ -137,14 +150,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserState(userWithoutPassword);
     setIsAuthenticated(true);
     setCurrentUser(userWithoutPassword);
+    setLoading(false); // Set loading to false after successful registration
     
     return true;
   };
 
   const logout = () => {
+    setLoading(true); // Set loading to true when starting logout
     setUserState(null);
     setIsAuthenticated(false);
     logoutUser();
+    setLoading(false); // Set loading to false after logout completes
   };
 
   const setUser = (updatedUser: User) => {
@@ -152,7 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, setUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

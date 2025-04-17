@@ -80,6 +80,10 @@ export interface Freight {
   accommodationExpenses?: number;
   totalExpenses?: number; // Sum of all expenses
   netProfit?: number; // Difference between totalValue and totalExpenses
+  
+  // Add the missing properties that ReceiptGenerator is using
+  cargoDescription?: string;
+  cargoWeight?: number;
 }
 
 export type PaymentTerm = 
