@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useCallback } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -42,9 +41,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    // Fix: Using 'printRef' instead of 'content' for the content source
     contentRef: componentRef,
-    removeAfterPrint: true,
   });
 
   // Funções wrapper para manipuladores onClick
