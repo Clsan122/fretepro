@@ -25,8 +25,10 @@ const clientSchema = z.object({
   city: z.string().min(2, "Cidade é obrigatória"),
   state: z.string().length(2, "Estado deve ter 2 caracteres"),
   cnpj: z.string().optional(),
+  cpf: z.string().optional(),
   address: z.string().optional(),
   phone: z.string().optional(),
+  personType: z.enum(["physical", "legal"])
 });
 
 type FormData = ClientFormData;
@@ -44,12 +46,14 @@ const ClientForm: React.FC<ClientFormProps> = ({
 }) => {
   const { user } = useAuth();
   const [logo, setLogo] = useState<string>("");
+  const [personType, setPersonType] = useState<'physical' | 'legal'>('legal');
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(clientSchema),
@@ -58,8 +62,10 @@ const ClientForm: React.FC<ClientFormProps> = ({
       city: initialData?.city || "",
       state: initialData?.state || "",
       cnpj: initialData?.cnpj || "",
+      cpf: "",
       address: initialData?.address || "",
       phone: initialData?.phone || "",
+      personType: "legal"
     },
   });
 
@@ -69,7 +75,16 @@ const ClientForm: React.FC<ClientFormProps> = ({
     if (initialData?.logo) {
       setLogo(initialData.logo);
     }
-  }, [initialData]);
+    
+    // Set person type based on whether CNPJ is present
+    if (initialData?.cnpj) {
+      setPersonType('legal');
+      setValue("personType", "legal");
+    } else if (initialData?.cpf) {
+      setPersonType('physical');
+      setValue("personType", "physical");
+    }
+  }, [initialData, setValue]);
 
   const onSubmit = (data: FormData) => {
     if (!user) return;
@@ -79,7 +94,8 @@ const ClientForm: React.FC<ClientFormProps> = ({
       name: data.name,
       city: data.city,
       state: data.state,
-      cnpj: data.cnpj || undefined,
+      cnpj: personType === 'legal' ? data.cnpj : undefined,
+      cpf: personType === 'physical' ? data.cpf : undefined,
       address: data.address || undefined,
       phone: data.phone || undefined,
       createdAt: initialData?.createdAt || new Date().toISOString(),
@@ -92,6 +108,11 @@ const ClientForm: React.FC<ClientFormProps> = ({
 
   const handleSetState = (value: string) => {
     setValue("state", value);
+  };
+  
+  const handlePersonTypeChange = (value: 'physical' | 'legal') => {
+    setPersonType(value);
+    setValue("personType", value);
   };
 
   if (!user) {
@@ -117,7 +138,10 @@ const ClientForm: React.FC<ClientFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ClientFormFields 
                 register={register} 
-                errors={errors} 
+                errors={errors}
+                control={control}
+                personType={personType}
+                onPersonTypeChange={handlePersonTypeChange}
               />
               <div className="md:col-span-2">
                 <LocationFields 

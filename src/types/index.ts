@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -27,6 +28,7 @@ export interface Client {
   createdAt: string;
   userId: string;
   cnpj?: string;
+  cpf?: string;
   address?: string;
   phone?: string;
   logo?: string;
@@ -85,6 +87,10 @@ export interface Freight {
   accommodationExpenses?: number;
   totalExpenses?: number; // Sum of all expenses
   netProfit?: number; // Difference between totalValue and totalExpenses
+  
+  // Client information fields
+  clientName?: string;
+  clientAddress?: string;
   
   // Add the missing properties that ReceiptGenerator is using
   cargoDescription?: string;
