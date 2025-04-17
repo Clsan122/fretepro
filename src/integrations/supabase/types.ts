@@ -190,58 +190,31 @@ export type Database = {
       }
       profiles: {
         Row: {
-          address: string | null
           avatar_url: string | null
-          city: string | null
-          cnpj: string | null
-          company_logo: string | null
-          company_name: string | null
-          cpf: string | null
           created_at: string | null
           full_name: string | null
           id: string
           phone: string | null
-          pix_key: string | null
-          state: string | null
           updated_at: string | null
           user_type: string | null
-          zip_code: string | null
         }
         Insert: {
-          address?: string | null
           avatar_url?: string | null
-          city?: string | null
-          cnpj?: string | null
-          company_logo?: string | null
-          company_name?: string | null
-          cpf?: string | null
           created_at?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
-          pix_key?: string | null
-          state?: string | null
           updated_at?: string | null
           user_type?: string | null
-          zip_code?: string | null
         }
         Update: {
-          address?: string | null
           avatar_url?: string | null
-          city?: string | null
-          cnpj?: string | null
-          company_logo?: string | null
-          company_name?: string | null
-          cpf?: string | null
           created_at?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
-          pix_key?: string | null
-          state?: string | null
           updated_at?: string | null
           user_type?: string | null
-          zip_code?: string | null
         }
         Relationships: []
       }

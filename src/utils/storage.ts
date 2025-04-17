@@ -1,5 +1,4 @@
 import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
-import { supabase } from "@/integrations/supabase/client";
 
 // Generic function to get items from localStorage
 const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
@@ -33,26 +32,36 @@ export const getCurrentUser = (): User | null => {
 export const setCurrentUser = (user: User): void => {
   setLocalStorageItem('user', user);
   
-  if (supabase) {
-    supabase
-      .from('profiles')
-      .upsert({
-        id: user.id,
-        full_name: user.name,
-        phone: user.phone,
-        cpf: user.cpf,
-        address: user.address,
-        city: user.city,
-        state: user.state,
-        zip_code: user.zipCode,
-        company_name: user.companyName,
-        cnpj: user.cnpj,
-        company_logo: user.companyLogo,
-        pix_key: user.pixKey,
-      })
-      .then(({ error }) => {
-        if (error) console.error("Erro ao sincronizar perfil:", error);
-      });
+  // Se estiver usando Supabase, sincronizar com o perfil do usuário
+  try {
+    // @ts-ignore - supabase pode não estar disponível
+    if (typeof supabase !== 'undefined') {
+      // @ts-ignore
+      supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          full_name: user.name,
+          phone: user.phone,
+          // Armazenar dados adicionais no campo metadata
+          metadata: {
+            cpf: user.cpf,
+            address: user.address,
+            city: user.city,
+            state: user.state,
+            zipCode: user.zipCode,
+            companyName: user.companyName,
+            cnpj: user.cnpj,
+            pixKey: user.pixKey,
+            bankInfo: user.bankInfo
+          }
+        }, { onConflict: 'id' })
+        .then(({ error }) => {
+          if (error) console.error("Erro ao sincronizar perfil:", error);
+        });
+    }
+  } catch (error) {
+    console.error("Erro ao sincronizar perfil com Supabase:", error);
   }
 };
 
@@ -80,37 +89,13 @@ export const addUser = (user: User): void => {
 };
 
 export const updateUser = (user: User): void => {
+  // Update the current user
   setCurrentUser(user);
   
+  // Also update in the users array
   const users = getLocalStorageItem<User[]>('users', []);
   const updatedUsers = users.map(u => u.id === user.id ? user : u);
   setLocalStorageItem('users', updatedUsers);
-  
-  try {
-    if (supabase) {
-      supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          full_name: user.name,
-          phone: user.phone,
-          cpf: user.cpf,
-          address: user.address,
-          city: user.city,
-          state: user.state,
-          zip_code: user.zipCode,
-          company_name: user.companyName,
-          cnpj: user.cnpj,
-          company_logo: user.companyLogo,
-          pix_key: user.pixKey,
-        })
-        .then(({ error }) => {
-          if (error) console.error("Erro ao sincronizar perfil:", error);
-        });
-    }
-  } catch (error) {
-    console.error("Erro ao sincronizar perfil com Supabase:", error);
-  }
 };
 
 // Clients
@@ -119,6 +104,7 @@ export const getClientsByUserId = (userId: string): Client[] => {
   return clients.filter(client => client.userId === userId);
 };
 
+// Add the missing getClientById function
 export const getClientById = (id: string): Client | undefined => {
   const clients = getLocalStorageItem<Client[]>('clients', []);
   return clients.find(client => client.id === id);
@@ -190,6 +176,7 @@ export const getFreightsByUserId = (userId: string): Freight[] => {
   return freights.filter(freight => freight.userId === userId);
 };
 
+// Add the missing getFreightById function
 export const getFreightById = (id: string): Freight | null => {
   const freights = getLocalStorageItem<Freight[]>('freights', []);
   return freights.find(freight => freight.id === id) || null;

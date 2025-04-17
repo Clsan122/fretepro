@@ -3,14 +3,13 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser, setCurrentUser, logoutUser } from "@/utils/storage";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { SupabaseProfile } from "@/types/profile";
-import { useToast } from "@/hooks/use-toast";
 
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  loading: boolean;
+  loading: boolean; // Add loading property to the type
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -20,7 +19,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
-  loading: false,
+  loading: false, // Add default value for loading
   login: async () => false,
   register: async () => false,
   logout: () => {},
@@ -32,113 +31,51 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUserState] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(true); // Add loading state
 
-  // Função para buscar o perfil do usuário e definir o estado do usuário
-  const fetchUserProfileAndSetState = async (userId: string, email: string, createdAt: string, fullName: string = '') => {
-    try {
-      console.log("Buscando perfil do usuário:", userId);
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error("Erro ao buscar perfil:", error);
-        // Criar um usuário básico sem dados de perfil
-        const basicUserData = {
-          id: userId,
-          email: email,
-          name: fullName,
-          phone: '',
-          createdAt: createdAt,
-          cpf: '',
-          address: '',
-          city: '',
-          state: '',
-          zipCode: '',
-          companyName: '',
-          cnpj: '',
-          companyLogo: '',
-          pixKey: '',
-        };
-        
-        setUserState(basicUserData);
-        setIsAuthenticated(true);
-        setCurrentUser(basicUserData);
-        return;
-      }
-
-      // Cast profile to our SupabaseProfile type
-      const profileData = profile as unknown as SupabaseProfile;
-      console.log("Perfil obtido:", profileData);
-
-      const userData = {
-        id: userId,
-        email: email,
-        name: profileData?.full_name || fullName || '',
-        phone: profileData?.phone || '',
-        createdAt: createdAt,
-        cpf: profileData?.cpf || '',
-        address: profileData?.address || '',
-        city: profileData?.city || '',
-        state: profileData?.state || '',
-        zipCode: profileData?.zip_code || '',
-        companyName: profileData?.company_name || '',
-        cnpj: profileData?.cnpj || '',
-        companyLogo: profileData?.company_logo || '',
-        pixKey: profileData?.pix_key || '',
-      };
-
-      console.log("Definindo usuário:", userData);
-      setUserState(userData);
-      setIsAuthenticated(true);
-      setCurrentUser(userData);
-    } catch (error) {
-      console.error("Erro ao processar perfil do usuário:", error);
-    }
-  };
-
-  // Verifica se há uma sessão existente ao carregar a página
   useEffect(() => {
-    console.log("Inicializando AuthContext");
-    setLoading(true);
-    
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
+    // Verificar sessão do usuário no Supabase ao iniciar
+    setLoading(true); // Set loading to true when starting to check auth
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || '';
-        await fetchUserProfileAndSetState(
-          session.user.id, 
-          session.user.email!, 
-          session.user.created_at,
-          fullName
-        );
+        setUserState({
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata.name || '',
+          phone: session.user.phone || '',
+          createdAt: session.user.created_at
+        });
+        setIsAuthenticated(true);
+        setCurrentUser({
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata.name || '',
+          phone: session.user.phone || '',
+          createdAt: session.user.created_at
+        });
+      }
+      setLoading(false); // Set loading to false after auth check completes
+    });
+
+    // Listener para mudanças na autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        const userData = {
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata.name || '',
+          phone: session.user.phone || '',
+          createdAt: session.user.created_at
+        };
+        setUserState(userData);
+        setIsAuthenticated(true);
+        setCurrentUser(userData);
       } else {
         setUserState(null);
         setIsAuthenticated(false);
         logoutUser();
       }
-      setLoading(false);
-    });
-    
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      console.log("Verificando sessão existente:", session?.user?.id);
-      if (session?.user) {
-        const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || '';
-        await fetchUserProfileAndSetState(
-          session.user.id, 
-          session.user.email!, 
-          session.user.created_at,
-          fullName
-        );
-      } else {
-        setLoading(false);
-      }
+      setLoading(false); // Set loading to false after auth state changes
     });
 
     return () => {
@@ -148,99 +85,86 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      setLoading(true);
-      console.log("Iniciando login para:", email);
-      
-      // Tenta fazer login com captcha desativado
+      setLoading(true); // Set loading to true when starting login
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          captchaToken: 'disabled'
-        }
+        password
       });
 
-      if (error) {
-        console.error('Erro no login:', error);
-        
-        // Tenta novamente sem especificar captchaToken
-        console.log("Tentando login sem especificar captchaToken");
-        const secondAttempt = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        
-        if (secondAttempt.error) {
-          console.error('Erro na segunda tentativa de login:', secondAttempt.error);
-          setLoading(false);
-          throw secondAttempt.error;
-        }
-        
-        console.log("Login bem-sucedido na segunda tentativa:", secondAttempt.data.user?.id);
-        setLoading(false);
+      if (error) throw error;
+
+      if (data.user) {
+        const userData = {
+          id: data.user.id,
+          email: data.user.email!,
+          name: data.user.user_metadata.name || '',
+          phone: data.user.phone || '',
+          createdAt: data.user.created_at
+        };
+        setUserState(userData);
+        setIsAuthenticated(true);
+        setCurrentUser(userData);
+        setLoading(false); // Set loading to false after successful login
         return true;
       }
-
-      console.log("Login bem-sucedido:", data.user?.id);
-      setLoading(false);
-      return true;
+      setLoading(false); // Set loading to false after failed login
+      return false;
     } catch (error) {
       console.error('Erro no login:', error);
-      setLoading(false);
-      throw error;
+      setLoading(false); // Set loading to false after error
+      return false;
     }
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: name,
-          },
-          captchaToken: 'disabled'
-        }
-      });
-      
-      if (error) {
-        console.error('Erro no registro:', error);
-        setLoading(false);
-        throw error;
-      }
-      
-      console.log("Registro bem-sucedido:", data);
+    setLoading(true); // Set loading to true when starting registration
+    // Get users from local storage
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    
+    // Check if user with email already exists
+    const existingUser = users.find((u: any) => u.email === email);
+    if (existingUser) {
       setLoading(false);
-      return true;
-    } catch (error) {
-      console.error('Erro no registro:', error);
-      setLoading(false);
-      throw error;
+      return false;
     }
+    
+    // Create new user
+    const newUser = {
+      id: uuidv4(),
+      createdAt: new Date().toISOString(),
+      name,
+      email,
+      phone: "", // Add default empty phone to meet User type requirements
+      password, // In a real app, this would be hashed
+    };
+    
+    // Add new user to users array
+    users.push(newUser);
+    
+    // Save users array to local storage
+    localStorage.setItem("users", JSON.stringify(users));
+    
+    // Remove password from user object before storing in state
+    const { password: pwd, ...userWithoutPassword } = newUser;
+    
+    setUserState(userWithoutPassword);
+    setIsAuthenticated(true);
+    setCurrentUser(userWithoutPassword);
+    setLoading(false); // Set loading to false after successful registration
+    
+    return true;
   };
 
-  const logout = async () => {
-    setLoading(true);
-    try {
-      await supabase.auth.signOut();
-      // O estado será atualizado pelo listener onAuthStateChange
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-      // Mesmo com erro, limpa os estados locais
-      setUserState(null);
-      setIsAuthenticated(false);
-      logoutUser();
-    } finally {
-      setLoading(false);
-    }
+  const logout = () => {
+    setLoading(true); // Set loading to true when starting logout
+    setUserState(null);
+    setIsAuthenticated(false);
+    logoutUser();
+    setLoading(false); // Set loading to false after logout completes
   };
 
   const setUser = (updatedUser: User) => {
     setUserState(updatedUser);
-    setCurrentUser(updatedUser);
   };
 
   return (

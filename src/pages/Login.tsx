@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -20,9 +19,7 @@ const Login = () => {
 
   // Redirecionamento automático se já estiver autenticado
   useEffect(() => {
-    console.log("Estado de autenticação:", isAuthenticated);
     if (isAuthenticated) {
-      console.log("Usuário autenticado, redirecionando para o dashboard");
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
@@ -32,9 +29,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      console.log("Tentando fazer login com:", email);
       const success = await login(email, password);
-      console.log("Resultado do login:", success);
 
       if (success) {
         toast({
@@ -42,17 +37,17 @@ const Login = () => {
           description: "Bem-vindo de volta!",
         });
 
-        // Forçar o redirecionamento mesmo que o efeito não seja acionado
-        console.log("Redirecionando para o dashboard após login bem-sucedido");
-        navigate("/dashboard");
+        // Garantir que o redirecionamento aconteça após o toast
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 500);
       } else {
         throw new Error("Falha na autenticação");
       }
     } catch (error: any) {
-      console.error("Erro completo:", error);
       toast({
         title: "Erro ao fazer login",
-        description: error.message || "Credenciais inválidas",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
