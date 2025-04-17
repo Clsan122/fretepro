@@ -1,8 +1,9 @@
-import React from "react";
+
+import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { BRAZILIAN_STATES } from "@/utils/constants";
-import { LocationsSection as AutocompleteLocationSection } from "@/components/LocationsSection";
+import { getBrazilianCities } from "@/utils/cities";
 
 import {
   Card,
@@ -18,6 +19,13 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 interface LocationsProps {
   originCity: string;
@@ -35,6 +43,250 @@ interface LocationsProps {
 }
 
 export const LocationsSection: React.FC<LocationsProps> = (props) => {
-  // Simplesmente repassa todas as props para o novo componente com autocomplete
-  return <AutocompleteLocationSection {...props} />;
+  const {
+    originCity,
+    setOriginCity,
+    originState,
+    setOriginState,
+    destinationCity,
+    setDestinationCity,
+    destinationState,
+    setDestinationState,
+    receiver,
+    setReceiver,
+    receiverAddress,
+    setReceiverAddress
+  } = props;
+
+  // Estados para armazenar as listas de cidades filtradas
+  const [originCities, setOriginCities] = useState<string[]>([]);
+  const [destinationCities, setDestinationCities] = useState<string[]>([]);
+  
+  // Estados para controlar os popovers
+  const [originOpen, setOriginOpen] = useState(false);
+  const [destinationOpen, setDestinationOpen] = useState(false);
+  
+  // Estados para filtrar as cidades
+  const [originFilter, setOriginFilter] = useState("");
+  const [destinationFilter, setDestinationFilter] = useState("");
+
+  // Carregando cidades quando o estado muda
+  useEffect(() => {
+    if (originState) {
+      const cities = getBrazilianCities(originState);
+      setOriginCities(cities);
+    } else {
+      setOriginCities([]);
+    }
+  }, [originState]);
+
+  useEffect(() => {
+    if (destinationState) {
+      const cities = getBrazilianCities(destinationState);
+      setDestinationCities(cities);
+    } else {
+      setDestinationCities([]);
+    }
+  }, [destinationState]);
+
+  // Filtragem de cidades baseada na entrada do usuário
+  const getFilteredOriginCities = () => {
+    if (!originFilter.trim()) return originCities.slice(0, 100);
+    return originCities
+      .filter(city => city.toLowerCase().includes(originFilter.toLowerCase()))
+      .slice(0, 100);
+  };
+  
+  const getFilteredDestinationCities = () => {
+    if (!destinationFilter.trim()) return destinationCities.slice(0, 100);
+    return destinationCities
+      .filter(city => city.toLowerCase().includes(destinationFilter.toLowerCase()))
+      .slice(0, 100);
+  };
+
+  // Manipuladores para seleção de cidade
+  const handleOriginCitySelect = (city: string) => {
+    setOriginCity(city);
+    setOriginOpen(false);
+  };
+  
+  const handleDestinationCitySelect = (city: string) => {
+    setDestinationCity(city);
+    setDestinationOpen(false);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Localidades</CardTitle>
+        <CardDescription>Informe a origem e destino da carga</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Origem */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="originState">Estado de Origem</Label>
+              <Select 
+                value={originState} 
+                onValueChange={(value) => {
+                  setOriginState(value);
+                  setOriginCity("");
+                }}
+              >
+                <SelectTrigger id="originState">
+                  <SelectValue placeholder="Selecione o estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BRAZILIAN_STATES.map((state) => (
+                    <SelectItem key={state.abbreviation} value={state.abbreviation}>
+                      {state.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="originCity">Cidade de Origem</Label>
+              <Popover open={originOpen} onOpenChange={setOriginOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    role="combobox" 
+                    aria-expanded={originOpen}
+                    className="w-full justify-between"
+                    disabled={!originState}
+                  >
+                    {originCity || "Selecione a cidade"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <div className="p-2">
+                    <Input
+                      placeholder="Buscar cidade..."
+                      value={originFilter}
+                      onChange={(e) => setOriginFilter(e.target.value)}
+                      className="mb-2"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-auto">
+                    {getFilteredOriginCities().length > 0 ? (
+                      getFilteredOriginCities().map((city) => (
+                        <Button
+                          key={city}
+                          variant="ghost"
+                          className="w-full justify-start text-left"
+                          onClick={() => handleOriginCitySelect(city)}
+                        >
+                          {city === originCity && <Check className="mr-2 h-4 w-4" />}
+                          {city}
+                        </Button>
+                      ))
+                    ) : (
+                      <div className="p-2 text-center text-sm text-muted-foreground">
+                        Nenhuma cidade encontrada
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          {/* Destino */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="destinationState">Estado de Destino</Label>
+              <Select 
+                value={destinationState} 
+                onValueChange={(value) => {
+                  setDestinationState(value);
+                  setDestinationCity("");
+                }}
+              >
+                <SelectTrigger id="destinationState">
+                  <SelectValue placeholder="Selecione o estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BRAZILIAN_STATES.map((state) => (
+                    <SelectItem key={state.abbreviation} value={state.abbreviation}>
+                      {state.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="destinationCity">Cidade de Destino</Label>
+              <Popover open={destinationOpen} onOpenChange={setDestinationOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    role="combobox" 
+                    aria-expanded={destinationOpen}
+                    className="w-full justify-between"
+                    disabled={!destinationState}
+                  >
+                    {destinationCity || "Selecione a cidade"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <div className="p-2">
+                    <Input
+                      placeholder="Buscar cidade..."
+                      value={destinationFilter}
+                      onChange={(e) => setDestinationFilter(e.target.value)}
+                      className="mb-2"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-auto">
+                    {getFilteredDestinationCities().length > 0 ? (
+                      getFilteredDestinationCities().map((city) => (
+                        <Button
+                          key={city}
+                          variant="ghost"
+                          className="w-full justify-start text-left"
+                          onClick={() => handleDestinationCitySelect(city)}
+                        >
+                          {city === destinationCity && <Check className="mr-2 h-4 w-4" />}
+                          {city}
+                        </Button>
+                      ))
+                    ) : (
+                      <div className="p-2 text-center text-sm text-muted-foreground">
+                        Nenhuma cidade encontrada
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        </div>
+        
+        {/* Recebedor */}
+        <div className="mt-6 space-y-2">
+          <Label htmlFor="receiver">Recebedor</Label>
+          <Input
+            id="receiver"
+            value={receiver}
+            onChange={(e) => setReceiver(e.target.value)}
+            placeholder="Nome do recebedor"
+          />
+        </div>
+        
+        <div className="mt-4 space-y-2">
+          <Label htmlFor="receiverAddress">Endereço do Recebedor</Label>
+          <Input
+            id="receiverAddress"
+            value={receiverAddress}
+            onChange={(e) => setReceiverAddress(e.target.value)}
+            placeholder="Endereço de entrega"
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
