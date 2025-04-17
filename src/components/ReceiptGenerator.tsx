@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { Freight, Client, User, Driver } from "@/types";
 import { format } from "date-fns";
@@ -54,13 +53,21 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
         format: 'a5', // Mantido em A5 para ser mais compacto
       });
       
+      receiptRef.current.classList.add('print-mode');
+      
       const scale = 2;
       const canvas = await html2canvas(receiptRef.current, { 
         scale: scale,
         useCORS: true,
         logging: false,
         allowTaint: true,
+        backgroundColor: '#FFFFFF',
+        ignoreElements: (element) => {
+          return element.classList.contains('print-exclude');
+        }
       });
+      
+      receiptRef.current.classList.remove('print-mode');
       
       const imgWidth = canvas.width / scale;
       const imgHeight = canvas.height / scale;
@@ -151,7 +158,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
     window.print();
   };
 
-  // Emissor do recibo (usuário ou empresa)
   const getBillingEntity = () => {
     if (billingSource === "company" && user.companyName) {
       return {
@@ -180,7 +186,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
 
   return (
     <div className="p-2 max-w-md mx-auto print:p-0">
-      <div className="flex flex-wrap justify-between gap-2 mb-4 print:hidden">
+      <div className="flex flex-wrap justify-between gap-2 mb-4 print:hidden print-exclude">
         {user.companyName && (
           <Select value={billingSource} onValueChange={(value: "user" | "company") => setBillingSource(value)}>
             <SelectTrigger className="w-[200px]">
@@ -225,17 +231,26 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
             background-color: white !important;
           }
           
-          header, nav, footer, .bottom-navigation, button {
+          header, nav, footer, .bottom-navigation, button, .print-exclude {
             display: none !important;
+          }
+          
+          body > *:not(.print-container) {
+            display: none !important;
+          }
+          .print-container {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
           }
         `}
       </style>
       
       <div 
         ref={receiptRef} 
-        className={`bg-white border rounded-lg shadow-sm p-3 text-xs ${isGenerating ? 'opacity-0 absolute' : ''}`}
+        className={`bg-white border rounded-lg shadow-sm p-3 text-xs print-container ${isGenerating ? 'opacity-0 absolute' : ''}`}
       >
-        {/* Cabeçalho com dados do emissor */}
         <div className="flex items-center justify-between border-b pb-2 mb-2">
           <div className="flex items-center gap-1">
             <Receipt className="h-4 w-4 text-freight-600" />
@@ -246,14 +261,12 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         </div>
 
-        {/* Company logo if available */}
         {billingEntity.logo && (
           <div className="flex justify-center mb-2 border-b pb-2">
             <img src={billingEntity.logo} alt="Logo" className="h-10 object-contain" />
           </div>
         )}
 
-        {/* Dados do Emissor */}
         <div className="border-b pb-2 mb-2 text-[10px]">
           <p className="font-semibold flex items-center gap-1">
             <UserIcon className="h-3 w-3" />
@@ -283,7 +296,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           )}
         </div>
 
-        {/* Dados Cliente e Motorista */}
         <div className="grid grid-cols-2 gap-1 mb-1 border-b pb-1 text-[10px]">
           <div>
             <p className="font-semibold flex items-center gap-1">
@@ -318,7 +330,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           )}
         </div>
 
-        {/* Rota */}
         <div className="border-b pb-1 mb-1 text-[10px]">
           <div className="grid grid-cols-2 gap-1">
             <div>
@@ -334,7 +345,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         </div>
 
-        {/* Descrição da carga */}
         <div className="border-b pb-1 mb-1 text-[10px]">
           <p className="font-semibold">Carga:</p>
           <p>
@@ -349,7 +359,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           {freight.cargoWeight && <p>Peso: {freight.cargoWeight} kg</p>}
         </div>
 
-        {/* Valores */}
         <div className="space-y-0.5 text-[10px]">
           <div className="flex justify-between">
             <span>Frete</span>
@@ -373,7 +382,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         </div>
         
-        {/* Pagamento */}
         {billingEntity.pixKey && (
           <div className="mt-1 pt-1 border-t text-[9px]">
             <p className="font-semibold flex items-center gap-1">
@@ -386,7 +394,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         )}
 
-        {/* Comprovante */}
         {freight.proofOfDeliveryImage && (
           <div className="mt-1 pt-1 border-t">
             <p className="font-semibold mb-0.5 text-[10px]">Comprovante de Entrega</p>
@@ -398,7 +405,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         )}
 
-        {/* Rodapé */}
         <div className="mt-2 pt-1 border-t flex justify-between items-center text-[8px] text-gray-500">
           <p className="max-w-[70%]">Este documento serve como comprovante de prestação de serviço de transporte.</p>
           <div className="text-right min-w-[80px]">

@@ -38,15 +38,15 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  // Fix 1: Using the correct syntax for useReactToPrint
+  // Usando a sintaxe correta para useReactToPrint
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    // Using contentRef to specify the element to be printed
-    contentRef: componentRef,
+    content: () => componentRef.current,
+    removeAfterPrint: true,
   });
 
-  // Fix 2: Create wrapper functions for onClick handlers
+  // Funções wrapper para manipuladores onClick
   const onPrintClick = useCallback(() => {
     if (handlePrint) {
       handlePrint();
@@ -70,12 +70,23 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         format: 'a4',
       });
       
+      // Isolar o conteúdo para captura
+      componentRef.current.classList.add('print-mode');
+      
       const canvas = await html2canvas(componentRef.current, { 
         scale: 2,
         useCORS: true,
         logging: false,
         allowTaint: true,
+        backgroundColor: '#FFFFFF',
+        // Remover elementos que não devem ser incluídos
+        ignoreElements: (element) => {
+          return element.classList.contains('print-exclude');
+        }
       });
+      
+      // Remover classe após captura
+      componentRef.current.classList.remove('print-mode');
       
       const imgWidth = pdf.internal.pageSize.getWidth();
       const imgHeight = canvas.height * imgWidth / canvas.width;
@@ -205,7 +216,6 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
               <DropdownMenuItem onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" /> Baixar PDF
               </DropdownMenuItem>
-              {/* Fix 3: Use the wrapper function for the onClick handler */}
               <DropdownMenuItem onClick={onPrintClick}>
                 <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
               </DropdownMenuItem>
@@ -227,7 +237,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
       
       <div 
         ref={componentRef} 
-        className={`bg-white p-2 md:p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0 ${isGenerating ? 'opacity-0 absolute' : ''}`}
+        className={`bg-white p-2 md:p-4 mx-auto max-w-4xl shadow-sm print:shadow-none print:p-0 print-container ${isGenerating ? 'opacity-0 absolute' : ''}`}
       >
         <PrintStyles />
         

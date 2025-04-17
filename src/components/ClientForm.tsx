@@ -115,22 +115,35 @@ const ClientForm: React.FC<ClientFormProps> = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           <LogoUpload logo={logo} setLogo={setLogo} />
-          <ClientFormFields 
-            register={register} 
-            errors={errors} 
-          />
-          <LocationFields 
-            register={register}
-            errors={errors}
-            watchedState={watchedState}
-            handleSetState={handleSetState}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ClientFormFields 
+              register={register} 
+              errors={errors} 
+            />
+            <div className="md:col-span-2">
+              <LocationFields 
+                register={register}
+                errors={errors}
+                watchedState={watchedState}
+                handleSetState={handleSetState}
+              />
+            </div>
+          </div>
         </CardContent>
-        <CardFooter className="justify-between">
-          <Button variant="outline" onClick={onCancel} type="button">
+        <CardFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+          <Button 
+            variant="outline" 
+            onClick={onCancel} 
+            type="button"
+            className="w-full sm:w-auto"
+          >
             Cancelar
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full sm:w-auto"
+          >
             {initialData ? "Atualizar" : "Cadastrar"}
           </Button>
         </CardFooter>

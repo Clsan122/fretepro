@@ -48,6 +48,16 @@ const PrintStyles: React.FC = () => {
         header, nav, footer, .bottom-navigation, button, .print-exclude {
           display: none !important;
         }
+        /* Ocultar elementos que não fazem parte do recibo na impressão */
+        body > *:not(.print-container) {
+          display: none !important;
+        }
+        .print-container {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+        }
       `}
     </style>
   );
