@@ -22,7 +22,6 @@ const Profile: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const companyLogoInputRef = useRef<HTMLInputElement>(null);
   
-  // Personal data fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
@@ -30,18 +29,15 @@ const Profile: React.FC = () => {
   const [avatar, setAvatar] = useState("");
   const [pixKey, setPixKey] = useState("");
   
-  // Company data fields
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [companyLogo, setCompanyLogo] = useState("");
   
-  // Address fields
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zipCode, setZipCode] = useState("");
   
-  // Password fields
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -390,87 +386,78 @@ const Profile: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUpdateProfile} className="space-y-6">
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium flex items-center gap-2">
-                      <TruckIcon className="h-5 w-5" />
-                      Dados da Empresa
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="companyName">Nome da Empresa</Label>
-                        <Input
-                          id="companyName"
-                          value={companyName}
-                          onChange={(e) => setCompanyName(e.target.value)}
-                          placeholder="Nome da sua empresa"
+                  <div className="flex flex-col items-center mb-6">
+                    {companyLogo ? (
+                      <div className="relative">
+                        <img 
+                          src={companyLogo} 
+                          alt="Logotipo" 
+                          className="h-32 w-auto object-contain border rounded p-2"
                         />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 bg-white rounded-full shadow"
+                          onClick={() => setCompanyLogo("")}
+                        >
+                          <span className="sr-only">Remover</span>
+                          ×
+                        </Button>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="cnpj">CNPJ</Label>
-                        <Input
-                          id="cnpj"
-                          value={cnpj}
-                          onChange={handleCNPJChange}
-                          placeholder="00.000.000/0000-00"
-                        />
+                    ) : (
+                      <div className="h-32 w-64 border-2 border-dashed rounded flex items-center justify-center">
+                        <Image className="h-8 w-8 text-gray-400" />
                       </div>
+                    )}
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => companyLogoInputRef.current?.click()}
+                      className="mt-4"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {companyLogo ? "Alterar Logotipo" : "Enviar Logotipo"}
+                    </Button>
+                    <input
+                      type="file"
+                      ref={companyLogoInputRef}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleCompanyLogoUpload}
+                    />
+                  </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="pixKey">Chave PIX da Empresa</Label>
-                        <Input
-                          id="companyPixKey"
-                          value={pixKey}
-                          onChange={(e) => setPixKey(e.target.value)}
-                          placeholder="CNPJ, email ou chave aleatória"
-                        />
-                      </div>
-                      
-                      <div className="flex flex-col space-y-2">
-                        <Label>Logotipo da Empresa</Label>
-                        <div className="flex items-center gap-2">
-                          {companyLogo ? (
-                            <div className="relative">
-                              <img 
-                                src={companyLogo} 
-                                alt="Logotipo" 
-                                className="h-16 w-auto object-contain border rounded p-1"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="absolute top-0 right-0 h-6 w-6 bg-white rounded-full"
-                                onClick={() => setCompanyLogo("")}
-                              >
-                                <span className="sr-only">Remover</span>
-                                ×
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="h-16 w-32 border-2 border-dashed rounded flex items-center justify-center">
-                              <Image className="h-6 w-6 text-gray-400" />
-                            </div>
-                          )}
-                          <Button 
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => companyLogoInputRef.current?.click()}
-                          >
-                            <Upload className="h-4 w-4 mr-2" />
-                            Enviar Logotipo
-                          </Button>
-                          <input
-                            type="file"
-                            ref={companyLogoInputRef}
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleCompanyLogoUpload}
-                          />
-                        </div>
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="companyName">Nome da Empresa</Label>
+                      <Input
+                        id="companyName"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="Nome da sua empresa"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="cnpj">CNPJ</Label>
+                      <Input
+                        id="cnpj"
+                        value={cnpj}
+                        onChange={handleCNPJChange}
+                        placeholder="00.000.000/0000-00"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="pixKey">Chave PIX da Empresa</Label>
+                      <Input
+                        id="companyPixKey"
+                        value={pixKey}
+                        onChange={(e) => setPixKey(e.target.value)}
+                        placeholder="CNPJ, email ou chave aleatória"
+                      />
                     </div>
                   </div>
                   

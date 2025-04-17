@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { BRAZILIAN_STATES } from "@/utils/constants";
 import { getBrazilianCities } from "@/utils/cities";
-
 import {
   Card,
   CardContent,
@@ -24,7 +23,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LocationsProps {
   originCity: string;
@@ -89,17 +89,15 @@ export const LocationsSection: React.FC<LocationsProps> = (props) => {
   }, [destinationState]);
 
   const getFilteredOriginCities = () => {
-    if (!originFilter.trim()) return originCities.slice(0, 100);
+    if (!originFilter.trim()) return originCities;
     return originCities
-      .filter(city => city.toLowerCase().includes(originFilter.toLowerCase()))
-      .slice(0, 100);
+      .filter(city => city.toLowerCase().includes(originFilter.toLowerCase()));
   };
   
   const getFilteredDestinationCities = () => {
-    if (!destinationFilter.trim()) return destinationCities.slice(0, 100);
+    if (!destinationFilter.trim()) return destinationCities;
     return destinationCities
-      .filter(city => city.toLowerCase().includes(destinationFilter.toLowerCase()))
-      .slice(0, 100);
+      .filter(city => city.toLowerCase().includes(destinationFilter.toLowerCase()));
   };
 
   const handleOriginCitySelect = (city: string) => {
@@ -168,7 +166,7 @@ export const LocationsSection: React.FC<LocationsProps> = (props) => {
                       {originCity || "Selecione a cidade"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
+                  <PopoverContent className="w-[300px] p-0" align="start">
                     <div className="p-2">
                       <Input
                         placeholder="Buscar cidade..."
@@ -177,7 +175,7 @@ export const LocationsSection: React.FC<LocationsProps> = (props) => {
                         className="mb-2"
                       />
                     </div>
-                    <div className="max-h-60 overflow-auto">
+                    <ScrollArea className="h-[200px]">
                       {getFilteredOriginCities().length > 0 ? (
                         getFilteredOriginCities().map((city) => (
                           <Button
@@ -195,7 +193,7 @@ export const LocationsSection: React.FC<LocationsProps> = (props) => {
                           Nenhuma cidade encontrada
                         </div>
                       )}
-                    </div>
+                    </ScrollArea>
                   </PopoverContent>
                 </Popover>
               )}
@@ -250,7 +248,7 @@ export const LocationsSection: React.FC<LocationsProps> = (props) => {
                       {destinationCity || "Selecione a cidade"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
+                  <PopoverContent className="w-[300px] p-0" align="start">
                     <div className="p-2">
                       <Input
                         placeholder="Buscar cidade..."
@@ -259,7 +257,7 @@ export const LocationsSection: React.FC<LocationsProps> = (props) => {
                         className="mb-2"
                       />
                     </div>
-                    <div className="max-h-60 overflow-auto">
+                    <ScrollArea className="h-[200px]">
                       {getFilteredDestinationCities().length > 0 ? (
                         getFilteredDestinationCities().map((city) => (
                           <Button
@@ -277,7 +275,7 @@ export const LocationsSection: React.FC<LocationsProps> = (props) => {
                           Nenhuma cidade encontrada
                         </div>
                       )}
-                    </div>
+                    </ScrollArea>
                   </PopoverContent>
                 </Popover>
               )}
