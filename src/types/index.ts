@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -151,6 +152,7 @@ export interface CollectionOrder {
   companyLogo?: string;         // Logo da empresa (base64)
   createdAt: string;            // Data de criação
   userId: string;               // ID do usuário que criou
+  issuerId?: string;            // ID do emissor da ordem (empresa ou cliente)
 }
 
 export interface Measurement {

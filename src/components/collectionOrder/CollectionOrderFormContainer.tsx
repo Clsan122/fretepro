@@ -52,7 +52,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [companyLogo, setCompanyLogo] = useState<string>("");
   const [selectedIssuerId, setSelectedIssuerId] = useState<string>(
-    orderToEdit?.issuerId as string || (user ? user.id : '')
+    orderToEdit?.issuerId || (user ? user.id : '')
   );
   
   useEffect(() => {
@@ -82,7 +82,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       setObservations(orderToEdit.observations || "");
       setDriverId(orderToEdit.driverId || "none");
       setCompanyLogo(orderToEdit.companyLogo || "");
-      setSelectedIssuerId((orderToEdit as any).issuerId || (user ? user.id : ''));
+      setSelectedIssuerId(orderToEdit.issuerId || (user ? user.id : ''));
     }
   }, [orderToEdit, user]);
 
