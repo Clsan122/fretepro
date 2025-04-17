@@ -83,8 +83,7 @@ const Freights: React.FC = () => {
   };
 
   const handleGenerateReceipt = (freight: Freight) => {
-    const receiptWindow = window.open(`/freight/${freight.id}/receipt`, '_blank');
-    if (receiptWindow) receiptWindow.focus();
+    navigate(`/freight-receipt?ids=${freight.id}`);
   };
 
   return (

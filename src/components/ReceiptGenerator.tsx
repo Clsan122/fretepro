@@ -3,8 +3,9 @@ import React, { useRef, useState } from "react";
 import { Freight, Client, User, Driver } from "@/types";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Receipt, Download, User as UserIcon, Truck, Share2, Printer, MapPin, FileText, Phone, Building } from "lucide-react";
+import { Receipt, Download, User as UserIcon, Truck, Share2, Printer, MapPin, FileText, Phone, Building, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
   const client = clients.find((c) => c.id === freight.clientId);
   const receiptRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [billingSource, setBillingSource] = useState<"user" | "company">("user");
   const { toast } = useToast();
 
   const formatCurrency = (value: number) => 
@@ -149,9 +151,46 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
     window.print();
   };
 
+  // Emissor do recibo (usuário ou empresa)
+  const getBillingEntity = () => {
+    if (billingSource === "company" && user.companyName) {
+      return {
+        name: user.companyName,
+        document: user.cnpj || "",
+        address: user.address || "",
+        city: user.city ? `${user.city}/${user.state}` : "",
+        phone: user.phone || "",
+        pixKey: user.pixKey || "",
+      };
+    } else {
+      return {
+        name: user.name || "",
+        document: user.cpf || "",
+        address: user.address || "",
+        city: user.city ? `${user.city}/${user.state}` : "",
+        phone: user.phone || "",
+        pixKey: user.pixKey || "",
+      };
+    }
+  };
+
+  const billingEntity = getBillingEntity();
+
   return (
     <div className="p-2 max-w-md mx-auto print:p-0">
       <div className="flex flex-wrap justify-between gap-2 mb-4 print:hidden">
+        {user.companyName && (
+          <Select value={billingSource} onValueChange={(value: "user" | "company") => setBillingSource(value)}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Emissor" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="user">Pessoa Física</SelectItem>
+              <SelectItem value="company">Empresa</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="flex items-center justify-center gap-2">
@@ -194,8 +233,8 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
         ref={receiptRef} 
         className={`bg-white border rounded-lg shadow-sm p-3 text-xs ${isGenerating ? 'opacity-0 absolute' : ''}`}
       >
-        {/* Cabeçalho */}
-        <div className="flex items-center justify-between border-b pb-1 mb-1">
+        {/* Cabeçalho com dados do emissor */}
+        <div className="flex items-center justify-between border-b pb-2 mb-2">
           <div className="flex items-center gap-1">
             <Receipt className="h-4 w-4 text-freight-600" />
             <h1 className="font-bold text-xs">Recibo de Frete #{freight.id.substring(0, 8).toUpperCase()}</h1>
@@ -203,6 +242,36 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           <div className="text-right">
             <p className="text-gray-600 text-[10px]">{formatDate(new Date().toISOString())}</p>
           </div>
+        </div>
+
+        {/* Dados do Emissor */}
+        <div className="border-b pb-2 mb-2 text-[10px]">
+          <p className="font-semibold flex items-center gap-1">
+            <UserIcon className="h-3 w-3" />
+            Emissor
+          </p>
+          <p>{billingEntity.name}</p>
+          {billingEntity.document && (
+            <p>
+              {billingSource === "company" ? (
+                <Building className="h-3 w-3 inline mr-1" />
+              ) : (
+                <UserIcon className="h-3 w-3 inline mr-1" />
+              )}
+              {billingEntity.document}
+            </p>
+          )}
+          {billingEntity.address && (
+            <p className="text-[8px] flex items-start mt-0.5">
+              <MapPin className="h-2.5 w-2.5 mr-0.5 mt-0.5 flex-shrink-0" /> 
+              <span>{billingEntity.address} - {billingEntity.city}</span>
+            </p>
+          )}
+          {billingEntity.phone && (
+            <p className="flex items-center gap-0.5">
+              <Phone className="h-2.5 w-2.5" /> {billingEntity.phone}
+            </p>
+          )}
         </div>
 
         {/* Dados Cliente e Motorista */}
@@ -255,6 +324,21 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         </div>
 
+        {/* Descrição da carga */}
+        <div className="border-b pb-1 mb-1 text-[10px]">
+          <p className="font-semibold">Carga:</p>
+          <p>
+            {freight.cargoType === "general" && "Carga Geral"}
+            {freight.cargoType === "dangerous" && "Carga Perigosa"}
+            {freight.cargoType === "liquid" && "Líquido"}
+            {freight.cargoType === "sackCargo" && "Sacaria"}
+            {freight.cargoType === "drum" && "Tambores"}
+            {freight.cargoType === "pallet" && "Paletizada"}
+          </p>
+          {freight.cargoDescription && <p>{freight.cargoDescription}</p>}
+          {freight.cargoWeight && <p>Peso: {freight.cargoWeight} kg</p>}
+        </div>
+
         {/* Valores */}
         <div className="space-y-0.5 text-[10px]">
           <div className="flex justify-between">
@@ -280,10 +364,18 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
         </div>
         
         {/* Pagamento */}
-        {freight.pixKey && (
+        {billingEntity.pixKey && (
           <div className="mt-1 pt-1 border-t text-[9px]">
-            <p className="font-semibold">Chave PIX:</p>
-            <p className="break-all">{freight.pixKey}</p>
+            <p className="font-semibold flex items-center gap-1">
+              <CreditCard className="h-3 w-3" /> Dados para Pagamento:
+            </p>
+            <p className="flex items-center">
+              <span className="font-semibold mr-1">PIX:</span>
+              <span className="break-all">{billingEntity.pixKey}</span>
+            </p>
+            {user.bankInfo && (
+              <p className="mt-0.5 text-[8px]">{user.bankInfo}</p>
+            )}
           </div>
         )}
 

@@ -1,106 +1,189 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Toaster } from "./components/ui/toaster";
 
-import Index from "./pages/Index";
+// Pages
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
-import Clients from "./pages/Clients";
 import Freights from "./pages/Freights";
+import Clients from "./pages/Clients";
 import Drivers from "./pages/Drivers";
-import DriverRegister from "./pages/DriverRegister";
-import DriverEdit from "./pages/DriverEdit";
 import Profile from "./pages/Profile";
+import DriverEdit from "./pages/DriverEdit";
+import DriverRegister from "./pages/DriverRegister";
 import NotFound from "./pages/NotFound";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import CollectionOrders from "./pages/CollectionOrders";
-import CollectionOrderPage from "./pages/CollectionOrder";
+import CollectionOrder from "./pages/CollectionOrder";
 import CollectionOrderView from "./pages/CollectionOrderView";
 import CollectionOrderEdit from "./pages/CollectionOrderEdit";
-import ResetPassword from "./pages/ResetPassword";
-import ForgotPassword from "./pages/ForgotPassword";
 import FreightSelection from "./pages/FreightSelection";
 import MultiFreightReceipt from "./pages/MultiFreightReceipt";
+import FreightReceipt from "./pages/FreightReceipt";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+// Private Route Component
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-freight-600"></div>
+      </div>
+    );
   }
-  
-  return <>{children}</>;
+
+  return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
-const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
-  
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
-  
+function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
-      <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />} />
-      <Route path="/esqueci-senha" element={<ForgotPassword />} />
-      
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
-      <Route path="/freights" element={<ProtectedRoute><Freights /></ProtectedRoute>} />
-      <Route path="/freight-selection" element={<ProtectedRoute><FreightSelection /></ProtectedRoute>} />
-      <Route path="/multi-freight-receipt" element={<ProtectedRoute><MultiFreightReceipt /></ProtectedRoute>} />
-      <Route path="/drivers" element={<ProtectedRoute><Drivers /></ProtectedRoute>} />
-      <Route path="/drivers/new" element={<ProtectedRoute><DriverRegister /></ProtectedRoute>} />
-      <Route path="/drivers/edit/:id" element={<ProtectedRoute><DriverEdit /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      
-      <Route path="/collection-orders" element={<ProtectedRoute><CollectionOrders /></ProtectedRoute>} />
-      <Route path="/collection-order/new" element={<ProtectedRoute><CollectionOrderPage /></ProtectedRoute>} />
-      <Route path="/collection-order/:id" element={<ProtectedRoute><CollectionOrderView /></ProtectedRoute>} />
-      <Route path="/collection-order/edit/:id" element={<ProtectedRoute><CollectionOrderEdit /></ProtectedRoute>} />
-      
-      <Route path="/reset-password" element={<ResetPassword />} />
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/freights"
+            element={
+              <PrivateRoute>
+                <Freights />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/freight-selection"
+            element={
+              <PrivateRoute>
+                <FreightSelection />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/freight-receipt"
+            element={
+              <PrivateRoute>
+                <FreightReceipt />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/multi-freight-receipt"
+            element={
+              <PrivateRoute>
+                <MultiFreightReceipt />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/clients"
+            element={
+              <PrivateRoute>
+                <Clients />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/drivers"
+            element={
+              <PrivateRoute>
+                <Drivers />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/drivers/new"
+            element={
+              <PrivateRoute>
+                <DriverRegister />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/drivers/edit/:id"
+            element={
+              <PrivateRoute>
+                <DriverEdit />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-orders"
+            element={
+              <PrivateRoute>
+                <CollectionOrders />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-order/new"
+            element={
+              <PrivateRoute>
+                <CollectionOrder />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-order/:id"
+            element={
+              <PrivateRoute>
+                <CollectionOrderView />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-order/edit/:id"
+            element={
+              <PrivateRoute>
+                <CollectionOrderEdit />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+      </BrowserRouter>
+    </AuthProvider>
   );
-};
-
-const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
-};
+}
 
 export default App;

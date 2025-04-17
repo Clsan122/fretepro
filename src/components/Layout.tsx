@@ -10,7 +10,8 @@ import {
   Home, 
   Sun,
   Moon,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  LayoutDashboard
 } from "lucide-react";
 import { 
   Sheet, 
@@ -82,7 +83,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         <div className="flex-1 overflow-y-auto py-4 px-3">
-          {/* Menu removido conforme solicitado */}
+          <Button 
+            variant="outline" 
+            className="w-full justify-start mb-2"
+            onClick={() => handleNavigate("/dashboard")}
+          >
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Dashboard
+          </Button>
         </div>
         
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
@@ -145,7 +153,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <SheetTitle className="text-left">Sistema de Fretes</SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto py-4 px-3">
-          {/* Menu removido conforme solicitado */}
+          <Button 
+            variant="outline" 
+            className="w-full justify-start mb-2"
+            onClick={() => handleNavigate("/dashboard")}
+          >
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Dashboard
+          </Button>
         </div>
         
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
@@ -224,6 +239,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           
           <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => handleNavigate("/dashboard")}
+              className="gap-1 hidden md:flex"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Button>
+            
             <Button 
               variant="ghost" 
               size="icon"
