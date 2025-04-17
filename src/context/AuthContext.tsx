@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -5,6 +6,7 @@ import { getCurrentUser, setCurrentUser, logoutUser } from "@/utils/storage";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SupabaseProfile } from "@/types/profile";
+import { useToast } from "@/hooks/use-toast";
 
 type AuthContextType = {
   user: User | null;
@@ -32,47 +34,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUserState] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     setLoading(true);
     
-    // Get initial session and fetch profile data
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        // Cast profile to our SupabaseProfile type
-        const profileData = profile as unknown as SupabaseProfile;
-
-        const userData = {
-          id: session.user.id,
-          email: session.user.email!,
-          name: profileData?.full_name || session.user.user_metadata.name || '',
-          phone: profileData?.phone || '',
-          createdAt: session.user.created_at,
-          cpf: profileData?.cpf || '',
-          address: profileData?.address || '',
-          city: profileData?.city || '',
-          state: profileData?.state || '',
-          zipCode: profileData?.zip_code || '',
-          companyName: profileData?.company_name || '',
-          cnpj: profileData?.cnpj || '',
-          companyLogo: profileData?.company_logo || '',
-          pixKey: profileData?.pix_key || '',
-        };
-
-        setUserState(userData);
-        setIsAuthenticated(true);
-        setCurrentUser(userData);
-      }
-      setLoading(false);
-    });
-
-    // Listen for auth changes
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         const { data: profile } = await supabase
@@ -111,6 +78,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setLoading(false);
     });
+    
+    // THEN check for existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        // Cast profile to our SupabaseProfile type
+        const profileData = profile as unknown as SupabaseProfile;
+
+        const userData = {
+          id: session.user.id,
+          email: session.user.email!,
+          name: profileData?.full_name || session.user.user_metadata.name || '',
+          phone: profileData?.phone || '',
+          createdAt: session.user.created_at,
+          cpf: profileData?.cpf || '',
+          address: profileData?.address || '',
+          city: profileData?.city || '',
+          state: profileData?.state || '',
+          zipCode: profileData?.zip_code || '',
+          companyName: profileData?.company_name || '',
+          cnpj: profileData?.cnpj || '',
+          companyLogo: profileData?.company_logo || '',
+          pixKey: profileData?.pix_key || '',
+        };
+
+        setUserState(userData);
+        setIsAuthenticated(true);
+        setCurrentUser(userData);
+      }
+      setLoading(false);
+    });
 
     return () => {
       subscription.unsubscribe();
@@ -120,21 +123,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
+      
+      // Desativar temporariamente o captcha em desenvolvimento
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          captchaToken: 'disabled'
+        }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro no login:', error);
+        toast({
+          title: "Erro ao fazer login",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
 
       if (data.user) {
+        // Fetch profile data after login
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        // Cast profile to our SupabaseProfile type
+        const profileData = profile as unknown as SupabaseProfile;
+        
         const userData = {
           id: data.user.id,
           email: data.user.email!,
-          name: data.user.user_metadata.name || '',
-          phone: data.user.phone || '',
-          createdAt: data.user.created_at
+          name: profileData?.full_name || data.user.user_metadata.name || '',
+          phone: profileData?.phone || '',
+          createdAt: data.user.created_at,
+          cpf: profileData?.cpf || '',
+          address: profileData?.address || '',
+          city: profileData?.city || '',
+          state: profileData?.state || '',
+          zipCode: profileData?.zip_code || '',
+          companyName: profileData?.company_name || '',
+          cnpj: profileData?.cnpj || '',
+          companyLogo: profileData?.company_logo || '',
+          pixKey: profileData?.pix_key || '',
         };
+        
         setUserState(userData);
         setIsAuthenticated(true);
         setCurrentUser(userData);
