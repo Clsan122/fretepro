@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { formatBrazilianPhone } from "@/utils/formatters";
 
 interface ClientFormProps {
   onSave: (client: Client) => void;
@@ -28,6 +29,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
   const [city, setCity] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -38,6 +40,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
       setCity(clientToEdit.city);
       setCnpj(clientToEdit.cnpj || "");
       setAddress(clientToEdit.address || "");
+      setPhone(clientToEdit.phone || "");
     }
   }, [clientToEdit]);
 
@@ -58,6 +61,12 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
   const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedCNPJ = formatCNPJ(e.target.value);
     setCnpj(formattedCNPJ);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Apenas números no telefone
+    const phoneValue = e.target.value.replace(/\D/g, '');
+    setPhone(phoneValue);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,6 +97,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
       city,
       cnpj: cnpj || undefined,
       address: address || undefined,
+      phone: phone || undefined,
       createdAt: clientToEdit ? clientToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
     };
@@ -101,6 +111,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
       setCity("");
       setCnpj("");
       setAddress("");
+      setPhone("");
     }
   };
 
@@ -124,6 +135,23 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit 
           onChange={handleCNPJChange}
           placeholder="XX.XXX.XXX/XXXX-XX"
         />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="phone">Telefone (Opcional)</Label>
+        <Input
+          id="phone"
+          value={phone}
+          onChange={handlePhoneChange}
+          placeholder="Apenas números"
+          inputMode="numeric"
+          maxLength={11}
+        />
+        {phone && (
+          <p className="text-xs text-muted-foreground">
+            Formato: {formatBrazilianPhone(phone)}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">

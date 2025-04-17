@@ -4,10 +4,11 @@ import { Driver } from "@/types";
 import { VEHICLE_TYPES, BODY_TYPES } from "@/utils/constants";
 import { useAuth } from "@/context/AuthContext";
 import { v4 as uuidv4 } from "uuid";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { formatBrazilianPhone, formatCPF } from "@/utils/formatters";
 import { 
   Select,
   SelectContent,
@@ -64,24 +65,6 @@ const DriverForm: React.FC<DriverFormProps> = ({
     }
   }, [driverToEdit]);
 
-  const formatCPF = (value: string) => {
-    // Remove qualquer caractere que não seja número
-    const cpfNumbers = value.replace(/\D/g, '');
-    
-    // Aplica a máscara de CPF: XXX.XXX.XXX-XX
-    let formattedCPF = cpfNumbers;
-    if (cpfNumbers.length > 3) formattedCPF = cpfNumbers.replace(/(\d{3})(\d)/, '$1.$2');
-    if (cpfNumbers.length > 6) formattedCPF = formattedCPF.replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-    if (cpfNumbers.length > 9) formattedCPF = formattedCPF.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
-    
-    return formattedCPF.slice(0, 14); // Limita a 14 caracteres (com máscara)
-  };
-
-  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedCPF = formatCPF(e.target.value);
-    setCpf(formattedCPF);
-  };
-
   const formatLicensePlate = (value: string) => {
     // Formata placa no padrão XXX-XXXX ou XXX-XXXX
     const plateText = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -104,21 +87,16 @@ const DriverForm: React.FC<DriverFormProps> = ({
     setTrailerPlate(formattedPlate);
   };
 
-  const formatPhone = (value: string) => {
-    // Remove non-digit characters
-    const nums = value.replace(/\D/g, '');
-    
-    // Apply phone mask: (XX) XXXXX-XXXX
-    let formatted = nums;
-    if (nums.length > 0) formatted = nums.replace(/^(\d{0,2})(.*)/, '($1) $2');
-    if (nums.length > 6) formatted = formatted.replace(/\(\d{2}\) (\d{0,5})(.*)/, '($1) $2-$3');
-    
-    return formatted.slice(0, 16); // Limit to 16 characters (including format)
+  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Apenas números para o CPF
+    const cpfValue = e.target.value.replace(/\D/g, '');
+    setCpf(cpfValue);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedPhone = formatPhone(e.target.value);
-    setPhone(formattedPhone);
+    // Apenas números para o telefone
+    const phoneValue = e.target.value.replace(/\D/g, '');
+    setPhone(phoneValue);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -145,7 +123,7 @@ const DriverForm: React.FC<DriverFormProps> = ({
     const newDriver: Driver = {
       id: driverToEdit ? driverToEdit.id : uuidv4(),
       name,
-      cpf,
+      cpf: formatCPF(cpf),
       licensePlate,
       trailerPlate: trailerPlate || undefined,
       vehicleType: vehicleType as any,
@@ -201,9 +179,15 @@ const DriverForm: React.FC<DriverFormProps> = ({
                   id="cpf"
                   value={cpf}
                   onChange={handleCPFChange}
-                  placeholder="CPF do motorista"
-                  maxLength={14}
+                  placeholder="Apenas números"
+                  inputMode="numeric"
+                  maxLength={11}
                 />
+                {cpf && (
+                  <p className="text-xs text-muted-foreground">
+                    Formato: {formatCPF(cpf)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -212,8 +196,15 @@ const DriverForm: React.FC<DriverFormProps> = ({
                   id="phone"
                   value={phone}
                   onChange={handlePhoneChange}
-                  placeholder="(00) 00000-0000"
+                  placeholder="Apenas números"
+                  inputMode="numeric"
+                  maxLength={11}
                 />
+                {phone && (
+                  <p className="text-xs text-muted-foreground">
+                    Formato: {formatBrazilianPhone(phone)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
