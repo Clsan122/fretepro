@@ -156,19 +156,13 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Fix: Properly use useReactToPrint hook with the correct type
+  // Fix: Correctly use the useReactToPrint hook
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
-    content: () => componentRef.current,
+    // The "content" property should be passed as a react hook
+    contentRef: componentRef,
   });
-
-  // We need to create wrapper functions to handle the type issues
-  const handlePrintClick = () => {
-    if (handlePrint) {
-      handlePrint();
-    }
-  };
 
   return (
     <div className="p-2 md:p-4">
@@ -203,7 +197,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
             <Button 
               variant="outline" 
               className="gap-2 w-full"
-              onClick={handlePrintClick}
+              onClick={handlePrint}
             >
               <PrinterIcon className="h-4 w-4" />
               Imprimir
@@ -224,7 +218,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
               <DropdownMenuItem onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" /> Baixar PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handlePrintClick}>
+              <DropdownMenuItem onClick={handlePrint}>
                 <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
               </DropdownMenuItem>
             </DropdownMenuContent>
