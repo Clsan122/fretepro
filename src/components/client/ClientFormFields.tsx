@@ -4,6 +4,7 @@ import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
+// This interface must match the FormData type in the parent component
 interface FormData {
   name: string;
   city: string;

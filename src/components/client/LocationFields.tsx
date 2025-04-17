@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// This interface must match the FormData type in the parent component
 interface FormData {
   name: string;
   city: string;
