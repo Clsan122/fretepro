@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/AuthContext";
 import { Client } from "@/types";
 import { v4 as uuidv4 } from "uuid";
-import { brazilianStates } from "@/utils/constants";
+import { BRAZILIAN_STATES } from "@/utils/constants";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

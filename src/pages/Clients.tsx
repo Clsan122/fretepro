@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
@@ -47,7 +46,6 @@ const Clients: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Load clients on component mount
   useEffect(() => {
     if (user) {
       const userClients = getClientsByUserId(user.id);
@@ -56,7 +54,6 @@ const Clients: React.FC = () => {
     }
   }, [user]);
 
-  // Filter clients when search term changes
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredClients(clients);
@@ -74,13 +71,10 @@ const Clients: React.FC = () => {
   const handleAddClient = (client: Client) => {
     saveClient(client);
     
-    // Update local state
     setClients(prevClients => [...prevClients, client]);
     
-    // Close dialog
     setIsAddDialogOpen(false);
     
-    // Show success message
     toast({
       title: "Cliente adicionado",
       description: "O cliente foi cadastrado com sucesso!",
@@ -90,16 +84,13 @@ const Clients: React.FC = () => {
   const handleEditClient = (client: Client) => {
     updateClient(client);
     
-    // Update local state
     setClients(prevClients => 
       prevClients.map(c => (c.id === client.id ? client : c))
     );
     
-    // Close dialog
     setIsEditDialogOpen(false);
     setSelectedClient(null);
     
-    // Show success message
     toast({
       title: "Cliente atualizado",
       description: "As informações do cliente foram atualizadas com sucesso!",
@@ -110,16 +101,13 @@ const Clients: React.FC = () => {
     if (selectedClient) {
       deleteClient(selectedClient.id);
       
-      // Update local state
       setClients(prevClients => 
         prevClients.filter(c => c.id !== selectedClient.id)
       );
       
-      // Close dialog
       setIsDeleteDialogOpen(false);
       setSelectedClient(null);
       
-      // Show success message
       toast({
         title: "Cliente removido",
         description: "O cliente foi removido com sucesso!",
@@ -220,7 +208,6 @@ const Clients: React.FC = () => {
         )}
       </div>
 
-      {/* Add Client Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -236,7 +223,6 @@ const Clients: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Client Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -247,7 +233,7 @@ const Clients: React.FC = () => {
           </DialogHeader>
           {selectedClient && (
             <ClientForm
-              clientToEdit={selectedClient}
+              initialData={selectedClient}
               onSave={handleEditClient}
               onCancel={() => {
                 setIsEditDialogOpen(false);
@@ -258,7 +244,6 @@ const Clients: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
