@@ -19,6 +19,7 @@ import { LogoUpload } from "./client/LogoUpload";
 import { ClientFormFields } from "./client/ClientFormFields";
 import { LocationFields } from "./client/LocationFields";
 
+// This schema should match the FormData interface in the child components
 const clientSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
   city: z.string().min(2, "Cidade é obrigatória"),
@@ -27,6 +28,9 @@ const clientSchema = z.object({
   address: z.string().optional(),
   phone: z.string().optional(),
 });
+
+// Define the form data type based on our schema
+type FormData = z.infer<typeof clientSchema>;
 
 interface ClientFormProps {
   onSave: (client: Client) => void;
@@ -48,7 +52,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<z.infer<typeof clientSchema>>({
+  } = useForm<FormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
       name: initialData?.name || "",
@@ -68,7 +72,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
     }
   }, [initialData]);
 
-  const onSubmit = (data: z.infer<typeof clientSchema>) => {
+  const onSubmit = (data: FormData) => {
     if (!user) return;
 
     const client: Client = {
