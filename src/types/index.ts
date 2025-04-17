@@ -27,6 +27,7 @@ export interface Client {
   userId: string;
   cnpj?: string;
   address?: string;
+  phone?: string;
 }
 
 export interface Driver {
