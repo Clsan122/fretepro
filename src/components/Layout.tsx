@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -18,6 +19,11 @@ import {
   FileText
 } from "lucide-react";
 import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
+import { 
+  SidebarProvider, 
+  Sidebar, 
+  SidebarContent 
+} from "@/components/ui/sidebar";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -112,72 +118,74 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
-        <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-          <div className="mb-6 px-2">
-            <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">FretePro</h2>
-          </div>
-          
-          <ul className="space-y-2">
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => handleNavigate(item.path)}
-                >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.name}
-                </Button>
-              </li>
-            ))}
-          </ul>
+    <SidebarProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full">
+        <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
+          <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+            <div className="mb-6 px-2">
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">FretePro</h2>
+            </div>
+            
+            <ul className="space-y-2">
+              {navItems.map((item) => (
+                <li key={item.name}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => handleNavigate(item.path)}
+                  >
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.name}
+                  </Button>
+                </li>
+              ))}
+            </ul>
 
-          <div className="mt-auto pt-4">
-            <ProfileMenuGroup />
+            <div className="mt-auto pt-4">
+              <ProfileMenuGroup />
+            </div>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      {isMobile && <MobileSidebar />}
-      
-      <div className="md:ml-64 min-h-screen pb-16 md:pb-0">
-        <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
-          <div className="flex items-center">
+        {isMobile && <MobileSidebar />}
+        
+        <div className="md:ml-64 min-h-screen pb-16 md:pb-0">
+          <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
+            <div className="flex items-center">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="md:hidden"
+                onClick={toggleSidebar}
+              >
+                <MenuIcon className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-semibold text-gray-800 dark:text-white ml-2">
+                FretePro
+              </h1>
+            </div>
+            
             <Button 
               variant="ghost" 
               size="icon"
-              className="md:hidden"
-              onClick={toggleSidebar}
+              onClick={toggleTheme}
             >
-              <MenuIcon className="h-5 w-5" />
+              {theme === "light" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
             </Button>
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-white ml-2">
-              FretePro
-            </h1>
-          </div>
+          </header>
           
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={toggleTheme}
-          >
-            {theme === "light" ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )}
-          </Button>
-        </header>
+          <main>
+            {children}
+          </main>
+        </div>
         
-        <main>
-          {children}
-        </main>
+        <BottomNavigationBar />
       </div>
-      
-      <BottomNavigationBar />
-    </div>
+    </SidebarProvider>
   );
 };
 

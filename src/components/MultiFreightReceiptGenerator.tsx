@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import PrintStyles from "./multi-freight-receipt/PrintStyles";
 import ReceiptHeader from "./multi-freight-receipt/ReceiptHeader";
-import SummaryTable from "./multi-freight-receipt/SummaryTable";
 import ClientDetailsSection from "./multi-freight-receipt/ClientDetailsSection";
 import ReceiptFooter from "./multi-freight-receipt/ReceiptFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -160,17 +159,22 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
-    content: reactToPrintContent,
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
   });
 
+  const handlePrintWithContent = () => {
+    if (componentRef.current) {
+      handlePrint();
+    }
+  };
+
   const handlePrintButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    handlePrint();
+    handlePrintWithContent();
   };
 
   const handlePrintMenuItemClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    handlePrint();
+    handlePrintWithContent();
   };
 
   return (
