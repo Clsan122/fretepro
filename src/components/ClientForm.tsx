@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -98,7 +99,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
   }
 
   return (
-    <div className="max-h-[calc(100vh-8rem)] overflow-y-auto pb-4">
+    <div className="max-h-[calc(100vh-8rem)] overflow-y-auto pb-16 md:pb-4">
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>

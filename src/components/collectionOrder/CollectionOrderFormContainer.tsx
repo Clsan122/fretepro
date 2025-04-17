@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Measurement } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import { getDriversByUserId } from "@/utils/storage";
+import { getDriversByUserId, getClientsByUserId } from "@/utils/storage";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +26,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   onCancel, 
   orderToEdit 
 }) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
   const [sender, setSender] = useState("");
   const [senderAddress, setSenderAddress] = useState("");
   const [recipient, setRecipient] = useState("");
@@ -48,11 +52,8 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [companyLogo, setCompanyLogo] = useState<string>("");
   const [selectedIssuerId, setSelectedIssuerId] = useState<string>(
-    orderToEdit?.issuerId || (user ? user.id : '')
+    orderToEdit?.issuerId as string || (user ? user.id : '')
   );
-  
-  const { user } = useAuth();
-  const { toast } = useToast();
   
   useEffect(() => {
     if (user) {
@@ -81,8 +82,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       setObservations(orderToEdit.observations || "");
       setDriverId(orderToEdit.driverId || "none");
       setCompanyLogo(orderToEdit.companyLogo || "");
+      setSelectedIssuerId((orderToEdit as any).issuerId || (user ? user.id : ''));
     }
-  }, [orderToEdit]);
+  }, [orderToEdit, user]);
 
   useEffect(() => {
     const totalCubic = measurements.reduce((sum, item) => {
@@ -146,7 +148,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
 
     const selectedDriver = drivers.find(d => d.id === driverId);
 
-    const newOrder: CollectionOrder = {
+    const newOrder = {
       id: orderToEdit ? orderToEdit.id : uuidv4(),
       sender,
       senderAddress: senderAddress || undefined,
@@ -175,7 +177,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       userId: user.id
     };
 
-    onSave(newOrder);
+    onSave(newOrder as CollectionOrder);
   };
 
   return (
