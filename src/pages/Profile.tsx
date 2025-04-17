@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Save, Phone, Mail, MapPin, User, Lock, Key, Calendar, TruckIcon, Receipt, Camera, Upload } from "lucide-react";
+import { Save, Phone, Mail, MapPin, User, Lock, Key, Calendar, TruckIcon, Receipt, Camera, Upload, Image } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +20,7 @@ const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const companyLogoInputRef = useRef<HTMLInputElement>(null);
   
   // Personal data fields
   const [name, setName] = useState("");
@@ -28,20 +28,18 @@ const Profile: React.FC = () => {
   const [cpf, setCpf] = useState("");
   const [phone, setPhone] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [pixKey, setPixKey] = useState("");
   
   // Company data fields
   const [companyName, setCompanyName] = useState("");
   const [cnpj, setCnpj] = useState("");
+  const [companyLogo, setCompanyLogo] = useState("");
   
   // Address fields
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zipCode, setZipCode] = useState("");
-  
-  // Receipt data fields
-  const [pixKey, setPixKey] = useState("");
-  const [bankInfo, setBankInfo] = useState("");
   
   // Password fields
   const [currentPassword, setCurrentPassword] = useState("");
@@ -61,8 +59,8 @@ const Profile: React.FC = () => {
       setCompanyName(user.companyName || "");
       setCnpj(user.cnpj || "");
       setPixKey(user.pixKey || "");
-      setBankInfo(user.bankInfo || "");
       setAvatar(user.avatar || "");
+      setCompanyLogo(user.companyLogo || "");
     }
   }, [user]);
 
@@ -71,28 +69,24 @@ const Profile: React.FC = () => {
   };
 
   const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove qualquer caractere que não seja número
     const cnpjNumbers = e.target.value.replace(/\D/g, '');
     
-    // Aplica a máscara de CNPJ: XX.XXX.XXX/XXXX-XX
     let formattedCNPJ = cnpjNumbers;
     if (cnpjNumbers.length > 2) formattedCNPJ = cnpjNumbers.replace(/(\d{2})(\d)/, '$1.$2');
     if (cnpjNumbers.length > 5) formattedCNPJ = formattedCNPJ.replace(/(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
     if (cnpjNumbers.length > 8) formattedCNPJ = formattedCNPJ.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4');
     if (cnpjNumbers.length > 12) formattedCNPJ = formattedCNPJ.replace(/(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3/$4-$5');
     
-    setCnpj(formattedCNPJ.slice(0, 18)); // Limita a 18 caracteres (com máscara)
+    setCnpj(formattedCNPJ.slice(0, 18));
   };
 
   const formatZipCode = (value: string) => {
-    // Remove non-digit characters
     const nums = value.replace(/\D/g, '');
     
-    // Apply ZIP code mask: XXXXX-XXX
     let formatted = nums;
     if (nums.length > 5) formatted = nums.replace(/(\d{5})(\d)/, '$1-$2');
     
-    return formatted.slice(0, 9); // Limit to 9 characters (with mask)
+    return formatted.slice(0, 9);
   };
 
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,12 +109,22 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleCompanyLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCompanyLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) return;
     
-    // Atualiza o usuário com os novos dados
     const updatedUser = {
       ...user,
       name,
@@ -134,11 +138,10 @@ const Profile: React.FC = () => {
       companyName,
       cnpj,
       pixKey,
-      bankInfo,
-      avatar
+      avatar,
+      companyLogo
     };
     
-    // Atualizar no Supabase se disponível
     try {
       if (supabase) {
         const { error } = await supabase
@@ -155,21 +158,18 @@ const Profile: React.FC = () => {
             company_name: companyName,
             cnpj,
             pix_key: pixKey,
-            bank_info: bankInfo,
-            avatar_url: avatar
+            avatar_url: avatar,
+            company_logo: companyLogo
           });
           
         if (error) throw error;
       }
     } catch (error) {
       console.error("Error updating profile in database:", error);
-      // Fall back to local storage if supabase fails
     }
     
-    // Atualiza o usuário no localStorage
     updateUser(updatedUser);
     
-    // Atualiza o usuário no contexto
     setUser(updatedUser);
     
     toast({
@@ -203,18 +203,15 @@ const Profile: React.FC = () => {
           description: "Sua senha foi alterada com sucesso!",
         });
         
-        // Reset form
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
       } else {
-        // Fallback for localStorage only implementation
         toast({
           title: "Senha alterada",
           description: "Sua senha foi alterada com sucesso!",
         });
         
-        // Reset form
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
@@ -369,16 +366,6 @@ const Profile: React.FC = () => {
                         placeholder="CPF, CNPJ, email ou chave aleatória"
                       />
                     </div>
-                    
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="bankInfo">Dados Bancários</Label>
-                      <Input
-                        id="bankInfo"
-                        value={bankInfo}
-                        onChange={(e) => setBankInfo(e.target.value)}
-                        placeholder="Banco, Agência e Conta"
-                      />
-                    </div>
                   </div>
                   
                   <Button type="submit" className="w-full">
@@ -428,6 +415,61 @@ const Profile: React.FC = () => {
                           onChange={handleCNPJChange}
                           placeholder="00.000.000/0000-00"
                         />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="pixKey">Chave PIX da Empresa</Label>
+                        <Input
+                          id="companyPixKey"
+                          value={pixKey}
+                          onChange={(e) => setPixKey(e.target.value)}
+                          placeholder="CNPJ, email ou chave aleatória"
+                        />
+                      </div>
+                      
+                      <div className="flex flex-col space-y-2">
+                        <Label>Logotipo da Empresa</Label>
+                        <div className="flex items-center gap-2">
+                          {companyLogo ? (
+                            <div className="relative">
+                              <img 
+                                src={companyLogo} 
+                                alt="Logotipo" 
+                                className="h-16 w-auto object-contain border rounded p-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-0 right-0 h-6 w-6 bg-white rounded-full"
+                                onClick={() => setCompanyLogo("")}
+                              >
+                                <span className="sr-only">Remover</span>
+                                ×
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="h-16 w-32 border-2 border-dashed rounded flex items-center justify-center">
+                              <Image className="h-6 w-6 text-gray-400" />
+                            </div>
+                          )}
+                          <Button 
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => companyLogoInputRef.current?.click()}
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Enviar Logotipo
+                          </Button>
+                          <input
+                            type="file"
+                            ref={companyLogoInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleCompanyLogoUpload}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -1,207 +1,253 @@
 
-import React, { useState, useEffect } from "react";
-import { Client } from "@/types";
-import { BRAZILIAN_STATES } from "@/utils/constants";
+import React, { useState, useEffect, useRef } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/AuthContext";
+import { Client } from "@/types";
 import { v4 as uuidv4 } from "uuid";
-import { useToast } from "@/components/ui/use-toast";
-import { Input } from "@/components/ui/input";
+import { brazilianStates } from "@/utils/constants";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { 
+import { Input } from "@/components/ui/input";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
-import { formatBrazilianPhone } from "@/utils/formatters";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Upload, Image } from "lucide-react";
+
+const clientSchema = z.object({
+  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+  city: z.string().min(2, "Cidade é obrigatória"),
+  state: z.string().length(2, "Estado deve ter 2 caracteres"),
+  cnpj: z.string().optional(),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+});
 
 interface ClientFormProps {
   onSave: (client: Client) => void;
   onCancel: () => void;
-  clientToEdit?: Client;
+  initialData?: Client;
 }
 
-const ClientForm: React.FC<ClientFormProps> = ({ onSave, onCancel, clientToEdit }) => {
-  const [name, setName] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
-  const [cnpj, setCnpj] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
+const ClientForm: React.FC<ClientFormProps> = ({
+  onSave,
+  onCancel,
+  initialData,
+}) => {
   const { user } = useAuth();
-  const { toast } = useToast();
+  const [logo, setLogo] = useState<string>("");
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<z.infer<typeof clientSchema>>({
+    resolver: zodResolver(clientSchema),
+    defaultValues: {
+      name: initialData?.name || "",
+      city: initialData?.city || "",
+      state: initialData?.state || "",
+      cnpj: initialData?.cnpj || "",
+      address: initialData?.address || "",
+      phone: initialData?.phone || "",
+    },
+  });
 
+  const watchedState = watch("state");
+  
   useEffect(() => {
-    if (clientToEdit) {
-      setName(clientToEdit.name);
-      setState(clientToEdit.state);
-      setCity(clientToEdit.city);
-      setCnpj(clientToEdit.cnpj || "");
-      setAddress(clientToEdit.address || "");
-      setPhone(clientToEdit.phone || "");
+    if (initialData?.logo) {
+      setLogo(initialData.logo);
     }
-  }, [clientToEdit]);
+  }, [initialData]);
 
-  const formatCNPJ = (value: string) => {
-    // Remove non-digit characters
-    const nums = value.replace(/\D/g, '');
-    
-    // Apply CNPJ mask: XX.XXX.XXX/XXXX-XX
-    let formatted = nums;
-    if (nums.length > 2) formatted = nums.replace(/(\d{2})(\d)/, '$1.$2');
-    if (nums.length > 5) formatted = formatted.replace(/(\d{2}\.\d{3})(\d)/, '$1.$2');
-    if (nums.length > 8) formatted = formatted.replace(/(\d{2}\.\d{3}\.\d{3})(\d)/, '$1/$2');
-    if (nums.length > 12) formatted = formatted.replace(/(\d{2}\.\d{3}\.\d{3}\/\d{4})(\d)/, '$1-$2');
-    
-    return formatted.slice(0, 18); // Limit to 18 characters (including format)
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedCNPJ = formatCNPJ(e.target.value);
-    setCnpj(formattedCNPJ);
-  };
+  const onSubmit = (data: z.infer<typeof clientSchema>) => {
+    if (!user) return;
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Apenas números no telefone
-    const phoneValue = e.target.value.replace(/\D/g, '');
-    setPhone(phoneValue);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name || !state || !city) {
-      toast({
-        title: "Erro",
-        description: "Por favor, preencha todos os campos obrigatórios!",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para cadastrar um cliente!",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newClient: Client = {
-      id: clientToEdit ? clientToEdit.id : uuidv4(),
-      name,
-      state,
-      city,
-      cnpj: cnpj || undefined,
-      address: address || undefined,
-      phone: phone || undefined,
-      createdAt: clientToEdit ? clientToEdit.createdAt : new Date().toISOString(),
+    const client: Client = {
+      id: initialData?.id || uuidv4(),
+      name: data.name,
+      city: data.city,
+      state: data.state,
+      cnpj: data.cnpj || undefined,
+      address: data.address || undefined,
+      phone: data.phone || undefined,
+      createdAt: initialData?.createdAt || new Date().toISOString(),
       userId: user.id,
+      logo: logo || undefined,
     };
 
-    onSave(newClient);
-    
-    // Reset form if not editing
-    if (!clientToEdit) {
-      setName("");
-      setState("");
-      setCity("");
-      setCnpj("");
-      setAddress("");
-      setPhone("");
-    }
+    onSave(client);
   };
 
+  const handleSetState = (value: string) => {
+    setValue("state", value);
+  };
+
+  if (!user) {
+    return <p>Você precisa estar logado para acessar este recurso.</p>;
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Nome do Cliente</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Nome completo do cliente"
-        />
-      </div>
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle>
+          {initialData ? "Editar Cliente" : "Novo Cliente"}
+        </CardTitle>
+        <CardDescription>
+          {initialData
+            ? "Atualize as informações do cliente"
+            : "Cadastre um novo cliente"}
+        </CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            <Label>Logotipo do Cliente</Label>
+            <div className="flex items-center gap-2">
+              {logo ? (
+                <div className="relative">
+                  <img 
+                    src={logo} 
+                    alt="Logotipo" 
+                    className="h-16 w-auto object-contain border rounded p-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-0 right-0 h-6 w-6 bg-white rounded-full"
+                    onClick={() => setLogo("")}
+                  >
+                    <span className="sr-only">Remover</span>
+                    ×
+                  </Button>
+                </div>
+              ) : (
+                <div className="h-16 w-32 border-2 border-dashed rounded flex items-center justify-center">
+                  <Image className="h-6 w-6 text-gray-400" />
+                </div>
+              )}
+              <Button 
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => logoInputRef.current?.click()}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Enviar Logotipo
+              </Button>
+              <input
+                type="file"
+                ref={logoInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleLogoUpload}
+              />
+            </div>
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="cnpj">CNPJ (Opcional)</Label>
-        <Input
-          id="cnpj"
-          value={cnpj}
-          onChange={handleCNPJChange}
-          placeholder="XX.XXX.XXX/XXXX-XX"
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="phone">Telefone (Opcional)</Label>
-        <Input
-          id="phone"
-          value={phone}
-          onChange={handlePhoneChange}
-          placeholder="Apenas números"
-          inputMode="numeric"
-          maxLength={11}
-        />
-        {phone && (
-          <p className="text-xs text-muted-foreground">
-            Formato: {formatBrazilianPhone(phone)}
-          </p>
-        )}
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome do Cliente</Label>
+            <Input id="name" {...register("name")} />
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name.message}</p>
+            )}
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="address">Endereço (Opcional)</Label>
-        <Input
-          id="address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Endereço completo"
-        />
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="cnpj">CNPJ</Label>
+            <Input id="cnpj" {...register("cnpj")} />
+            {errors.cnpj && (
+              <p className="text-sm text-red-500">{errors.cnpj.message}</p>
+            )}
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="state">Estado</Label>
-        <Select
-          value={state}
-          onValueChange={(value) => setState(value)}
-        >
-          <SelectTrigger id="state">
-            <SelectValue placeholder="Selecione um estado" />
-          </SelectTrigger>
-          <SelectContent>
-            {BRAZILIAN_STATES.map((state) => (
-              <SelectItem key={state.abbreviation} value={state.abbreviation}>
-                {state.name} ({state.abbreviation})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="address">Endereço</Label>
+            <Input id="address" {...register("address")} />
+            {errors.address && (
+              <p className="text-sm text-red-500">{errors.address.message}</p>
+            )}
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="city">Cidade</Label>
-        <Input
-          id="city"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Nome da cidade"
-        />
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Telefone</Label>
+            <Input id="phone" {...register("phone")} />
+            {errors.phone && (
+              <p className="text-sm text-red-500">{errors.phone.message}</p>
+            )}
+          </div>
 
-      <div className="flex justify-end space-x-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit">
-          {clientToEdit ? "Atualizar Cliente" : "Cadastrar Cliente"}
-        </Button>
-      </div>
-    </form>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">Cidade</Label>
+              <Input id="city" {...register("city")} />
+              {errors.city && (
+                <p className="text-sm text-red-500">{errors.city.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="state">Estado</Label>
+              <Select
+                value={watchedState}
+                onValueChange={handleSetState}
+              >
+                <SelectTrigger id="state">
+                  <SelectValue placeholder="UF" />
+                </SelectTrigger>
+                <SelectContent>
+                  {brazilianStates.map((state) => (
+                    <SelectItem key={state.abbreviation} value={state.abbreviation}>
+                      {state.abbreviation} - {state.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.state && (
+                <p className="text-sm text-red-500">{errors.state.message}</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="justify-between">
+          <Button variant="outline" onClick={onCancel} type="button">
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {initialData ? "Atualizar" : "Cadastrar"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
   );
 };
 

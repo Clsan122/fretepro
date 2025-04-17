@@ -71,7 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     `}>
       <div className="h-full flex flex-col">
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Sistema de Fretes</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">FretePro</h2>
           <Button 
             variant="ghost" 
             size="icon"
@@ -150,7 +150,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
       <SheetContent side="left" className="p-0 w-64">
         <SheetHeader className="h-16 flex items-center px-4 border-b border-gray-200 dark:border-gray-700">
-          <SheetTitle className="text-left">Sistema de Fretes</SheetTitle>
+          <SheetTitle className="text-left">FretePro</SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto py-4 px-3">
           <Button 
@@ -234,7 +234,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <MenuIcon className="h-5 w-5" />
             </Button>
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white ml-2">
-              Sistema de Fretes
+              FretePro
             </h1>
           </div>
           

@@ -4,8 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Layout from "@/components/Layout";
-import { getCollectionOrderById, deleteCollectionOrder, saveFreight } from "@/utils/storage";
-import { CollectionOrder, Freight } from "@/types";
+import { getCollectionOrderById, deleteCollectionOrder, saveFreight, getClientById } from "@/utils/storage";
+import { CollectionOrder, Freight, Client } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import { ActionButtons } from "@/components/collectionOrder/view/ActionButtons";
 import { OrderHeader } from "@/components/collectionOrder/view/OrderHeader";
@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 const CollectionOrderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<CollectionOrder | null>(null);
+  const [client, setClient] = useState<Client | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,19 @@ const CollectionOrderView: React.FC = () => {
       const collectionOrder = getCollectionOrderById(id);
       if (collectionOrder) {
         setOrder(collectionOrder);
+        
+        // Try to find client by matching recipient name with client name
+        if (collectionOrder.recipient) {
+          // Get all clients and check if any match the recipient name
+          const clients = JSON.parse(localStorage.getItem("clients") || "[]");
+          const matchingClient = clients.find((c: Client) => 
+            c.name.toLowerCase() === collectionOrder.recipient.toLowerCase()
+          );
+          
+          if (matchingClient) {
+            setClient(matchingClient);
+          }
+        }
       } else {
         toast({
           title: "Erro",
@@ -55,7 +69,7 @@ const CollectionOrderView: React.FC = () => {
     // Create a new freight from the collection order
     const newFreight: Freight = {
       id: uuidv4(),
-      clientId: "", // We don't have a direct mapping for clientId, leaving empty for user to fill
+      clientId: client?.id || "", // Use client id if available
       originCity: order.originCity,
       originState: order.originState,
       departureDate: "",
@@ -138,7 +152,8 @@ const CollectionOrderView: React.FC = () => {
           className={`bg-white rounded-lg p-6 shadow-md print:shadow-none print:p-0 print:m-0 ${isGenerating ? 'opacity-0 absolute' : ''}`}
         >
           <OrderHeader
-            companyLogo={order.companyLogo}
+            clientLogo={client?.logo}
+            clientName={client?.name || order.recipient}
             createdAt={createdAt}
           />
           

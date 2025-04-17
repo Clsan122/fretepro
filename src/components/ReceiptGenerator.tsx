@@ -161,6 +161,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
         city: user.city ? `${user.city}/${user.state}` : "",
         phone: user.phone || "",
         pixKey: user.pixKey || "",
+        logo: user.companyLogo || "",
       };
     } else {
       return {
@@ -170,6 +171,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
         city: user.city ? `${user.city}/${user.state}` : "",
         phone: user.phone || "",
         pixKey: user.pixKey || "",
+        logo: "",
       };
     }
   };
@@ -244,6 +246,13 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           </div>
         </div>
 
+        {/* Company logo if available */}
+        {billingEntity.logo && (
+          <div className="flex justify-center mb-2 border-b pb-2">
+            <img src={billingEntity.logo} alt="Logo" className="h-10 object-contain" />
+          </div>
+        )}
+
         {/* Dados do Emissor */}
         <div className="border-b pb-2 mb-2 text-[10px]">
           <p className="font-semibold flex items-center gap-1">
@@ -288,6 +297,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
               <MapPin className="h-2.5 w-2.5 mr-0.5 mt-0.5 flex-shrink-0" /> 
               <span>{client.address}</span>
             </p>}
+            {client?.logo && <img src={client.logo} alt="Logo do cliente" className="h-6 mt-1 object-contain" />}
           </div>
           {driver && (
             <div>
@@ -373,9 +383,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
               <span className="font-semibold mr-1">PIX:</span>
               <span className="break-all">{billingEntity.pixKey}</span>
             </p>
-            {user.bankInfo && (
-              <p className="mt-0.5 text-[8px]">{user.bankInfo}</p>
-            )}
           </div>
         )}
 

@@ -16,6 +16,7 @@ export interface User {
   pixKey?: string;
   bankInfo?: string;
   avatar?: string;
+  companyLogo?: string;
 }
 
 export interface Client {
@@ -28,6 +29,7 @@ export interface Client {
   cnpj?: string;
   address?: string;
   phone?: string;
+  logo?: string;
 }
 
 export interface Driver {
