@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from "react";
-import { CollectionOrder, Driver, Measurement } from "@/types";
-import { useAuth } from "@/context/AuthContext";
-import { getDriversByUserId, getClientsByUserId } from "@/utils/storage";
+import React from "react";
+import { CollectionOrder } from "@/types";
 import { v4 as uuidv4 } from "uuid";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
 
 // Import form sections
 import { SenderRecipientSection } from "./SenderRecipientSection";
@@ -27,152 +26,47 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   orderToEdit 
 }) => {
   const { user } = useAuth();
-  const { toast } = useToast();
-  
-  const [sender, setSender] = useState("");
-  const [senderAddress, setSenderAddress] = useState("");
-  const [recipient, setRecipient] = useState("");
-  const [recipientAddress, setRecipientAddress] = useState("");
-  const [originCity, setOriginCity] = useState("");
-  const [originState, setOriginState] = useState("");
-  const [destinationCity, setDestinationCity] = useState("");
-  const [destinationState, setDestinationState] = useState("");
-  const [receiver, setReceiver] = useState("");
-  const [receiverAddress, setReceiverAddress] = useState("");
-  const [volumes, setVolumes] = useState<number>(0);
-  const [weight, setWeight] = useState<number>(0);
-  const [measurements, setMeasurements] = useState<Measurement[]>([
-    { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 }
-  ]);
-  const [cubicMeasurement, setCubicMeasurement] = useState<number>(0);
-  const [merchandiseValue, setMerchandiseValue] = useState<number>(0);
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [observations, setObservations] = useState("");
-  const [driverId, setDriverId] = useState<string>("none");
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [companyLogo, setCompanyLogo] = useState<string>("");
-  const [selectedIssuerId, setSelectedIssuerId] = useState<string>(
-    orderToEdit?.issuerId || (user ? user.id : '')
-  );
-  
-  useEffect(() => {
-    if (user) {
-      setDrivers(getDriversByUserId(user.id));
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (orderToEdit) {
-      setSender(orderToEdit.sender);
-      setSenderAddress(orderToEdit.senderAddress || "");
-      setRecipient(orderToEdit.recipient);
-      setRecipientAddress(orderToEdit.recipientAddress || "");
-      setOriginCity(orderToEdit.originCity);
-      setOriginState(orderToEdit.originState);
-      setDestinationCity(orderToEdit.destinationCity);
-      setDestinationState(orderToEdit.destinationState);
-      setReceiver(orderToEdit.receiver);
-      setReceiverAddress(orderToEdit.receiverAddress || "");
-      setVolumes(orderToEdit.volumes);
-      setWeight(orderToEdit.weight);
-      setMeasurements(orderToEdit.measurements);
-      setCubicMeasurement(orderToEdit.cubicMeasurement);
-      setMerchandiseValue(orderToEdit.merchandiseValue);
-      setInvoiceNumber(orderToEdit.invoiceNumber || "");
-      setObservations(orderToEdit.observations || "");
-      setDriverId(orderToEdit.driverId || "none");
-      setCompanyLogo(orderToEdit.companyLogo || "");
-      setSelectedIssuerId(orderToEdit.issuerId || (user ? user.id : ''));
-    }
-  }, [orderToEdit, user]);
-
-  useEffect(() => {
-    const totalCubic = measurements.reduce((sum, item) => {
-      const itemCubic = (item.length * item.width * item.height * item.quantity) / 1000000; // convert cm³ to m³
-      return sum + itemCubic;
-    }, 0);
-    
-    setCubicMeasurement(totalCubic);
-  }, [measurements]);
-
-  const handleAddMeasurement = () => {
-    setMeasurements([
-      ...measurements,
-      { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 }
-    ]);
-  };
-
-  const handleRemoveMeasurement = (id: string) => {
-    if (measurements.length > 1) {
-      setMeasurements(measurements.filter(m => m.id !== id));
-    }
-  };
-
-  const handleMeasurementChange = (id: string, field: keyof Measurement, value: number) => {
-    setMeasurements(measurements.map(m => 
-      m.id === id ? { ...m, [field]: value } : m
-    ));
-  };
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCompanyLogo(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const { formData, setters, measurementHandlers } = useCollectionOrderForm({ orderToEdit });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!sender || !recipient || !originCity || !originState || !destinationCity || !destinationState) {
-      toast({
-        title: "Erro",
-        description: "Por favor, preencha todos os campos obrigatórios!",
-        variant: "destructive",
-      });
+    if (!formData.sender || !formData.recipient || !formData.originCity || 
+        !formData.originState || !formData.destinationCity || !formData.destinationState) {
       return;
     }
 
     if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para cadastrar uma ordem de coleta!",
-        variant: "destructive",
-      });
       return;
     }
 
-    const selectedDriver = drivers.find(d => d.id === driverId);
+    const selectedDriver = formData.drivers.find(d => d.id === formData.driverId);
 
     const newOrder = {
       id: orderToEdit ? orderToEdit.id : uuidv4(),
-      sender,
-      senderAddress: senderAddress || undefined,
-      recipient,
-      recipientAddress: recipientAddress || undefined,
-      originCity,
-      originState,
-      destinationCity,
-      destinationState,
-      receiver,
-      receiverAddress,
-      volumes,
-      weight,
-      measurements,
-      cubicMeasurement,
-      merchandiseValue,
-      invoiceNumber: invoiceNumber || undefined,
-      observations: observations || undefined,
-      driverId: driverId !== "none" ? driverId : undefined,
+      sender: formData.sender,
+      senderAddress: formData.senderAddress,
+      recipient: formData.recipient,
+      recipientAddress: formData.recipientAddress,
+      originCity: formData.originCity,
+      originState: formData.originState,
+      destinationCity: formData.destinationCity,
+      destinationState: formData.destinationState,
+      receiver: formData.receiver,
+      receiverAddress: formData.receiverAddress,
+      volumes: formData.volumes,
+      weight: formData.weight,
+      measurements: formData.measurements,
+      cubicMeasurement: formData.cubicMeasurement,
+      merchandiseValue: formData.merchandiseValue,
+      invoiceNumber: formData.invoiceNumber,
+      observations: formData.observations,
+      driverId: formData.driverId !== "none" ? formData.driverId : undefined,
       driverName: selectedDriver?.name,
       driverCpf: selectedDriver?.cpf,
       licensePlate: selectedDriver?.licensePlate,
-      companyLogo,
-      issuerId: selectedIssuerId,
+      companyLogo: formData.companyLogo,
+      issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id
     };
@@ -183,63 +77,72 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <CompanyLogoSection 
-        companyLogo={companyLogo} 
-        handleLogoUpload={handleLogoUpload}
-        selectedIssuerId={selectedIssuerId}
-        onIssuerChange={setSelectedIssuerId}
+        companyLogo={formData.companyLogo} 
+        handleLogoUpload={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setters.setCompanyLogo(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+          }
+        }}
+        selectedIssuerId={formData.selectedIssuerId}
+        onIssuerChange={setters.setSelectedIssuerId}
       />
       
       <SenderRecipientSection 
-        sender={sender}
-        setSender={setSender}
-        senderAddress={senderAddress}
-        setSenderAddress={setSenderAddress}
-        recipient={recipient}
-        setRecipient={setRecipient}
-        recipientAddress={recipientAddress}
-        setRecipientAddress={setRecipientAddress}
+        sender={formData.sender}
+        setSender={setters.setSender}
+        senderAddress={formData.senderAddress}
+        setSenderAddress={setters.setSenderAddress}
+        recipient={formData.recipient}
+        setRecipient={setters.setRecipient}
+        recipientAddress={formData.recipientAddress}
+        setRecipientAddress={setters.setRecipientAddress}
       />
       
       <LocationsSection 
-        originCity={originCity}
-        setOriginCity={setOriginCity}
-        originState={originState}
-        setOriginState={setOriginState}
-        destinationCity={destinationCity}
-        setDestinationCity={setDestinationCity}
-        destinationState={destinationState}
-        setDestinationState={setDestinationState}
-        receiver={receiver}
-        setReceiver={setReceiver}
-        receiverAddress={receiverAddress}
-        setReceiverAddress={setReceiverAddress}
+        originCity={formData.originCity}
+        setOriginCity={setters.setOriginCity}
+        originState={formData.originState}
+        setOriginState={setters.setOriginState}
+        destinationCity={formData.destinationCity}
+        setDestinationCity={setters.setDestinationCity}
+        destinationState={formData.destinationState}
+        setDestinationState={setters.setDestinationState}
+        receiver={formData.receiver}
+        setReceiver={setters.setReceiver}
+        receiverAddress={formData.receiverAddress}
+        setReceiverAddress={setters.setReceiverAddress}
       />
       
       <CargoSection 
-        volumes={volumes}
-        setVolumes={setVolumes}
-        weight={weight}
-        setWeight={setWeight}
-        merchandiseValue={merchandiseValue}
-        setMerchandiseValue={setMerchandiseValue}
-        cubicMeasurement={cubicMeasurement}
-        measurements={measurements}
-        handleAddMeasurement={handleAddMeasurement}
-        handleRemoveMeasurement={handleRemoveMeasurement}
-        handleMeasurementChange={handleMeasurementChange}
+        volumes={formData.volumes}
+        setVolumes={setters.setVolumes}
+        weight={formData.weight}
+        setWeight={setters.setWeight}
+        merchandiseValue={formData.merchandiseValue}
+        setMerchandiseValue={setters.setMerchandiseValue}
+        cubicMeasurement={formData.cubicMeasurement}
+        measurements={formData.measurements}
+        handleAddMeasurement={measurementHandlers.handleAddMeasurement}
+        handleRemoveMeasurement={measurementHandlers.handleRemoveMeasurement}
+        handleMeasurementChange={measurementHandlers.handleMeasurementChange}
       />
       
       <InvoiceNotesSection
-        invoiceNumber={invoiceNumber}
-        setInvoiceNumber={setInvoiceNumber}
-        observations={observations}
-        setObservations={setObservations}
+        invoiceNumber={formData.invoiceNumber}
+        setInvoiceNumber={setters.setInvoiceNumber}
+        observations={formData.observations}
+        setObservations={setters.setObservations}
       />
       
       <DriverSection 
-        driverId={driverId}
-        drivers={drivers}
-        setDriverId={setDriverId}
+        driverId={formData.driverId}
+        drivers={formData.drivers}
+        setDriverId={setters.setDriverId}
       />
       
       <FormActions 
