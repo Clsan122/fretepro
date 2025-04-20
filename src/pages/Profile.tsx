@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
@@ -31,6 +32,13 @@ type ProfileData = {
   avatar_url: string | null;
   company_logo: string | null;
 }
+
+// Cast the supabase client to include the profiles table
+const supabaseWithProfiles = supabase as unknown as {
+  from(table: 'profiles'): {
+    upsert: (data: ProfileData, options: { onConflict: string }) => Promise<{ error: any }>;
+  }
+};
 
 const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
@@ -156,7 +164,7 @@ const Profile: React.FC = () => {
     
     try {
       if (supabase) {
-        const { error } = await supabase
+        const { error } = await supabaseWithProfiles
           .from('profiles')
           .upsert({
             id: user.id,
@@ -172,7 +180,7 @@ const Profile: React.FC = () => {
             pix_key: pixKey,
             avatar_url: avatar,
             company_logo: companyLogo
-          } as any, { onConflict: 'id' });
+          }, { onConflict: 'id' });
           
         if (error) throw error;
       }
