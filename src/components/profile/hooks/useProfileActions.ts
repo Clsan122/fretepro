@@ -4,18 +4,14 @@ import { ProfileData } from "../types";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/utils/storage";
 
-const supabaseWithProfiles = supabase as unknown as {
-  from(table: 'profiles'): {
-    upsert: (data: ProfileData, options: { onConflict: string }) => Promise<{ error: any }>;
-  }
-};
-
 export const useProfileActions = (setUser: (user: any) => void) => {
   const { toast } = useToast();
 
   const handleUpdateProfile = async (userData: any) => {
     try {
-      if (!userData.id) return;
+      if (!userData.id) {
+        throw new Error("ID do usuário não encontrado");
+      }
 
       const profileData: ProfileData = {
         id: userData.id,
@@ -33,9 +29,11 @@ export const useProfileActions = (setUser: (user: any) => void) => {
         company_logo: userData.companyLogo
       };
 
-      const { error } = await supabaseWithProfiles
+      const { error } = await supabase
         .from('profiles')
-        .upsert(profileData, { onConflict: 'id' });
+        .upsert(profileData, { 
+          onConflict: 'id'
+        });
         
       if (error) throw error;
       
@@ -67,18 +65,16 @@ export const useProfileActions = (setUser: (user: any) => void) => {
     }
     
     try {
-      if (supabase) {
-        const { error } = await supabase.auth.updateUser({
-          password: newPassword
-        });
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Senha alterada",
-          description: "Sua senha foi alterada com sucesso!",
-        });
-      }
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Senha alterada",
+        description: "Sua senha foi alterada com sucesso!",
+      });
     } catch (error: any) {
       console.error("Error changing password:", error);
       toast({

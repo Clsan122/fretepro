@@ -1,7 +1,7 @@
 
 export interface ProfileData {
   id: string;
-  full_name: string;
+  full_name: string | null;
   phone: string | null;
   address: string | null;
   city: string | null;
