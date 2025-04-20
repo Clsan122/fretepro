@@ -59,8 +59,18 @@ const Profile: React.FC = () => {
               <AccountInfoCard user={user} />
               <PersonalInfoCard
                 user={user}
-                formData={formData}
-                setters={setters}
+                name={formData.name}
+                email={formData.email}
+                cpf={formData.cpf}
+                phone={formData.phone}
+                avatar={formData.avatar}
+                pixKey={formData.pixKey}
+                setName={setters.setName}
+                setEmail={setters.setEmail}
+                setCpf={setters.setCpf}
+                setPhone={setters.setPhone}
+                setAvatar={setters.setAvatar}
+                setPixKey={setters.setPixKey}
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleUpdateProfile({
@@ -79,9 +89,21 @@ const Profile: React.FC = () => {
 
           <TabsContent value="company">
             <AddressCard
-              formData={formData}
-              setters={setters}
-              onSubmit={(e) => {
+              address={formData.address}
+              city={formData.city}
+              state={formData.state}
+              zipCode={formData.zipCode}
+              companyName={formData.companyName}
+              cnpj={formData.cnpj}
+              companyLogo={formData.companyLogo}
+              setAddress={setters.setAddress}
+              setCity={setters.setCity}
+              setState={setters.setState}
+              setZipCode={setters.setZipCode}
+              setCompanyName={setters.setCompanyName}
+              setCnpj={setters.setCnpj}
+              setCompanyLogo={setters.setCompanyLogo}
+              handleUpdateProfile={(e) => {
                 e.preventDefault();
                 handleUpdateProfile({
                   ...user,

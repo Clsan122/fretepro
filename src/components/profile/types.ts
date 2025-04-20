@@ -19,3 +19,39 @@ export interface ProfileFormProps {
   user: any;
   onUpdateProfile: (updatedData: any) => void;
 }
+
+export interface PersonalInfoCardProps {
+  user: any;
+  name: string;
+  email: string;
+  cpf: string;
+  phone: string;
+  avatar: string;
+  pixKey: string;
+  setName: (name: string) => void;
+  setEmail: (email: string) => void;
+  setCpf: (cpf: string) => void;
+  setPhone: (phone: string) => void;
+  setAvatar: (avatar: string) => void;
+  setPixKey: (pixKey: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  handleAvatarUpload?: (file: File) => void;
+}
+
+export interface AddressCardProps {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  companyName: string;
+  cnpj: string;
+  companyLogo: string;
+  setAddress: (address: string) => void;
+  setCity: (city: string) => void;
+  setState: (state: string) => void;
+  setZipCode: (zipCode: string) => void;
+  setCompanyName: (companyName: string) => void;
+  setCnpj: (cnpj: string) => void;
+  setCompanyLogo: (companyLogo: string) => void;
+  handleUpdateProfile: (e: React.FormEvent) => void;
+}

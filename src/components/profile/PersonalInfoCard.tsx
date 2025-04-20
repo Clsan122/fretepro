@@ -1,30 +1,13 @@
 
 import React, { useRef } from "react";
-import { User } from "@/types";
+import { PersonalInfoCardProps } from "./types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save, Phone, Mail, Upload, User as UserIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatBrazilianPhone, formatCPF } from "@/utils/formatters";
-
-interface PersonalInfoCardProps {
-  user: User | null;
-  name: string;
-  email: string;
-  cpf: string;
-  phone: string;
-  avatar: string;
-  setName: (name: string) => void;
-  setEmail: (email: string) => void;
-  setCpf: (cpf: string) => void;
-  setPhone: (phone: string) => void;
-  setAvatar: (avatar: string) => void;
-  handleUpdateProfile: (e: React.FormEvent) => void;
-  handleAvatarUpload?: (file: File) => void;
-}
 
 const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
   user,
@@ -33,12 +16,14 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
   cpf,
   phone,
   avatar,
+  pixKey,
   setName,
   setEmail,
   setCpf,
   setPhone,
   setAvatar,
-  handleUpdateProfile,
+  setPixKey,
+  onSubmit,
   handleAvatarUpload,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,7 +52,7 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleUpdateProfile} className="space-y-6">
+        <form onSubmit={onSubmit} className="space-y-6">
           <div className="flex flex-col items-center space-y-3">
             <Avatar className="h-24 w-24 border-2 border-muted">
               <AvatarImage src={avatar} alt={name} />
@@ -140,6 +125,16 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
                 required
               />
             </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="pixKey">Chave PIX</Label>
+            <Input
+              id="pixKey"
+              value={pixKey}
+              onChange={(e) => setPixKey(e.target.value)}
+              placeholder="CPF, e-mail, telefone ou chave aleatória"
+            />
           </div>
           
           <Button type="submit" className="w-full">
