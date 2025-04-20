@@ -16,6 +16,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatBrazilianPhone, formatCPF } from "@/utils/formatters";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+type ProfileData = {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  cpf: string | null;
+  company_name: string | null;
+  cnpj: string | null;
+  pix_key: string | null;
+  avatar_url: string | null;
+  company_logo: string | null;
+}
+
 const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
   const { toast } = useToast();
@@ -140,7 +156,7 @@ const Profile: React.FC = () => {
     
     try {
       if (supabase) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('profiles')
           .upsert({
             id: user.id,
@@ -156,12 +172,18 @@ const Profile: React.FC = () => {
             pix_key: pixKey,
             avatar_url: avatar,
             company_logo: companyLogo
-          });
+          }, { onConflict: 'id' });
           
         if (error) throw error;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile in database:", error);
+      toast({
+        title: "Erro ao atualizar perfil",
+        description: error.message || "Não foi possível atualizar seu perfil no banco de dados.",
+        variant: "destructive",
+      });
+      return;
     }
     
     updateUser(updatedUser);
@@ -212,11 +234,11 @@ const Profile: React.FC = () => {
         setNewPassword("");
         setConfirmPassword("");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error changing password:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível alterar a senha. Tente novamente.",
+        description: error.message || "Não foi possível alterar a senha. Tente novamente.",
         variant: "destructive",
       });
     }
