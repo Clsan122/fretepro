@@ -1,3 +1,4 @@
+
 export interface ProfileData {
   id: string;
   full_name: string;
@@ -55,20 +56,3 @@ export interface AddressCardProps {
   handleUpdateProfile: (e: React.FormEvent) => void;
 }
 
-export interface TruckInfoCardProps {
-  licensePlate: string;
-  trailerPlate: string;
-  anttCode: string;
-  vehicleYear: string;
-  vehicleModel: string;
-  vehicleType: string;
-  bodyType: string;
-  setLicensePlate: (value: string) => void;
-  setTrailerPlate: (value: string) => void;
-  setAnttCode: (value: string) => void;
-  setVehicleYear: (value: string) => void;
-  setVehicleModel: (value: string) => void;
-  setVehicleType: (value: string) => void;
-  setBodyType: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
-}
