@@ -1,13 +1,13 @@
+
 import React from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Truck } from "lucide-react";
+import { User, Lock } from "lucide-react";
 import AccountInfoCard from "@/components/profile/AccountInfoCard";
 import PersonalInfoCard from "@/components/profile/PersonalInfoCard";
 import AddressCard from "@/components/profile/AddressCard";
 import PasswordCard from "@/components/profile/PasswordCard";
-import TruckInfoCard from "@/components/profile/TruckInfoCard";
 import { useProfileForm } from "@/components/profile/hooks/useProfileForm";
 import { useProfileActions } from "@/components/profile/hooks/useProfileActions";
 
@@ -43,8 +43,8 @@ const Profile: React.FC = () => {
               <span className="md:hidden">Pessoais</span>
             </TabsTrigger>
             <TabsTrigger value="company" className="flex items-center gap-2">
-              <Truck className="h-4 w-4" />
-              <span className="hidden md:inline">Empresa e Veículo</span>
+              <User className="h-4 w-4" />
+              <span className="hidden md:inline">Empresa</span>
               <span className="md:hidden">Empresa</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
@@ -115,36 +115,6 @@ const Profile: React.FC = () => {
                     city: formData.city,
                     state: formData.state,
                     zipCode: formData.zipCode,
-                  });
-                }}
-              />
-              
-              <TruckInfoCard
-                licensePlate={formData.licensePlate}
-                trailerPlate={formData.trailerPlate}
-                anttCode={formData.anttCode}
-                vehicleYear={formData.vehicleYear}
-                vehicleModel={formData.vehicleModel}
-                vehicleType={formData.vehicleType}
-                bodyType={formData.bodyType}
-                setLicensePlate={setters.setLicensePlate}
-                setTrailerPlate={setters.setTrailerPlate}
-                setAnttCode={setters.setAnttCode}
-                setVehicleYear={setters.setVehicleYear}
-                setVehicleModel={setters.setVehicleModel}
-                setVehicleType={setters.setVehicleType}
-                setBodyType={setters.setBodyType}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleUpdateProfile({
-                    ...user,
-                    licensePlate: formData.licensePlate,
-                    trailerPlate: formData.trailerPlate,
-                    anttCode: formData.anttCode,
-                    vehicleYear: formData.vehicleYear,
-                    vehicleModel: formData.vehicleModel,
-                    vehicleType: formData.vehicleType,
-                    bodyType: formData.bodyType,
                   });
                 }}
               />

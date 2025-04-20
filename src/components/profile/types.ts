@@ -55,4 +55,3 @@ export interface AddressCardProps {
   setCompanyLogo: (companyLogo: string) => void;
   handleUpdateProfile: (e: React.FormEvent) => void;
 }
-
