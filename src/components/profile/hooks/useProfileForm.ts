@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { User } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useProfileForm = (user: User | null) => {
   const [name, setName] = useState("");
@@ -19,6 +19,13 @@ export const useProfileForm = (user: User | null) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [licensePlate, setLicensePlate] = useState("");
+  const [trailerPlate, setTrailerPlate] = useState("");
+  const [anttCode, setAnttCode] = useState("");
+  const [vehicleYear, setVehicleYear] = useState("");
+  const [vehicleModel, setVehicleModel] = useState("");
+  const [vehicleType, setVehicleType] = useState("");
+  const [bodyType, setBodyType] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -35,6 +42,26 @@ export const useProfileForm = (user: User | null) => {
       setPixKey(user.pixKey || "");
       setAvatar(user.avatar || "");
       setCompanyLogo(user.companyLogo || "");
+
+      const fetchTruckInfo = async () => {
+        const { data, error } = await supabase
+          .from('truck_loving_info')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data && !error) {
+          setLicensePlate(data.license_plate || '');
+          setTrailerPlate(data.trailer_plate || '');
+          setAnttCode(data.antt_code || '');
+          setVehicleYear(data.vehicle_year || '');
+          setVehicleModel(data.vehicle_model || '');
+          setVehicleType(data.vehicle_type || '');
+          setBodyType(data.body_type || '');
+        }
+      };
+
+      fetchTruckInfo();
     }
   }, [user]);
 
@@ -55,7 +82,14 @@ export const useProfileForm = (user: User | null) => {
       zipCode,
       currentPassword,
       newPassword,
-      confirmPassword
+      confirmPassword,
+      licensePlate,
+      trailerPlate,
+      anttCode,
+      vehicleYear,
+      vehicleModel,
+      vehicleType,
+      bodyType
     },
     setters: {
       setName,
@@ -73,7 +107,14 @@ export const useProfileForm = (user: User | null) => {
       setZipCode,
       setCurrentPassword,
       setNewPassword,
-      setConfirmPassword
+      setConfirmPassword,
+      setLicensePlate,
+      setTrailerPlate,
+      setAnttCode,
+      setVehicleYear,
+      setVehicleModel,
+      setVehicleType,
+      setBodyType
     }
   };
 };

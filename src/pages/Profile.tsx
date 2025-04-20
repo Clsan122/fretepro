@@ -1,13 +1,13 @@
-
 import React from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, TruckIcon } from "lucide-react";
+import { User, Lock, Truck } from "lucide-react";
 import AccountInfoCard from "@/components/profile/AccountInfoCard";
 import PersonalInfoCard from "@/components/profile/PersonalInfoCard";
 import AddressCard from "@/components/profile/AddressCard";
 import PasswordCard from "@/components/profile/PasswordCard";
+import TruckInfoCard from "@/components/profile/TruckInfoCard";
 import { useProfileForm } from "@/components/profile/hooks/useProfileForm";
 import { useProfileActions } from "@/components/profile/hooks/useProfileActions";
 
@@ -43,8 +43,8 @@ const Profile: React.FC = () => {
               <span className="md:hidden">Pessoais</span>
             </TabsTrigger>
             <TabsTrigger value="company" className="flex items-center gap-2">
-              <TruckIcon className="h-4 w-4" />
-              <span className="hidden md:inline">Empresa e Endereço</span>
+              <Truck className="h-4 w-4" />
+              <span className="hidden md:inline">Empresa e Veículo</span>
               <span className="md:hidden">Empresa</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
@@ -88,35 +88,67 @@ const Profile: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="company">
-            <AddressCard
-              address={formData.address}
-              city={formData.city}
-              state={formData.state}
-              zipCode={formData.zipCode}
-              companyName={formData.companyName}
-              cnpj={formData.cnpj}
-              companyLogo={formData.companyLogo}
-              setAddress={setters.setAddress}
-              setCity={setters.setCity}
-              setState={setters.setState}
-              setZipCode={setters.setZipCode}
-              setCompanyName={setters.setCompanyName}
-              setCnpj={setters.setCnpj}
-              setCompanyLogo={setters.setCompanyLogo}
-              handleUpdateProfile={(e) => {
-                e.preventDefault();
-                handleUpdateProfile({
-                  ...user,
-                  companyName: formData.companyName,
-                  cnpj: formData.cnpj,
-                  companyLogo: formData.companyLogo,
-                  address: formData.address,
-                  city: formData.city,
-                  state: formData.state,
-                  zipCode: formData.zipCode,
-                });
-              }}
-            />
+            <div className="space-y-6">
+              <AddressCard
+                address={formData.address}
+                city={formData.city}
+                state={formData.state}
+                zipCode={formData.zipCode}
+                companyName={formData.companyName}
+                cnpj={formData.cnpj}
+                companyLogo={formData.companyLogo}
+                setAddress={setters.setAddress}
+                setCity={setters.setCity}
+                setState={setters.setState}
+                setZipCode={setters.setZipCode}
+                setCompanyName={setters.setCompanyName}
+                setCnpj={setters.setCnpj}
+                setCompanyLogo={setters.setCompanyLogo}
+                handleUpdateProfile={(e) => {
+                  e.preventDefault();
+                  handleUpdateProfile({
+                    ...user,
+                    companyName: formData.companyName,
+                    cnpj: formData.cnpj,
+                    companyLogo: formData.companyLogo,
+                    address: formData.address,
+                    city: formData.city,
+                    state: formData.state,
+                    zipCode: formData.zipCode,
+                  });
+                }}
+              />
+              
+              <TruckInfoCard
+                licensePlate={formData.licensePlate}
+                trailerPlate={formData.trailerPlate}
+                anttCode={formData.anttCode}
+                vehicleYear={formData.vehicleYear}
+                vehicleModel={formData.vehicleModel}
+                vehicleType={formData.vehicleType}
+                bodyType={formData.bodyType}
+                setLicensePlate={setters.setLicensePlate}
+                setTrailerPlate={setters.setTrailerPlate}
+                setAnttCode={setters.setAnttCode}
+                setVehicleYear={setters.setVehicleYear}
+                setVehicleModel={setters.setVehicleModel}
+                setVehicleType={setters.setVehicleType}
+                setBodyType={setters.setBodyType}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleUpdateProfile({
+                    ...user,
+                    licensePlate: formData.licensePlate,
+                    trailerPlate: formData.trailerPlate,
+                    anttCode: formData.anttCode,
+                    vehicleYear: formData.vehicleYear,
+                    vehicleModel: formData.vehicleModel,
+                    vehicleType: formData.vehicleType,
+                    bodyType: formData.bodyType,
+                  });
+                }}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="security">

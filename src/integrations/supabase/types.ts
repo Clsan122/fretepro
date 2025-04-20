@@ -9,7 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      truck_loving_info: {
+        Row: {
+          antt_code: string | null
+          body_type: string | null
+          created_at: string | null
+          id: string
+          license_plate: string | null
+          trailer_plate: string | null
+          updated_at: string | null
+          user_id: string | null
+          vehicle_model: string | null
+          vehicle_type: string | null
+          vehicle_year: string | null
+        }
+        Insert: {
+          antt_code?: string | null
+          body_type?: string | null
+          created_at?: string | null
+          id?: string
+          license_plate?: string | null
+          trailer_plate?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          vehicle_model?: string | null
+          vehicle_type?: string | null
+          vehicle_year?: string | null
+        }
+        Update: {
+          antt_code?: string | null
+          body_type?: string | null
+          created_at?: string | null
+          id?: string
+          license_plate?: string | null
+          trailer_plate?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          vehicle_model?: string | null
+          vehicle_type?: string | null
+          vehicle_year?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileData } from "../types";
 import { useToast } from "@/hooks/use-toast";
@@ -55,6 +54,34 @@ export const useProfileActions = (setUser: (user: any) => void) => {
         variant: "destructive",
       });
     }
+
+    // Update truck information
+    try {
+      const { error: truckError } = await supabase
+        .from('truck_loving_info')
+        .upsert({
+          user_id: userData.id,
+          license_plate: userData.licensePlate,
+          trailer_plate: userData.trailerPlate,
+          antt_code: userData.anttCode,
+          vehicle_year: userData.vehicleYear,
+          vehicle_model: userData.vehicleModel,
+          vehicle_type: userData.vehicleType,
+          body_type: userData.bodyType,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (truckError) throw truckError;
+    } catch (error: any) {
+      console.error("Error updating truck info:", error);
+      toast({
+        title: "Erro ao atualizar informações do veículo",
+        description: error.message || "Não foi possível atualizar as informações do veículo.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleChangePassword = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
@@ -92,6 +119,6 @@ export const useProfileActions = (setUser: (user: any) => void) => {
 
   return {
     handleUpdateProfile,
-    handleChangePassword
+    handleChangePassword,
   };
 };
