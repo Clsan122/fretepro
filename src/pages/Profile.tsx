@@ -156,7 +156,7 @@ const Profile: React.FC = () => {
     
     try {
       if (supabase) {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('profiles')
           .upsert({
             id: user.id,
@@ -172,7 +172,7 @@ const Profile: React.FC = () => {
             pix_key: pixKey,
             avatar_url: avatar,
             company_logo: companyLogo
-          }, { onConflict: 'id' });
+          } as any, { onConflict: 'id' });
           
         if (error) throw error;
       }
