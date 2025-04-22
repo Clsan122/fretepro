@@ -12,19 +12,26 @@ export const PrintStyles: React.FC = () => {
         }
         
         body {
+          font-family: Arial, Helvetica, sans-serif !important;
           font-size: 11px !important;
           background-color: white !important;
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
+
+        .print-container {
+          max-width: 800px !important;
+          margin: 0 auto !important;
+          padding: 0 !important;
+        }
         
         .card-compact .card-header {
-          padding: 8px !important;
+          padding: 6px !important;
         }
         
         .card-compact .card-content {
-          padding: 8px !important;
+          padding: 6px !important;
         }
         
         .print-no-margin {
@@ -40,7 +47,7 @@ export const PrintStyles: React.FC = () => {
         }
         
         .print-compact-grid {
-          gap: 4px !important;
+          gap: 2px !important;
         }
         
         .print-hidden {
@@ -70,10 +77,12 @@ export const PrintStyles: React.FC = () => {
           width: 210mm !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 5mm !important;
+          padding: 6mm !important;
           margin: 0 auto !important;
           border: none !important;
           page-break-inside: avoid !important;
+          font-family: Arial, Helvetica, sans-serif !important;
+          font-size: 11px !important;
         }
         
         .layout-main {
@@ -103,7 +112,7 @@ export const PrintStyles: React.FC = () => {
         
         table td, table th {
           border: 1px solid #ddd !important;
-          padding: 3px !important;
+          padding: 2px 3px !important;
           font-size: 9px !important;
         }
         
@@ -117,7 +126,7 @@ export const PrintStyles: React.FC = () => {
         }
         
         .divider {
-          margin: 3px 0 !important;
+          margin: 2px 0 !important;
           border-color: #ddd !important;
         }
         

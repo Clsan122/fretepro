@@ -1,20 +1,27 @@
 
 import React from "react";
+import { IssuerHeaderDetails } from "./IssuerHeaderDetails";
+import { Client, User } from "@/types";
 
 interface OrderHeaderProps {
   companyLogo?: string;
   createdAt: string;
   clientName?: string;
   clientLogo?: string;
+  issuer?: User | Client | null;
 }
 
 export const OrderHeader: React.FC<OrderHeaderProps> = ({
   clientLogo,
   createdAt,
   clientName,
+  issuer,
 }) => {
   return (
     <div className="mb-3 print:mb-2">
+      {/* Exibe informações do emissor acima do título */}
+      {issuer && <IssuerHeaderDetails issuer={issuer} />}
+
       {clientLogo && (
         <div className="flex justify-center mb-2">
           <img

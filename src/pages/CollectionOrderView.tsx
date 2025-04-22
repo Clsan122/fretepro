@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,11 +12,13 @@ import { OrderContent } from "@/components/collectionOrder/view/OrderContent";
 import { PrintStyles } from "@/components/collectionOrder/view/PrintStyles";
 import { useCollectionOrderPdf } from "@/hooks/useCollectionOrderPdf";
 import { v4 as uuidv4 } from "uuid";
+import { IssuerHeaderDetails } from "@/components/collectionOrder/view/IssuerHeaderDetails";
 
 const CollectionOrderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<CollectionOrder | null>(null);
   const [client, setClient] = useState<Client | null>(null);
+  const [issuer, setIssuer] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
@@ -28,15 +29,28 @@ const CollectionOrderView: React.FC = () => {
       const collectionOrder = getCollectionOrderById(id);
       if (collectionOrder) {
         setOrder(collectionOrder);
-        
+
+        // Try to find issuer (user or client) by ID
+        if (collectionOrder.issuerId) {
+          // Procure por um client
+          const clients = JSON.parse(localStorage.getItem("clients") || "[]");
+          const matchingClient = clients.find((c: Client) => c.id === collectionOrder.issuerId);
+          if (matchingClient) {
+            setIssuer(matchingClient);
+          } else {
+            // É o usuário dono da ordem
+            const users = JSON.parse(localStorage.getItem("users") || "[]");
+            const emissionUser = users.find((u: any) => u.id === collectionOrder.issuerId);
+            setIssuer(emissionUser || null);
+          }
+        }
+
         // Try to find client by matching recipient name with client name
         if (collectionOrder.recipient) {
-          // Get all clients and check if any match the recipient name
           const clients = JSON.parse(localStorage.getItem("clients") || "[]");
           const matchingClient = clients.find((c: Client) => 
             c.name.toLowerCase() === collectionOrder.recipient.toLowerCase()
           );
-          
           if (matchingClient) {
             setClient(matchingClient);
           }
@@ -159,6 +173,7 @@ const CollectionOrderView: React.FC = () => {
             clientLogo={client?.logo}
             clientName={client?.name || order.recipient}
             createdAt={createdAt}
+            issuer={issuer}
           />
           
           <OrderContent order={order} />

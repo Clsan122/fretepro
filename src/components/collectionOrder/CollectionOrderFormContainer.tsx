@@ -74,8 +74,13 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     onSave(newOrder as CollectionOrder);
   };
 
+  // Trocar/remover logo da empresa
+  const handleRemoveLogo = () => {
+    setters.setCompanyLogo("");
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
       <CompanyLogoSection 
         companyLogo={formData.companyLogo} 
         handleLogoUpload={(e) => {
@@ -88,6 +93,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
             reader.readAsDataURL(file);
           }
         }}
+        handleRemoveLogo={handleRemoveLogo}
         selectedIssuerId={formData.selectedIssuerId}
         onIssuerChange={setters.setSelectedIssuerId}
       />
