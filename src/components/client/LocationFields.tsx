@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ClientFormData } from "@/types/client";
+import { CityAutocomplete } from "@/components/common/CityAutocomplete";
 
 interface LocationFieldsProps {
   register: UseFormRegister<ClientFormData>;
@@ -30,7 +31,19 @@ export const LocationFields: React.FC<LocationFieldsProps> = ({
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
         <Label htmlFor="city">Cidade</Label>
-        <Input id="city" {...register("city")} />
+        <CityAutocomplete
+          stateAbbreviation={watchedState}
+          value={""} // work with react-hook-form below
+          onChange={(value) => register("city", { value })}
+          placeholder="Selecione ou digite a cidade"
+          autoComplete="address-level2"
+        />
+        <Input
+          id="city"
+          style={{ display: "none" }}
+          {...register("city")}
+          autoComplete="address-level2"
+        />
         {errors.city && (
           <p className="text-sm text-red-500">{errors.city.message}</p>
         )}

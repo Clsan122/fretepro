@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { BRAZILIAN_STATES } from "@/utils/constants";
-import { getBrazilianCities } from "@/utils/cities";
 import {
   Card,
   CardContent,
@@ -18,21 +17,8 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { CityAutocomplete } from "@/components/common/CityAutocomplete";
 
 interface LocationsProps {
   originCity: string;
@@ -63,33 +49,10 @@ export const LocationsSection: React.FC<LocationsProps> = ({
   receiverAddress,
   setReceiverAddress
 }) => {
-  const [originCities, setOriginCities] = useState<string[]>([]);
-  const [destinationCities, setDestinationCities] = useState<string[]>([]);
-  const [originCityOpen, setOriginCityOpen] = useState(false);
-  const [destinationCityOpen, setDestinationCityOpen] = useState(false);
-
   const stateOptions = [
     { abbreviation: "EX", name: "Exterior (Exportação)" },
     ...BRAZILIAN_STATES
   ];
-  
-  useEffect(() => {
-    if (originState && originState !== "EX") {
-      const cities = getBrazilianCities(originState);
-      setOriginCities(cities);
-    } else {
-      setOriginCities([]);
-    }
-  }, [originState]);
-  
-  useEffect(() => {
-    if (destinationState && destinationState !== "EX") {
-      const cities = getBrazilianCities(destinationState);
-      setDestinationCities(cities);
-    } else {
-      setDestinationCities([]);
-    }
-  }, [destinationState]);
 
   return (
     <Card>
@@ -126,55 +89,13 @@ export const LocationsSection: React.FC<LocationsProps> = ({
 
               <div className="sm:col-span-2 space-y-2">
                 <Label htmlFor="originCity">Cidade</Label>
-                {originState === "EX" ? (
-                  <Input
-                    id="originCity"
-                    value={originCity}
-                    onChange={(e) => setOriginCity(e.target.value)}
-                    placeholder="Cidade de origem"
-                  />
-                ) : (
-                  <Popover open={originCityOpen} onOpenChange={setOriginCityOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={originCityOpen}
-                        className="w-full justify-between"
-                        disabled={!originState || originState === "EX"}
-                      >
-                        {originCity || "Selecione a cidade..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Buscar cidade..." />
-                        <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
-                        <CommandGroup className="max-h-64 overflow-y-auto">
-                          {originCities.map((city) => (
-                            <CommandItem
-                              key={city}
-                              value={city}
-                              onSelect={(currentValue) => {
-                                setOriginCity(currentValue);
-                                setOriginCityOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  originCity === city ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {city}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                )}
+                <CityAutocomplete
+                  stateAbbreviation={originState}
+                  value={originCity}
+                  onChange={setOriginCity}
+                  placeholder="Digite ou selecione a cidade de origem..."
+                  autoComplete="address-level2"
+                />
               </div>
             </div>
           </div>
@@ -206,55 +127,13 @@ export const LocationsSection: React.FC<LocationsProps> = ({
 
               <div className="sm:col-span-2 space-y-2">
                 <Label htmlFor="destinationCity">Cidade</Label>
-                {destinationState === "EX" ? (
-                  <Input
-                    id="destinationCity"
-                    value={destinationCity}
-                    onChange={(e) => setDestinationCity(e.target.value)}
-                    placeholder="Cidade de destino"
-                  />
-                ) : (
-                  <Popover open={destinationCityOpen} onOpenChange={setDestinationCityOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={destinationCityOpen}
-                        className="w-full justify-between"
-                        disabled={!destinationState || destinationState === "EX"}
-                      >
-                        {destinationCity || "Selecione a cidade..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Buscar cidade..." />
-                        <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
-                        <CommandGroup className="max-h-64 overflow-y-auto">
-                          {destinationCities.map((city) => (
-                            <CommandItem
-                              key={city}
-                              value={city}
-                              onSelect={(currentValue) => {
-                                setDestinationCity(currentValue);
-                                setDestinationCityOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  destinationCity === city ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {city}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                )}
+                <CityAutocomplete
+                  stateAbbreviation={destinationState}
+                  value={destinationCity}
+                  onChange={setDestinationCity}
+                  placeholder="Digite ou selecione a cidade de destino..."
+                  autoComplete="address-level2"
+                />
               </div>
             </div>
           </div>
@@ -268,6 +147,7 @@ export const LocationsSection: React.FC<LocationsProps> = ({
               value={receiver}
               onChange={(e) => setReceiver(e.target.value)}
               placeholder="Nome de quem vai receber a mercadoria no destino"
+              autoComplete="name"
             />
           </div>
           
@@ -278,6 +158,7 @@ export const LocationsSection: React.FC<LocationsProps> = ({
               value={receiverAddress}
               onChange={(e) => setReceiverAddress(e.target.value)}
               placeholder="Endereço completo do destinatário"
+              autoComplete="street-address"
             />
           </div>
         </div>
