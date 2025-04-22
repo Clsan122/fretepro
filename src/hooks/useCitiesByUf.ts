@@ -19,12 +19,12 @@ export const useCitiesByUf = (uf: string) => {
     setLoading(true);
     setError(null);
     try {
-      // ath API (request for dados-abertos-br and fallback to gov)
-      const url = `https://brasilapi.com.br/api/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov`;
+      // Usar todos os providers requisitados (incluindo wikipedia)
+      const url = `https://brasilapi.com.br/api/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`;
       const response = await fetch(url);
       const data = await response.json();
       if (Array.isArray(data)) {
-        // Sort alphabetically by name (A-Z)
+        // Ordenar alfabeticamente pelo nome
         const sorted = data
           .map((item) => ({
             nome: item.nome,
