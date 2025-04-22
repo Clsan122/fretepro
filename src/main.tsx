@@ -4,10 +4,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Ensure React is available in the global scope for debugging
-window.React = React;
-
-createRoot(document.getElementById("root")!).render(
+// Renderizando a aplicação
+const root = createRoot(document.getElementById("root")!);
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
@@ -19,13 +18,11 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
     navigator.serviceWorker
       .register('/sw.js')
       .then((registration) => {
-        // Atualização automática
         registration.onupdatefound = () => {
           const installingWorker = registration.installing;
           if (installingWorker) {
             installingWorker.onstatechange = () => {
               if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Usuário pode ser avisado para atualizar a página
                 console.log('Novo conteúdo disponível; recarregue a página.');
               }
             };

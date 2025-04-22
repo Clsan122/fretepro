@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { UseFormRegister, FieldErrors, Controller, Control } from "react-hook-form";
+import { UseFormRegister, FieldErrors, Control } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -31,7 +32,11 @@ export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({
   const handleBuscarCNPJ = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!setValue) return;
-    const cnpjValue = (document.getElementById("cnpj") as HTMLInputElement)?.value.replace(/\D/g, "");
+    
+    const cnpjInput = document.getElementById("cnpj") as HTMLInputElement;
+    if (!cnpjInput) return;
+    
+    const cnpjValue = cnpjInput.value.replace(/\D/g, "");
     if (!cnpjValue || cnpjValue.length !== 14) {
       toast({
         title: "CNPJ inválido",
@@ -40,28 +45,32 @@ export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({
       });
       return;
     }
+    
     setIsFetching(true);
     try {
       const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjValue}`);
       if (!res.ok) throw new Error("CNPJ não encontrado");
+      
       const data = await res.json();
       setValue("name", data.razao_social || "");
       setValue("address", [data.logradouro, data.numero, data.bairro, data.municipio].filter(Boolean).join(", "));
       setValue("city", data.municipio || "");
       setValue("state", data.uf || "");
       setValue("phone", data.ddd_telefone_1 || data.ddd_telefone_2 || "");
+      
       toast({
         title: "Dados encontrados!",
         description: "Os campos foram preenchidos automaticamente.",
       });
-    } catch {
+    } catch (error) {
       toast({
         title: "CNPJ não encontrado",
         description: "Não foi possível buscar dados para este CNPJ.",
         variant: "destructive",
       });
+    } finally {
+      setIsFetching(false);
     }
-    setIsFetching(false);
   };
 
   return (
@@ -104,7 +113,7 @@ export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({
               variant="outline"
               onClick={handleBuscarCNPJ}
               disabled={isFetching}
-              className="shrink-0"
+              className="whitespace-nowrap"
             >
               {isFetching ? "Buscando..." : "Buscar"}
             </Button>
@@ -140,9 +149,7 @@ export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({
               <p className="text-sm text-red-500">{errors.cpf.message}</p>
             )}
           </>
-        ) : (
-          <></>
-        )}
+        ) : null}
       </div>
 
       <div className="space-y-2">

@@ -41,18 +41,20 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
-// New wrapper to perform a redirect to "/" if not at "/"
-const RedirectIfNotRoot: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// Componente para garantir redirecionamento para "/" após refresh
+const RedirectWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    // Se não está na raiz, faz o redirect para "/"
-    if (location.pathname !== "/") {
+    // Executa apenas na montagem inicial do componente
+    if (location.pathname !== "/" && !location.pathname.startsWith("/login") && 
+        !location.pathname.startsWith("/register") && 
+        !location.pathname.startsWith("/forgot-password") && 
+        !location.pathname.startsWith("/reset-password")) {
       navigate("/", { replace: true });
     }
-    // Só roda na primeira montagem para evitar loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{children}</>;
@@ -62,7 +64,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <RedirectIfNotRoot>
+        <RedirectWrapper>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -199,7 +201,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
-        </RedirectIfNotRoot>
+        </RedirectWrapper>
       </AuthProvider>
     </BrowserRouter>
   );
