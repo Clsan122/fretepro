@@ -1,23 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { BRAZILIAN_STATES } from "@/utils/constants";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { CitySelectAutocomplete } from "@/components/common/CitySelectAutocomplete";
 
 interface OriginLocationFieldsProps {
   originCity: string;
@@ -32,40 +20,6 @@ export const OriginLocationFields: React.FC<OriginLocationFieldsProps> = ({
   originState,
   setOriginState,
 }) => {
-  const [originCities, setOriginCities] = useState<string[]>([]);
-  const [originOpen, setOriginOpen] = useState(false);
-  const [originFilter, setOriginFilter] = useState("");
-
-  useEffect(() => {
-    if (originState === 'EX') {
-      setOriginCities([]);
-    } else if (originState) {
-      // Call the ath API when a UF is selected
-      fetch(`https://brasilapi.com.br/api/ibge/municipios/v1/${originState}`)
-        .then(res => res.json())
-        .then(res => {
-          if (Array.isArray(res)) {
-            setOriginCities(res.map((c) => c.nome).sort((a, b) => a.localeCompare(b, "pt-BR")));
-          } else {
-            setOriginCities([]);
-          }
-        })
-        .catch(() => setOriginCities([]));
-    } else {
-      setOriginCities([]);
-    }
-  }, [originState]);
-
-  const getFilteredOriginCities = () => {
-    if (!originFilter.trim()) return originCities;
-    return originCities.filter(city => city.toLowerCase().includes(originFilter.toLowerCase()));
-  };
-
-  const handleOriginCitySelect = (city: string) => {
-    setOriginCity(city);
-    setOriginOpen(false);
-  };
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -94,57 +48,13 @@ export const OriginLocationFields: React.FC<OriginLocationFieldsProps> = ({
         <Label htmlFor="originCity">
           {originState === 'EX' ? 'País de Origem' : 'Cidade de Origem'}
         </Label>
-        {originState === 'EX' ? (
-          <Input
-            id="originCity"
-            value={originCity}
-            onChange={(e) => setOriginCity(e.target.value)}
-            placeholder="Digite o país de origem"
-          />
-        ) : (
-          <Popover open={originOpen} onOpenChange={setOriginOpen}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                role="combobox" 
-                aria-expanded={originOpen}
-                className="w-full justify-between"
-                disabled={!originState}
-              >
-                {originCity || "Selecione a cidade"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0" align="start">
-              <div className="p-2">
-                <Input
-                  placeholder="Buscar cidade..."
-                  value={originFilter}
-                  onChange={(e) => setOriginFilter(e.target.value)}
-                  className="mb-2"
-                />
-              </div>
-              <ScrollArea className="h-[200px]">
-                {getFilteredOriginCities().length > 0 ? (
-                  getFilteredOriginCities().map((city) => (
-                    <Button
-                      key={city}
-                      variant="ghost"
-                      className="w-full justify-start text-left"
-                      onClick={() => handleOriginCitySelect(city)}
-                    >
-                      {city === originCity && <Check className="mr-2 h-4 w-4" />}
-                      {city}
-                    </Button>
-                  ))
-                ) : (
-                  <div className="p-2 text-center text-sm text-muted-foreground">
-                    Nenhuma cidade encontrada
-                  </div>
-                )}
-              </ScrollArea>
-            </PopoverContent>
-          </Popover>
-        )}
+        <CitySelectAutocomplete
+          uf={originState}
+          value={originCity}
+          onChange={setOriginCity}
+          placeholder={originState === 'EX' ? "Digite o país de origem" : "Selecione a cidade"}
+          id="originCity"
+        />
       </div>
     </div>
   );

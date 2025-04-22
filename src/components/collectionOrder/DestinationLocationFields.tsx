@@ -1,23 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { BRAZILIAN_STATES } from "@/utils/constants";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { CitySelectAutocomplete } from "@/components/common/CitySelectAutocomplete";
 
 interface DestinationLocationFieldsProps {
   destinationCity: string;
@@ -32,39 +20,6 @@ export const DestinationLocationFields: React.FC<DestinationLocationFieldsProps>
   destinationState,
   setDestinationState,
 }) => {
-  const [destinationCities, setDestinationCities] = useState<string[]>([]);
-  const [destinationOpen, setDestinationOpen] = useState(false);
-  const [destinationFilter, setDestinationFilter] = useState("");
-
-  useEffect(() => {
-    if (destinationState === 'EX') {
-      setDestinationCities([]);
-    } else if (destinationState) {
-      fetch(`https://brasilapi.com.br/api/ibge/municipios/v1/${destinationState}`)
-        .then(res => res.json())
-        .then(res => {
-          if (Array.isArray(res)) {
-            setDestinationCities(res.map((c) => c.nome).sort((a, b) => a.localeCompare(b, "pt-BR")));
-          } else {
-            setDestinationCities([]);
-          }
-        })
-        .catch(() => setDestinationCities([]));
-    } else {
-      setDestinationCities([]);
-    }
-  }, [destinationState]);
-
-  const getFilteredDestinationCities = () => {
-    if (!destinationFilter.trim()) return destinationCities;
-    return destinationCities.filter(city => city.toLowerCase().includes(destinationFilter.toLowerCase()));
-  };
-
-  const handleDestinationCitySelect = (city: string) => {
-    setDestinationCity(city);
-    setDestinationOpen(false);
-  };
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -89,62 +44,17 @@ export const DestinationLocationFields: React.FC<DestinationLocationFieldsProps>
           </SelectContent>
         </Select>
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="destinationCity">
           {destinationState === 'EX' ? 'País de Destino' : 'Cidade de Destino'}
         </Label>
-        {destinationState === 'EX' ? (
-          <Input
-            id="destinationCity"
-            value={destinationCity}
-            onChange={(e) => setDestinationCity(e.target.value)}
-            placeholder="Digite o país de destino"
-          />
-        ) : (
-          <Popover open={destinationOpen} onOpenChange={setDestinationOpen}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                role="combobox" 
-                aria-expanded={destinationOpen}
-                className="w-full justify-between"
-                disabled={!destinationState}
-              >
-                {destinationCity || "Selecione a cidade"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0" align="start">
-              <div className="p-2">
-                <Input
-                  placeholder="Buscar cidade..."
-                  value={destinationFilter}
-                  onChange={(e) => setDestinationFilter(e.target.value)}
-                  className="mb-2"
-                />
-              </div>
-              <ScrollArea className="h-[200px]">
-                {getFilteredDestinationCities().length > 0 ? (
-                  getFilteredDestinationCities().map((city) => (
-                    <Button
-                      key={city}
-                      variant="ghost"
-                      className="w-full justify-start text-left"
-                      onClick={() => handleDestinationCitySelect(city)}
-                    >
-                      {city === destinationCity && <Check className="mr-2 h-4 w-4" />}
-                      {city}
-                    </Button>
-                  ))
-                ) : (
-                  <div className="p-2 text-center text-sm text-muted-foreground">
-                    Nenhuma cidade encontrada
-                  </div>
-                )}
-              </ScrollArea>
-            </PopoverContent>
-          </Popover>
-        )}
+        <CitySelectAutocomplete
+          uf={destinationState}
+          value={destinationCity}
+          onChange={setDestinationCity}
+          placeholder={destinationState === 'EX' ? "Digite o país de destino" : "Selecione a cidade"}
+          id="destinationCity"
+        />
       </div>
     </div>
   );

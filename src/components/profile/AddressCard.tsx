@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { AddressCardProps } from "./types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CitySelectAutocomplete } from "@/components/common/CitySelectAutocomplete";
 
 const AddressCard: React.FC<AddressCardProps> = ({
   address,
@@ -123,10 +123,12 @@ const AddressCard: React.FC<AddressCardProps> = ({
             <Label htmlFor="city">Cidade</Label>
             <div className="flex items-center space-x-2">
               <Building className="h-4 w-4 text-muted-foreground" />
-              <Input
-                id="city"
+              <CitySelectAutocomplete
+                uf={state}
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
+                onChange={setCity}
+                placeholder="Selecione a cidade"
+                id="city"
               />
             </div>
           </div>
