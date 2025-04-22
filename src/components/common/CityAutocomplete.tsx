@@ -32,7 +32,9 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
 
   const cities = useMemo(() => {
     if (!stateAbbreviation || stateAbbreviation === 'EX') return [];
-    return BRAZILIAN_CITIES[stateAbbreviation] || [];
+    // Get cities from data and sort them alphabetically
+    const stateCities = BRAZILIAN_CITIES[stateAbbreviation] || [];
+    return [...stateCities].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   }, [stateAbbreviation]);
 
   // Filtrar cidades conforme busca do usuário
