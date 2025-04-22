@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -77,7 +76,6 @@ const ClientForm: React.FC<ClientFormProps> = ({
       setLogo(initialData.logo);
     }
     
-    // Set person type based on whether CNPJ is present
     if (initialData?.cnpj) {
       setPersonType('legal');
       setValue("personType", "legal");
@@ -87,7 +85,6 @@ const ClientForm: React.FC<ClientFormProps> = ({
     }
   }, [initialData, setValue]);
 
-  // Update hidden input value when city changes
   useEffect(() => {
     if (watchedCity) {
       setValue("city", watchedCity);
@@ -116,10 +113,9 @@ const ClientForm: React.FC<ClientFormProps> = ({
 
   const handleSetState = (value: string) => {
     setValue("state", value);
-    // Clear city when state changes
     setWatchedCity("");
   };
-  
+
   const handlePersonTypeChange = (value: 'physical' | 'legal') => {
     setPersonType(value);
     setValue("personType", value);
@@ -152,6 +148,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
                 control={control}
                 personType={personType}
                 onPersonTypeChange={handlePersonTypeChange}
+                setValue={setValue}
               />
               <div className="md:col-span-2">
                 <LocationFields 

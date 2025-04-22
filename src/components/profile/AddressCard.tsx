@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+
+import React, { useRef, useState } from "react";
 import { AddressCardProps } from "./types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CitySelectAutocomplete } from "@/components/common/CitySelectAutocomplete";
+import { useToast } from "@/hooks/use-toast";
 
 const AddressCard: React.FC<AddressCardProps> = ({
   address,
@@ -34,17 +36,52 @@ const AddressCard: React.FC<AddressCardProps> = ({
   handleUpdateProfile,
 }) => {
   const logoFileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const [isFetching, setIsFetching] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Handle file upload
       const reader = new FileReader();
       reader.onloadend = () => {
         setCompanyLogo(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleBuscarCNPJ = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!cnpj || cnpj.replace(/\D/g, "").length !== 14) {
+      toast({
+        title: "CNPJ inválido",
+        description: "Digite um CNPJ válido para buscar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsFetching(true);
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj.replace(/\D/g, "")}`);
+      if (!res.ok) throw new Error("CNPJ não encontrado");
+      const data = await res.json();
+      setCompanyName(data.razao_social || "");
+      setAddress([data.logradouro, data.numero, data.bairro, data.municipio].filter(Boolean).join(", "));
+      setCity(data.municipio || "");
+      setState(data.uf || "");
+      setZipCode(data.cep || "");
+      toast({
+        title: "Dados encontrados!",
+        description: "Os campos foram preenchidos automaticamente.",
+      });
+    } catch {
+      toast({
+        title: "CNPJ não encontrado",
+        description: "Não foi possível buscar dados para este CNPJ.",
+        variant: "destructive",
+      });
+    }
+    setIsFetching(false);
   };
 
   return (
@@ -97,12 +134,24 @@ const AddressCard: React.FC<AddressCardProps> = ({
             
             <div className="space-y-2">
               <Label htmlFor="cnpj">CNPJ</Label>
-              <Input
-                id="cnpj"
-                value={cnpj}
-                onChange={(e) => setCnpj(e.target.value)}
-                placeholder="00.000.000/0000-00"
-              />
+              <div className="flex items-end gap-2">
+                <Input
+                  id="cnpj"
+                  value={cnpj}
+                  onChange={(e) => setCnpj(e.target.value)}
+                  placeholder="00.000.000/0000-00"
+                  maxLength={18}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mb-1"
+                  onClick={handleBuscarCNPJ}
+                  disabled={isFetching}
+                >
+                  {isFetching ? "Buscando..." : "Buscar CNPJ"}
+                </Button>
+              </div>
             </div>
           </div>
           
