@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Toaster } from "./components/ui/toaster";
 
@@ -41,146 +41,165 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
+// New wrapper to perform a redirect to "/" if not at "/"
+const RedirectIfNotRoot: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    // Se não está na raiz, faz o redirect para "/"
+    if (location.pathname !== "/") {
+      navigate("/", { replace: true });
+    }
+    // Só roda na primeira montagem para evitar loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/freights"
-            element={
-              <PrivateRoute>
-                <Freights />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/freight-selection"
-            element={
-              <PrivateRoute>
-                <FreightSelection />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/freight-receipt"
-            element={
-              <PrivateRoute>
-                <FreightReceipt />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/multi-freight-receipt"
-            element={
-              <PrivateRoute>
-                <MultiFreightReceipt />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/clients"
-            element={
-              <PrivateRoute>
-                <Clients />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/drivers"
-            element={
-              <PrivateRoute>
-                <Drivers />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/drivers/new"
-            element={
-              <PrivateRoute>
-                <DriverRegister />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/drivers/edit/:id"
-            element={
-              <PrivateRoute>
-                <DriverEdit />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/collection-orders"
-            element={
-              <PrivateRoute>
-                <CollectionOrders />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/collection-order/new"
-            element={
-              <PrivateRoute>
-                <CollectionOrder />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/collection-order/:id"
-            element={
-              <PrivateRoute>
-                <CollectionOrderView />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route
-            path="/collection-order/edit/:id"
-            element={
-              <PrivateRoute>
-                <CollectionOrderEdit />
-              </PrivateRoute>
-            }
-          />
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Toaster />
+        <RedirectIfNotRoot>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/freights"
+              element={
+                <PrivateRoute>
+                  <Freights />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/freight-selection"
+              element={
+                <PrivateRoute>
+                  <FreightSelection />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/freight-receipt"
+              element={
+                <PrivateRoute>
+                  <FreightReceipt />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/multi-freight-receipt"
+              element={
+                <PrivateRoute>
+                  <MultiFreightReceipt />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/clients"
+              element={
+                <PrivateRoute>
+                  <Clients />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/drivers"
+              element={
+                <PrivateRoute>
+                  <Drivers />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/drivers/new"
+              element={
+                <PrivateRoute>
+                  <DriverRegister />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/drivers/edit/:id"
+              element={
+                <PrivateRoute>
+                  <DriverEdit />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/collection-orders"
+              element={
+                <PrivateRoute>
+                  <CollectionOrders />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/collection-order/new"
+              element={
+                <PrivateRoute>
+                  <CollectionOrder />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/collection-order/:id"
+              element={
+                <PrivateRoute>
+                  <CollectionOrderView />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route
+              path="/collection-order/edit/:id"
+              element={
+                <PrivateRoute>
+                  <CollectionOrderEdit />
+                </PrivateRoute>
+              }
+            />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </RedirectIfNotRoot>
       </AuthProvider>
     </BrowserRouter>
   );
