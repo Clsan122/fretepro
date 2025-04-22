@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { AddressCardProps } from "./types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CitySelectAutocomplete } from "@/components/common/CitySelectAutocomplete";
 import { useToast } from "@/hooks/use-toast";
+import { formatCNPJ } from "@/utils/formatters";
 
 const AddressCard: React.FC<AddressCardProps> = ({
   address,
@@ -134,22 +134,26 @@ const AddressCard: React.FC<AddressCardProps> = ({
             
             <div className="space-y-2">
               <Label htmlFor="cnpj">CNPJ</Label>
-              <div className="flex items-end gap-2">
+              <div className="flex items-center space-x-2">
                 <Input
                   id="cnpj"
                   value={cnpj}
-                  onChange={(e) => setCnpj(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    setCnpj(formatCNPJ(value));
+                  }}
                   placeholder="00.000.000/0000-00"
                   maxLength={18}
+                  className="flex-grow"
                 />
                 <Button
                   type="button"
                   variant="outline"
-                  className="mb-1"
+                  className="shrink-0"
                   onClick={handleBuscarCNPJ}
                   disabled={isFetching}
                 >
-                  {isFetching ? "Buscando..." : "Buscar CNPJ"}
+                  {isFetching ? "Buscando..." : "Buscar"}
                 </Button>
               </div>
             </div>

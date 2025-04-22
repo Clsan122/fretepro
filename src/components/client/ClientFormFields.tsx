@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { UseFormRegister, FieldErrors, Controller, Control } from "react-hook-form";
 import { Label } from "@/components/ui/label";
@@ -84,6 +83,37 @@ export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({
           </div>
         </RadioGroup>
       </div>
+      
+      {personType === 'legal' && (
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="cnpj">CNPJ</Label>
+          <div className="flex items-center space-x-2">
+            <Input 
+              id="cnpj" 
+              {...register("cnpj")}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                e.target.value = formatCNPJ(value);
+              }}
+              placeholder="00.000.000/0000-00"
+              className="flex-grow"
+              maxLength={18}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBuscarCNPJ}
+              disabled={isFetching}
+              className="shrink-0"
+            >
+              {isFetching ? "Buscando..." : "Buscar"}
+            </Button>
+          </div>
+          {errors.cnpj && (
+            <p className="text-sm text-red-500">{errors.cnpj.message}</p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2 md:col-span-2">
         <Label htmlFor="name">Nome {personType === 'physical' ? 'Completo' : 'da Empresa'}</Label>
@@ -111,34 +141,7 @@ export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({
             )}
           </>
         ) : (
-          <div>
-            <div className="flex items-end gap-2">
-              <div className="flex-1">
-                <Label htmlFor="cnpj">CNPJ</Label>
-                <Input 
-                  id="cnpj" 
-                  {...register("cnpj")}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '');
-                    e.target.value = formatCNPJ(value);
-                  }}
-                  maxLength={18}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                className="mb-1"
-                onClick={handleBuscarCNPJ}
-                disabled={isFetching}
-              >
-                {isFetching ? "Buscando..." : "Buscar CNPJ"}
-              </Button>
-            </div>
-            {errors.cnpj && (
-              <p className="text-sm text-red-500">{errors.cnpj.message}</p>
-            )}
-          </div>
+          <></>
         )}
       </div>
 
@@ -168,4 +171,3 @@ export const ClientFormFields: React.FC<ClientFormFieldsProps> = ({
     </>
   );
 };
-
