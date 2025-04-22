@@ -47,6 +47,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
   const { user } = useAuth();
   const [logo, setLogo] = useState<string>("");
   const [personType, setPersonType] = useState<'physical' | 'legal'>('legal');
+  const [watchedCity, setWatchedCity] = useState<string>(initialData?.city || "");
 
   const {
     register,
@@ -86,6 +87,13 @@ const ClientForm: React.FC<ClientFormProps> = ({
     }
   }, [initialData, setValue]);
 
+  // Update hidden input value when city changes
+  useEffect(() => {
+    if (watchedCity) {
+      setValue("city", watchedCity);
+    }
+  }, [watchedCity, setValue]);
+
   const onSubmit = (data: FormData) => {
     if (!user) return;
 
@@ -108,6 +116,8 @@ const ClientForm: React.FC<ClientFormProps> = ({
 
   const handleSetState = (value: string) => {
     setValue("state", value);
+    // Clear city when state changes
+    setWatchedCity("");
   };
   
   const handlePersonTypeChange = (value: 'physical' | 'legal') => {
@@ -149,6 +159,8 @@ const ClientForm: React.FC<ClientFormProps> = ({
                   errors={errors}
                   watchedState={watchedState}
                   handleSetState={handleSetState}
+                  watchedCity={watchedCity}
+                  setWatchedCity={setWatchedCity}
                 />
               </div>
             </div>
