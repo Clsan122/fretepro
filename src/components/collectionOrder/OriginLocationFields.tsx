@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { BRAZILIAN_STATES } from "@/utils/constants";
-import { getBrazilianCities } from "@/utils/cities";
 import {
   Select,
   SelectContent,
@@ -41,8 +40,17 @@ export const OriginLocationFields: React.FC<OriginLocationFieldsProps> = ({
     if (originState === 'EX') {
       setOriginCities([]);
     } else if (originState) {
-      const cities = getBrazilianCities(originState);
-      setOriginCities(cities);
+      // Call the ath API when a UF is selected
+      fetch(`https://brasilapi.com.br/api/ibge/municipios/v1/${originState}`)
+        .then(res => res.json())
+        .then(res => {
+          if (Array.isArray(res)) {
+            setOriginCities(res.map((c) => c.nome).sort((a, b) => a.localeCompare(b, "pt-BR")));
+          } else {
+            setOriginCities([]);
+          }
+        })
+        .catch(() => setOriginCities([]));
     } else {
       setOriginCities([]);
     }
@@ -82,7 +90,6 @@ export const OriginLocationFields: React.FC<OriginLocationFieldsProps> = ({
           </SelectContent>
         </Select>
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="originCity">
           {originState === 'EX' ? 'País de Origem' : 'Cidade de Origem'}

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { BRAZILIAN_STATES } from "@/utils/constants";
-import { getBrazilianCities } from "@/utils/cities";
 import {
   Select,
   SelectContent,
@@ -41,8 +40,16 @@ export const DestinationLocationFields: React.FC<DestinationLocationFieldsProps>
     if (destinationState === 'EX') {
       setDestinationCities([]);
     } else if (destinationState) {
-      const cities = getBrazilianCities(destinationState);
-      setDestinationCities(cities);
+      fetch(`https://brasilapi.com.br/api/ibge/municipios/v1/${destinationState}`)
+        .then(res => res.json())
+        .then(res => {
+          if (Array.isArray(res)) {
+            setDestinationCities(res.map((c) => c.nome).sort((a, b) => a.localeCompare(b, "pt-BR")));
+          } else {
+            setDestinationCities([]);
+          }
+        })
+        .catch(() => setDestinationCities([]));
     } else {
       setDestinationCities([]);
     }
