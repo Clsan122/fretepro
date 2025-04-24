@@ -1,9 +1,11 @@
+
 import React from "react";
 import { CollectionOrder } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
 import { generateOrderNumber } from "@/utils/orderNumber";
+import { Client } from "@/types";
 
 // Import form sections
 import { SenderRecipientSection } from "./SenderRecipientSection";
@@ -30,8 +32,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.sender || !formData.recipient || !formData.originCity || 
-        !formData.originState || !formData.destinationCity || !formData.destinationState) {
+    if (!formData.sender || !formData.recipient) {
       return;
     }
 
@@ -44,29 +45,58 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     const newOrder = {
       id: orderToEdit ? orderToEdit.id : uuidv4(),
       orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
+      
+      // Sender details
       sender: formData.sender,
       senderAddress: formData.senderAddress,
+      senderCity: formData.senderCity,
+      senderState: formData.senderState,
+      
+      // Recipient details
       recipient: formData.recipient,
       recipientAddress: formData.recipientAddress,
-      originCity: formData.originCity,
-      originState: formData.originState,
-      destinationCity: formData.destinationCity,
-      destinationState: formData.destinationState,
+      recipientCity: formData.recipientCity,
+      recipientState: formData.recipientState,
+      
+      // Shipper details
+      shipper: formData.shipper,
+      shipperAddress: formData.shipperAddress,
+      shipperCity: formData.shipperCity,
+      shipperState: formData.shipperState,
+      
+      // Receiver details
       receiver: formData.receiver,
       receiverAddress: formData.receiverAddress,
+      receiverCity: formData.receiverCity,
+      receiverState: formData.receiverState,
+      
+      // For backward compatibility
+      originCity: formData.senderCity,
+      originState: formData.senderState,
+      destinationCity: formData.recipientCity,
+      destinationState: formData.recipientState,
+      
+      // Cargo details
       volumes: formData.volumes,
       weight: formData.weight,
       measurements: formData.measurements,
       cubicMeasurement: formData.cubicMeasurement,
       merchandiseValue: formData.merchandiseValue,
+      
+      // Additional info
       invoiceNumber: formData.invoiceNumber,
       observations: formData.observations,
+      
+      // Driver info
       driverId: formData.driverId !== "none" ? formData.driverId : undefined,
       driverName: selectedDriver?.name,
       driverCpf: selectedDriver?.cpf,
       licensePlate: selectedDriver?.licensePlate,
-      companyLogo: formData.companyLogo,
-      issuerId: formData.selectedIssuerId,
+      
+      // Issuer info
+      issuerId: formData.issuerType === 'my-company' ? user.id : formData.selectedIssuerId,
+      
+      // System fields
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id
     };
@@ -74,23 +104,44 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     onSave(newOrder as CollectionOrder);
   };
 
+  const handleClientSelect = (type: 'sender' | 'recipient' | 'shipper' | 'receiver', client: Client) => {
+    if (!client) return;
+
+    switch (type) {
+      case 'sender':
+        setters.setSender(client.name);
+        setters.setSenderAddress(client.address || '');
+        setters.setSenderCity(client.city || '');
+        setters.setSenderState(client.state || '');
+        break;
+      case 'recipient':
+        setters.setRecipient(client.name);
+        setters.setRecipientAddress(client.address || '');
+        setters.setRecipientCity(client.city || '');
+        setters.setRecipientState(client.state || '');
+        break;
+      case 'shipper':
+        setters.setShipper(client.name);
+        setters.setShipperAddress(client.address || '');
+        setters.setShipperCity(client.city || '');
+        setters.setShipperState(client.state || '');
+        break;
+      case 'receiver':
+        setters.setReceiver(client.name);
+        setters.setReceiverAddress(client.address || '');
+        setters.setReceiverCity(client.city || '');
+        setters.setReceiverState(client.state || '');
+        break;
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
       <CompanyLogoSection
-        companyLogo={formData.companyLogo}
-        handleLogoUpload={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setters.setCompanyLogo(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-          }
-        }}
-        handleRemoveLogo={() => setters.setCompanyLogo("")}
         selectedIssuerId={formData.selectedIssuerId}
         onIssuerChange={setters.setSelectedIssuerId}
+        issuerType={formData.issuerType}
+        onIssuerTypeChange={setters.setIssuerType}
       />
 
       <SenderRecipientSection
@@ -98,21 +149,42 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setSender={setters.setSender}
         senderAddress={formData.senderAddress}
         setSenderAddress={setters.setSenderAddress}
+        senderCity={formData.senderCity}
+        setSenderCity={setters.setSenderCity}
+        senderState={formData.senderState}
+        setSenderState={setters.setSenderState}
+        
         recipient={formData.recipient}
         setRecipient={setters.setRecipient}
         recipientAddress={formData.recipientAddress}
         setRecipientAddress={setters.setRecipientAddress}
-        selectedSenderId={formData.selectedSenderId}
-        handleSenderClientChange={setters.handleSenderClientChange}
-        clients={formData.clients}
-        shipper={formData.shipper || ""}
-        setShipper={(value) => setters.setSender(value)}
-        shipperAddress={formData.shipperAddress || ""}
-        setShipperAddress={(value) => setters.setSenderAddress(value)}
+        recipientCity={formData.recipientCity}
+        setRecipientCity={setters.setRecipientCity}
+        recipientState={formData.recipientState}
+        setRecipientState={setters.setRecipientState}
+        
+        shipper={formData.shipper}
+        setShipper={setters.setShipper}
+        shipperAddress={formData.shipperAddress}
+        setShipperAddress={setters.setShipperAddress}
+        shipperCity={formData.shipperCity}
+        setShipperCity={setters.setShipperCity}
+        shipperState={formData.shipperState}
+        setShipperState={setters.setShipperState}
+        
         receiver={formData.receiver}
         setReceiver={setters.setReceiver}
         receiverAddress={formData.receiverAddress}
         setReceiverAddress={setters.setReceiverAddress}
+        receiverCity={formData.receiverCity}
+        setReceiverCity={setters.setRecipientCity}
+        receiverState={formData.receiverState}
+        setReceiverState={setters.setReceiverState}
+        
+        selectedSenderId={formData.selectedSenderId}
+        handleSenderClientChange={setters.handleSenderClientChange}
+        handleClientSelect={handleClientSelect}
+        clients={formData.clients}
       />
 
       <CargoSection

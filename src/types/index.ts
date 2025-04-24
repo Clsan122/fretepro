@@ -1,33 +1,60 @@
+
 export interface CollectionOrder {
   id: string;
-  orderNumber: string; // Added this field for auto-numbering
+  orderNumber: string;
+  
+  // Sender information
   sender: string;
   senderAddress: string;
+  senderCity?: string;
+  senderState?: string;
+  
+  // Recipient information
   recipient: string;
   recipientAddress: string;
+  recipientCity?: string;
+  recipientState?: string;
+  
+  // Legacy fields for backward compatibility
   originCity: string;
   originState: string;
   destinationCity: string;
   destinationState: string;
+  
+  // Shipper information (Local de Coleta)
+  shipper?: string;
+  shipperAddress?: string;
+  shipperCity?: string;
+  shipperState?: string;
+  
+  // Receiver information (Local de Entrega)
   receiver: string;
   receiverAddress: string;
+  receiverCity?: string;
+  receiverState?: string;
+  
+  // Cargo details
   volumes: number;
   weight: number;
   measurements: Measurement[];
   cubicMeasurement: number;
   merchandiseValue: number;
+  
+  // Additional details
   invoiceNumber: string;
   observations: string;
+  
+  // Driver information
   driverId?: string;
   driverName?: string;
   driverCpf?: string;
   licensePlate?: string;
-  companyLogo: string;
+  
+  // System fields
+  companyLogo?: string;
   issuerId: string;
   createdAt: string;
   userId: string;
-  shipper?: string;
-  shipperAddress?: string;
 }
 
 export interface Driver {
@@ -90,7 +117,7 @@ export interface User {
   role?: 'user' | 'admin';
   createdAt?: string;
   updatedAt?: string;
-  password?: string; // Add password as an optional property for registration
+  password?: string;
 }
 
 export interface Freight {
@@ -121,7 +148,7 @@ export interface Freight {
   startDate?: string;
   endDate?: string;
   
-  // Additional properties needed by FreightForm.tsx and other components
+  // Additional properties for expanded freight fields
   departureDate?: string;
   arrivalDate?: string;
   volumes?: number;
@@ -144,8 +171,22 @@ export interface Freight {
   accommodationExpenses?: number;
   totalExpenses?: number;
   netProfit?: number;
-  clientName?: string; // Add clientName property for CollectionOrderView
-  clientAddress?: string; // Add clientAddress property for CollectionOrderView
+  clientName?: string;
+  clientAddress?: string;
+  
+  // Additional location details (matching collection order)
+  senderCity?: string;
+  senderState?: string;
+  senderAddress?: string;
+  recipientCity?: string;
+  recipientState?: string;
+  recipientAddress?: string;
+  shipperCity?: string;
+  shipperState?: string;
+  shipperAddress?: string;
+  receiverCity?: string;
+  receiverState?: string;
+  receiverAddress?: string;
 }
 
 export interface FreightExpense {

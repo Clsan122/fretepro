@@ -12,23 +12,31 @@ interface UseCollectionOrderFormProps {
 export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormProps) => {
   const { user } = useAuth();
   
-  // Informações básicas
+  // Sender information
   const [sender, setSender] = useState(orderToEdit?.sender || "");
   const [senderAddress, setSenderAddress] = useState(orderToEdit?.senderAddress || "");
+  const [senderCity, setSenderCity] = useState(orderToEdit?.senderCity || orderToEdit?.originCity || "");
+  const [senderState, setSenderState] = useState(orderToEdit?.senderState || orderToEdit?.originState || "");
+  
+  // Recipient information
   const [recipient, setRecipient] = useState(orderToEdit?.recipient || "");
   const [recipientAddress, setRecipientAddress] = useState(orderToEdit?.recipientAddress || "");
-  const [originCity, setOriginCity] = useState(orderToEdit?.originCity || "");
-  const [originState, setOriginState] = useState(orderToEdit?.originState || "");
-  const [destinationCity, setDestinationCity] = useState(orderToEdit?.destinationCity || "");
-  const [destinationState, setDestinationState] = useState(orderToEdit?.destinationState || "");
-  const [receiver, setReceiver] = useState(orderToEdit?.receiver || "");
-  const [receiverAddress, setReceiverAddress] = useState(orderToEdit?.receiverAddress || "");
+  const [recipientCity, setRecipientCity] = useState(orderToEdit?.recipientCity || orderToEdit?.destinationCity || "");
+  const [recipientState, setRecipientState] = useState(orderToEdit?.recipientState || orderToEdit?.destinationState || "");
   
-  // Add the missing shipper and shipperAddress states
+  // Shipper information
   const [shipper, setShipper] = useState(orderToEdit?.shipper || "");
   const [shipperAddress, setShipperAddress] = useState(orderToEdit?.shipperAddress || "");
+  const [shipperCity, setShipperCity] = useState(orderToEdit?.shipperCity || "");
+  const [shipperState, setShipperState] = useState(orderToEdit?.shipperState || "");
   
-  // Informações da carga
+  // Receiver information
+  const [receiver, setReceiver] = useState(orderToEdit?.receiver || "");
+  const [receiverAddress, setReceiverAddress] = useState(orderToEdit?.receiverAddress || "");
+  const [receiverCity, setReceiverCity] = useState(orderToEdit?.receiverCity || "");
+  const [receiverState, setReceiverState] = useState(orderToEdit?.receiverState || "");
+  
+  // Cargo information
   const [volumes, setVolumes] = useState<number>(orderToEdit?.volumes || 0);
   const [weight, setWeight] = useState<number>(orderToEdit?.weight || 0);
   const [measurements, setMeasurements] = useState<Measurement[]>(
@@ -39,25 +47,23 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
   const [cubicMeasurement, setCubicMeasurement] = useState<number>(orderToEdit?.cubicMeasurement || 0);
   const [merchandiseValue, setMerchandiseValue] = useState<number>(orderToEdit?.merchandiseValue || 0);
   
-  // Informações adicionais
+  // Additional information
   const [invoiceNumber, setInvoiceNumber] = useState(orderToEdit?.invoiceNumber || "");
   const [observations, setObservations] = useState(orderToEdit?.observations || "");
   const [driverId, setDriverId] = useState<string>(orderToEdit?.driverId || "none");
   const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [companyLogo, setCompanyLogo] = useState<string>(orderToEdit?.companyLogo || "");
+  const [clients, setClients] = useState<Client[]>([]);
+
+  // Issuer information
   const [selectedIssuerId, setSelectedIssuerId] = useState<string>(
     orderToEdit?.issuerId || (user ? user.id : '')
   );
-  const [clients, setClients] = useState<Client[]>([]);
-
-  // Company/Client selection states
-  const [selectedSenderId, setSelectedSenderId] = useState<string>(
-    orderToEdit?.issuerId || (user ? user.id : 'none')
-  );
-  const [selectedSenderType, setSelectedSenderType] = useState<'my-company' | 'client'>(
+  const [issuerType, setIssuerType] = useState<'my-company' | 'client'>(
     orderToEdit?.issuerId === user?.id ? 'my-company' : 'client'
   );
-  const [senderLogo, setSenderLogo] = useState(orderToEdit?.companyLogo || user?.companyLogo || '');
+  
+  // Client selection
+  const [selectedSenderId, setSelectedSenderId] = useState<string>('none');
 
   // Load drivers and clients on mount
   useEffect(() => {
@@ -69,13 +75,14 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       setClients(userClients);
 
       // Set default sender as user's company if creating new order
-      if (!orderToEdit && selectedSenderType === 'my-company') {
+      if (!orderToEdit && issuerType === 'my-company') {
         setSender(user.companyName || '');
         setSenderAddress(user.address || '');
-        setSenderLogo(user.companyLogo || '');
+        setSenderCity(user.city || '');
+        setSenderState(user.state || '');
       }
     }
-  }, [user, selectedSenderType]);
+  }, [user, issuerType]);
 
   // Update cubic measurement when measurements change
   useEffect(() => {
@@ -113,17 +120,11 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
   };
 
   const handleSenderTypeChange = (type: 'my-company' | 'client') => {
-    setSelectedSenderType(type);
+    setIssuerType(type);
     if (type === 'my-company' && user) {
-      setSelectedSenderId(user.id);
-      setSender(user.companyName || '');
-      setSenderAddress(user.address || '');
-      setSenderLogo(user.companyLogo || '');
+      setSelectedIssuerId(user.id);
     } else {
-      setSelectedSenderId('none');
-      setSender('');
-      setSenderAddress('');
-      setSenderLogo('');
+      setSelectedIssuerId('none');
     }
   };
 
@@ -131,7 +132,8 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
     if (clientId === 'none') {
       setSender('');
       setSenderAddress('');
-      setSenderLogo('');
+      setSenderCity('');
+      setSenderState('');
       return;
     }
 
@@ -139,68 +141,87 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
     if (selectedClient) {
       setSender(selectedClient.name);
       setSenderAddress(selectedClient.address || '');
-      setSenderLogo(selectedClient.logo || '');
+      setSenderCity(selectedClient.city || '');
+      setSenderState(selectedClient.state || '');
       setSelectedSenderId(clientId);
     }
   };
 
   return {
     formData: {
+      // All the form data
       sender,
       senderAddress,
+      senderCity,
+      senderState,
+      
       recipient,
       recipientAddress,
-      originCity,
-      originState,
-      destinationCity,
-      destinationState,
+      recipientCity,
+      recipientState,
+      
+      shipper,
+      shipperAddress,
+      shipperCity,
+      shipperState,
+      
       receiver,
       receiverAddress,
+      receiverCity,
+      receiverState,
+      
       volumes,
       weight,
       measurements,
       cubicMeasurement,
       merchandiseValue,
+      
       invoiceNumber,
       observations,
       driverId,
       drivers,
-      companyLogo,
+      
       selectedIssuerId,
-      selectedSenderType,
+      issuerType,
       selectedSenderId,
-      senderLogo,
       clients,
-      // Include the missing properties
-      shipper,
-      shipperAddress
     },
     setters: {
+      // All the setters
       setSender,
       setSenderAddress,
+      setSenderCity,
+      setSenderState,
+      
       setRecipient,
       setRecipientAddress,
-      setOriginCity,
-      setOriginState,
-      setDestinationCity,
-      setDestinationState,
+      setRecipientCity,
+      setRecipientState,
+      
+      setShipper,
+      setShipperAddress,
+      setShipperCity,
+      setShipperState,
+      
       setReceiver,
       setReceiverAddress,
+      setReceiverCity,
+      setReceiverState,
+      
       setVolumes,
       setWeight,
       setMeasurements,
       setCubicMeasurement,
       setMerchandiseValue,
+      
       setInvoiceNumber,
       setObservations,
       setDriverId,
-      setCompanyLogo,
+      
       setSelectedIssuerId,
+      setIssuerType,
       handleSenderTypeChange,
       handleSenderClientChange,
-      // Include the missing setters
-      setShipper,
-      setShipperAddress
     },
     measurementHandlers: {
       handleMeasurementChange,
