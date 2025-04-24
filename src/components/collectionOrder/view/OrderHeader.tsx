@@ -9,6 +9,7 @@ interface OrderHeaderProps {
   clientName?: string;
   clientLogo?: string;
   issuer?: User | Client | null;
+  orderNumber?: string; // Added the missing orderNumber prop
 }
 
 export const OrderHeader: React.FC<OrderHeaderProps> = ({
