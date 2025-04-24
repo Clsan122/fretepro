@@ -153,28 +153,26 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
+  // Create a callback function to provide the print content
   const reactToPrintContent = useCallback(() => {
     return componentRef.current;
   }, []);
 
+  // Use useReactToPrint correctly
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
+    content: reactToPrintContent,
   });
 
-  const handlePrintWithContent = () => {
-    if (componentRef.current) {
-      handlePrint();
-    }
+  // Create wrapper functions to be used with button onClick events
+  const handlePrintButtonClick = () => {
+    handlePrint();
   };
 
-  const handlePrintButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    handlePrintWithContent();
-  };
-
-  const handlePrintMenuItemClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    handlePrintWithContent();
+  const handlePrintMenuItemClick = () => {
+    handlePrint();
   };
 
   return (
