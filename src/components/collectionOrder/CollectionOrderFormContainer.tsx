@@ -1,4 +1,3 @@
-
 import React from "react";
 import { CollectionOrder } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -46,57 +45,47 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       id: orderToEdit ? orderToEdit.id : uuidv4(),
       orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
       
-      // Sender details
       sender: formData.sender,
       senderAddress: formData.senderAddress,
       senderCity: formData.senderCity,
       senderState: formData.senderState,
       
-      // Recipient details
       recipient: formData.recipient,
       recipientAddress: formData.recipientAddress,
       recipientCity: formData.recipientCity,
       recipientState: formData.recipientState,
       
-      // Shipper details
       shipper: formData.shipper,
       shipperAddress: formData.shipperAddress,
       shipperCity: formData.shipperCity,
       shipperState: formData.shipperState,
       
-      // Receiver details
       receiver: formData.receiver,
       receiverAddress: formData.receiverAddress,
       receiverCity: formData.receiverCity,
       receiverState: formData.receiverState,
       
-      // For backward compatibility
       originCity: formData.senderCity,
       originState: formData.senderState,
       destinationCity: formData.recipientCity,
       destinationState: formData.recipientState,
       
-      // Cargo details
       volumes: formData.volumes,
       weight: formData.weight,
       measurements: formData.measurements,
       cubicMeasurement: formData.cubicMeasurement,
       merchandiseValue: formData.merchandiseValue,
       
-      // Additional info
       invoiceNumber: formData.invoiceNumber,
       observations: formData.observations,
       
-      // Driver info
       driverId: formData.driverId !== "none" ? formData.driverId : undefined,
       driverName: selectedDriver?.name,
       driverCpf: selectedDriver?.cpf,
       licensePlate: selectedDriver?.licensePlate,
       
-      // Issuer info
       issuerId: formData.issuerType === 'my-company' ? user.id : formData.selectedIssuerId,
       
-      // System fields
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id
     };

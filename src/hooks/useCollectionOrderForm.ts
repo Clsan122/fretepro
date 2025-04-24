@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Measurement, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -149,7 +148,6 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
 
   return {
     formData: {
-      // All the form data
       sender,
       senderAddress,
       senderCity,
@@ -187,7 +185,6 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       clients,
     },
     setters: {
-      // All the setters
       setSender,
       setSenderAddress,
       setSenderCity,
