@@ -54,16 +54,23 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        compress: true
       });
       
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
-      const imgWidth = pageWidth;
+      const imgWidth = pageWidth - 20; // 10mm margin on each side
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      // Add margin to center the content
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+      
+      // Add footer with page number
+      pdf.setFontSize(8);
+      pdf.text(`Ordem de Coleta - ${order?.orderNumber || ''}`, 10, pageHeight - 10);
+      pdf.text(`Página 1 de 1`, pageWidth - 30, pageHeight - 10);
       
       return pdf.output('blob');
     } finally {
