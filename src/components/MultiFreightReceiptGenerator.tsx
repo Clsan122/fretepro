@@ -153,13 +153,14 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
+  // Fixed: Use the correct API for react-to-print
   const reactToPrintContent = useCallback(() => {
     return componentRef.current;
   }, []);
 
   const handlePrint = useReactToPrint({
-    content: reactToPrintContent,
     documentTitle: "Recibo de Múltiplos Fretes",
+    content: reactToPrintContent,
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
   });
