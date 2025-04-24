@@ -2,7 +2,9 @@
 import React from "react";
 import { Client } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ClientSelect } from "./ClientSelect";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CNPJLookupField } from "./CNPJLookupField";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -13,9 +15,6 @@ interface SenderRecipientSectionProps {
   setRecipient: (value: string) => void;
   recipientAddress: string;
   setRecipientAddress: (value: string) => void;
-  selectedSenderId: string;
-  handleSenderClientChange: (clientId: string) => void;
-  clients: Client[];
   shipper: string;
   setShipper: (value: string) => void;
   shipperAddress: string;
@@ -24,6 +23,9 @@ interface SenderRecipientSectionProps {
   setReceiver: (value: string) => void;
   receiverAddress: string;
   setReceiverAddress: (value: string) => void;
+  selectedSenderId: string;
+  handleSenderClientChange: (clientId: string) => void;
+  clients: Client[];
 }
 
 export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
@@ -35,9 +37,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setRecipient,
   recipientAddress,
   setRecipientAddress,
-  selectedSenderId,
-  handleSenderClientChange,
-  clients,
   shipper,
   setShipper,
   shipperAddress,
@@ -51,62 +50,80 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
     <Card>
       <CardHeader className="p-4 sm:p-6">
         <CardTitle>Informações de Remetente e Destinatário</CardTitle>
-        <CardDescription>Selecione os clientes nos campos abaixo</CardDescription>
+        <CardDescription>Preencha os dados ou busque pelo CNPJ</CardDescription>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 space-y-6">
-        <ClientSelect
-          label="Remetente"
-          clients={clients}
-          selectedValue={selectedSenderId}
-          onClientChange={handleSenderClientChange}
-          clientInfo={sender}
-          clientAddress={senderAddress}
-        />
+        <div className="space-y-4">
+          <CNPJLookupField
+            label="CNPJ do Remetente"
+            onDataFetched={(data) => {
+              setSender(data.name);
+              setSenderAddress(data.address);
+            }}
+          />
+          <div>
+            <Label>Nome do Remetente</Label>
+            <Input value={sender} onChange={(e) => setSender(e.target.value)} />
+          </div>
+          <div>
+            <Label>Endereço do Remetente</Label>
+            <Input value={senderAddress} onChange={(e) => setSenderAddress(e.target.value)} />
+          </div>
+        </div>
 
-        <ClientSelect
-          label="Destinatário"
-          clients={clients}
-          selectedValue={recipient}
-          onClientChange={(clientId) => {
-            setRecipient(clientId);
-            const selectedClient = clients.find(c => c.id === clientId);
-            if (selectedClient) {
-              setRecipientAddress(selectedClient.address || '');
-            }
-          }}
-          clientInfo={recipient}
-          clientAddress={recipientAddress}
-        />
+        <div className="space-y-4">
+          <CNPJLookupField
+            label="CNPJ do Destinatário"
+            onDataFetched={(data) => {
+              setRecipient(data.name);
+              setRecipientAddress(data.address);
+            }}
+          />
+          <div>
+            <Label>Nome do Destinatário</Label>
+            <Input value={recipient} onChange={(e) => setRecipient(e.target.value)} />
+          </div>
+          <div>
+            <Label>Endereço do Destinatário</Label>
+            <Input value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)} />
+          </div>
+        </div>
 
-        <ClientSelect
-          label="Expedidor"
-          clients={clients}
-          selectedValue={shipper}
-          onClientChange={(clientId) => {
-            setShipper(clientId);
-            const selectedClient = clients.find(c => c.id === clientId);
-            if (selectedClient) {
-              setShipperAddress(selectedClient.address || '');
-            }
-          }}
-          clientInfo={shipper}
-          clientAddress={shipperAddress}
-        />
+        <div className="space-y-4">
+          <CNPJLookupField
+            label="CNPJ do Expedidor"
+            onDataFetched={(data) => {
+              setShipper(data.name);
+              setShipperAddress(data.address);
+            }}
+          />
+          <div>
+            <Label>Nome do Expedidor</Label>
+            <Input value={shipper} onChange={(e) => setShipper(e.target.value)} />
+          </div>
+          <div>
+            <Label>Endereço do Expedidor</Label>
+            <Input value={shipperAddress} onChange={(e) => setShipperAddress(e.target.value)} />
+          </div>
+        </div>
 
-        <ClientSelect
-          label="Recebedor"
-          clients={clients}
-          selectedValue={receiver}
-          onClientChange={(clientId) => {
-            setReceiver(clientId);
-            const selectedClient = clients.find(c => c.id === clientId);
-            if (selectedClient) {
-              setReceiverAddress(selectedClient.address || '');
-            }
-          }}
-          clientInfo={receiver}
-          clientAddress={receiverAddress}
-        />
+        <div className="space-y-4">
+          <CNPJLookupField
+            label="CNPJ do Recebedor"
+            onDataFetched={(data) => {
+              setReceiver(data.name);
+              setReceiverAddress(data.address);
+            }}
+          />
+          <div>
+            <Label>Nome do Recebedor</Label>
+            <Input value={receiver} onChange={(e) => setReceiver(e.target.value)} />
+          </div>
+          <div>
+            <Label>Endereço do Recebedor</Label>
+            <Input value={receiverAddress} onChange={(e) => setReceiverAddress(e.target.value)} />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
