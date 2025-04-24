@@ -1,7 +1,6 @@
-
-
 export interface CollectionOrder {
   id: string;
+  orderNumber: string; // Added this field for auto-numbering
   sender: string;
   senderAddress: string;
   recipient: string;

@@ -1,14 +1,79 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CollectionOrder } from "@/types";
+import jsPDFInvoiceTemplate from "jspdf-invoice-template";
+import { format } from "date-fns";
 
 interface OrderContentProps {
   order: CollectionOrder;
 }
 
 export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
+  const generateInvoicePDF = () => {
+    const props = {
+      outputType: "save",
+      returnJsPDFDocObject: true,
+      fileName: `ordem-coleta-${order.orderNumber}`,
+      orientationLandscape: false,
+      compress: true,
+      logo: {
+        src: order.companyLogo,
+        width: 53.33,
+        height: 26.66,
+      },
+      business: {
+        name: order.sender,
+        address: order.senderAddress,
+      },
+      contact: {
+        label: "Ordem de Coleta:",
+        name: order.orderNumber,
+        address: `${order.originCity}/${order.originState} → ${order.destinationCity}/${order.destinationState}`,
+        phone: "",
+        email: "",
+        otherInfo: format(new Date(order.createdAt), "dd/MM/yyyy"),
+      },
+      invoice: {
+        label: "Destinatário:",
+        invDesc: order.recipient,
+        invDate: order.recipientAddress,
+        headerBorder: false,
+        tableBodyBorder: false,
+        header: [
+          {
+            title: "Descrição",
+            style: {
+              width: 50,
+            },
+          },
+          {
+            title: "Detalhes",
+            style: {
+              width: 50,
+            },
+          },
+        ],
+        table: [
+          ["Volumes", order.volumes.toString()],
+          ["Peso", `${order.weight} kg`],
+          ["Cubagem", `${order.cubicMeasurement.toFixed(3)} m³`],
+          ["Valor Mercadoria", order.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })],
+          ["NF", order.invoiceNumber || "N/A"],
+        ],
+        invTotalLabel: "Total Volumes:",
+        invTotal: order.volumes.toString(),
+      },
+      footer: {
+        text: order.observations || "",
+      },
+      pageEnable: true,
+      pageLabel: "Page ",
+    };
+
+    jsPDFInvoiceTemplate(props);
+  };
+
   return (
     <div className="space-y-3 print:space-y-2">
       {/* Sender and Recipient */}

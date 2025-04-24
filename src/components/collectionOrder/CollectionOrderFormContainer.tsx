@@ -1,9 +1,9 @@
-
 import React from "react";
 import { CollectionOrder } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
+import { generateOrderNumber } from "@/utils/orderNumber";
 
 // Import form sections
 import { SenderRecipientSection } from "./SenderRecipientSection";
@@ -44,6 +44,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
 
     const newOrder = {
       id: orderToEdit ? orderToEdit.id : uuidv4(),
+      orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
       sender: formData.sender,
       senderAddress: formData.senderAddress,
       recipient: formData.recipient,
@@ -74,7 +75,6 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     onSave(newOrder as CollectionOrder);
   };
 
-  // Trocar/remover logo da empresa
   const handleRemoveLogo = () => {
     setters.setCompanyLogo("");
   };
