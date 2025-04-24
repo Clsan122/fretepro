@@ -1,3 +1,4 @@
+
 export interface CollectionOrder {
   id: string;
   sender: string;
@@ -34,20 +35,30 @@ export interface Driver {
   cpf: string;
   phone: string;
   licensePlate: string;
+  trailerPlate?: string;
+  vehicleType: string;
+  bodyType: string;
+  address?: string;
+  anttCode: string;
+  vehicleYear: string;
+  vehicleModel: string;
+  createdAt: string;
 }
 
 export interface Client {
   id: string;
   userId: string;
   name: string;
-  email: string;
-  phone: string;
-  address: string;
+  email?: string;
+  phone?: string;
+  address?: string;
   city: string;
   state: string;
-  zipCode: string;
-  cnpj: string;
-  logo: string;
+  zipCode?: string;
+  cnpj?: string;
+  cpf?: string;
+  logo?: string;
+  createdAt: string;
 }
 
 export interface Measurement {
@@ -73,8 +84,45 @@ export interface User {
   cnpj?: string;
   companyLogo?: string;
   pixKey?: string;
-  bankInfo?: string; // Changed from {} to string
+  bankInfo: string;
   role?: 'user' | 'admin';
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface Freight {
+  id: string;
+  userId: string;
+  clientId: string;
+  driverId?: string;
+  originCity: string;
+  originState: string;
+  destinationCity: string;
+  destinationState: string;
+  distance: number;
+  price: number;
+  totalValue: number;
+  cargoType: string;
+  cargoWeight?: number;
+  cargoDescription?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'canceled';
+  paymentStatus: 'pending' | 'partial' | 'paid';
+  paymentDate?: string;
+  paymentMethod?: string;
+  paymentProof?: string;
+  deliveryProof?: string;
+  expenses: FreightExpense[];
+  observations?: string;
+  createdAt: string;
+  updatedAt?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface FreightExpense {
+  id: string;
+  description: string;
+  value: number;
+  date: string;
+  category: string;
 }

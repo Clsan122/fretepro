@@ -16,6 +16,10 @@ type State = {
   toasts: ToastProps[];
 };
 
+const toastState: State = {
+  toasts: []
+};
+
 let count = 0;
 
 function genId() {
@@ -47,5 +51,6 @@ export function toast(props: ToastProps) {
 export function useToast() {
   return {
     toast,
+    toasts: toastState.toasts
   };
 }

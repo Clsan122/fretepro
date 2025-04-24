@@ -107,6 +107,12 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setRecipient={setters.setRecipient}
         recipientAddress={formData.recipientAddress}
         setRecipientAddress={setters.setRecipientAddress}
+        selectedSenderType={formData.selectedSenderType}
+        handleSenderTypeChange={setters.handleSenderTypeChange}
+        handleSenderClientChange={setters.handleSenderClientChange}
+        selectedSenderId={formData.selectedSenderId}
+        clients={formData.clients}
+        senderLogo={formData.senderLogo}
       />
       
       <LocationsSection 

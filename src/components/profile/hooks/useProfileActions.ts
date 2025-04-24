@@ -41,7 +41,7 @@ export const useProfileActions = (
       // Garantir que outros dados sejam preservados
       const otherData = {
         pixKey: updatedUser.pixKey || "",
-        bankInfo: updatedUser.bankInfo || {},
+        bankInfo: updatedUser.bankInfo || "",
       };
       
       const newUserData = {
