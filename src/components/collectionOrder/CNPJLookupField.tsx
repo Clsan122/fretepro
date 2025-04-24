@@ -74,8 +74,8 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
           address: clientData.address,
           city: clientData.city,
           state: clientData.state,
-          personType: 'legal',
           phone: data.ddd_telefone_1 || "",
+          createdAt: new Date().toISOString()
         };
         
         saveClient(newClient);
