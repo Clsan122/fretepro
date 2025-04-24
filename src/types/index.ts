@@ -1,166 +1,53 @@
-
-export interface User {
+export interface CollectionOrder {
   id: string;
-  name: string;
-  email: string;
-  password?: string;
-  createdAt: string;
-  role?: 'user' | 'admin';
-  address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  phone?: string;
-  cpf?: string;
-  companyName?: string;
-  cnpj?: string;
-  pixKey?: string;
-  bankInfo?: string;
-  avatar?: string;
-  companyLogo?: string;
-}
-
-export interface Client {
-  id: string;
-  name: string;
-  state: string;
-  city: string;
+  sender: string;
+  senderAddress: string;
+  recipient: string;
+  recipientAddress: string;
+  originCity: string;
+  originState: string;
+  destinationCity: string;
+  destinationState: string;
+  receiver: string;
+  receiverAddress: string;
+  volumes: number;
+  weight: number;
+  measurements: Measurement[];
+  cubicMeasurement: number;
+  merchandiseValue: number;
+  invoiceNumber: string;
+  observations: string;
+  driverId?: string;
+  driverName?: string;
+  driverCpf?: string;
+  licensePlate?: string;
+  companyLogo: string;
+  issuerId: string;
   createdAt: string;
   userId: string;
-  cnpj?: string;
-  cpf?: string;
-  address?: string;
-  phone?: string;
-  logo?: string;
 }
 
 export interface Driver {
   id: string;
+  userId: string;
   name: string;
   cpf: string;
-  licensePlate: string;
-  trailerPlate?: string;
-  vehicleType: VehicleType;
-  bodyType: BodyType;
-  createdAt: string;
-  userId: string;
-  address?: string;
   phone: string;
-  anttCode: string;
-  vehicleYear: string;
-  vehicleModel: string;
+  licensePlate: string;
 }
 
-export interface Freight {
+export interface Client {
   id: string;
-  clientId: string;
-  originCity: string;
-  originState: string;
-  departureDate: string;
-  destinationCity: string;
-  destinationState: string;
-  arrivalDate: string;
-  volumes: number;
-  weight: number;
-  dimensions: string;
-  cubicMeasurement: number;
-  cargoType: CargoType;
-  vehicleType: VehicleType;
-  freightValue: number;
-  dailyRate: number;
-  otherCosts: number;
-  tollCosts: number;
-  totalValue: number;
-  proofOfDeliveryImage?: string;
-  createdAt: string;
   userId: string;
-  pixKey?: string;
-  paymentTerm?: PaymentTerm;
-  driverId?: string;
-  
-  // New expense fields
-  thirdPartyDriverCost?: number;
-  tollExpenses?: number;
-  fuelExpenses?: number;
-  mealExpenses?: number;
-  helperExpenses?: number;
-  accommodationExpenses?: number;
-  totalExpenses?: number; // Sum of all expenses
-  netProfit?: number; // Difference between totalValue and totalExpenses
-  
-  // Client information fields
-  clientName?: string;
-  clientAddress?: string;
-  
-  // Add the missing properties that ReceiptGenerator is using
-  cargoDescription?: string;
-  cargoWeight?: number;
-}
-
-export type PaymentTerm = 
-  | 'upfront' 
-  | 'tenDays'
-  | 'fifteenDays'
-  | 'twentyDays'
-  | 'thirtyDays'
-  | 'custom';
-
-export type CargoType = 
-  | 'general'
-  | 'dangerous'
-  | 'liquid'
-  | 'sackCargo'
-  | 'drum'
-  | 'pallet';
-
-export type VehicleType = 
-  | 'fiorino'
-  | 'van'
-  | 'vlc'
-  | 'threeQuarter'
-  | 'toco'
-  | 'truck'
-  | 'trailer';
-
-export type BodyType =
-  | 'open'
-  | 'closed'
-  | 'sider'
-  | 'van'
-  | 'utility';
-
-export interface BrazilianState {
   name: string;
-  abbreviation: string;
-}
-
-export interface CollectionOrder {
-  id: string;
-  sender: string;               // Remetente/exportador
-  senderAddress?: string;       // Endereço do remetente
-  recipient: string;            // Destinatário/importador
-  recipientAddress?: string;    // Endereço do destinatário
-  originCity: string;           // Cidade origem
-  originState: string;          // Estado origem
-  destinationCity: string;      // Cidade destino
-  destinationState: string;     // Estado destino
-  receiver: string;             // Recebedor/destinatário
-  receiverAddress: string;      // Endereço do recebedor/destinatário
-  volumes: number;              // Quantidade de volumes
-  weight: number;               // Peso
-  measurements: Measurement[];  // Medidas
-  cubicMeasurement: number;     // Cubagem
-  merchandiseValue: number;     // Valor da mercadoria
-  invoiceNumber?: string;       // Número da NF/Pedido
-  observations?: string;        // Observações
-  driverId?: string;            // ID do motorista
-  driverName?: string;          // Nome do motorista (para exibição)
-  driverCpf?: string;           // CPF do motorista (para exibição)
-  licensePlate?: string;        // Placa do veículo
-  companyLogo?: string;         // Logo da empresa (base64)
-  createdAt: string;            // Data de criação
-  userId: string;               // ID do usuário que criou
-  issuerId?: string;            // ID do emissor da ordem (empresa ou cliente)
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  cnpj: string;
+  logo: string;
 }
 
 export interface Measurement {
@@ -169,4 +56,25 @@ export interface Measurement {
   width: number;
   height: number;
   quantity: number;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  cpf?: string;
+  phone?: string;
+  avatar?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  companyName?: string;
+  cnpj?: string;
+  companyLogo?: string;
+  pixKey?: string;
+  bankInfo?: string; // Changed from {} to string
+  role?: 'user' | 'admin';
+  createdAt?: string;
+  updatedAt?: string;
 }

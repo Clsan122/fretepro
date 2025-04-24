@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Measurement, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -46,6 +45,15 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
   );
   const [clients, setClients] = useState<Client[]>([]);
 
+  // Company/Client selection states
+  const [selectedSenderId, setSelectedSenderId] = useState<string>(
+    orderToEdit?.issuerId || (user ? user.id : 'none')
+  );
+  const [selectedSenderType, setSelectedSenderType] = useState<'my-company' | 'client'>(
+    orderToEdit?.issuerId === user?.id ? 'my-company' : 'client'
+  );
+  const [senderLogo, setSenderLogo] = useState(orderToEdit?.companyLogo || user?.companyLogo || '');
+
   // Load drivers and clients on mount
   useEffect(() => {
     if (user) {
@@ -54,8 +62,15 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       
       const userClients = getClientsByUserId(user.id);
       setClients(userClients);
+
+      // Set default sender as user's company if creating new order
+      if (!orderToEdit && selectedSenderType === 'my-company') {
+        setSender(user.companyName || '');
+        setSenderAddress(user.address || '');
+        setSenderLogo(user.companyLogo || '');
+      }
     }
-  }, [user]);
+  }, [user, selectedSenderType]);
 
   // Update cubic measurement when measurements change
   useEffect(() => {
@@ -92,6 +107,38 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
     }
   };
 
+  const handleSenderTypeChange = (type: 'my-company' | 'client') => {
+    setSelectedSenderType(type);
+    if (type === 'my-company' && user) {
+      setSelectedSenderId(user.id);
+      setSender(user.companyName || '');
+      setSenderAddress(user.address || '');
+      setSenderLogo(user.companyLogo || '');
+    } else {
+      setSelectedSenderId('none');
+      setSender('');
+      setSenderAddress('');
+      setSenderLogo('');
+    }
+  };
+
+  const handleSenderClientChange = (clientId: string) => {
+    if (clientId === 'none') {
+      setSender('');
+      setSenderAddress('');
+      setSenderLogo('');
+      return;
+    }
+
+    const selectedClient = clients.find(c => c.id === clientId);
+    if (selectedClient) {
+      setSender(selectedClient.name);
+      setSenderAddress(selectedClient.address || '');
+      setSenderLogo(selectedClient.logo || '');
+      setSelectedSenderId(clientId);
+    }
+  };
+
   return {
     formData: {
       sender,
@@ -115,6 +162,9 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       drivers,
       companyLogo,
       selectedIssuerId,
+      selectedSenderType,
+      selectedSenderId,
+      senderLogo,
       clients
     },
     setters: {
@@ -137,7 +187,9 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       setObservations,
       setDriverId,
       setCompanyLogo,
-      setSelectedIssuerId
+      setSelectedIssuerId,
+      handleSenderTypeChange,
+      handleSenderClientChange
     },
     measurementHandlers: {
       handleMeasurementChange,
