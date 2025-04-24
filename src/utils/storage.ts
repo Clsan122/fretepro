@@ -1,3 +1,4 @@
+
 import { CollectionOrder, Client, Driver, User, Freight } from "@/types";
 
 const COLLECTION_ORDERS_KEY = "collectionOrders";
@@ -5,6 +6,7 @@ const CLIENTS_KEY = "clients";
 const DRIVERS_KEY = "drivers";
 const USERS_KEY = "users";
 const FREIGHTS_KEY = "freights";
+const CURRENT_USER_KEY = "currentUser";
 
 // Generic function to get items from localStorage
 function getItems<T>(key: string): T[] {
@@ -41,6 +43,10 @@ export const deleteCollectionOrder = (id: string): void => {
   const updatedOrders = orders.filter(order => order.id !== id);
   saveCollectionOrders(updatedOrders);
 };
+export const getCollectionOrdersByUserId = (userId: string): CollectionOrder[] => {
+  const orders = getCollectionOrders();
+  return orders.filter(order => order.userId === userId);
+};
 
 // Clients
 export const getClients = (): Client[] => getItems<Client>(CLIENTS_KEY);
@@ -56,6 +62,20 @@ export const saveClient = (client: Client): void => {
   }
 
   saveClients(clients);
+};
+export const updateClient = (client: Client): void => {
+  const clients = getClients();
+  const existingIndex = clients.findIndex(c => c.id === client.id);
+  
+  if (existingIndex > -1) {
+    clients[existingIndex] = client;
+    saveClients(clients);
+  }
+};
+export const deleteClient = (clientId: string): void => {
+  const clients = getClients();
+  const updatedClients = clients.filter(client => client.id !== clientId);
+  saveClients(updatedClients);
 };
 export const getClientsByUserId = (userId: string): Client[] => {
   const clients = getClients();
@@ -80,6 +100,20 @@ export const saveDriver = (driver: Driver): void => {
   }
 
   saveDrivers(drivers);
+};
+export const addDriver = (driver: Driver): void => {
+  const drivers = getDrivers();
+  drivers.push(driver);
+  saveDrivers(drivers);
+};
+export const updateDriver = (driver: Driver): void => {
+  const drivers = getDrivers();
+  const existingIndex = drivers.findIndex(d => d.id === driver.id);
+  
+  if (existingIndex > -1) {
+    drivers[existingIndex] = driver;
+    saveDrivers(drivers);
+  }
 };
 export const getDriversByUserId = (userId: string): Driver[] => {
   const drivers = getDrivers();
@@ -110,9 +144,42 @@ export const saveUser = (user: User): void => {
 
   saveUsers(users);
 };
+export const updateUser = (user: User): void => {
+  const users = getUsers();
+  const existingIndex = users.findIndex(u => u.id === user.id);
+  
+  if (existingIndex > -1) {
+    users[existingIndex] = user;
+    saveUsers(users);
+    
+    // If this is the current user, update the current user as well
+    const currentUser = getCurrentUser();
+    if (currentUser && currentUser.id === user.id) {
+      setCurrentUser(user);
+    }
+  }
+};
 export const getUserById = (userId: string) => {
   const users = getUsers();
   return users.find(user => user.id === userId) || null;
+};
+
+// User session
+export const getCurrentUser = (): User | null => {
+  const userStr = localStorage.getItem(CURRENT_USER_KEY);
+  return userStr ? JSON.parse(userStr) : null;
+};
+
+export const setCurrentUser = (user: User): void => {
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+};
+
+export const logoutUser = (): void => {
+  localStorage.removeItem(CURRENT_USER_KEY);
+};
+
+export const getUser = (): User | null => {
+  return getCurrentUser();
 };
 
 // Freights

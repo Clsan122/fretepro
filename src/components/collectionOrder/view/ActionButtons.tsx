@@ -28,6 +28,7 @@ interface ActionButtonsProps {
   onDownload?: () => void;
   onPrint?: () => void;
   onGenerateFreight?: () => void;
+  isGenerating?: boolean;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -37,6 +38,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onDownload,
   onPrint,
   onGenerateFreight,
+  isGenerating = false,
 }) => {
   const navigate = useNavigate();
 
@@ -60,6 +62,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           size="sm"
           onClick={onGenerateFreight}
           className="gap-1"
+          disabled={isGenerating}
         >
           <Truck className="h-4 w-4" /> Gerar Frete
         </Button>
@@ -69,6 +72,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             <Button
               variant="outline"
               size="sm"
+              disabled={isGenerating}
             >
               <Share2 className="h-4 w-4 mr-1" /> Compartilhar
             </Button>
@@ -94,6 +98,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           variant="outline"
           size="sm"
           onClick={() => navigate(`/collection-order/edit/${id}`)}
+          disabled={isGenerating}
         >
           <Edit className="h-4 w-4 mr-1" /> Editar
         </Button>
@@ -103,6 +108,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             <Button
               variant="destructive"
               size="sm"
+              disabled={isGenerating}
             >
               <Trash2 className="h-4 w-4 mr-1" /> Excluir
             </Button>

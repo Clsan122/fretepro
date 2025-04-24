@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { getCollectionOrderById, deleteCollectionOrder, getUserById, getClientById } from "@/utils/storage";
 import { CollectionOrder, User, Client } from "@/types";
@@ -11,7 +10,6 @@ import { OrderContent } from "@/components/collectionOrder/view/OrderContent";
 import { ActionButtons } from "@/components/collectionOrder/view/ActionButtons";
 import { PrintStyles } from "@/components/collectionOrder/view/PrintStyles";
 import { useCollectionOrderPdf } from "@/hooks/useCollectionOrderPdf";
-import { File, Trash2, Edit } from "lucide-react";
 
 const CollectionOrderView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -63,10 +61,6 @@ const CollectionOrderView: React.FC = () => {
     navigate("/collection-orders");
   };
 
-  const handleEdit = () => {
-    navigate(`/collection-order/${id}/edit`);
-  };
-
   if (!order) {
     return (
       <Layout>
@@ -93,28 +87,18 @@ const CollectionOrderView: React.FC = () => {
           <OrderContent order={order} />
         </div>
         
+        {/* Action buttons */}
+        <ActionButtons
+          id={id}
+          onDelete={handleDelete}
+          onShare={handleShare}
+          onDownload={handleDownload}
+          onPrint={handlePrint}
+          isGenerating={isGenerating}
+        />
+        
         {/* Screen version */}
         <div className="print:hidden">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">Ordem de Coleta #{order.orderNumber}</h1>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={handleEdit}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="destructive" 
-                size="icon"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          
           <div className="bg-white rounded-lg border shadow-sm">
             <div className="p-4 sm:p-6">
               <OrderHeader
@@ -125,13 +109,6 @@ const CollectionOrderView: React.FC = () => {
               <OrderContent order={order} />
             </div>
           </div>
-          
-          <ActionButtons
-            isGenerating={isGenerating}
-            onDownload={handleDownload}
-            onShare={handleShare}
-            onPrint={handlePrint}
-          />
         </div>
       </div>
     </Layout>

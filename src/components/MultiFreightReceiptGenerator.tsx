@@ -2,7 +2,7 @@
 import React, { useRef, useState, useCallback } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
-import { getUser } from "@/utils/storage";
+import { getCurrentUser } from "@/utils/storage";
 import { Button } from "@/components/ui/button";
 import { PrinterIcon, Download, Share2, Check } from "lucide-react";
 import { 
@@ -31,7 +31,7 @@ interface MultiFreightReceiptGeneratorProps {
 
 const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> = ({ freights }) => {
   const componentRef = useRef<HTMLDivElement>(null);
-  const currentUser = getUser();
+  const currentUser = getCurrentUser();
   const [isGenerating, setIsGenerating] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
   const { toast } = useToast();
@@ -158,6 +158,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   }, []);
 
   const handlePrint = useReactToPrint({
+    content: reactToPrintContent,
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
