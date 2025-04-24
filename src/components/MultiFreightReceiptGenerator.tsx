@@ -153,33 +153,13 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Fixed: Use the correct API for react-to-print
-  const reactToPrintContent = useCallback(() => {
-    return componentRef.current;
-  }, []);
-
+  // Fixed: The correct way to use useReactToPrint with TypeScript
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
-    // Fix: content property should be replaced with contentRef which
-    // accepts a function returning the reference
-    contentRef: reactToPrintContent,
+    content: () => componentRef.current,
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
   });
-
-  const handlePrintWithContent = () => {
-    if (componentRef.current) {
-      handlePrint();
-    }
-  };
-
-  const handlePrintButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    handlePrintWithContent();
-  };
-
-  const handlePrintMenuItemClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    handlePrintWithContent();
-  };
 
   return (
     <div className="p-2 md:p-4">
@@ -214,7 +194,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
             <Button 
               variant="outline" 
               className="gap-2 w-full"
-              onClick={handlePrintButtonClick}
+              onClick={handlePrint}
             >
               <PrinterIcon className="h-4 w-4" />
               Imprimir
@@ -235,7 +215,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
               <DropdownMenuItem onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" /> Baixar PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handlePrintMenuItemClick}>
+              <DropdownMenuItem onClick={handlePrint}>
                 <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
               </DropdownMenuItem>
             </DropdownMenuContent>
