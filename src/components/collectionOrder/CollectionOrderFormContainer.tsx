@@ -1,19 +1,13 @@
-
 import React from "react";
 import { CollectionOrder } from "@/types";
-import { v4 as uuidv4 } from "uuid";
-import { useAuth } from "@/context/AuthContext";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
-import { generateOrderNumber } from "@/utils/orderNumber";
-
-// Import form sections
 import { SenderRecipientSection } from "./SenderRecipientSection";
-import { CargoSection } from "./CargoSection";
-import { DriverSection } from "./DriverSection";
-import { CompanyLogoSection } from "./CompanyLogoSection";
 import { InvoiceNotesSection } from "./InvoiceNotesSection";
+import { DriverSection } from "./DriverSection";
 import { FormActions } from "../freight/FormActions";
-import { LocationsSection } from "./LocationsSection";
+import { CompanyDetailsSection } from "./sections/CompanyDetailsSection";
+import { CargoDetailsSection } from "./sections/CargoDetailsSection";
+import { LocationDetailsSection } from "./sections/LocationDetailsSection";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -26,7 +20,6 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   onCancel,
   orderToEdit
 }) => {
-  const { user } = useAuth();
   const { formData, setters } = useCollectionOrderForm({ orderToEdit });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,10 +27,6 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
 
     if (!formData.sender || !formData.recipient || !formData.originCity || 
         !formData.originState || !formData.destinationCity || !formData.destinationState) {
-      return;
-    }
-
-    if (!user) {
       return;
     }
 
@@ -78,70 +67,72 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     onSave(newOrder as CollectionOrder);
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setters.setCompanyLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
-      <CompanyLogoSection
+      <CompanyDetailsSection
         companyLogo={formData.companyLogo}
-        handleLogoUpload={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setters.setCompanyLogo(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-          }
-        }}
-        handleRemoveLogo={() => setters.setCompanyLogo("")}
         selectedIssuerId={formData.selectedIssuerId}
+        onLogoUpload={handleLogoUpload}
+        onLogoRemove={() => setters.setCompanyLogo("")}
         onIssuerChange={setters.setSelectedIssuerId}
       />
 
       <SenderRecipientSection
         sender={formData.sender}
-        setSender={setters.setSender}
         senderAddress={formData.senderAddress}
-        setSenderAddress={setters.setSenderAddress}
         recipient={formData.recipient}
-        setRecipient={setters.setRecipient}
         recipientAddress={formData.recipientAddress}
-        setRecipientAddress={setters.setRecipientAddress}
-        selectedSenderId={formData.selectedSenderId}
-        handleSenderClientChange={(clientId) => setters.handleSenderClientChange(clientId, formData.clients)}
-        clients={formData.clients}
         shipper={formData.shipper}
-        setShipper={setters.setShipper}
         shipperAddress={formData.shipperAddress}
-        setShipperAddress={setters.setShipperAddress}
         receiver={formData.receiver}
-        setReceiver={setters.setReceiver}
         receiverAddress={formData.receiverAddress}
+        selectedSenderId={formData.selectedSenderId}
+        handleSenderClientChange={setters.handleSenderClientChange}
+        clients={formData.clients}
+        setSender={setters.setSender}
+        setSenderAddress={setters.setSenderAddress}
+        setRecipient={setters.setRecipient}
+        setRecipientAddress={setters.setRecipientAddress}
+        setShipper={setters.setShipper}
+        setShipperAddress={setters.setShipperAddress}
+        setReceiver={setters.setReceiver}
         setReceiverAddress={setters.setReceiverAddress}
       />
 
-      <LocationsSection
+      <LocationDetailsSection
         originCity={formData.originCity}
-        setOriginCity={setters.setOriginCity}
         originState={formData.originState}
-        setOriginState={setters.setOriginState}
         destinationCity={formData.destinationCity}
-        setDestinationCity={setters.setDestinationCity}
         destinationState={formData.destinationState}
-        setDestinationState={setters.setDestinationState}
+        onOriginCityChange={setters.setOriginCity}
+        onOriginStateChange={setters.setOriginState}
+        onDestinationCityChange={setters.setDestinationCity}
+        onDestinationStateChange={setters.setDestinationState}
       />
 
-      <CargoSection
+      <CargoDetailsSection
         volumes={formData.volumes}
-        setVolumes={setters.setVolumes}
         weight={formData.weight}
-        setWeight={setters.setWeight}
         merchandiseValue={formData.merchandiseValue}
-        setMerchandiseValue={setters.setMerchandiseValue}
         cubicMeasurement={formData.cubicMeasurement}
         measurements={formData.measurements}
-        handleAddMeasurement={setters.handleAddMeasurement}
-        handleRemoveMeasurement={setters.handleRemoveMeasurement}
-        handleMeasurementChange={setters.handleMeasurementChange}
+        onVolumesChange={setters.setVolumes}
+        onWeightChange={setters.setWeight}
+        onMerchandiseValueChange={setters.setMerchandiseValue}
+        onMeasurementChange={setters.handleMeasurementChange}
+        onAddMeasurement={setters.handleAddMeasurement}
+        onRemoveMeasurement={setters.handleRemoveMeasurement}
       />
 
       <InvoiceNotesSection
