@@ -48,10 +48,10 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiverAddress,
 }) => {
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader className="p-4 sm:p-6">
         <CardTitle>Informações de Remetente e Destinatário</CardTitle>
-        <CardDescription>Selecione os clientes cadastrados</CardDescription>
+        <CardDescription>Selecione os clientes nos campos abaixo</CardDescription>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 space-y-6">
         <ClientSelect
@@ -61,7 +61,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           onClientChange={handleSenderClientChange}
           clientInfo={sender}
           clientAddress={senderAddress}
-          showDetails
         />
 
         <ClientSelect
@@ -77,7 +76,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           }}
           clientInfo={recipient}
           clientAddress={recipientAddress}
-          showDetails
         />
 
         <ClientSelect
@@ -93,7 +91,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           }}
           clientInfo={shipper}
           clientAddress={shipperAddress}
-          showDetails
         />
 
         <ClientSelect
@@ -109,7 +106,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           }}
           clientInfo={receiver}
           clientAddress={receiverAddress}
-          showDetails
         />
       </CardContent>
     </Card>
