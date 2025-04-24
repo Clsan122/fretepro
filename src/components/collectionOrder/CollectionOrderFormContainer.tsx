@@ -13,6 +13,7 @@ import { DriverSection } from "./DriverSection";
 import { CompanyLogoSection } from "./CompanyLogoSection";
 import { InvoiceNotesSection } from "./InvoiceNotesSection";
 import { FormActions } from "../freight/FormActions";
+import { LocationsSection } from "./LocationsSection";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -26,7 +27,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   orderToEdit
 }) => {
   const { user } = useAuth();
-  const { formData, setters, measurementHandlers } = useCollectionOrderForm({ orderToEdit });
+  const { formData, setters } = useCollectionOrderForm({ orderToEdit });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +71,6 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
-      // Add shipper and shipperAddress to the new order
       shipper: formData.shipper,
       shipperAddress: formData.shipperAddress
     };
@@ -107,7 +107,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         recipientAddress={formData.recipientAddress}
         setRecipientAddress={setters.setRecipientAddress}
         selectedSenderId={formData.selectedSenderId}
-        handleSenderClientChange={setters.handleSenderClientChange}
+        handleSenderClientChange={(clientId) => setters.handleSenderClientChange(clientId, formData.clients)}
         clients={formData.clients}
         shipper={formData.shipper}
         setShipper={setters.setShipper}
@@ -119,6 +119,17 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setReceiverAddress={setters.setReceiverAddress}
       />
 
+      <LocationsSection
+        originCity={formData.originCity}
+        setOriginCity={setters.setOriginCity}
+        originState={formData.originState}
+        setOriginState={setters.setOriginState}
+        destinationCity={formData.destinationCity}
+        setDestinationCity={setters.setDestinationCity}
+        destinationState={formData.destinationState}
+        setDestinationState={setters.setDestinationState}
+      />
+
       <CargoSection
         volumes={formData.volumes}
         setVolumes={setters.setVolumes}
@@ -128,9 +139,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setMerchandiseValue={setters.setMerchandiseValue}
         cubicMeasurement={formData.cubicMeasurement}
         measurements={formData.measurements}
-        handleAddMeasurement={measurementHandlers.handleAddMeasurement}
-        handleRemoveMeasurement={measurementHandlers.handleRemoveMeasurement}
-        handleMeasurementChange={measurementHandlers.handleMeasurementChange}
+        handleAddMeasurement={setters.handleAddMeasurement}
+        handleRemoveMeasurement={setters.handleRemoveMeasurement}
+        handleMeasurementChange={setters.handleMeasurementChange}
       />
 
       <InvoiceNotesSection
