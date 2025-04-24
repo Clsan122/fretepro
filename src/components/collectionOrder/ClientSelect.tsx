@@ -36,7 +36,7 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
   clientAddress
 }) => {
   const [open, setOpen] = React.useState(false);
-  const selectedClient = clients.find(client => client.id === selectedValue);
+  const selectedClient = clients.find(client => client.id === selectedValue || client.name === selectedValue);
 
   return (
     <div className="space-y-4">
@@ -59,7 +59,7 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
           <Command>
             <CommandInput placeholder={`Buscar ${label.toLowerCase()}...`} />
             <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup className="max-h-64 overflow-y-auto">
               {clients.map((client) => (
                 <CommandItem
                   key={client.id}
