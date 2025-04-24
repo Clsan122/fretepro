@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
@@ -8,20 +7,21 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-freight-700 to-freight-900 text-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-freight-700 to-freight-900">
       <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-sm">
-        <div className="container mx-auto flex items-center justify-between py-4 px-4">
+        <div className="container mx-auto flex items-center justify-between py-4 px-4 sm:px-6">
           <Logo variant="full" size="md" className="text-white" />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button 
-              variant="outline" 
-              className="text-white border-white hover:bg-white/20"
+              variant="secondary"
+              className="text-freight-800 bg-white/90 hover:bg-white dark:text-white dark:bg-white/10 dark:hover:bg-white/20 px-3 sm:px-4"
               onClick={() => navigate("/login")}
             >
               Entrar
             </Button>
             <Button 
-              className="bg-freight-500 hover:bg-freight-400 text-white"
+              variant="default"
+              className="bg-freight-600 hover:bg-freight-500 text-white px-3 sm:px-4"
               onClick={() => navigate("/register")}
             >
               Cadastrar
@@ -30,19 +30,19 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="flex-grow flex flex-col items-center justify-center text-center p-4">
+      <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
-            <Truck className="h-20 w-20" />
+            <Truck className="h-16 w-16 sm:h-20 sm:w-20 text-white" />
           </div>
-          <h1 className="text-5xl font-bold mb-4">Frete Pro</h1>
-          <p className="text-xl mb-8">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-white">Frete Pro</h1>
+          <p className="text-lg sm:text-xl mb-8 text-white/90">
             A solução completa para gerenciamento de fretes e transportes
           </p>
           
-          <div className="bg-white/10 backdrop-blur-sm p-8 rounded-lg mb-12">
-            <h2 className="text-2xl font-semibold mb-4">Gerencie seus fretes com facilidade</h2>
-            <ul className="grid md:grid-cols-2 gap-4 text-left mb-6">
+          <div className="bg-white/10 backdrop-blur-sm p-4 sm:p-8 rounded-lg mb-8 sm:mb-12">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-white">Gerencie seus fretes com facilidade</h2>
+            <ul className="grid sm:grid-cols-2 gap-4 text-left mb-6 text-white/90">
               <li className="flex items-start">
                 <span className="bg-freight-500 p-1 rounded-full mr-2 mt-1">✓</span>
                 <span>Cadastre e acompanhe todos os seus fretes</span>
@@ -62,8 +62,8 @@ const Index = () => {
             </ul>
             
             <Button 
-              size="lg" 
-              className="bg-freight-500 hover:bg-freight-400 text-white font-semibold px-8 py-6 text-lg"
+              size="lg"
+              className="w-full sm:w-auto bg-freight-500 hover:bg-freight-400 text-white font-semibold px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg"
               onClick={() => navigate("/login")}
             >
               Experimente Agora
@@ -74,7 +74,7 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
             <div className="bg-white/5 p-6 rounded-lg">
               <h3 className="text-xl font-semibold mb-2">Simplicidade</h3>
               <p>Interface intuitiva para agilizar seu trabalho diário</p>
@@ -91,7 +91,7 @@ const Index = () => {
         </div>
       </div>
       
-      <footer className="py-4 text-center text-white/60 w-full">
+      <footer className="py-4 text-center text-white/60">
         <p>© 2025 Frete Pro - Todos os direitos reservados</p>
       </footer>
     </div>

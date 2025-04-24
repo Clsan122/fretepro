@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -47,7 +48,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full">
+      <div className="min-h-screen bg-background dark:bg-gray-900">
         <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
           <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
             <div className="mb-6 px-2">
@@ -59,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <li key={item.name}>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start"
+                    className="w-full justify-start text-gray-700 dark:text-gray-200 hover:text-freight-700 dark:hover:text-freight-400"
                     onClick={() => handleNavigate(item.path)}
                   >
                     <item.icon className="mr-2 h-4 w-4" />
@@ -84,14 +85,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         )}
         
-        <div className="md:ml-64 min-h-screen pb-16 md:pb-0">
+        <div className="flex flex-col min-h-screen md:ml-64 pb-16 md:pb-0">
           <Header 
             toggleSidebar={toggleSidebar} 
             theme={theme}
             toggleTheme={toggleTheme}
           />
           
-          <main>
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">
             {children}
           </main>
         </div>
