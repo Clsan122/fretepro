@@ -160,7 +160,9 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
-    content: reactToPrintContent,
+    // Fix: content property should be replaced with contentRef which
+    // accepts a function returning the reference
+    contentRef: reactToPrintContent,
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
   });
