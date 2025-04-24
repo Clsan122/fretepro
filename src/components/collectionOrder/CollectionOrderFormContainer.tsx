@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CollectionOrder } from "@/types";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
@@ -8,6 +9,9 @@ import { FormActions } from "../freight/FormActions";
 import { CompanyDetailsSection } from "./sections/CompanyDetailsSection";
 import { CargoDetailsSection } from "./sections/CargoDetailsSection";
 import { LocationDetailsSection } from "./sections/LocationDetailsSection";
+import { v4 as uuidv4 } from "uuid";
+import { generateOrderNumber } from "@/utils/orderNumber";
+import { useAuth } from "@/context/AuthContext";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -20,13 +24,14 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   onCancel,
   orderToEdit
 }) => {
+  const { user } = useAuth();
   const { formData, setters } = useCollectionOrderForm({ orderToEdit });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.sender || !formData.recipient || !formData.originCity || 
-        !formData.originState || !formData.destinationCity || !formData.destinationState) {
+        !formData.originState || !formData.destinationCity || !formData.destinationState || !user) {
       return;
     }
 
@@ -78,6 +83,11 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     }
   };
 
+  // Create a wrapper for handleSenderClientChange that doesn't need clients argument
+  const handleSenderClientChangeWrapper = (clientId: string) => {
+    setters.handleSenderClientChange(clientId, formData.clients);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
       <CompanyDetailsSection
@@ -98,7 +108,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         receiver={formData.receiver}
         receiverAddress={formData.receiverAddress}
         selectedSenderId={formData.selectedSenderId}
-        handleSenderClientChange={setters.handleSenderClientChange}
+        handleSenderClientChange={handleSenderClientChangeWrapper}
         clients={formData.clients}
         setSender={setters.setSender}
         setSenderAddress={setters.setSenderAddress}
