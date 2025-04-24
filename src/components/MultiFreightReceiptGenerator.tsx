@@ -153,18 +153,13 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Create a callback function to provide the print content
-  const reactToPrintContent = useCallback(() => {
-    return componentRef.current;
-  }, []);
-
-  // Use useReactToPrint correctly
+  // Create print function using react-to-print
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
-    // Fix: The property name should be 'content' not 'content:'
-    content: reactToPrintContent,
+    // Fix the type error by using the correct property
+    content: () => componentRef.current,
   });
 
   // Create wrapper functions to be used with button onClick events
