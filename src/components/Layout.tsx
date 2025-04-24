@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -50,9 +49,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <SidebarProvider>
       <div className="min-h-screen bg-background dark:bg-gray-900">
         <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
-          <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+          <div className="h-full px-3 py-4 overflow-y-auto bg-card dark:bg-gray-800 border-r border-border">
             <div className="mb-6 px-2">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">FretePro</h2>
+              <h2 className="text-2xl font-semibold text-foreground">FretePro</h2>
             </div>
             
             <ul className="space-y-2">
@@ -60,7 +59,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <li key={item.name}>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-gray-200 hover:text-freight-700 dark:hover:text-freight-400"
+                    className="w-full justify-start text-foreground hover:text-primary dark:text-gray-200 dark:hover:text-primary"
                     onClick={() => handleNavigate(item.path)}
                   >
                     <item.icon className="mr-2 h-4 w-4" />
@@ -92,7 +91,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             toggleTheme={toggleTheme}
           />
           
-          <main className="flex-1 p-0 md:p-6">
+          <main className="flex-1 container-responsive">
             {children}
           </main>
         </div>
