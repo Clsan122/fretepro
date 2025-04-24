@@ -85,14 +85,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         )}
         
-        <div className="flex flex-col min-h-screen md:ml-64 pb-16 md:pb-0">
+        <div className="flex flex-col min-h-screen md:ml-64">
           <Header 
             toggleSidebar={toggleSidebar} 
             theme={theme}
             toggleTheme={toggleTheme}
           />
           
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 p-0 md:p-6">
             {children}
           </main>
         </div>

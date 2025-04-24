@@ -4,8 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
 import { generateOrderNumber } from "@/utils/orderNumber";
-
-// Import form sections
 import { SenderRecipientSection } from "./SenderRecipientSection";
 import { CargoSection } from "./CargoSection";
 import { DriverSection } from "./DriverSection";
@@ -75,7 +73,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
+    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-[100vw] px-0 md:px-4">
       <CompanyLogoSection
         companyLogo={formData.companyLogo}
         handleLogoUpload={(e) => {
@@ -105,10 +103,10 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         selectedSenderId={formData.selectedSenderId}
         handleSenderClientChange={setters.handleSenderClientChange}
         clients={formData.clients}
-        shipper={formData.shipper || ""}
-        setShipper={(value) => setters.setSender(value)}
-        shipperAddress={formData.shipperAddress || ""}
-        setShipperAddress={(value) => setters.setSenderAddress(value)}
+        shipper={formData.shipper}
+        setShipper={setters.setShipper}
+        shipperAddress={formData.shipperAddress}
+        setShipperAddress={setters.setShipperAddress}
         receiver={formData.receiver}
         setReceiver={setters.setReceiver}
         receiverAddress={formData.receiverAddress}
