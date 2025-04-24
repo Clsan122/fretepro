@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useCallback } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -153,7 +152,6 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Fixed: The correct way to use useReactToPrint with TypeScript
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     content: () => componentRef.current,
