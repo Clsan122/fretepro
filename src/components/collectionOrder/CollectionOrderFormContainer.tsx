@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { CollectionOrder } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +27,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
 }) => {
   const { user } = useAuth();
   const { formData, setters, measurementHandlers } = useCollectionOrderForm({ orderToEdit });
+
+  const [shipper, setShipper] = useState(orderToEdit?.shipper || "");
+  const [shipperAddress, setShipperAddress] = useState(orderToEdit?.shipperAddress || "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,12 +110,13 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setRecipient={setters.setRecipient}
         recipientAddress={formData.recipientAddress}
         setRecipientAddress={setters.setRecipientAddress}
-        selectedSenderType={formData.selectedSenderType}
-        handleSenderTypeChange={setters.handleSenderTypeChange}
-        handleSenderClientChange={setters.handleSenderClientChange}
         selectedSenderId={formData.selectedSenderId}
+        handleSenderClientChange={setters.handleSenderClientChange}
         clients={formData.clients}
-        senderLogo={formData.senderLogo}
+        shipper={shipper}
+        setShipper={setShipper}
+        shipperAddress={shipperAddress}
+        setShipperAddress={setShipperAddress}
       />
       
       <LocationsSection 

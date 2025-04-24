@@ -26,6 +26,8 @@ export interface CollectionOrder {
   issuerId: string;
   createdAt: string;
   userId: string;
+  shipper?: string;
+  shipperAddress?: string;
 }
 
 export interface Driver {

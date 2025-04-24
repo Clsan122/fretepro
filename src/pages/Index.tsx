@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
@@ -11,7 +12,7 @@ const Index = () => {
       <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-sm">
         <div className="container mx-auto flex items-center justify-between py-4 px-4">
           <Logo variant="full" size="md" className="text-white" />
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
               className="text-white border-white hover:bg-white/20"
