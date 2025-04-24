@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
@@ -37,32 +38,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        setUserState({
+        const userData: User = {
           id: session.user.id,
           email: session.user.email!,
           name: session.user.user_metadata.name || '',
           phone: session.user.phone || '',
+          bankInfo: '',
           createdAt: session.user.created_at
-        });
+        };
+        setUserState(userData);
         setIsAuthenticated(true);
-        setCurrentUser({
-          id: session.user.id,
-          email: session.user.email!,
-          name: session.user.user_metadata.name || '',
-          phone: session.user.phone || '',
-          createdAt: session.user.created_at
-        });
+        setCurrentUser(userData);
       }
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        const userData = {
+        const userData: User = {
           id: session.user.id,
           email: session.user.email!,
           name: session.user.user_metadata.name || '',
           phone: session.user.phone || '',
+          bankInfo: '',
           createdAt: session.user.created_at
         };
         setUserState(userData);
@@ -92,11 +90,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
 
       if (data.user) {
-        const userData = {
+        const userData: User = {
           id: data.user.id,
           email: data.user.email!,
           name: data.user.user_metadata.name || '',
           phone: data.user.phone || '',
+          bankInfo: '',
           createdAt: data.user.created_at
         };
         setUserState(userData);
@@ -124,12 +123,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
     
-    const newUser = {
+    const newUser: User = {
       id: uuidv4(),
       createdAt: new Date().toISOString(),
       name,
       email,
       phone: "",
+      bankInfo: "", // Add default empty string for bankInfo
       password,
     };
     

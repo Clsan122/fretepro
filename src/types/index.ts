@@ -117,6 +117,30 @@ export interface Freight {
   updatedAt?: string;
   startDate?: string;
   endDate?: string;
+  
+  // Additional properties needed by FreightForm.tsx and other components
+  departureDate?: string;
+  arrivalDate?: string;
+  volumes?: number;
+  weight?: number;
+  dimensions?: string;
+  cubicMeasurement?: number;
+  vehicleType?: string;
+  freightValue: number;
+  dailyRate: number;
+  otherCosts: number;
+  tollCosts: number;
+  proofOfDeliveryImage?: string;
+  pixKey?: string;
+  paymentTerm?: string;
+  thirdPartyDriverCost?: number;
+  tollExpenses?: number;
+  fuelExpenses?: number;
+  mealExpenses?: number;
+  helperExpenses?: number;
+  accommodationExpenses?: number;
+  totalExpenses?: number;
+  netProfit?: number;
 }
 
 export interface FreightExpense {
