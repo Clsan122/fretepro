@@ -68,9 +68,9 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           clients={clients}
           selectedValue={recipient}
           onClientChange={(clientId) => {
+            setRecipient(clientId);
             const selectedClient = clients.find(c => c.id === clientId);
             if (selectedClient) {
-              setRecipient(selectedClient.name);
               setRecipientAddress(selectedClient.address || '');
             }
           }}
@@ -83,9 +83,9 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           clients={clients}
           selectedValue={shipper}
           onClientChange={(clientId) => {
+            setShipper(clientId);
             const selectedClient = clients.find(c => c.id === clientId);
             if (selectedClient) {
-              setShipper(selectedClient.name);
               setShipperAddress(selectedClient.address || '');
             }
           }}
@@ -98,9 +98,9 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           clients={clients}
           selectedValue={receiver}
           onClientChange={(clientId) => {
+            setReceiver(clientId);
             const selectedClient = clients.find(c => c.id === clientId);
             if (selectedClient) {
-              setReceiver(selectedClient.name);
               setReceiverAddress(selectedClient.address || '');
             }
           }}

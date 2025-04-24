@@ -36,7 +36,7 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
   clientAddress
 }) => {
   const [open, setOpen] = React.useState(false);
-  const selectedClient = clients.find(client => client.id === selectedValue || client.name === selectedValue);
+  const selectedClient = clients.find(client => client.id === selectedValue);
 
   return (
     <div className="space-y-4">
@@ -90,15 +90,15 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
         </PopoverContent>
       </Popover>
       
-      {selectedValue && clientInfo && (
+      {selectedValue && selectedClient && (
         <div className="text-sm text-muted-foreground space-y-1">
-          <p><strong>Nome:</strong> {clientInfo}</p>
-          {clientAddress && <p><strong>Endereço:</strong> {clientAddress}</p>}
-          {selectedClient?.cnpj && <p><strong>CNPJ:</strong> {selectedClient.cnpj}</p>}
-          {selectedClient?.city && selectedClient?.state && (
+          <p><strong>Nome:</strong> {selectedClient.name}</p>
+          {selectedClient.address && <p><strong>Endereço:</strong> {selectedClient.address}</p>}
+          {selectedClient.cnpj && <p><strong>CNPJ:</strong> {selectedClient.cnpj}</p>}
+          {selectedClient.city && selectedClient.state && (
             <p><strong>Cidade/Estado:</strong> {selectedClient.city}/{selectedClient.state}</p>
           )}
-          {selectedClient?.phone && <p><strong>Telefone:</strong> {selectedClient.phone}</p>}
+          {selectedClient.phone && <p><strong>Telefone:</strong> {selectedClient.phone}</p>}
         </div>
       )}
     </div>
