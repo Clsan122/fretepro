@@ -1,4 +1,5 @@
-import React, { useRef, useState, useCallback } from "react";
+
+import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
 import { getCurrentUser } from "@/utils/storage";
@@ -154,7 +155,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
-    content: () => componentRef.current,
+    contentRef: componentRef,
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
   });
