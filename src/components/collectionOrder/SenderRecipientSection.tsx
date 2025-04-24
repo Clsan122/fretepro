@@ -1,6 +1,7 @@
 
 import React from "react";
 import { ClientSelect } from "./ClientSelect";
+import { Client } from "@/types"; // Import the Client type from types
 import {
   Card,
   CardContent,
