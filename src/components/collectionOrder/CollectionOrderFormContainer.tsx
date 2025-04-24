@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { CollectionOrder } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
@@ -7,7 +7,6 @@ import { generateOrderNumber } from "@/utils/orderNumber";
 
 // Import form sections
 import { SenderRecipientSection } from "./SenderRecipientSection";
-import { LocationsSection } from "./LocationsSection";
 import { CargoSection } from "./CargoSection";
 import { DriverSection } from "./DriverSection";
 import { CompanyLogoSection } from "./CompanyLogoSection";
@@ -20,16 +19,13 @@ interface CollectionOrderFormContainerProps {
   orderToEdit?: CollectionOrder;
 }
 
-const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> = ({ 
-  onSave, 
-  onCancel, 
-  orderToEdit 
+const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> = ({
+  onSave,
+  onCancel,
+  orderToEdit
 }) => {
   const { user } = useAuth();
   const { formData, setters, measurementHandlers } = useCollectionOrderForm({ orderToEdit });
-
-  const [shipper, setShipper] = useState(orderToEdit?.shipper || "");
-  const [shipperAddress, setShipperAddress] = useState(orderToEdit?.shipperAddress || "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,14 +74,10 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     onSave(newOrder as CollectionOrder);
   };
 
-  const handleRemoveLogo = () => {
-    setters.setCompanyLogo("");
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
-      <CompanyLogoSection 
-        companyLogo={formData.companyLogo} 
+      <CompanyLogoSection
+        companyLogo={formData.companyLogo}
         handleLogoUpload={(e) => {
           const file = e.target.files?.[0];
           if (file) {
@@ -96,12 +88,12 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
             reader.readAsDataURL(file);
           }
         }}
-        handleRemoveLogo={handleRemoveLogo}
+        handleRemoveLogo={() => setters.setCompanyLogo("")}
         selectedIssuerId={formData.selectedIssuerId}
         onIssuerChange={setters.setSelectedIssuerId}
       />
-      
-      <SenderRecipientSection 
+
+      <SenderRecipientSection
         sender={formData.sender}
         setSender={setters.setSender}
         senderAddress={formData.senderAddress}
@@ -113,28 +105,17 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         selectedSenderId={formData.selectedSenderId}
         handleSenderClientChange={setters.handleSenderClientChange}
         clients={formData.clients}
-        shipper={shipper}
-        setShipper={setShipper}
-        shipperAddress={shipperAddress}
-        setShipperAddress={setShipperAddress}
-      />
-      
-      <LocationsSection 
-        originCity={formData.originCity}
-        setOriginCity={setters.setOriginCity}
-        originState={formData.originState}
-        setOriginState={setters.setOriginState}
-        destinationCity={formData.destinationCity}
-        setDestinationCity={setters.setDestinationCity}
-        destinationState={formData.destinationState}
-        setDestinationState={setters.setDestinationState}
+        shipper={formData.shipper || ""}
+        setShipper={(value) => setters.setSender(value)}
+        shipperAddress={formData.shipperAddress || ""}
+        setShipperAddress={(value) => setters.setSenderAddress(value)}
         receiver={formData.receiver}
         setReceiver={setters.setReceiver}
         receiverAddress={formData.receiverAddress}
         setReceiverAddress={setters.setReceiverAddress}
       />
-      
-      <CargoSection 
+
+      <CargoSection
         volumes={formData.volumes}
         setVolumes={setters.setVolumes}
         weight={formData.weight}
@@ -147,21 +128,21 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         handleRemoveMeasurement={measurementHandlers.handleRemoveMeasurement}
         handleMeasurementChange={measurementHandlers.handleMeasurementChange}
       />
-      
+
       <InvoiceNotesSection
         invoiceNumber={formData.invoiceNumber}
         setInvoiceNumber={setters.setInvoiceNumber}
         observations={formData.observations}
         setObservations={setters.setObservations}
       />
-      
-      <DriverSection 
+
+      <DriverSection
         driverId={formData.driverId}
         drivers={formData.drivers}
         setDriverId={setters.setDriverId}
       />
-      
-      <FormActions 
+
+      <FormActions
         onCancel={onCancel}
         isEditing={Boolean(orderToEdit)}
         submitLabel={orderToEdit ? "Atualizar Ordem" : "Cadastrar Ordem"}

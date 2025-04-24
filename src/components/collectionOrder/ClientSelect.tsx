@@ -79,6 +79,7 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
                     <span className="text-sm text-muted-foreground">
                       {client.cnpj && `CNPJ: ${client.cnpj}`}
                       {client.address && ` • ${client.address}`}
+                      {client.city && client.state && ` • ${client.city}/${client.state}`}
                       {client.phone && ` • Tel: ${client.phone}`}
                     </span>
                   </div>
@@ -94,6 +95,9 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
           <p><strong>Nome:</strong> {clientInfo}</p>
           {clientAddress && <p><strong>Endereço:</strong> {clientAddress}</p>}
           {selectedClient?.cnpj && <p><strong>CNPJ:</strong> {selectedClient.cnpj}</p>}
+          {selectedClient?.city && selectedClient?.state && (
+            <p><strong>Cidade/Estado:</strong> {selectedClient.city}/{selectedClient.state}</p>
+          )}
           {selectedClient?.phone && <p><strong>Telefone:</strong> {selectedClient.phone}</p>}
         </div>
       )}

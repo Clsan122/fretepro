@@ -1,14 +1,8 @@
 
 import React from "react";
+import { Client } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ClientSelect } from "./ClientSelect";
-import { Client } from "@/types"; // Import the Client type from types
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -26,6 +20,10 @@ interface SenderRecipientSectionProps {
   setShipper: (value: string) => void;
   shipperAddress: string;
   setShipperAddress: (value: string) => void;
+  receiver: string;
+  setReceiver: (value: string) => void;
+  receiverAddress: string;
+  setReceiverAddress: (value: string) => void;
 }
 
 export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
@@ -43,7 +41,11 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   shipper,
   setShipper,
   shipperAddress,
-  setShipperAddress
+  setShipperAddress,
+  receiver,
+  setReceiver,
+  receiverAddress,
+  setReceiverAddress,
 }) => {
   return (
     <Card>
@@ -51,47 +53,60 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         <CardTitle>Informações de Remetente e Destinatário</CardTitle>
         <CardDescription>Selecione os clientes nos campos abaixo</CardDescription>
       </CardHeader>
-      <CardContent className="p-4 sm:p-6 pt-0">
-        <div className="grid grid-cols-1 gap-6">
-          <ClientSelect
-            label="Remetente"
-            clients={clients}
-            selectedValue={selectedSenderId}
-            onClientChange={handleSenderClientChange}
-            clientInfo={sender}
-            clientAddress={senderAddress}
-          />
+      <CardContent className="p-4 sm:p-6 pt-0 space-y-6">
+        <ClientSelect
+          label="Remetente"
+          clients={clients}
+          selectedValue={selectedSenderId}
+          onClientChange={handleSenderClientChange}
+          clientInfo={sender}
+          clientAddress={senderAddress}
+        />
 
-          <ClientSelect
-            label="Expedidor"
-            clients={clients}
-            selectedValue={shipper}
-            onClientChange={(clientId) => {
-              const selectedClient = clients.find(c => c.id === clientId);
-              if (selectedClient) {
-                setShipper(selectedClient.name);
-                setShipperAddress(selectedClient.address || '');
-              }
-            }}
-            clientInfo={shipper}
-            clientAddress={shipperAddress}
-          />
+        <ClientSelect
+          label="Destinatário"
+          clients={clients}
+          selectedValue={recipient}
+          onClientChange={(clientId) => {
+            const selectedClient = clients.find(c => c.id === clientId);
+            if (selectedClient) {
+              setRecipient(selectedClient.name);
+              setRecipientAddress(selectedClient.address || '');
+            }
+          }}
+          clientInfo={recipient}
+          clientAddress={recipientAddress}
+        />
 
-          <ClientSelect
-            label="Destinatário"
-            clients={clients}
-            selectedValue={recipient}
-            onClientChange={(clientId) => {
-              const selectedClient = clients.find(c => c.id === clientId);
-              if (selectedClient) {
-                setRecipient(selectedClient.name);
-                setRecipientAddress(selectedClient.address || '');
-              }
-            }}
-            clientInfo={recipient}
-            clientAddress={recipientAddress}
-          />
-        </div>
+        <ClientSelect
+          label="Expedidor"
+          clients={clients}
+          selectedValue={shipper}
+          onClientChange={(clientId) => {
+            const selectedClient = clients.find(c => c.id === clientId);
+            if (selectedClient) {
+              setShipper(selectedClient.name);
+              setShipperAddress(selectedClient.address || '');
+            }
+          }}
+          clientInfo={shipper}
+          clientAddress={shipperAddress}
+        />
+
+        <ClientSelect
+          label="Recebedor"
+          clients={clients}
+          selectedValue={receiver}
+          onClientChange={(clientId) => {
+            const selectedClient = clients.find(c => c.id === clientId);
+            if (selectedClient) {
+              setReceiver(selectedClient.name);
+              setReceiverAddress(selectedClient.address || '');
+            }
+          }}
+          clientInfo={receiver}
+          clientAddress={receiverAddress}
+        />
       </CardContent>
     </Card>
   );
