@@ -25,6 +25,7 @@ interface ClientSelectProps {
   onClientChange: (value: string) => void;
   clientInfo: string;
   clientAddress: string;
+  showDetails?: boolean; // Added the missing property with optional flag
 }
 
 export const ClientSelect: React.FC<ClientSelectProps> = ({
@@ -33,7 +34,8 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
   selectedValue,
   onClientChange,
   clientInfo,
-  clientAddress
+  clientAddress,
+  showDetails = true // Default to true for backward compatibility
 }) => {
   const [open, setOpen] = React.useState(false);
   const selectedClient = clients.find(client => client.id === selectedValue);
@@ -90,7 +92,7 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
         </PopoverContent>
       </Popover>
       
-      {selectedValue && clientInfo && (
+      {showDetails && selectedValue && clientInfo && (
         <div className="text-sm text-muted-foreground space-y-1">
           <p><strong>Nome:</strong> {clientInfo}</p>
           {clientAddress && <p><strong>Endereço:</strong> {clientAddress}</p>}
