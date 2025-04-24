@@ -1,8 +1,8 @@
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
-import { getCurrentUser } from "@/utils/storage";
+import { getUser } from "@/utils/storage";
 import { Button } from "@/components/ui/button";
 import { PrinterIcon, Download, Share2, Check } from "lucide-react";
 import { 
@@ -31,7 +31,7 @@ interface MultiFreightReceiptGeneratorProps {
 
 const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> = ({ freights }) => {
   const componentRef = useRef<HTMLDivElement>(null);
-  const currentUser = getCurrentUser();
+  const currentUser = getUser();
   const [isGenerating, setIsGenerating] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
   const { toast } = useToast();
@@ -153,22 +153,28 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Fix: Properly define the print functionality
-  const reactToPrintContent = React.useCallback(() => {
+  const reactToPrintContent = useCallback(() => {
     return componentRef.current;
   }, []);
 
-  const { handlePrint } = useReactToPrint({
+  const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
-    content: reactToPrintContent,
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
   });
 
-  // Create wrapper for onClick events
-  const handlePrintClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    handlePrint();
+  const handlePrintWithContent = () => {
+    if (componentRef.current) {
+      handlePrint();
+    }
+  };
+
+  const handlePrintButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    handlePrintWithContent();
+  };
+
+  const handlePrintMenuItemClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    handlePrintWithContent();
   };
 
   return (
@@ -204,7 +210,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
             <Button 
               variant="outline" 
               className="gap-2 w-full"
-              onClick={handlePrintClick}
+              onClick={handlePrintButtonClick}
             >
               <PrinterIcon className="h-4 w-4" />
               Imprimir
@@ -225,7 +231,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
               <DropdownMenuItem onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" /> Baixar PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handlePrintClick}>
+              <DropdownMenuItem onClick={handlePrintMenuItemClick}>
                 <PrinterIcon className="h-4 w-4 mr-2" /> Imprimir
               </DropdownMenuItem>
             </DropdownMenuContent>

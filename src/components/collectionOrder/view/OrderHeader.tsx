@@ -2,32 +2,44 @@
 import React from "react";
 import { IssuerHeaderDetails } from "./IssuerHeaderDetails";
 import { Client, User } from "@/types";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 interface OrderHeaderProps {
+  companyLogo?: string;
   createdAt: string;
-  orderNumber?: string;
+  clientName?: string;
+  clientLogo?: string;
   issuer?: User | Client | null;
+  orderNumber?: string; // Added the missing orderNumber prop
 }
 
 export const OrderHeader: React.FC<OrderHeaderProps> = ({
+  clientLogo,
   createdAt,
-  orderNumber,
+  clientName,
   issuer,
+  orderNumber,
 }) => {
-  const formattedDate = format(new Date(createdAt), "dd/MM/yyyy", { locale: ptBR });
-
   return (
     <div className="mb-3 print:mb-2">
       {/* Exibe informações do emissor acima do título */}
       {issuer && <IssuerHeaderDetails issuer={issuer} />}
+
+      {clientLogo && (
+        <div className="flex justify-center mb-2">
+          <img
+            src={clientLogo}
+            alt="Logo do cliente"
+            className="h-12 print:h-10 object-contain"
+          />
+        </div>
+      )}
       
       <div className="text-center">
         <h2 className="text-xl print:text-lg font-bold text-freight-700">
           ORDEM DE COLETA Nº {orderNumber}
         </h2>
-        <p className="text-gray-500 text-xs">Data: {formattedDate}</p>
+        <p className="text-gray-500 text-xs">Data: {createdAt}</p>
+        {clientName && <p className="font-medium text-xs">Solicitante: {clientName}</p>}
       </div>
     </div>
   );

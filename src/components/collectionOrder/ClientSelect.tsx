@@ -22,9 +22,9 @@ interface ClientSelectProps {
   label: string;
   clients: Client[];
   selectedValue: string;
-  onClientChange: (clientId: string) => void;
-  clientInfo?: string;
-  clientAddress?: string;
+  onClientChange: (value: string) => void;
+  clientInfo: string;
+  clientAddress: string;
 }
 
 export const ClientSelect: React.FC<ClientSelectProps> = ({
@@ -39,7 +39,7 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
   const selectedClient = clients.find(client => client.id === selectedValue);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <Label>{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -51,13 +51,13 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
           >
             {selectedValue && selectedClient
               ? selectedClient.name
-              : `Selecionar cliente`}
+              : `Selecionar ${label}`}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0">
           <Command>
-            <CommandInput placeholder={`Buscar cliente...`} />
+            <CommandInput placeholder={`Buscar ${label.toLowerCase()}...`} />
             <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
             <CommandGroup>
               {clients.map((client) => (
@@ -67,19 +67,21 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
                     onClientChange(client.id);
                     setOpen(false);
                   }}
-                  className="flex flex-col items-start"
                 >
-                  <div className="flex items-center">
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedValue === client.id ? "opacity-100" : "opacity-0"
-                      )}
-                    />
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedValue === client.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <div className="flex flex-col">
                     <span>{client.name}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground ml-6 mt-1">
-                    {client.city}/{client.state}{client.address ? ` • ${client.address}` : ''}
+                    <span className="text-sm text-muted-foreground">
+                      {client.cnpj && `CNPJ: ${client.cnpj}`}
+                      {client.address && ` • ${client.address}`}
+                      {client.city && client.state && ` • ${client.city}/${client.state}`}
+                      {client.phone && ` • Tel: ${client.phone}`}
+                    </span>
                   </div>
                 </CommandItem>
               ))}
@@ -87,6 +89,18 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
           </Command>
         </PopoverContent>
       </Popover>
+      
+      {selectedValue && clientInfo && (
+        <div className="text-sm text-muted-foreground space-y-1">
+          <p><strong>Nome:</strong> {clientInfo}</p>
+          {clientAddress && <p><strong>Endereço:</strong> {clientAddress}</p>}
+          {selectedClient?.cnpj && <p><strong>CNPJ:</strong> {selectedClient.cnpj}</p>}
+          {selectedClient?.city && selectedClient?.state && (
+            <p><strong>Cidade/Estado:</strong> {selectedClient.city}/{selectedClient.state}</p>
+          )}
+          {selectedClient?.phone && <p><strong>Telefone:</strong> {selectedClient.phone}</p>}
+        </div>
+      )}
     </div>
   );
 };
