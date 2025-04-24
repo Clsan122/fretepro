@@ -106,10 +106,12 @@ const CollectionOrderView: React.FC = () => {
       createdAt: new Date().toISOString(),
       userId: order.userId,
       driverId: order.driverId,
-      // Add client information from order
-      clientName: order.recipient,
-      clientAddress: order.recipientAddress,
-      
+      // Add required properties with default values
+      distance: 0,
+      price: 0,
+      status: 'pending',
+      paymentStatus: 'pending',
+      expenses: []
     };
 
     // Save the new freight

@@ -1,4 +1,5 @@
 
+
 export interface CollectionOrder {
   id: string;
   sender: string;
@@ -88,6 +89,7 @@ export interface User {
   role?: 'user' | 'admin';
   createdAt?: string;
   updatedAt?: string;
+  password?: string; // Add password as an optional property for registration
 }
 
 export interface Freight {
@@ -141,6 +143,8 @@ export interface Freight {
   accommodationExpenses?: number;
   totalExpenses?: number;
   netProfit?: number;
+  clientName?: string; // Add clientName property for CollectionOrderView
+  clientAddress?: string; // Add clientAddress property for CollectionOrderView
 }
 
 export interface FreightExpense {

@@ -123,6 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
     
+    // Create user object with correct type
     const newUser: User = {
       id: uuidv4(),
       createdAt: new Date().toISOString(),
@@ -130,18 +131,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       phone: "",
       bankInfo: "", // Add default empty string for bankInfo
-      password,
     };
     
-    users.push(newUser);
+    // Add password to the stored user but not to the state
+    const userToStore = {
+      ...newUser,
+      password // Store password in localStorage but not in the state
+    };
+    
+    users.push(userToStore);
     
     localStorage.setItem("users", JSON.stringify(users));
     
-    const { password: pwd, ...userWithoutPassword } = newUser;
-    
-    setUserState(userWithoutPassword);
+    setUserState(newUser);
     setIsAuthenticated(true);
-    setCurrentUser(userWithoutPassword);
+    setCurrentUser(newUser);
     setLoading(false);
     
     return true;

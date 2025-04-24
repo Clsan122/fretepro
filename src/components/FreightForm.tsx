@@ -170,8 +170,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       weight,
       dimensions,
       cubicMeasurement,
-      cargoType: cargoType as any,
-      vehicleType: vehicleType as any,
+      cargoType: cargoType,
+      vehicleType: vehicleType,
       freightValue,
       dailyRate,
       otherCosts,
@@ -181,7 +181,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       createdAt: freightToEdit ? freightToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
       pixKey: pixKey || undefined,
-      paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
+      paymentTerm: paymentTerm || undefined,
       driverId: driverId !== "none" ? driverId : undefined,
       thirdPartyDriverCost,
       tollExpenses,
@@ -190,7 +190,12 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       helperExpenses,
       accommodationExpenses,
       totalExpenses,
-      netProfit
+      netProfit,
+      distance: 0,
+      price: freightValue,
+      status: 'pending',
+      paymentStatus: 'pending',
+      expenses: []
     };
 
     onSave(newFreight);
@@ -219,8 +224,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       weight,
       dimensions,
       cubicMeasurement,
-      cargoType: cargoType as any,
-      vehicleType: vehicleType as any,
+      cargoType: cargoType,
+      vehicleType: vehicleType,
       freightValue,
       dailyRate,
       otherCosts,
@@ -230,8 +235,13 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       createdAt: freightToEdit ? freightToEdit.createdAt : new Date().toISOString(),
       userId: user!.id,
       pixKey: pixKey || undefined,
-      paymentTerm: paymentTerm ? (paymentTerm as any) : undefined,
+      paymentTerm: paymentTerm || undefined,
       driverId: driverId !== "none" ? driverId : undefined,
+      distance: 0,
+      price: freightValue,
+      status: 'pending',
+      paymentStatus: 'pending',
+      expenses: []
     };
 
     const receiptWindow = window.open(`/freight/${freightData.id}/receipt`, '_blank');
