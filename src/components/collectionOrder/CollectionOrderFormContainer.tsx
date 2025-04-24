@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CollectionOrder } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -68,7 +69,10 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       companyLogo: formData.companyLogo,
       issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
-      userId: user.id
+      userId: user.id,
+      // Add shipper and shipperAddress to the new order
+      shipper: formData.shipper,
+      shipperAddress: formData.shipperAddress
     };
 
     onSave(newOrder as CollectionOrder);
@@ -105,10 +109,10 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         selectedSenderId={formData.selectedSenderId}
         handleSenderClientChange={setters.handleSenderClientChange}
         clients={formData.clients}
-        shipper={formData.shipper || ""}
-        setShipper={(value) => setters.setSender(value)}
-        shipperAddress={formData.shipperAddress || ""}
-        setShipperAddress={(value) => setters.setSenderAddress(value)}
+        shipper={formData.shipper}
+        setShipper={setters.setShipper}
+        shipperAddress={formData.shipperAddress}
+        setShipperAddress={setters.setShipperAddress}
         receiver={formData.receiver}
         setReceiver={setters.setReceiver}
         receiverAddress={formData.receiverAddress}

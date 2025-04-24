@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Measurement, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -22,6 +23,10 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
   const [destinationState, setDestinationState] = useState(orderToEdit?.destinationState || "");
   const [receiver, setReceiver] = useState(orderToEdit?.receiver || "");
   const [receiverAddress, setReceiverAddress] = useState(orderToEdit?.receiverAddress || "");
+  
+  // Add shipper and shipperAddress states
+  const [shipper, setShipper] = useState(orderToEdit?.shipper || "");
+  const [shipperAddress, setShipperAddress] = useState(orderToEdit?.shipperAddress || "");
   
   // Informações da carga
   const [volumes, setVolumes] = useState<number>(orderToEdit?.volumes || 0);
@@ -165,7 +170,10 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       selectedSenderType,
       selectedSenderId,
       senderLogo,
-      clients
+      clients,
+      // Add the missing properties to formData
+      shipper,
+      shipperAddress
     },
     setters: {
       setSender,
@@ -189,7 +197,10 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       setCompanyLogo,
       setSelectedIssuerId,
       handleSenderTypeChange,
-      handleSenderClientChange
+      handleSenderClientChange,
+      // Add setter for shipper and shipperAddress
+      setShipper,
+      setShipperAddress
     },
     measurementHandlers: {
       handleMeasurementChange,
