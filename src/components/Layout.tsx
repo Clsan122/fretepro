@@ -7,9 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Header from "./navigation/Header";
 import BottomNavigation from "@/components/BottomNavigation";
 import SidebarNavigation from "./navigation/SidebarNavigation";
-import { Button } from "@/components/ui/button";
 import { navigationItems } from "./navigation/BottomNavigation";
-import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,7 +18,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("theme") || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+    }
+    return "light";
   });
   
   const toggleSidebar = () => {
@@ -39,6 +41,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
   
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme("dark");
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+  
   const handleNavigate = (path: string) => {
     navigate(path);
     if (isMobile) {
@@ -48,31 +63,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background dark:bg-gray-900">
+      <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
         <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
           <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
             <div className="mb-6 px-2">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">FretePro</h2>
+              <h2 className="text-2xl font-semibold text-freight-700 dark:text-freight-300">FretePro</h2>
             </div>
             
             <ul className="space-y-2">
               {navigationItems.map((item) => (
                 <li key={item.name}>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-gray-200 hover:text-freight-700 dark:hover:text-freight-400"
+                  <button
+                    className="w-full flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-freight-50 dark:hover:bg-freight-900 rounded-lg transition-colors"
                     onClick={() => handleNavigate(item.path)}
                   >
-                    <item.icon className="mr-2 h-4 w-4" />
+                    <item.icon className="mr-2 h-5 w-5" />
                     {item.name}
-                  </Button>
+                  </button>
                 </li>
               ))}
             </ul>
-
-            <div className="mt-auto pt-4">
-              <ProfileMenuGroup />
-            </div>
           </div>
         </aside>
 
@@ -85,7 +95,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         )}
         
-        <div className="flex flex-col min-h-screen md:ml-64 pb-16 md:pb-0">
+        <div className="flex flex-col min-h-screen w-full md:ml-64 pb-16 md:pb-0">
           <Header 
             toggleSidebar={toggleSidebar} 
             theme={theme}

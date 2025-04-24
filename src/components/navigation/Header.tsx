@@ -11,32 +11,35 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) => {
   return (
-    <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
-      <div className="flex items-center">
+    <header className="sticky top-0 z-50 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="h-full max-w-screen-2xl mx-auto px-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="md:hidden text-freight-600 dark:text-freight-400 hover:bg-freight-50 dark:hover:bg-freight-900"
+            onClick={toggleSidebar}
+          >
+            <MenuIcon className="h-5 w-5" />
+          </Button>
+          <h1 className="text-xl font-semibold bg-gradient-to-r from-freight-600 to-freight-700 bg-clip-text text-transparent dark:from-freight-400 dark:to-freight-500">
+            FretePro
+          </h1>
+        </div>
+        
         <Button 
           variant="ghost" 
           size="icon"
-          className="md:hidden"
-          onClick={toggleSidebar}
+          className="text-freight-600 dark:text-freight-400 hover:bg-freight-50 dark:hover:bg-freight-900"
+          onClick={toggleTheme}
         >
-          <MenuIcon className="h-5 w-5" />
+          {theme === "light" ? (
+            <Moon className="h-5 w-5" />
+          ) : (
+            <Sun className="h-5 w-5" />
+          )}
         </Button>
-        <h1 className="text-xl font-semibold text-gray-800 dark:text-white ml-2">
-          FretePro
-        </h1>
       </div>
-      
-      <Button 
-        variant="ghost" 
-        size="icon"
-        onClick={toggleTheme}
-      >
-        {theme === "light" ? (
-          <Moon className="h-5 w-5" />
-        ) : (
-          <Sun className="h-5 w-5" />
-        )}
-      </Button>
     </header>
   );
 };
