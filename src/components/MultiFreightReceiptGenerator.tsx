@@ -158,8 +158,8 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
-    // Use the correct property name
-    documentContent: () => componentRef.current,
+    // Use the correct property name according to react-to-print types
+    content: () => componentRef.current,
   });
 
   // Create wrapper functions to be used with button onClick events
