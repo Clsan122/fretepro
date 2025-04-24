@@ -1,6 +1,8 @@
 
-// Refatorado para componentes menores para facilitar a manutenção
 import React from "react";
+import { OriginLocationFields } from "./OriginLocationFields";
+import { DestinationLocationFields } from "./DestinationLocationFields";
+import { ReceiverFields } from "./ReceiverFields";
 import {
   Card,
   CardContent,
@@ -8,11 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { OriginLocationFields } from "./OriginLocationFields";
-import { DestinationLocationFields } from "./DestinationLocationFields";
-import { ReceiverFields } from "./ReceiverFields";
 
-interface LocationsProps {
+interface LocationsSectionProps {
   originCity: string;
   setOriginCity: (value: string) => void;
   originState: string;
@@ -27,40 +26,55 @@ interface LocationsProps {
   setReceiverAddress: (value: string) => void;
 }
 
-export const LocationsSection: React.FC<LocationsProps> = (props) => {
-  const {
-    originCity, setOriginCity, originState, setOriginState,
-    destinationCity, setDestinationCity, destinationState, setDestinationState,
-    receiver, setReceiver, receiverAddress, setReceiverAddress
-  } = props;
-
+export const LocationsSection: React.FC<LocationsSectionProps> = ({
+  originCity,
+  setOriginCity,
+  originState,
+  setOriginState,
+  destinationCity,
+  setDestinationCity,
+  destinationState,
+  setDestinationState,
+  receiver,
+  setReceiver,
+  receiverAddress,
+  setReceiverAddress
+}) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Localidades</CardTitle>
-        <CardDescription>Informe a origem e destino da carga</CardDescription>
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle>Informações de Localidades</CardTitle>
+        <CardDescription>Informe as cidades e estados de origem e destino</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <OriginLocationFields
-            originCity={originCity}
-            setOriginCity={setOriginCity}
-            originState={originState}
-            setOriginState={setOriginState}
-          />
-          <DestinationLocationFields
-            destinationCity={destinationCity}
-            setDestinationCity={setDestinationCity}
-            destinationState={destinationState}
-            setDestinationState={setDestinationState}
-          />
+      <CardContent className="p-4 sm:p-6 pt-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <OriginLocationFields 
+              originCity={originCity}
+              setOriginCity={setOriginCity}
+              originState={originState}
+              setOriginState={setOriginState}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <DestinationLocationFields
+              destinationCity={destinationCity}
+              setDestinationCity={setDestinationCity}
+              destinationState={destinationState}
+              setDestinationState={setDestinationState}
+            />
+          </div>
+          
+          <div className="md:col-span-2">
+            <ReceiverFields
+              receiver={receiver}
+              setReceiver={setReceiver}
+              receiverAddress={receiverAddress}
+              setReceiverAddress={setReceiverAddress}
+            />
+          </div>
         </div>
-        <ReceiverFields
-          receiver={receiver}
-          setReceiver={setReceiver}
-          receiverAddress={receiverAddress}
-          setReceiverAddress={setReceiverAddress}
-        />
       </CardContent>
     </Card>
   );

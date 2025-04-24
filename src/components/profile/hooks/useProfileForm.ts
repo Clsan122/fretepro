@@ -1,39 +1,52 @@
 
-import { useState, useEffect } from 'react';
-import { User } from '@/types';
+import { useState, useEffect } from "react";
+import { User } from "@/types";
 
 export const useProfileForm = (user: User | null) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [phone, setPhone] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [pixKey, setPixKey] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [cnpj, setCnpj] = useState("");
-  const [companyLogo, setCompanyLogo] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zipCode, setZipCode] = useState("");
+  // Dados pessoais
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [cpf, setCpf] = useState(user?.cpf || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [avatar, setAvatar] = useState(user?.avatar || "");
+  const [pixKey, setPixKey] = useState(user?.pixKey || "");
+
+  // Dados de endereço
+  const [address, setAddress] = useState(user?.address || "");
+  const [city, setCity] = useState(user?.city || "");
+  const [state, setState] = useState(user?.state || "");
+  const [zipCode, setZipCode] = useState(user?.zipCode || "");
+
+  // Dados da empresa
+  const [companyName, setCompanyName] = useState(user?.companyName || "");
+  const [cnpj, setCnpj] = useState(user?.cnpj || "");
+  const [companyLogo, setCompanyLogo] = useState(user?.companyLogo || "");
+
+  // Dados de segurança
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Atualiza o estado quando o usuário mudar
   useEffect(() => {
     if (user) {
+      // Dados pessoais
       setName(user.name);
       setEmail(user.email);
       setCpf(user.cpf || "");
+      setPhone(user.phone || "");
+      setAvatar(user.avatar || "");
+      setPixKey(user.pixKey || "");
+
+      // Dados de endereço
       setAddress(user.address || "");
       setCity(user.city || "");
       setState(user.state || "");
       setZipCode(user.zipCode || "");
-      setPhone(user.phone || "");
+
+      // Dados da empresa
       setCompanyName(user.companyName || "");
       setCnpj(user.cnpj || "");
-      setPixKey(user.pixKey || "");
-      setAvatar(user.avatar || "");
       setCompanyLogo(user.companyLogo || "");
     }
   }, [user]);
@@ -46,16 +59,16 @@ export const useProfileForm = (user: User | null) => {
       phone,
       avatar,
       pixKey,
-      companyName,
-      cnpj,
-      companyLogo,
       address,
       city,
       state,
       zipCode,
+      companyName,
+      cnpj,
+      companyLogo,
       currentPassword,
       newPassword,
-      confirmPassword
+      confirmPassword,
     },
     setters: {
       setName,
@@ -64,16 +77,16 @@ export const useProfileForm = (user: User | null) => {
       setPhone,
       setAvatar,
       setPixKey,
-      setCompanyName,
-      setCnpj,
-      setCompanyLogo,
       setAddress,
       setCity,
       setState,
       setZipCode,
+      setCompanyName,
+      setCnpj,
+      setCompanyLogo,
       setCurrentPassword,
       setNewPassword,
-      setConfirmPassword
-    }
+      setConfirmPassword,
+    },
   };
 };
