@@ -7,23 +7,27 @@ import { useToast } from "@/components/ui/use-toast";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Import the section components
-import { ClientSelectionSection } from "./freight/ClientSelectionSection";
-import { DriverSelectionSection } from "./freight/DriverSelectionSection";
-import { RouteSection } from "./freight/RouteSection";
-import { CargoDetailsSection } from "./freight/CargoDetailsSection";
-import { PaymentInfoSection } from "./freight/PaymentInfoSection";
-import { PricingSection } from "./freight/PricingSection";
-import { ExpensesSection } from "./freight/ExpensesSection";
-import { FormActions } from "./freight/FormActions";
+// Import form sections
+import { ClientSelectionSection } from "./ClientSelectionSection";
+import { DriverSelectionSection } from "./DriverSelectionSection";
+import { RouteSection } from "./RouteSection";
+import { CargoDetailsSection } from "./CargoDetailsSection";
+import { PaymentInfoSection } from "./PaymentInfoSection";
+import { PricingSection } from "./PricingSection";
+import { ExpensesSection } from "./ExpensesSection";
+import { FormActions } from "./FormActions";
 
-interface FreightFormProps {
+interface FreightFormContainerProps {
   onSave: (freight: Freight) => void;
   onCancel: () => void;
   freightToEdit?: Freight;
 }
 
-const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEdit }) => {
+const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
+  onSave,
+  onCancel,
+  freightToEdit
+}) => {
   const [clientId, setClientId] = useState("");
   const [originCity, setOriginCity] = useState("");
   const [originState, setOriginState] = useState("");
@@ -193,6 +197,7 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
       accommodationExpenses,
       totalExpenses,
       netProfit,
+      requesterName,
       distance: 0,
       price: freightValue,
       status: 'pending',
@@ -361,4 +366,4 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   );
 };
 
-export default FreightForm;
+export default FreightFormContainer;
