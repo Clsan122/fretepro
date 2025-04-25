@@ -33,17 +33,23 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
   placeholder
 }) => {
   const [open, setOpen] = useState(false);
+  // Initialize searchTerm with empty string to prevent null
   const [searchTerm, setSearchTerm] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Ensure clients is not null and always an array
+  // Double ensure clients is not null and always an array
   const safeClients = Array.isArray(clients) ? clients : [];
   
-  const filteredClients = safeClients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter clients with additional null checks
+  const filteredClients = safeClients.filter(client => 
+    client && 
+    client.name && 
+    typeof client.name === 'string' && 
+    client.name.toLowerCase().includes((searchTerm || "").toLowerCase())
   );
 
   useEffect(() => {
+    // Make sure value is never null when setting searchTerm
     setSearchTerm(value || "");
   }, [value]);
 
@@ -54,7 +60,7 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
           ref={inputRef}
           value={value || ""}
           onChange={(e) => {
-            const newValue = e.target.value;
+            const newValue = e.target.value || "";
             onChange(newValue);
             setSearchTerm(newValue);
             if (newValue.length > 0 && !open) {
@@ -70,10 +76,10 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
         <Command shouldFilter={false}> {/* Disable internal filtering to prevent Array.from error */}
           <CommandInput 
             placeholder={`Buscar ${label}...`}
-            value={searchTerm}
+            value={searchTerm || ""}
             onValueChange={(value) => {
-              setSearchTerm(value);
-              onChange(value);
+              setSearchTerm(value || "");
+              onChange(value || "");
             }}
           />
           <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
@@ -82,8 +88,10 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
               <CommandItem
                 key={client.id}
                 onSelect={() => {
-                  onClientSelect(client);
-                  setOpen(false);
+                  if (client) {
+                    onClientSelect(client);
+                    setOpen(false);
+                  }
                 }}
                 className="cursor-pointer"
               >

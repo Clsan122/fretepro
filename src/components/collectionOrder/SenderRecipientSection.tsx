@@ -62,8 +62,8 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <CNPJLookupField
             label="CNPJ do Remetente"
             onDataFetched={(data) => {
-              setSender(data.name);
-              setSenderAddress(data.address);
+              setSender(data.name || "");
+              setSenderAddress(data.address || "");
             }}
           />
           <div>
@@ -72,7 +72,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
               value={sender || ""}
               onChange={setSender}
               onClientSelect={(client) => {
-                setSender(client.name);
+                setSender(client.name || "");
                 setSenderAddress(client.address || "");
               }}
               clients={safeClients}
@@ -89,8 +89,8 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <CNPJLookupField
             label="CNPJ do Destinatário"
             onDataFetched={(data) => {
-              setRecipient(data.name);
-              setRecipientAddress(data.address);
+              setRecipient(data.name || "");
+              setRecipientAddress(data.address || "");
             }}
           />
           <div>
@@ -99,7 +99,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
               value={recipient || ""}
               onChange={setRecipient}
               onClientSelect={(client) => {
-                setRecipient(client.name);
+                setRecipient(client.name || "");
                 setRecipientAddress(client.address || "");
               }}
               clients={safeClients}
@@ -116,8 +116,8 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <CNPJLookupField
             label="CNPJ do Expedidor"
             onDataFetched={(data) => {
-              setShipper(data.name);
-              setShipperAddress(data.address);
+              setShipper(data.name || "");
+              setShipperAddress(data.address || "");
             }}
           />
           <div>
@@ -126,7 +126,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
               value={shipper || ""}
               onChange={setShipper}
               onClientSelect={(client) => {
-                setShipper(client.name);
+                setShipper(client.name || "");
                 setShipperAddress(client.address || "");
               }}
               clients={safeClients}
@@ -143,8 +143,8 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <CNPJLookupField
             label="CNPJ do Recebedor"
             onDataFetched={(data) => {
-              setReceiver(data.name);
-              setReceiverAddress(data.address);
+              setReceiver(data.name || "");
+              setReceiverAddress(data.address || "");
             }}
           />
           <div>
@@ -153,7 +153,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
               value={receiver || ""}
               onChange={setReceiver}
               onClientSelect={(client) => {
-                setReceiver(client.name);
+                setReceiver(client.name || "");
                 setReceiverAddress(client.address || "");
               }}
               clients={safeClients}
