@@ -1,68 +1,108 @@
 
-const CACHE_NAME = 'fretepro-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/src/assets/favicon.svg',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/src/main.tsx',
-  // Caches do Vite/React build
-  '/src/index.css',
-  // Adapte esta lista se tiver outros assets importantes!
-];
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
-// Instalação: cache de arquivos essenciais
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-  self.skipWaiting();
+const { registerRoute } = workbox.routing;
+const { CacheFirst, NetworkFirst, StaleWhileRevalidate } = workbox.strategies;
+const { CacheableResponsePlugin } = workbox.cacheableResponse;
+const { ExpirationPlugin } = workbox.expiration;
+
+// Nome do cache
+workbox.core.setCacheNameDetails({
+  prefix: 'fretepro',
+  suffix: 'v1',
+  precache: 'precache',
+  runtime: 'runtime'
 });
 
-// Ativação: limpar caches antigos
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      )
-    )
-  );
-  self.clients.claim();
+// Precache manifestos e assets estáticos
+workbox.precaching.precacheAndRoute([
+  { url: '/', revision: '1' },
+  { url: '/index.html', revision: '1' },
+  { url: '/manifest.webmanifest', revision: '1' },
+  { url: '/src/assets/favicon.svg', revision: '1' },
+  { url: '/icons/icon-192.png', revision: '1' },
+  { url: '/icons/icon-512.png', revision: '1' },
+  { url: '/src/index.css', revision: '1' }
+]);
+
+// Cache para imagens
+registerRoute(
+  ({ request }) => request.destination === 'image',
+  new CacheFirst({
+    cacheName: 'fretepro-images',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200]
+      }),
+      new ExpirationPlugin({
+        maxEntries: 60,
+        maxAgeSeconds: 30 * 24 * 60 * 60 // 30 dias
+      })
+    ]
+  })
+);
+
+// Cache para fontes
+registerRoute(
+  ({ request }) => request.destination === 'font',
+  new CacheFirst({
+    cacheName: 'fretepro-fonts',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200]
+      }),
+      new ExpirationPlugin({
+        maxEntries: 30,
+        maxAgeSeconds: 60 * 60 * 24 * 365 // 1 ano
+      })
+    ]
+  })
+);
+
+// Cache para API e dados dinâmicos
+registerRoute(
+  ({ request }) => request.destination === 'script' || 
+                   request.destination === 'style',
+  new StaleWhileRevalidate({
+    cacheName: 'fretepro-resources',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200]
+      }),
+      new ExpirationPlugin({
+        maxEntries: 50,
+        maxAgeSeconds: 24 * 60 * 60 // 24 horas
+      })
+    ]
+  })
+);
+
+// Cache para páginas HTML com Network First
+registerRoute(
+  ({ request }) => request.mode === 'navigate',
+  new NetworkFirst({
+    cacheName: 'fretepro-pages',
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200]
+      })
+    ]
+  })
+);
+
+// Fallback para página offline
+workbox.routing.setCatchHandler(({ event }) => {
+  switch (event.request.destination) {
+    case 'document':
+      return caches.match('/index.html');
+    case 'image':
+      return caches.match('/icons/icon-192.png');
+    default:
+      return Response.error();
+  }
 });
 
-// Interceptação de requests: serve cache primeiro, rede depois
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  if (request.method !== 'GET') return;
+// Skip waiting e clients claim
+self.skipWaiting();
+workbox.core.clientsClaim();
 
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      return cachedResponse ||
-        fetch(request)
-          .then((response) => {
-            // Atualiza o cache de arquivos navegação/html
-            if (
-              response &&
-              response.status === 200 &&
-              response.type === 'basic' &&
-              request.url.startsWith(self.location.origin)
-            ) {
-              const respClone = response.clone();
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, respClone));
-            }
-            return response;
-          })
-          .catch(() => {
-            // Se offline e sem cache, um fallback básico se for página HTML
-            if (request.destination === 'document') {
-              return caches.match('/index.html');
-            }
-          });
-    })
-  );
-});
