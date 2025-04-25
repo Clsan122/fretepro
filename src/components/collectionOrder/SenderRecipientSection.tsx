@@ -1,10 +1,8 @@
 
 import React from "react";
-import { Client } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CNPJLookupField } from "./CNPJLookupField";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -23,9 +21,6 @@ interface SenderRecipientSectionProps {
   setReceiver: (value: string) => void;
   receiverAddress: string;
   setReceiverAddress: (value: string) => void;
-  selectedSenderId: string;
-  handleSenderClientChange: (clientId: string) => void;
-  clients: Client[];
 }
 
 export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
@@ -50,101 +45,80 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
     <Card>
       <CardHeader className="p-4 sm:p-6">
         <CardTitle>Informações de Remetente e Destinatário</CardTitle>
-        <CardDescription>Preencha os dados manualmente ou busque pelo CNPJ</CardDescription>
       </CardHeader>
-      <CardContent className="p-4 sm:p-6 pt-0 space-y-6">
+      <CardContent className="p-4 sm:p-6 pt-0 grid gap-6">
         <div className="space-y-4">
-          <CNPJLookupField
-            label="CNPJ do Remetente"
-            onDataFetched={(data) => {
-              setSender(data.name);
-              setSenderAddress(data.address);
-            }}
-          />
           <div>
             <Label>Nome do Remetente</Label>
             <Input 
-              value={sender || ""} 
+              value={sender} 
               onChange={(e) => setSender(e.target.value)} 
+              placeholder="Digite o nome do remetente"
             />
           </div>
           <div>
             <Label>Endereço do Remetente</Label>
             <Input 
-              value={senderAddress || ""} 
+              value={senderAddress} 
               onChange={(e) => setSenderAddress(e.target.value)} 
+              placeholder="Digite o endereço do remetente"
             />
           </div>
         </div>
 
         <div className="space-y-4">
-          <CNPJLookupField
-            label="CNPJ do Destinatário"
-            onDataFetched={(data) => {
-              setRecipient(data.name);
-              setRecipientAddress(data.address);
-            }}
-          />
           <div>
             <Label>Nome do Destinatário</Label>
             <Input 
-              value={recipient || ""} 
+              value={recipient} 
               onChange={(e) => setRecipient(e.target.value)} 
+              placeholder="Digite o nome do destinatário"
             />
           </div>
           <div>
             <Label>Endereço do Destinatário</Label>
             <Input 
-              value={recipientAddress || ""} 
+              value={recipientAddress} 
               onChange={(e) => setRecipientAddress(e.target.value)} 
+              placeholder="Digite o endereço do destinatário"
             />
           </div>
         </div>
 
         <div className="space-y-4">
-          <CNPJLookupField
-            label="CNPJ do Expedidor"
-            onDataFetched={(data) => {
-              setShipper(data.name);
-              setShipperAddress(data.address);
-            }}
-          />
           <div>
             <Label>Nome do Expedidor</Label>
             <Input 
-              value={shipper || ""} 
+              value={shipper} 
               onChange={(e) => setShipper(e.target.value)} 
+              placeholder="Digite o nome do expedidor"
             />
           </div>
           <div>
             <Label>Endereço do Expedidor</Label>
             <Input 
-              value={shipperAddress || ""} 
+              value={shipperAddress} 
               onChange={(e) => setShipperAddress(e.target.value)} 
+              placeholder="Digite o endereço do expedidor"
             />
           </div>
         </div>
 
         <div className="space-y-4">
-          <CNPJLookupField
-            label="CNPJ do Recebedor"
-            onDataFetched={(data) => {
-              setReceiver(data.name);
-              setReceiverAddress(data.address);
-            }}
-          />
           <div>
             <Label>Nome do Recebedor</Label>
             <Input 
-              value={receiver || ""} 
+              value={receiver} 
               onChange={(e) => setReceiver(e.target.value)} 
+              placeholder="Digite o nome do recebedor"
             />
           </div>
           <div>
             <Label>Endereço do Recebedor</Label>
             <Input 
-              value={receiverAddress || ""} 
+              value={receiverAddress} 
               onChange={(e) => setReceiverAddress(e.target.value)} 
+              placeholder="Digite o endereço do recebedor"
             />
           </div>
         </div>
