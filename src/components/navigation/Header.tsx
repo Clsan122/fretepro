@@ -1,7 +1,9 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { MenuIcon, Moon, Sun } from "lucide-react";
+import { MenuIcon, Moon, Sun, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -10,6 +12,14 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   return (
     <header className="sticky top-0 z-50 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="h-full max-w-screen-2xl mx-auto px-4 flex items-center justify-between">
@@ -27,18 +37,29 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) =>
           </h1>
         </div>
         
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="text-freight-600 dark:text-freight-400 hover:bg-freight-50 dark:hover:bg-freight-900"
-          onClick={toggleTheme}
-        >
-          {theme === "light" ? (
-            <Moon className="h-5 w-5" />
-          ) : (
-            <Sun className="h-5 w-5" />
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="text-freight-600 dark:text-freight-400 hover:bg-freight-50 dark:hover:bg-freight-900"
+            onClick={toggleTheme}
+          >
+            {theme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-freight-600 dark:text-freight-400 hover:bg-freight-50 dark:hover:bg-freight-900"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </header>
   );
