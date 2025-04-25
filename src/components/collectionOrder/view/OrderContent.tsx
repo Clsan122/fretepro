@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -11,7 +10,6 @@ interface OrderContentProps {
 export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
   return (
     <div className="space-y-3 print:space-y-2">
-      {/* Logo and Basic Info */}
       {order.companyLogo && (
         <div className="flex justify-center mb-4 print:mb-2">
           <img 
@@ -183,4 +181,3 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     </div>
   );
 };
-

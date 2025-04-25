@@ -1,9 +1,13 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CNPJLookupField } from "./CNPJLookupField";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Client } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
+import { ClientAutocompleteInput } from "@/components/common/ClientAutocompleteInput";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -44,6 +48,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiver,
   receiverAddress,
   setReceiverAddress,
+  clients = [],
 }) => {
   return (
     <Card>
@@ -61,11 +66,24 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Remetente</Label>
-            <Input 
-              value={sender} 
-              onChange={(e) => setSender(e.target.value)} 
-              placeholder="Digite o nome do remetente"
-            />
+            <div className="flex gap-2">
+              <Input 
+                value={sender} 
+                onChange={(e) => setSender(e.target.value)} 
+                placeholder="Digite o nome do remetente"
+              />
+              <ClientAutocompleteInput
+                clients={clients}
+                onChange={(clientId) => {
+                  const selectedClient = clients.find(c => c.id === clientId);
+                  if (selectedClient) {
+                    setSender(selectedClient.name);
+                    setSenderAddress(selectedClient.address || '');
+                  }
+                }}
+                placeholder="Buscar cliente"
+              />
+            </div>
           </div>
           <div>
             <Label>Endereço do Remetente</Label>
@@ -87,11 +105,24 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Destinatário</Label>
-            <Input 
-              value={recipient} 
-              onChange={(e) => setRecipient(e.target.value)} 
-              placeholder="Digite o nome do destinatário"
-            />
+            <div className="flex gap-2">
+              <Input 
+                value={recipient} 
+                onChange={(e) => setRecipient(e.target.value)} 
+                placeholder="Digite o nome do destinatário"
+              />
+              <ClientAutocompleteInput
+                clients={clients}
+                onChange={(clientId) => {
+                  const selectedClient = clients.find(c => c.id === clientId);
+                  if (selectedClient) {
+                    setRecipient(selectedClient.name);
+                    setRecipientAddress(selectedClient.address || '');
+                  }
+                }}
+                placeholder="Buscar cliente"
+              />
+            </div>
           </div>
           <div>
             <Label>Endereço do Destinatário</Label>
@@ -113,11 +144,24 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Expedidor</Label>
-            <Input 
-              value={shipper} 
-              onChange={(e) => setShipper(e.target.value)} 
-              placeholder="Digite o nome do expedidor"
-            />
+            <div className="flex gap-2">
+              <Input 
+                value={shipper} 
+                onChange={(e) => setShipper(e.target.value)} 
+                placeholder="Digite o nome do expedidor"
+              />
+              <ClientAutocompleteInput
+                clients={clients}
+                onChange={(clientId) => {
+                  const selectedClient = clients.find(c => c.id === clientId);
+                  if (selectedClient) {
+                    setShipper(selectedClient.name);
+                    setShipperAddress(selectedClient.address || '');
+                  }
+                }}
+                placeholder="Buscar cliente"
+              />
+            </div>
           </div>
           <div>
             <Label>Endereço do Expedidor</Label>
@@ -139,11 +183,24 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Recebedor</Label>
-            <Input 
-              value={receiver} 
-              onChange={(e) => setReceiver(e.target.value)} 
-              placeholder="Digite o nome do recebedor"
-            />
+            <div className="flex gap-2">
+              <Input 
+                value={receiver} 
+                onChange={(e) => setReceiver(e.target.value)} 
+                placeholder="Digite o nome do recebedor"
+              />
+              <ClientAutocompleteInput
+                clients={clients}
+                onChange={(clientId) => {
+                  const selectedClient = clients.find(c => c.id === clientId);
+                  if (selectedClient) {
+                    setReceiver(selectedClient.name);
+                    setReceiverAddress(selectedClient.address || '');
+                  }
+                }}
+                placeholder="Buscar cliente"
+              />
+            </div>
           </div>
           <div>
             <Label>Endereço do Recebedor</Label>
