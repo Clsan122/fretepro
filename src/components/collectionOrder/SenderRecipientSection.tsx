@@ -2,9 +2,10 @@
 import React from "react";
 import { Client } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { CNPJLookupField } from "./CNPJLookupField";
+import { ClientAutocompleteInput } from "@/components/common/ClientAutocompleteInput";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -45,6 +46,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiver,
   receiverAddress,
   setReceiverAddress,
+  clients
 }) => {
   return (
     <Card>
@@ -63,7 +65,16 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Remetente</Label>
-            <Input value={sender} onChange={(e) => setSender(e.target.value)} />
+            <ClientAutocompleteInput
+              value={sender}
+              onChange={setSender}
+              onClientSelect={(client) => {
+                setSender(client.name);
+                setSenderAddress(client.address || "");
+              }}
+              clients={clients}
+              label="remetente"
+            />
           </div>
           <div>
             <Label>Endereço do Remetente</Label>
@@ -81,7 +92,16 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Destinatário</Label>
-            <Input value={recipient} onChange={(e) => setRecipient(e.target.value)} />
+            <ClientAutocompleteInput
+              value={recipient}
+              onChange={setRecipient}
+              onClientSelect={(client) => {
+                setRecipient(client.name);
+                setRecipientAddress(client.address || "");
+              }}
+              clients={clients}
+              label="destinatário"
+            />
           </div>
           <div>
             <Label>Endereço do Destinatário</Label>
@@ -99,7 +119,16 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Expedidor</Label>
-            <Input value={shipper} onChange={(e) => setShipper(e.target.value)} />
+            <ClientAutocompleteInput
+              value={shipper}
+              onChange={setShipper}
+              onClientSelect={(client) => {
+                setShipper(client.name);
+                setShipperAddress(client.address || "");
+              }}
+              clients={clients}
+              label="expedidor"
+            />
           </div>
           <div>
             <Label>Endereço do Expedidor</Label>
@@ -117,7 +146,16 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Recebedor</Label>
-            <Input value={receiver} onChange={(e) => setReceiver(e.target.value)} />
+            <ClientAutocompleteInput
+              value={receiver}
+              onChange={setReceiver}
+              onClientSelect={(client) => {
+                setReceiver(client.name);
+                setReceiverAddress(client.address || "");
+              }}
+              clients={clients}
+              label="recebedor"
+            />
           </div>
           <div>
             <Label>Endereço do Recebedor</Label>
