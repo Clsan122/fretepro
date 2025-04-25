@@ -36,12 +36,15 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
   const [searchTerm, setSearchTerm] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredClients = clients.filter(client =>
+  // Ensure clients is not null and always an array
+  const safeClients = Array.isArray(clients) ? clients : [];
+  
+  const filteredClients = safeClients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   useEffect(() => {
-    setSearchTerm(value);
+    setSearchTerm(value || "");
   }, [value]);
 
   return (
@@ -49,11 +52,12 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
       <PopoverTrigger asChild>
         <Input
           ref={inputRef}
-          value={value}
+          value={value || ""}
           onChange={(e) => {
-            onChange(e.target.value);
-            setSearchTerm(e.target.value);
-            if (e.target.value.length > 0 && !open) {
+            const newValue = e.target.value;
+            onChange(newValue);
+            setSearchTerm(newValue);
+            if (newValue.length > 0 && !open) {
               setOpen(true);
             }
           }}
@@ -63,7 +67,7 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
         />
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0" align="start">
-        <Command>
+        <Command shouldFilter={false}> {/* Disable internal filtering to prevent Array.from error */}
           <CommandInput 
             placeholder={`Buscar ${label}...`}
             value={searchTerm}

@@ -46,8 +46,11 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiver,
   receiverAddress,
   setReceiverAddress,
-  clients
+  clients = [] // Default to empty array if clients is undefined
 }) => {
+  // Ensure clients is always an array
+  const safeClients = Array.isArray(clients) ? clients : [];
+
   return (
     <Card>
       <CardHeader className="p-4 sm:p-6">
@@ -66,19 +69,19 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Nome do Remetente</Label>
             <ClientAutocompleteInput
-              value={sender}
+              value={sender || ""}
               onChange={setSender}
               onClientSelect={(client) => {
                 setSender(client.name);
                 setSenderAddress(client.address || "");
               }}
-              clients={clients}
+              clients={safeClients}
               label="remetente"
             />
           </div>
           <div>
             <Label>Endereço do Remetente</Label>
-            <Input value={senderAddress} onChange={(e) => setSenderAddress(e.target.value)} />
+            <Input value={senderAddress || ""} onChange={(e) => setSenderAddress(e.target.value)} />
           </div>
         </div>
 
@@ -93,19 +96,19 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Nome do Destinatário</Label>
             <ClientAutocompleteInput
-              value={recipient}
+              value={recipient || ""}
               onChange={setRecipient}
               onClientSelect={(client) => {
                 setRecipient(client.name);
                 setRecipientAddress(client.address || "");
               }}
-              clients={clients}
+              clients={safeClients}
               label="destinatário"
             />
           </div>
           <div>
             <Label>Endereço do Destinatário</Label>
-            <Input value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)} />
+            <Input value={recipientAddress || ""} onChange={(e) => setRecipientAddress(e.target.value)} />
           </div>
         </div>
 
@@ -120,19 +123,19 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Nome do Expedidor</Label>
             <ClientAutocompleteInput
-              value={shipper}
+              value={shipper || ""}
               onChange={setShipper}
               onClientSelect={(client) => {
                 setShipper(client.name);
                 setShipperAddress(client.address || "");
               }}
-              clients={clients}
+              clients={safeClients}
               label="expedidor"
             />
           </div>
           <div>
             <Label>Endereço do Expedidor</Label>
-            <Input value={shipperAddress} onChange={(e) => setShipperAddress(e.target.value)} />
+            <Input value={shipperAddress || ""} onChange={(e) => setShipperAddress(e.target.value)} />
           </div>
         </div>
 
@@ -147,19 +150,19 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Nome do Recebedor</Label>
             <ClientAutocompleteInput
-              value={receiver}
+              value={receiver || ""}
               onChange={setReceiver}
               onClientSelect={(client) => {
                 setReceiver(client.name);
                 setReceiverAddress(client.address || "");
               }}
-              clients={clients}
+              clients={safeClients}
               label="recebedor"
             />
           </div>
           <div>
             <Label>Endereço do Recebedor</Label>
-            <Input value={receiverAddress} onChange={(e) => setReceiverAddress(e.target.value)} />
+            <Input value={receiverAddress || ""} onChange={(e) => setReceiverAddress(e.target.value)} />
           </div>
         </div>
       </CardContent>
