@@ -4,6 +4,7 @@ import { Freight } from "@/types";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFreightForm } from "./hooks/useFreightForm";
+import { toast } from "@/hooks/use-toast";
 
 // Import form sections
 import { ClientSelectionSection } from "./ClientSelectionSection";
@@ -42,7 +43,10 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
       return;
     }
 
-    const receiptWindow = window.open(`/freight/${formState.id}/receipt`, '_blank');
+    // We can't use formState.id directly because it might not exist yet
+    // Instead, use the ID from freightToEdit if available
+    const freightId = freightToEdit ? freightToEdit.id : '';
+    const receiptWindow = window.open(`/freight/${freightId}/receipt`, '_blank');
     if (receiptWindow) receiptWindow.focus();
   };
 
