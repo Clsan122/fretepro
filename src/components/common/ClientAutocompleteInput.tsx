@@ -53,18 +53,24 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
           onChange={(e) => {
             onChange(e.target.value);
             setSearchTerm(e.target.value);
-            setOpen(true);
+            if (e.target.value.length > 0 && !open) {
+              setOpen(true);
+            }
           }}
           placeholder={placeholder || `Digite o nome do ${label}`}
           onClick={() => setOpen(true)}
+          className="w-full"
         />
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-[300px] p-0" align="start">
         <Command>
           <CommandInput 
             placeholder={`Buscar ${label}...`}
             value={searchTerm}
-            onValueChange={setSearchTerm}
+            onValueChange={(value) => {
+              setSearchTerm(value);
+              onChange(value);
+            }}
           />
           <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
           <CommandGroup className="max-h-64 overflow-y-auto">
@@ -75,9 +81,10 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
                   onClientSelect(client);
                   setOpen(false);
                 }}
+                className="cursor-pointer"
               >
                 <div className="flex flex-col">
-                  <span>{client.name}</span>
+                  <span className="font-medium">{client.name}</span>
                   <span className="text-sm text-muted-foreground">
                     {client.city}/{client.state}
                   </span>
