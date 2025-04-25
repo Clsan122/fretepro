@@ -20,12 +20,29 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
   issuer,
   orderNumber,
 }) => {
+  // Function to check if issuer has a logo
+  const issuerHasLogo = (): boolean => {
+    if (!issuer) return false;
+    
+    // Check if it's a Client (has logo property)
+    if ('logo' in issuer && issuer.logo) {
+      return true;
+    }
+    
+    // Check if it's a User (has companyLogo property)
+    if ('companyLogo' in issuer && issuer.companyLogo) {
+      return true;
+    }
+    
+    return false;
+  };
+
   return (
     <div className="mb-3 print:mb-2">
       {/* Logo e informações do emissor */}
       {issuer && <IssuerHeaderDetails issuer={issuer} />}
 
-      {clientLogo && !issuer?.logo && (
+      {clientLogo && !issuerHasLogo() && (
         <div className="flex justify-center mb-2">
           <img
             src={clientLogo}

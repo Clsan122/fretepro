@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Client } from "@/types";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -21,6 +22,10 @@ interface SenderRecipientSectionProps {
   setReceiver: (value: string) => void;
   receiverAddress: string;
   setReceiverAddress: (value: string) => void;
+  // Add these missing props
+  selectedSenderId?: string;
+  handleSenderClientChange?: (clientId: string) => void;
+  clients?: Client[];
 }
 
 export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
@@ -40,6 +45,10 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiver,
   receiverAddress,
   setReceiverAddress,
+  // Include the optional props with default values
+  selectedSenderId,
+  handleSenderClientChange,
+  clients
 }) => {
   return (
     <Card>

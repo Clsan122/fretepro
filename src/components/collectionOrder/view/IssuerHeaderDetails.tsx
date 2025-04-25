@@ -9,11 +9,11 @@ interface IssuerHeaderDetailsProps {
 export const IssuerHeaderDetails: React.FC<IssuerHeaderDetailsProps> = ({ issuer }) => {
   if (!issuer) return null;
   
-  // Vamos usar type guards para determinar se é um User ou Client
+  // Determine if it's a User or Client using type narrowing
   const isUser = 'companyName' in issuer || 'companyLogo' in issuer;
   const isClient = 'logo' in issuer;
   
-  // Determinar qual logo usar e qual nome exibir
+  // Determine which logo to use and which name to display
   const logoSrc = isUser ? issuer.companyLogo : isClient ? issuer.logo : undefined;
   const displayName = isUser ? issuer.companyName || issuer.name : issuer.name;
   
