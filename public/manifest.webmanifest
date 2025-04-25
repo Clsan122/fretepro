@@ -12,6 +12,47 @@
   "scope": ".",
   "id": "fretepro-app",
   "dir": "ltr",
+  "categories": ["business", "productivity", "logistics", "transportation"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=app.lovable.5a9941b135664df199580caf8b922a6c",
+      "id": "app.lovable.5a9941b135664df199580caf8b922a6c"
+    }
+  ],
+  "scope_extensions": [
+    {
+      "origin": "https://5a9941b1-3566-4df1-9958-0caf8b922a6c.lovableproject.com"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Dashboard do FretePro"
+    },
+    {
+      "src": "/screenshots/fretes.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Lista de Fretes"
+    },
+    {
+      "src": "/screenshots/ordem-coleta.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Ordem de Coleta"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
