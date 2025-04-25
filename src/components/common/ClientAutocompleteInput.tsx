@@ -34,7 +34,7 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
 }) => {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -48,7 +48,7 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Input
-          ref={triggerRef}
+          ref={inputRef}
           value={value}
           onChange={(e) => {
             onChange(e.target.value);

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -51,9 +52,14 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
         cargoForm.setWeight(savedData.weight);
         cargoForm.setMerchandiseValue(savedData.merchandiseValue);
         if (savedData.measurements) {
-          savedData.measurements.forEach((m: any) => 
-            cargoForm.handlers.handleMeasurementChange(m)
-          );
+          savedData.measurements.forEach((m: any) => {
+            if (m.id) {
+              cargoForm.handlers.handleMeasurementChange(m.id, 'length', m.length);
+              cargoForm.handlers.handleMeasurementChange(m.id, 'width', m.width);
+              cargoForm.handlers.handleMeasurementChange(m.id, 'height', m.height);
+              cargoForm.handlers.handleMeasurementChange(m.id, 'quantity', m.quantity);
+            }
+          });
         }
 
         partiesForm.setSender(savedData.sender);
@@ -141,7 +147,8 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
     locationForm.destinationState,
     additionalInfoForm.invoiceNumber,
     additionalInfoForm.observations,
-    additionalInfoForm.driverId
+    additionalInfoForm.driverId,
+    orderToEdit
   ]);
 
   // Clean up session storage when form is unmounted
@@ -152,7 +159,7 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
         sessionStorage.removeItem(FORM_ID_KEY);
       }
     };
-  }, [formId]);
+  }, [formId, orderToEdit]);
 
   return {
     formData: {
