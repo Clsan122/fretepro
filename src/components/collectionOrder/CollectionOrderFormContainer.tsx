@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CollectionOrder } from "@/types";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
@@ -82,6 +83,11 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     }
   };
 
+  // Create a wrapper for handleSenderClientChange that doesn't need clients argument
+  const handleSenderClientChangeWrapper = (clientId: string) => {
+    setters.handleSenderClientChange(clientId, formData.clients);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
       <CompanyDetailsSection
@@ -101,6 +107,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         shipperAddress={formData.shipperAddress}
         receiver={formData.receiver}
         receiverAddress={formData.receiverAddress}
+        selectedSenderId={formData.selectedSenderId}
+        handleSenderClientChange={handleSenderClientChangeWrapper}
+        clients={formData.clients}
         setSender={setters.setSender}
         setSenderAddress={setters.setSenderAddress}
         setRecipient={setters.setRecipient}
@@ -109,7 +118,6 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setShipperAddress={setters.setShipperAddress}
         setReceiver={setters.setReceiver}
         setReceiverAddress={setters.setReceiverAddress}
-        clients={formData.clients}
       />
 
       <LocationDetailsSection
