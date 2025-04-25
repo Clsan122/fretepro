@@ -146,6 +146,7 @@ export interface Freight {
   netProfit?: number;
   clientName?: string; // Add clientName property for CollectionOrderView
   clientAddress?: string; // Add clientAddress property for CollectionOrderView
+  requesterName?: string; // Add new property
 }
 
 export interface FreightExpense {

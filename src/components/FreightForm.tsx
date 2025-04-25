@@ -59,6 +59,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
   const [totalExpenses, setTotalExpenses] = useState<number>(0);
   const [netProfit, setNetProfit] = useState<number>(0);
   
+  const [requesterName, setRequesterName] = useState(freightToEdit?.requesterName || "");
+  
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -297,6 +299,8 @@ const FreightForm: React.FC<FreightFormProps> = ({ onSave, onCancel, freightToEd
         setPixKey={setPixKey}
         paymentTerm={paymentTerm}
         setPaymentTerm={setPaymentTerm}
+        requesterName={requesterName}
+        setRequesterName={setRequesterName}
       />
 
       <PricingSection 
