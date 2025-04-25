@@ -1,9 +1,9 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CNPJLookupField } from "./CNPJLookupField";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Client } from "@/types";
 
 interface SenderRecipientSectionProps {
   sender: string;
