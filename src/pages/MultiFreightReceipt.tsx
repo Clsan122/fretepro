@@ -5,7 +5,7 @@ import { getFreightById } from "@/utils/storage";
 import { Freight } from "@/types";
 import Layout from "@/components/Layout";
 import MultiFreightReceiptGenerator from "@/components/MultiFreightReceiptGenerator";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
@@ -47,7 +47,7 @@ const MultiFreightReceipt: React.FC = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto py-4 px-2 md:px-4 max-w-full overflow-hidden">
+      <div className="container mx-auto py-4 px-2 md:px-4 w-full max-w-7xl overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl md:text-2xl font-bold">Recibo de Múltiplos Fretes</h1>
           
@@ -67,7 +67,7 @@ const MultiFreightReceipt: React.FC = () => {
             <p>Carregando fretes...</p>
           </div>
         ) : freights.length > 0 ? (
-          <div className="overflow-hidden">
+          <div className="w-full">
             <MultiFreightReceiptGenerator freights={freights} />
           </div>
         ) : (

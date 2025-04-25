@@ -83,6 +83,10 @@ const PrintStyles: React.FC = () => {
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
+        
+        .pdf-generation-mode {
+          width: 800px !important;
+        }
       `}
     </style>
   );
