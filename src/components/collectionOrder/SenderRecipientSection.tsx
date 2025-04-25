@@ -43,8 +43,11 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiver,
   receiverAddress,
   setReceiverAddress,
-  clients,
+  clients = [], // Provide default empty array if clients is undefined
 }) => {
+  // Ensure clients is always an array
+  const safeClients = Array.isArray(clients) ? clients : [];
+  
   return (
     <Card>
       <CardHeader className="p-4 sm:p-6">
@@ -55,7 +58,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Remetente</Label>
             <ClientCombobox
-              clients={clients}
+              clients={safeClients}
               value={sender}
               onValueChange={(value, address) => {
                 setSender(value);
@@ -78,7 +81,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Destinatário</Label>
             <ClientCombobox
-              clients={clients}
+              clients={safeClients}
               value={recipient}
               onValueChange={(value, address) => {
                 setRecipient(value);
@@ -101,7 +104,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Expedidor</Label>
             <ClientCombobox
-              clients={clients}
+              clients={safeClients}
               value={shipper}
               onValueChange={(value, address) => {
                 setShipper(value);
@@ -124,7 +127,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           <div>
             <Label>Recebedor</Label>
             <ClientCombobox
-              clients={clients}
+              clients={safeClients}
               value={receiver}
               onValueChange={(value, address) => {
                 setReceiver(value);

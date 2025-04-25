@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -32,10 +31,10 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
   // Load drivers and clients on mount
   useEffect(() => {
     if (user) {
-      const userDrivers = getDriversByUserId(user.id);
+      const userDrivers = getDriversByUserId(user.id) || [];
       setDrivers(userDrivers);
       
-      const userClients = getClientsByUserId(user.id);
+      const userClients = getClientsByUserId(user.id) || [];
       setClients(userClients);
 
       // Set default sender as user's company if creating new order
@@ -80,8 +79,8 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       driverId: additionalInfoForm.driverId,
 
       // External data
-      drivers,
-      clients,
+      drivers: drivers || [],
+      clients: clients || [],
       
       // Form Logo and Issuer
       companyLogo,

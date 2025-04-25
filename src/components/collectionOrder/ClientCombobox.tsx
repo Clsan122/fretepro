@@ -34,7 +34,10 @@ export const ClientCombobox = ({
 }: ClientComboboxProps) => {
   const [open, setOpen] = React.useState(false)
   
-  const selectedClient = clients.find(client => client.name === value)
+  // Ensure clients is always an array
+  const safeClients = Array.isArray(clients) ? clients : []
+  
+  const selectedClient = safeClients.find(client => client.name === value)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -54,7 +57,7 @@ export const ClientCombobox = ({
           <CommandInput placeholder={`Procurar ${label.toLowerCase()}...`} />
           <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
           <CommandGroup>
-            {clients.map((client) => (
+            {safeClients.map((client) => (
               <CommandItem
                 key={client.id}
                 value={client.name}
