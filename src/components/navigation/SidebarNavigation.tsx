@@ -38,7 +38,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           </Button>
         </div>
         
-        <ul className="space-y-2">
+        <ul className="space-y-2 flex-1 overflow-auto">
           {navigationItems.map((item) => (
             <li key={item.name}>
               <Button
@@ -53,7 +53,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           ))}
         </ul>
         
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="sticky bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div className="space-y-2">
             <Button 
               variant="ghost"
@@ -79,3 +79,4 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 };
 
 export default SidebarNavigation;
+
