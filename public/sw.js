@@ -92,11 +92,23 @@ registerRoute(
 
 // Fallback para página offline
 workbox.routing.setCatchHandler(({ event }) => {
+  if (!event.request || !event.request.destination) {
+    return Response.error();
+  }
+  
   switch (event.request.destination) {
     case 'document':
-      return caches.match('/index.html');
+      return caches.match('/index.html')
+        .then(response => response || new Response('Você está offline.', {
+          status: 200,
+          headers: { 'Content-Type': 'text/html' }
+        }));
     case 'image':
-      return caches.match('/icons/icon-192.png');
+      return caches.match('/icons/icon-192.png')
+        .then(response => response || new Response('', {
+          status: 200,
+          headers: { 'Content-Type': 'image/png' }
+        }));
     default:
       return Response.error();
   }
@@ -105,4 +117,3 @@ workbox.routing.setCatchHandler(({ event }) => {
 // Skip waiting e clients claim
 self.skipWaiting();
 workbox.core.clientsClaim();
-
