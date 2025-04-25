@@ -7,27 +7,14 @@ import { useCargoForm } from "./collection-order/useCargoForm";
 import { usePartiesForm } from "./collection-order/usePartiesForm";
 import { useAdditionalInfoForm } from "./collection-order/useAdditionalInfoForm";
 import { useLocationForm } from "./collection-order/useLocationForm";
-import { saveFormToSession, getFormFromSession, clearFormSession } from "@/utils/formStorage";
-import { v4 as uuidv4 } from "uuid";
 
 interface UseCollectionOrderFormProps {
   orderToEdit?: CollectionOrder;
 }
 
-const FORM_ID_KEY = 'collection_order_form_id';
-
 export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormProps) => {
   const { user } = useAuth();
   
-  // Get or create form ID for session storage
-  const [formId] = useState(() => {
-    const storedId = sessionStorage.getItem(FORM_ID_KEY);
-    if (storedId) return storedId;
-    const newId = `collection_order_${uuidv4()}`;
-    sessionStorage.setItem(FORM_ID_KEY, newId);
-    return newId;
-  });
-
   // Load external data
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -41,47 +28,6 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
   const partiesForm = usePartiesForm(orderToEdit);
   const additionalInfoForm = useAdditionalInfoForm(orderToEdit);
   const locationForm = useLocationForm(orderToEdit);
-
-  // Load data from session storage on mount
-  useEffect(() => {
-    if (!orderToEdit) {
-      const savedData = getFormFromSession(formId);
-      if (savedData) {
-        // Restore form data
-        cargoForm.setVolumes(savedData.volumes);
-        cargoForm.setWeight(savedData.weight);
-        cargoForm.setMerchandiseValue(savedData.merchandiseValue);
-        if (savedData.measurements) {
-          savedData.measurements.forEach((m: any) => {
-            if (m.id) {
-              cargoForm.handlers.handleMeasurementChange(m.id, 'length', m.length);
-              cargoForm.handlers.handleMeasurementChange(m.id, 'width', m.width);
-              cargoForm.handlers.handleMeasurementChange(m.id, 'height', m.height);
-              cargoForm.handlers.handleMeasurementChange(m.id, 'quantity', m.quantity);
-            }
-          });
-        }
-
-        partiesForm.setSender(savedData.sender);
-        partiesForm.setSenderAddress(savedData.senderAddress);
-        partiesForm.setRecipient(savedData.recipient);
-        partiesForm.setRecipientAddress(savedData.recipientAddress);
-        partiesForm.setShipper(savedData.shipper);
-        partiesForm.setShipperAddress(savedData.shipperAddress);
-        partiesForm.setReceiver(savedData.receiver);
-        partiesForm.setReceiverAddress(savedData.receiverAddress);
-
-        locationForm.setOriginCity(savedData.originCity);
-        locationForm.setOriginState(savedData.originState);
-        locationForm.setDestinationCity(savedData.destinationCity);
-        locationForm.setDestinationState(savedData.destinationState);
-
-        additionalInfoForm.setInvoiceNumber(savedData.invoiceNumber);
-        additionalInfoForm.setObservations(savedData.observations);
-        additionalInfoForm.setDriverId(savedData.driverId);
-      }
-    }
-  }, [formId]);
 
   // Load drivers and clients on mount
   useEffect(() => {
@@ -99,67 +45,6 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       }
     }
   }, [user, partiesForm.selectedSenderType, orderToEdit]);
-
-  // Save form data to session storage whenever it changes
-  useEffect(() => {
-    if (!orderToEdit) {
-      const formData = {
-        volumes: cargoForm.volumes,
-        weight: cargoForm.weight,
-        measurements: cargoForm.measurements,
-        merchandiseValue: cargoForm.merchandiseValue,
-        sender: partiesForm.sender,
-        senderAddress: partiesForm.senderAddress,
-        recipient: partiesForm.recipient,
-        recipientAddress: partiesForm.recipientAddress,
-        shipper: partiesForm.shipper,
-        shipperAddress: partiesForm.shipperAddress,
-        receiver: partiesForm.receiver,
-        receiverAddress: partiesForm.receiverAddress,
-        originCity: locationForm.originCity,
-        originState: locationForm.originState,
-        destinationCity: locationForm.destinationCity,
-        destinationState: locationForm.destinationState,
-        invoiceNumber: additionalInfoForm.invoiceNumber,
-        observations: additionalInfoForm.observations,
-        driverId: additionalInfoForm.driverId
-      };
-      
-      saveFormToSession(formId, formData);
-    }
-  }, [
-    formId,
-    cargoForm.volumes,
-    cargoForm.weight,
-    cargoForm.measurements,
-    cargoForm.merchandiseValue,
-    partiesForm.sender,
-    partiesForm.senderAddress,
-    partiesForm.recipient,
-    partiesForm.recipientAddress,
-    partiesForm.shipper,
-    partiesForm.shipperAddress,
-    partiesForm.receiver,
-    partiesForm.receiverAddress,
-    locationForm.originCity,
-    locationForm.originState,
-    locationForm.destinationCity,
-    locationForm.destinationState,
-    additionalInfoForm.invoiceNumber,
-    additionalInfoForm.observations,
-    additionalInfoForm.driverId,
-    orderToEdit
-  ]);
-
-  // Clean up session storage when form is unmounted
-  useEffect(() => {
-    return () => {
-      if (!orderToEdit) {
-        clearFormSession(formId);
-        sessionStorage.removeItem(FORM_ID_KEY);
-      }
-    };
-  }, [formId, orderToEdit]);
 
   return {
     formData: {
