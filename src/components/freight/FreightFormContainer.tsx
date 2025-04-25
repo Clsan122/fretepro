@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Freight, Client, Driver } from "@/types";
-import { useAuth } from "@/context/AuthContext";
-import { getClientsByUserId, getDriversByUserId } from "@/utils/storage";
-import { v4 as uuidv4 } from "uuid";
-import { useToast } from "@/components/ui/use-toast";
+
+import React from "react";
+import { Freight } from "@/types";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFreightForm } from "./hooks/useFreightForm";
 
 // Import form sections
 import { ClientSelectionSection } from "./ClientSelectionSection";
@@ -15,7 +13,6 @@ import { CargoDetailsSection } from "./CargoDetailsSection";
 import { PaymentInfoSection } from "./PaymentInfoSection";
 import { PricingSection } from "./PricingSection";
 import { ExpensesSection } from "./ExpensesSection";
-import { FormActions } from "./FormActions";
 
 interface FreightFormContainerProps {
   onSave: (freight: Freight) => void;
@@ -28,188 +25,15 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
   onCancel,
   freightToEdit
 }) => {
-  const [clientId, setClientId] = useState("");
-  const [originCity, setOriginCity] = useState("");
-  const [originState, setOriginState] = useState("");
-  const [departureDate, setDepartureDate] = useState<Date>();
-  const [destinationCity, setDestinationCity] = useState("");
-  const [destinationState, setDestinationState] = useState("");
-  const [arrivalDate, setArrivalDate] = useState<Date>();
-  const [volumes, setVolumes] = useState<number>(0);
-  const [weight, setWeight] = useState<number>(0);
-  const [dimensions, setDimensions] = useState("");
-  const [cubicMeasurement, setCubicMeasurement] = useState<number>(0);
-  const [cargoType, setCargoType] = useState("");
-  const [vehicleType, setVehicleType] = useState("");
-  const [freightValue, setFreightValue] = useState<number>(0);
-  const [dailyRate, setDailyRate] = useState<number>(0);
-  const [otherCosts, setOtherCosts] = useState<number>(0);
-  const [tollCosts, setTollCosts] = useState<number>(0);
-  const [totalValue, setTotalValue] = useState<number>(0);
-  const [proofImage, setProofImage] = useState<string>("");
-  const [clients, setClients] = useState<Client[]>([]);
-  const [driverId, setDriverId] = useState<string>("none");
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  
-  const [pixKey, setPixKey] = useState("");
-  const [paymentTerm, setPaymentTerm] = useState("");
-  
-  const [thirdPartyDriverCost, setThirdPartyDriverCost] = useState<number>(0);
-  const [tollExpenses, setTollExpenses] = useState<number>(0);
-  const [fuelExpenses, setFuelExpenses] = useState<number>(0);
-  const [mealExpenses, setMealExpenses] = useState<number>(0);
-  const [helperExpenses, setHelperExpenses] = useState<number>(0);
-  const [accommodationExpenses, setAccommodationExpenses] = useState<number>(0);
-  const [totalExpenses, setTotalExpenses] = useState<number>(0);
-  const [netProfit, setNetProfit] = useState<number>(0);
-  
-  const [requesterName, setRequesterName] = useState(freightToEdit?.requesterName || "");
-  
-  const { user } = useAuth();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (user) {
-      setClients(getClientsByUserId(user.id));
-      setDrivers(getDriversByUserId(user.id));
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (freightToEdit) {
-      setClientId(freightToEdit.clientId);
-      setOriginCity(freightToEdit.originCity);
-      setOriginState(freightToEdit.originState);
-      setDepartureDate(freightToEdit.departureDate ? new Date(freightToEdit.departureDate) : undefined);
-      setDestinationCity(freightToEdit.destinationCity);
-      setDestinationState(freightToEdit.destinationState);
-      setArrivalDate(freightToEdit.arrivalDate ? new Date(freightToEdit.arrivalDate) : undefined);
-      setVolumes(freightToEdit.volumes);
-      setWeight(freightToEdit.weight);
-      setDimensions(freightToEdit.dimensions);
-      setCubicMeasurement(freightToEdit.cubicMeasurement);
-      setCargoType(freightToEdit.cargoType);
-      setVehicleType(freightToEdit.vehicleType);
-      setFreightValue(freightToEdit.freightValue);
-      setDailyRate(freightToEdit.dailyRate);
-      setOtherCosts(freightToEdit.otherCosts);
-      setTollCosts(freightToEdit.tollCosts);
-      setTotalValue(freightToEdit.totalValue);
-      setProofImage(freightToEdit.proofOfDeliveryImage || "");
-      setPixKey(freightToEdit.pixKey || "");
-      setPaymentTerm(freightToEdit.paymentTerm || "");
-      setDriverId(freightToEdit.driverId || "none");
-      
-      setThirdPartyDriverCost(freightToEdit.thirdPartyDriverCost || 0);
-      setTollExpenses(freightToEdit.tollExpenses || 0);
-      setFuelExpenses(freightToEdit.fuelExpenses || 0);
-      setMealExpenses(freightToEdit.mealExpenses || 0);
-      setHelperExpenses(freightToEdit.helperExpenses || 0);
-      setAccommodationExpenses(freightToEdit.accommodationExpenses || 0);
-      setTotalExpenses(freightToEdit.totalExpenses || 0);
-      setNetProfit(freightToEdit.netProfit || 0);
-    }
-  }, [freightToEdit]);
-
-  useEffect(() => {
-    const total = freightValue + dailyRate + otherCosts + tollCosts;
-    setTotalValue(total);
-  }, [freightValue, dailyRate, otherCosts, tollCosts]);
-
-  useEffect(() => {
-    const expenses = thirdPartyDriverCost + tollExpenses + fuelExpenses + 
-                     mealExpenses + helperExpenses + accommodationExpenses;
-    setTotalExpenses(expenses);
-    setNetProfit(totalValue - expenses);
-  }, [
-    thirdPartyDriverCost, 
-    tollExpenses, 
-    fuelExpenses, 
-    mealExpenses, 
-    helperExpenses, 
-    accommodationExpenses,
-    totalValue
-  ]);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProofImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!clientId || !originCity || !originState || !destinationCity || !destinationState || !cargoType || !vehicleType) {
-      toast({
-        title: "Erro",
-        description: "Por favor, preencha todos os campos obrigatórios!",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para cadastrar um frete!",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newFreight: Freight = {
-      id: freightToEdit ? freightToEdit.id : uuidv4(),
-      clientId,
-      originCity,
-      originState,
-      departureDate: departureDate ? departureDate.toISOString() : "",
-      destinationCity,
-      destinationState,
-      arrivalDate: arrivalDate ? arrivalDate.toISOString() : "",
-      volumes,
-      weight,
-      dimensions,
-      cubicMeasurement,
-      cargoType: cargoType,
-      vehicleType: vehicleType,
-      freightValue,
-      dailyRate,
-      otherCosts,
-      tollCosts,
-      totalValue,
-      proofOfDeliveryImage: proofImage,
-      createdAt: freightToEdit ? freightToEdit.createdAt : new Date().toISOString(),
-      userId: user.id,
-      pixKey: pixKey || undefined,
-      paymentTerm: paymentTerm || undefined,
-      driverId: driverId !== "none" ? driverId : undefined,
-      thirdPartyDriverCost,
-      tollExpenses,
-      fuelExpenses,
-      mealExpenses,
-      helperExpenses,
-      accommodationExpenses,
-      totalExpenses,
-      netProfit,
-      requesterName,
-      distance: 0,
-      price: freightValue,
-      status: 'pending',
-      paymentStatus: 'pending',
-      expenses: []
-    };
-
-    onSave(newFreight);
-  };
+  const {
+    formState,
+    setters,
+    handleImageUpload,
+    handleSubmit
+  } = useFreightForm({ onSave, freightToEdit });
 
   const handleGenerateReceipt = () => {
-    if (!clientId || !originCity || !originState || !destinationCity || !destinationState) {
+    if (!formState.clientId || !formState.originCity || !formState.originState || !formState.destinationCity || !formState.destinationState) {
       toast({
         title: "Erro",
         description: "Preencha os dados básicos antes de gerar o recibo",
@@ -218,123 +42,90 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
       return;
     }
 
-    const freightData: Freight = {
-      id: freightToEdit ? freightToEdit.id : uuidv4(),
-      clientId,
-      originCity,
-      originState,
-      departureDate: departureDate ? departureDate.toISOString() : "",
-      destinationCity,
-      destinationState,
-      arrivalDate: arrivalDate ? arrivalDate.toISOString() : "",
-      volumes,
-      weight,
-      dimensions,
-      cubicMeasurement,
-      cargoType: cargoType,
-      vehicleType: vehicleType,
-      freightValue,
-      dailyRate,
-      otherCosts,
-      tollCosts,
-      totalValue,
-      proofOfDeliveryImage: proofImage,
-      createdAt: freightToEdit ? freightToEdit.createdAt : new Date().toISOString(),
-      userId: user!.id,
-      pixKey: pixKey || undefined,
-      paymentTerm: paymentTerm || undefined,
-      driverId: driverId !== "none" ? driverId : undefined,
-      distance: 0,
-      price: freightValue,
-      status: 'pending',
-      paymentStatus: 'pending',
-      expenses: []
-    };
-
-    const receiptWindow = window.open(`/freight/${freightData.id}/receipt`, '_blank');
+    const receiptWindow = window.open(`/freight/${formState.id}/receipt`, '_blank');
     if (receiptWindow) receiptWindow.focus();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-1 sm:p-2">
       <ClientSelectionSection 
-        clientId={clientId} 
-        clients={clients} 
-        setClientId={setClientId} 
+        clientId={formState.clientId} 
+        clients={formState.clients} 
+        setClientId={setters.setClientId} 
       />
 
       <DriverSelectionSection 
-        driverId={driverId}
-        drivers={drivers}
-        setDriverId={setDriverId}
+        driverId={formState.driverId}
+        drivers={formState.drivers}
+        setDriverId={setters.setDriverId}
       />
 
       <RouteSection 
-        originCity={originCity}
-        setOriginCity={setOriginCity}
-        originState={originState}
-        setOriginState={setOriginState}
-        departureDate={departureDate}
-        setDepartureDate={setDepartureDate}
-        destinationCity={destinationCity}
-        setDestinationCity={setDestinationCity}
-        destinationState={destinationState}
-        setDestinationState={setDestinationState}
-        arrivalDate={arrivalDate}
-        setArrivalDate={setArrivalDate}
+        originCity={formState.originCity}
+        setOriginCity={setters.setOriginCity}
+        originState={formState.originState}
+        setOriginState={setters.setOriginState}
+        departureDate={formState.departureDate}
+        setDepartureDate={setters.setDepartureDate}
+        destinationCity={formState.destinationCity}
+        setDestinationCity={setters.setDestinationCity}
+        destinationState={formState.destinationState}
+        setDestinationState={setters.setDestinationState}
+        arrivalDate={formState.arrivalDate}
+        setArrivalDate={setters.setArrivalDate}
       />
 
       <CargoDetailsSection 
-        volumes={volumes}
-        setVolumes={setVolumes}
-        weight={weight}
-        setWeight={setWeight}
-        dimensions={dimensions}
-        setDimensions={setDimensions}
-        cubicMeasurement={cubicMeasurement}
-        setCubicMeasurement={setCubicMeasurement}
-        cargoType={cargoType}
-        setCargoType={setCargoType}
-        vehicleType={vehicleType}
-        setVehicleType={setVehicleType}
+        volumes={formState.volumes}
+        setVolumes={setters.setVolumes}
+        weight={formState.weight}
+        setWeight={setters.setWeight}
+        dimensions={formState.dimensions}
+        setDimensions={setters.setDimensions}
+        cubicMeasurement={formState.cubicMeasurement}
+        setCubicMeasurement={setters.setCubicMeasurement}
+        cargoType={formState.cargoType}
+        setCargoType={setters.setCargoType}
+        vehicleType={formState.vehicleType}
+        setVehicleType={setters.setVehicleType}
       />
 
       <PaymentInfoSection 
-        pixKey={pixKey}
-        setPixKey={setPixKey}
-        paymentTerm={paymentTerm}
-        setPaymentTerm={setPaymentTerm}
-        requesterName={requesterName}
-        setRequesterName={setRequesterName}
+        pixKey={formState.pixKey}
+        setPixKey={setters.setPixKey}
+        paymentTerm={formState.paymentTerm}
+        setPaymentTerm={setters.setPaymentTerm}
+        requesterName={formState.requesterName}
+        setRequesterName={setters.setRequesterName}
       />
 
       <PricingSection 
-        freightValue={freightValue}
-        setFreightValue={setFreightValue}
-        dailyRate={dailyRate}
-        setDailyRate={setDailyRate}
-        otherCosts={otherCosts}
-        setOtherCosts={setOtherCosts}
-        tollCosts={tollCosts}
-        setTollCosts={setTollCosts}
-        totalValue={totalValue}
+        freightValue={formState.freightValue}
+        setFreightValue={setters.setFreightValue}
+        dailyRate={formState.dailyRate}
+        setDailyRate={setters.setDailyRate}
+        otherCosts={formState.otherCosts}
+        setOtherCosts={setters.setOtherCosts}
+        tollCosts={formState.tollCosts}
+        setTollCosts={setters.setTollCosts}
+        totalValue={formState.totalValue}
       />
 
       <ExpensesSection 
-        thirdPartyDriverCost={thirdPartyDriverCost}
-        setThirdPartyDriverCost={setThirdPartyDriverCost}
-        tollExpenses={tollExpenses}
-        setTollExpenses={setTollExpenses}
-        fuelExpenses={fuelExpenses}
-        setFuelExpenses={setFuelExpenses}
-        mealExpenses={mealExpenses}
-        setMealExpenses={setMealExpenses}
-        helperExpenses={helperExpenses}
-        setHelperExpenses={setHelperExpenses}
-        accommodationExpenses={accommodationExpenses}
-        setAccommodationExpenses={setAccommodationExpenses}
-        totalExpenses={totalExpenses}
-        netProfit={netProfit}
+        thirdPartyDriverCost={formState.thirdPartyDriverCost}
+        setThirdPartyDriverCost={setters.setThirdPartyDriverCost}
+        tollExpenses={formState.tollExpenses}
+        setTollExpenses={setters.setTollExpenses}
+        fuelExpenses={formState.fuelExpenses}
+        setFuelExpenses={setters.setFuelExpenses}
+        mealExpenses={formState.mealExpenses}
+        setMealExpenses={setters.setMealExpenses}
+        helperExpenses={formState.helperExpenses}
+        setHelperExpenses={setters.setHelperExpenses}
+        accommodationExpenses={formState.accommodationExpenses}
+        setAccommodationExpenses={setters.setAccommodationExpenses}
+        totalExpenses={formState.totalExpenses}
+        netProfit={formState.netProfit}
       />
 
       <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
