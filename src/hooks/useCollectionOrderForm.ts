@@ -108,7 +108,9 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       setReceiver: partiesForm.setReceiver,
       setReceiverAddress: partiesForm.setReceiverAddress,
       handleSenderTypeChange: partiesForm.handlers.handleSenderTypeChange,
-      handleSenderClientChange: partiesForm.handlers.handleSenderClientChange,
+      handleSenderClientChange: (clientId: string) => {
+        partiesForm.handlers.handleSenderClientChange(clientId, clients);
+      },
 
       // Location form setters
       setOriginCity: locationForm.setOriginCity,
