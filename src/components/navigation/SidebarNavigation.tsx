@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, User, LogOut } from "lucide-react";
 import { navigationItems } from "./BottomNavigation";
 import { useAuth } from "@/context/AuthContext";
+import { ProfileMenuGroup } from "@/components/sidebar/ProfileMenuGroup";
 
 interface SidebarNavigationProps {
   isMobile: boolean;
@@ -30,7 +31,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50">
-      <div className="fixed top-0 left-0 z-50 h-screen w-64 bg-white dark:bg-gray-800 p-4 shadow-lg">
+      <div className="fixed top-0 left-0 z-50 h-screen w-64 bg-white dark:bg-gray-800 p-4 shadow-lg flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">FretePro</h2>
           <Button variant="ghost" size="icon" onClick={toggleSidebar}>
@@ -38,7 +39,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           </Button>
         </div>
         
-        <ul className="space-y-2 flex-1 overflow-auto">
+        <ul className="space-y-2 flex-1 overflow-y-auto">
           {navigationItems.map((item) => (
             <li key={item.name}>
               <Button
@@ -53,7 +54,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           ))}
         </ul>
         
-        <div className="sticky bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="space-y-2">
             <Button 
               variant="ghost"
@@ -65,7 +66,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
             </Button>
             <Button 
               variant="ghost"
-              className="w-full justify-start" 
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950" 
               onClick={handleLogout}
             >
               <LogOut className="h-4 w-4 mr-2" />
@@ -79,4 +80,3 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 };
 
 export default SidebarNavigation;
-
