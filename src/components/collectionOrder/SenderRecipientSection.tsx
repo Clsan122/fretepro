@@ -1,9 +1,9 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { CNPJLookupField } from "./CNPJLookupField";
 import { Label } from "@/components/ui/label";
-import { Client } from "@/types";
+import { Input } from "@/components/ui/input";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -22,7 +22,6 @@ interface SenderRecipientSectionProps {
   setReceiver: (value: string) => void;
   receiverAddress: string;
   setReceiverAddress: (value: string) => void;
-  // Add these missing props
   selectedSenderId?: string;
   handleSenderClientChange?: (clientId: string) => void;
   clients?: Client[];
@@ -45,10 +44,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiver,
   receiverAddress,
   setReceiverAddress,
-  // Include the optional props with default values
-  selectedSenderId,
-  handleSenderClientChange,
-  clients
 }) => {
   return (
     <Card>
@@ -57,6 +52,13 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 grid gap-6">
         <div className="space-y-4">
+          <CNPJLookupField 
+            label="CNPJ do Remetente"
+            onDataFetched={(data) => {
+              setSender(data.name);
+              setSenderAddress(data.address);
+            }}
+          />
           <div>
             <Label>Nome do Remetente</Label>
             <Input 
@@ -76,6 +78,13 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         </div>
 
         <div className="space-y-4">
+          <CNPJLookupField 
+            label="CNPJ do Destinatário"
+            onDataFetched={(data) => {
+              setRecipient(data.name);
+              setRecipientAddress(data.address);
+            }}
+          />
           <div>
             <Label>Nome do Destinatário</Label>
             <Input 
@@ -95,6 +104,13 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         </div>
 
         <div className="space-y-4">
+          <CNPJLookupField 
+            label="CNPJ do Expedidor"
+            onDataFetched={(data) => {
+              setShipper(data.name);
+              setShipperAddress(data.address);
+            }}
+          />
           <div>
             <Label>Nome do Expedidor</Label>
             <Input 
@@ -114,6 +130,13 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         </div>
 
         <div className="space-y-4">
+          <CNPJLookupField 
+            label="CNPJ do Recebedor"
+            onDataFetched={(data) => {
+              setReceiver(data.name);
+              setReceiverAddress(data.address);
+            }}
+          />
           <div>
             <Label>Nome do Recebedor</Label>
             <Input 
