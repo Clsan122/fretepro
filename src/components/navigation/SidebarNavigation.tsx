@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, User, LogOut } from "lucide-react";
 import { navigationItems } from "./BottomNavigation";
 import { useAuth } from "@/context/AuthContext";
-import { ProfileMenuGroup } from "@/components/sidebar/ProfileMenuGroup";
 
 interface SidebarNavigationProps {
   isMobile: boolean;
@@ -39,20 +38,22 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           </Button>
         </div>
         
-        <ul className="space-y-2 flex-1 overflow-y-auto">
-          {navigationItems.map((item) => (
-            <li key={item.name}>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleNavigate(item.path)}
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.name}
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <div className="flex-1 overflow-y-auto">
+          <ul className="space-y-2">
+            {navigationItems.map((item) => (
+              <li key={item.name}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => handleNavigate(item.path)}
+                >
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.name}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
         
         <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="space-y-2">
