@@ -319,9 +319,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
               </p>
               <p>{driver.name}</p>
               <p>{driver.licensePlate}</p>
-              {driver.phone && <p className="flex items-center gap-0.5">
-                <Phone className="h-2.5 w-2.5" /> {driver.phone}
-              </p>}
               {driver.address && <p className="text-[8px] flex items-start mt-0.5">
                 <MapPin className="h-2.5 w-2.5 mr-0.5 mt-0.5 flex-shrink-0" /> 
                 <span>{driver.address}</span>
