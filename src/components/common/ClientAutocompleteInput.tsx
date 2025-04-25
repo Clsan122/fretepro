@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { formatCNPJ } from "@/utils/formatters";
-import { useToast } from "@/hooks/use-toast";
 
 interface ClientAutocompleteInputProps {
   value: string;
@@ -37,33 +36,12 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value || "");
   const inputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
   const safeClients = Array.isArray(clients) ? clients : [];
-
-  // Function to check CNPJ format and search for existing client
-  const handleCNPJCheck = (cnpj: string) => {
-    const cleanCNPJ = cnpj.replace(/\D/g, '');
-    if (cleanCNPJ.length === 14) {
-      const existingClient = safeClients.find(client => client.cnpj === cleanCNPJ);
-      if (existingClient) {
-        onClientSelect(existingClient);
-        toast({
-          title: "Cliente encontrado",
-          description: "Os dados foram preenchidos automaticamente com as informações do cliente cadastrado.",
-        });
-      }
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
     onChange(newValue);
-    
-    // Check if input might be a CNPJ
-    if (newValue.replace(/\D/g, '').length === 14) {
-      handleCNPJCheck(newValue);
-    }
   };
 
   return (
