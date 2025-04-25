@@ -32,7 +32,7 @@ export const ReceiverFields: React.FC<ReceiverFieldsProps> = ({
 
   useEffect(() => {
     if (user) {
-      const userClients = getClientsByUserId(user.id);
+      const userClients = getClientsByUserId(user.id) || [];
       setClients(userClients);
     }
   }, [user]);
@@ -77,7 +77,7 @@ export const ReceiverFields: React.FC<ReceiverFieldsProps> = ({
         <Label htmlFor="receiver">Recebedor</Label>
         <Input
           id="receiver"
-          value={receiver}
+          value={receiver || ""}
           onChange={(e) => setReceiver(e.target.value)}
           placeholder="Nome do recebedor"
         />
@@ -87,7 +87,7 @@ export const ReceiverFields: React.FC<ReceiverFieldsProps> = ({
         <Label htmlFor="receiverAddress">Endereço do Recebedor</Label>
         <Input
           id="receiverAddress"
-          value={receiverAddress}
+          value={receiverAddress || ""}
           onChange={(e) => setReceiverAddress(e.target.value)}
           placeholder="Endereço de entrega"
         />

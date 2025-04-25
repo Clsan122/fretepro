@@ -29,14 +29,17 @@ interface ClientSelectProps {
 
 export const ClientSelect: React.FC<ClientSelectProps> = ({
   label,
-  clients,
+  clients = [],  // Garante que clients seja sempre um array
   selectedValue,
   onClientChange,
   clientInfo,
   clientAddress
 }) => {
   const [open, setOpen] = React.useState(false);
-  const selectedClient = clients.find(client => client.id === selectedValue);
+  const selectedClient = clients?.find(client => client.id === selectedValue);
+  
+  // Lista segura de clientes
+  const safeClients = Array.isArray(clients) ? clients : [];
 
   return (
     <div className="space-y-4">
@@ -60,7 +63,7 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
             <CommandInput placeholder={`Buscar ${label.toLowerCase()}...`} />
             <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
             <CommandGroup className="max-h-64 overflow-y-auto">
-              {clients.map((client) => (
+              {safeClients.map((client) => (
                 <CommandItem
                   key={client.id}
                   onSelect={() => {

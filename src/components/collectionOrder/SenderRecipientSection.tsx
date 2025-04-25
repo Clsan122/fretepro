@@ -50,7 +50,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
     <Card>
       <CardHeader className="p-4 sm:p-6">
         <CardTitle>Informações de Remetente e Destinatário</CardTitle>
-        <CardDescription>Preencha os dados ou busque pelo CNPJ</CardDescription>
+        <CardDescription>Preencha os dados manualmente ou busque pelo CNPJ</CardDescription>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 space-y-6">
         <div className="space-y-4">
@@ -63,11 +63,17 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Remetente</Label>
-            <Input value={sender} onChange={(e) => setSender(e.target.value)} />
+            <Input 
+              value={sender || ""} 
+              onChange={(e) => setSender(e.target.value)} 
+            />
           </div>
           <div>
             <Label>Endereço do Remetente</Label>
-            <Input value={senderAddress} onChange={(e) => setSenderAddress(e.target.value)} />
+            <Input 
+              value={senderAddress || ""} 
+              onChange={(e) => setSenderAddress(e.target.value)} 
+            />
           </div>
         </div>
 
@@ -81,11 +87,17 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Destinatário</Label>
-            <Input value={recipient} onChange={(e) => setRecipient(e.target.value)} />
+            <Input 
+              value={recipient || ""} 
+              onChange={(e) => setRecipient(e.target.value)} 
+            />
           </div>
           <div>
             <Label>Endereço do Destinatário</Label>
-            <Input value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)} />
+            <Input 
+              value={recipientAddress || ""} 
+              onChange={(e) => setRecipientAddress(e.target.value)} 
+            />
           </div>
         </div>
 
@@ -99,11 +111,17 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Expedidor</Label>
-            <Input value={shipper} onChange={(e) => setShipper(e.target.value)} />
+            <Input 
+              value={shipper || ""} 
+              onChange={(e) => setShipper(e.target.value)} 
+            />
           </div>
           <div>
             <Label>Endereço do Expedidor</Label>
-            <Input value={shipperAddress} onChange={(e) => setShipperAddress(e.target.value)} />
+            <Input 
+              value={shipperAddress || ""} 
+              onChange={(e) => setShipperAddress(e.target.value)} 
+            />
           </div>
         </div>
 
@@ -117,11 +135,17 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           />
           <div>
             <Label>Nome do Recebedor</Label>
-            <Input value={receiver} onChange={(e) => setReceiver(e.target.value)} />
+            <Input 
+              value={receiver || ""} 
+              onChange={(e) => setReceiver(e.target.value)} 
+            />
           </div>
           <div>
             <Label>Endereço do Recebedor</Label>
-            <Input value={receiverAddress} onChange={(e) => setReceiverAddress(e.target.value)} />
+            <Input 
+              value={receiverAddress || ""} 
+              onChange={(e) => setReceiverAddress(e.target.value)} 
+            />
           </div>
         </div>
       </CardContent>
