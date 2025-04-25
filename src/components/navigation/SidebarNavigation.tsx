@@ -2,9 +2,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, User, LogOut } from "lucide-react";
 import { navigationItems } from "./BottomNavigation";
-import { ProfileMenuGroup } from "../sidebar/ProfileMenuGroup";
+import { useAuth } from "@/context/AuthContext";
 
 interface SidebarNavigationProps {
   isMobile: boolean;
@@ -18,6 +18,14 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   toggleSidebar,
   handleNavigate,
 }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   if (!sidebarOpen) return null;
 
   return (
@@ -45,8 +53,25 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           ))}
         </ul>
         
-        <div className="mt-auto">
-          <ProfileMenuGroup />
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="space-y-2">
+            <Button 
+              variant="ghost"
+              className="w-full justify-start" 
+              onClick={() => navigate("/profile")}
+            >
+              <User className="h-4 w-4 mr-2" />
+              <span>{user?.name || "Usuário"}</span>
+            </Button>
+            <Button 
+              variant="ghost"
+              className="w-full justify-start" 
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              <span>Sair</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
