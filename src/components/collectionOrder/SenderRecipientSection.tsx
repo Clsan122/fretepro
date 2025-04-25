@@ -3,6 +3,8 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ClientCombobox } from "./ClientCombobox";
+import { Client } from "@/types";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -21,6 +23,7 @@ interface SenderRecipientSectionProps {
   setReceiver: (value: string) => void;
   receiverAddress: string;
   setReceiverAddress: (value: string) => void;
+  clients: Client[];
 }
 
 export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
@@ -40,6 +43,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiver,
   receiverAddress,
   setReceiverAddress,
+  clients,
 }) => {
   return (
     <Card>
@@ -49,11 +53,15 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
       <CardContent className="p-4 sm:p-6 pt-0 grid gap-6">
         <div className="space-y-4">
           <div>
-            <Label>Nome do Remetente</Label>
-            <Input 
-              value={sender} 
-              onChange={(e) => setSender(e.target.value)} 
-              placeholder="Digite o nome do remetente"
+            <Label>Remetente</Label>
+            <ClientCombobox
+              clients={clients}
+              value={sender}
+              onValueChange={(value, address) => {
+                setSender(value);
+                if (address) setSenderAddress(address);
+              }}
+              label="Remetente"
             />
           </div>
           <div>
@@ -68,11 +76,15 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
 
         <div className="space-y-4">
           <div>
-            <Label>Nome do Destinatário</Label>
-            <Input 
-              value={recipient} 
-              onChange={(e) => setRecipient(e.target.value)} 
-              placeholder="Digite o nome do destinatário"
+            <Label>Destinatário</Label>
+            <ClientCombobox
+              clients={clients}
+              value={recipient}
+              onValueChange={(value, address) => {
+                setRecipient(value);
+                if (address) setRecipientAddress(address);
+              }}
+              label="Destinatário"
             />
           </div>
           <div>
@@ -87,11 +99,15 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
 
         <div className="space-y-4">
           <div>
-            <Label>Nome do Expedidor</Label>
-            <Input 
-              value={shipper} 
-              onChange={(e) => setShipper(e.target.value)} 
-              placeholder="Digite o nome do expedidor"
+            <Label>Expedidor</Label>
+            <ClientCombobox
+              clients={clients}
+              value={shipper}
+              onValueChange={(value, address) => {
+                setShipper(value);
+                if (address) setShipperAddress(address);
+              }}
+              label="Expedidor"
             />
           </div>
           <div>
@@ -106,11 +122,15 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
 
         <div className="space-y-4">
           <div>
-            <Label>Nome do Recebedor</Label>
-            <Input 
-              value={receiver} 
-              onChange={(e) => setReceiver(e.target.value)} 
-              placeholder="Digite o nome do recebedor"
+            <Label>Recebedor</Label>
+            <ClientCombobox
+              clients={clients}
+              value={receiver}
+              onValueChange={(value, address) => {
+                setReceiver(value);
+                if (address) setReceiverAddress(address);
+              }}
+              label="Recebedor"
             />
           </div>
           <div>

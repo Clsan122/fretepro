@@ -1,4 +1,3 @@
-
 import React from "react";
 import { CollectionOrder } from "@/types";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
@@ -110,6 +109,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         setShipperAddress={setters.setShipperAddress}
         setReceiver={setters.setReceiver}
         setReceiverAddress={setters.setReceiverAddress}
+        clients={formData.clients}
       />
 
       <LocationDetailsSection
