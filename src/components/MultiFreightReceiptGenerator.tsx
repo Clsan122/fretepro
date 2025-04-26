@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -63,13 +64,17 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Fix #1: Updated the useReactToPrint hook implementation
+  // Fix #1: Create reactive print function with useReactToPrint
+  const reactToPrintContent = React.useCallback(() => {
+    return componentRef.current;
+  }, [componentRef.current]);
+
+  // Fix #2: Use the callback pattern to set up print function
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
-    // Fix: Use the correct property name for the content function
-    contentRef: componentRef,
+    content: reactToPrintContent,
   });
 
   const handleGeneratePDF = async () => {
@@ -159,11 +164,15 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
             <Save className="h-4 w-4" />
             Salvar
           </Button>
-          {/* Fix #2: Changed onClick to use correctly typed callback */}
+          {/* Fix #3: Use a button wrapper to handle the print function properly */}
           <Button 
             variant="outline" 
             className="gap-2"
-            onClick={handlePrint}
+            onClick={() => {
+              if (handlePrint) {
+                handlePrint();
+              }
+            }}
           >
             <PrinterIcon className="h-4 w-4" />
             Imprimir
