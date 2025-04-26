@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -70,7 +69,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
     // Fix: Use the correct property name for the content function
-    content: () => componentRef.current,
+    contentRef: componentRef,
   });
 
   const handleGeneratePDF = async () => {
@@ -164,7 +163,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           <Button 
             variant="outline" 
             className="gap-2"
-            onClick={() => handlePrint()}
+            onClick={handlePrint}
           >
             <PrinterIcon className="h-4 w-4" />
             Imprimir
