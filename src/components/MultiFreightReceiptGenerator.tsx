@@ -64,10 +64,12 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
+  // Fix #1: Updated the useReactToPrint hook implementation
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
+    // Fix: Use the correct property name for the content function
     content: () => componentRef.current,
   });
 
@@ -158,10 +160,11 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
             <Save className="h-4 w-4" />
             Salvar
           </Button>
+          {/* Fix #2: Changed onClick to use correctly typed callback */}
           <Button 
             variant="outline" 
             className="gap-2"
-            onClick={handlePrint}
+            onClick={() => handlePrint()}
           >
             <PrinterIcon className="h-4 w-4" />
             Imprimir
