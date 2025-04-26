@@ -69,6 +69,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
+    // Using the correct property name according to react-to-print API
     content: () => componentRef.current,
   });
 
@@ -162,7 +163,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           <Button 
             variant="outline" 
             className="gap-2"
-            onClick={() => handlePrint()}
+            onClick={handlePrint}
           >
             <PrinterIcon className="h-4 w-4" />
             Imprimir
