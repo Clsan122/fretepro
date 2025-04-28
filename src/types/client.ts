@@ -9,3 +9,17 @@ export interface ClientFormData {
   phone: string;       // Required field with national format
   personType: 'physical' | 'legal'; // Required field
 }
+
+// Ensure Client interface includes all fields needed for address auto-fill
+export interface Client {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+  cnpj?: string;
+  cpf?: string;
+  address?: string;
+  phone?: string;
+  logo?: string;
+  personType: 'physical' | 'legal';
+}

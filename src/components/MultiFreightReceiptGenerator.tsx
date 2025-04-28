@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -64,12 +63,12 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     }
   };
 
-  // Fix the useReactToPrint hook configuration
+  // Fix the useReactToPrint hook configuration to use the proper type
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
-    content: () => componentRef.current,
+    contentRef: componentRef,
   });
 
   const handleGeneratePDF = async () => {

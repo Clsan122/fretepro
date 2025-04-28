@@ -110,6 +110,13 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
     setReceiverDialogOpen(false);
   };
 
+  // Helper function to create a styled label
+  const createHighlightedLabel = (text: string) => (
+    <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
+      {text}
+    </Label>
+  );
+
   return (
     <Card>
       <CardHeader className="p-4 sm:p-6">
@@ -117,6 +124,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 grid gap-6">
         <div className="space-y-4">
+          {createHighlightedLabel("REMETENTE")}
           <CNPJLookupField 
             label="CNPJ do Remetente"
             onDataFetched={(data) => {
@@ -153,6 +161,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         </div>
 
         <div className="space-y-4">
+          {createHighlightedLabel("DESTINATÁRIO")}
           <CNPJLookupField 
             label="CNPJ do Destinatário"
             onDataFetched={(data) => {
@@ -189,6 +198,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         </div>
 
         <div className="space-y-4">
+          {createHighlightedLabel("EXPEDIDOR")}
           <CNPJLookupField 
             label="CNPJ do Expedidor"
             onDataFetched={(data) => {
@@ -225,6 +235,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         </div>
 
         <div className="space-y-4">
+          {createHighlightedLabel("RECEBEDOR")}
           <CNPJLookupField 
             label="CNPJ do Recebedor"
             onDataFetched={(data) => {

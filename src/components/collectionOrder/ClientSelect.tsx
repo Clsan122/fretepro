@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Client } from "@/types";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -12,20 +12,30 @@ import { useAuth } from "@/context/AuthContext";
 interface ClientSelectProps {
   label: string;
   selectedValue: string;
-  onClientChange: (value: string) => void;
+  onClientChange: (value: string, address?: string) => void;
+  className?: string;
 }
 
 export const ClientSelect: React.FC<ClientSelectProps> = ({
   label,
   selectedValue,
-  onClientChange
+  onClientChange,
+  className
 }) => {
   const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
 
+  // Load clients on component mount
+  useEffect(() => {
+    if (user) {
+      const userClients = getClientsByUserId(user.id);
+      setClients(userClients);
+    }
+  }, [user]);
+
   const handleOpenDialog = () => {
-    // Buscar clientes do usuário atual quando o diálogo for aberto
+    // Refresh clients list when dialog is opened
     if (user) {
       const userClients = getClientsByUserId(user.id);
       setClients(userClients);
@@ -34,18 +44,20 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
   };
 
   const handleSelectClient = (client: Client) => {
-    onClientChange(client.name);
+    // Pass both name and address when a client is selected
+    onClientChange(client.name, client.address);
     setIsDialogOpen(false);
   };
 
   return (
-    <div className="space-y-4">
-      <Label>{label}</Label>
+    <div className={`space-y-4 ${className}`}>
+      <Label className="font-medium">{label}</Label>
       <div className="flex gap-2">
         <Input
           value={selectedValue}
           onChange={(e) => onClientChange(e.target.value)}
           placeholder={`Digite o nome do ${label.toLowerCase()}`}
+          className="flex-1"
         />
         <Button 
           type="button" 
