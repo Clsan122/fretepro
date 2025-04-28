@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CNPJLookupField } from "./CNPJLookupField";
 import { Label } from "@/components/ui/label";
@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Client } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { ClientAutocompleteInput } from "@/components/common/ClientAutocompleteInput";
+import { ClientListDialog } from "@/components/client/ClientListDialog";
+import { useAuth } from "@/context/AuthContext";
+import { getClientsByUserId } from "@/utils/storage";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -50,6 +52,64 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setReceiverAddress,
   clients = [],
 }) => {
+  const { user } = useAuth();
+  const [senderDialogOpen, setSenderDialogOpen] = useState(false);
+  const [recipientDialogOpen, setRecipientDialogOpen] = useState(false);
+  const [shipperDialogOpen, setShipperDialogOpen] = useState(false);
+  const [receiverDialogOpen, setReceiverDialogOpen] = useState(false);
+  const [clientsList, setClientsList] = useState<Client[]>([]);
+
+  const loadClients = () => {
+    if (user) {
+      const userClients = getClientsByUserId(user.id);
+      setClientsList(userClients);
+    }
+  };
+
+  const handleOpenSenderDialog = () => {
+    loadClients();
+    setSenderDialogOpen(true);
+  };
+
+  const handleOpenRecipientDialog = () => {
+    loadClients();
+    setRecipientDialogOpen(true);
+  };
+
+  const handleOpenShipperDialog = () => {
+    loadClients();
+    setShipperDialogOpen(true);
+  };
+
+  const handleOpenReceiverDialog = () => {
+    loadClients();
+    setReceiverDialogOpen(true);
+  };
+
+  const handleSelectSender = (client: Client) => {
+    setSender(client.name);
+    setSenderAddress(client.address || '');
+    setSenderDialogOpen(false);
+  };
+
+  const handleSelectRecipient = (client: Client) => {
+    setRecipient(client.name);
+    setRecipientAddress(client.address || '');
+    setRecipientDialogOpen(false);
+  };
+
+  const handleSelectShipper = (client: Client) => {
+    setShipper(client.name);
+    setShipperAddress(client.address || '');
+    setShipperDialogOpen(false);
+  };
+
+  const handleSelectReceiver = (client: Client) => {
+    setReceiver(client.name);
+    setReceiverAddress(client.address || '');
+    setReceiverDialogOpen(false);
+  };
+
   return (
     <Card>
       <CardHeader className="p-4 sm:p-6">
@@ -72,17 +132,14 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
                 onChange={(e) => setSender(e.target.value)} 
                 placeholder="Digite o nome do remetente"
               />
-              <ClientAutocompleteInput
-                clients={clients}
-                onChange={(clientId) => {
-                  const selectedClient = clients.find(c => c.id === clientId);
-                  if (selectedClient) {
-                    setSender(selectedClient.name);
-                    setSenderAddress(selectedClient.address || '');
-                  }
-                }}
-                placeholder="Buscar cliente"
-              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleOpenSenderDialog}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           <div>
@@ -111,17 +168,14 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
                 onChange={(e) => setRecipient(e.target.value)} 
                 placeholder="Digite o nome do destinatário"
               />
-              <ClientAutocompleteInput
-                clients={clients}
-                onChange={(clientId) => {
-                  const selectedClient = clients.find(c => c.id === clientId);
-                  if (selectedClient) {
-                    setRecipient(selectedClient.name);
-                    setRecipientAddress(selectedClient.address || '');
-                  }
-                }}
-                placeholder="Buscar cliente"
-              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleOpenRecipientDialog}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           <div>
@@ -150,17 +204,14 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
                 onChange={(e) => setShipper(e.target.value)} 
                 placeholder="Digite o nome do expedidor"
               />
-              <ClientAutocompleteInput
-                clients={clients}
-                onChange={(clientId) => {
-                  const selectedClient = clients.find(c => c.id === clientId);
-                  if (selectedClient) {
-                    setShipper(selectedClient.name);
-                    setShipperAddress(selectedClient.address || '');
-                  }
-                }}
-                placeholder="Buscar cliente"
-              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleOpenShipperDialog}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           <div>
@@ -189,17 +240,14 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
                 onChange={(e) => setReceiver(e.target.value)} 
                 placeholder="Digite o nome do recebedor"
               />
-              <ClientAutocompleteInput
-                clients={clients}
-                onChange={(clientId) => {
-                  const selectedClient = clients.find(c => c.id === clientId);
-                  if (selectedClient) {
-                    setReceiver(selectedClient.name);
-                    setReceiverAddress(selectedClient.address || '');
-                  }
-                }}
-                placeholder="Buscar cliente"
-              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleOpenReceiverDialog}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           <div>
@@ -211,6 +259,35 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
             />
           </div>
         </div>
+
+        {/* Diálogos para seleção de clientes */}
+        <ClientListDialog 
+          clients={clientsList}
+          isOpen={senderDialogOpen}
+          onClose={() => setSenderDialogOpen(false)}
+          onSelectClient={handleSelectSender}
+        />
+        
+        <ClientListDialog 
+          clients={clientsList}
+          isOpen={recipientDialogOpen}
+          onClose={() => setRecipientDialogOpen(false)}
+          onSelectClient={handleSelectRecipient}
+        />
+        
+        <ClientListDialog 
+          clients={clientsList}
+          isOpen={shipperDialogOpen}
+          onClose={() => setShipperDialogOpen(false)}
+          onSelectClient={handleSelectShipper}
+        />
+        
+        <ClientListDialog 
+          clients={clientsList}
+          isOpen={receiverDialogOpen}
+          onClose={() => setReceiverDialogOpen(false)}
+          onSelectClient={handleSelectReceiver}
+        />
       </CardContent>
     </Card>
   );
