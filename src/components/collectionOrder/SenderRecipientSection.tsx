@@ -16,6 +16,12 @@ interface SenderRecipientSectionProps {
   setSender: (value: string) => void;
   senderAddress: string;
   setSenderAddress: (value: string) => void;
+  senderCnpj?: string;
+  setSenderCnpj?: (value: string) => void;
+  senderCity?: string;
+  setSenderCity?: (value: string) => void;
+  senderState?: string;
+  setSenderState?: (value: string) => void;
   recipient: string;
   setRecipient: (value: string) => void;
   recipientAddress: string;
@@ -38,6 +44,12 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   setSender,
   senderAddress,
   setSenderAddress,
+  senderCnpj = "",
+  setSenderCnpj = () => {},
+  senderCity = "",
+  setSenderCity = () => {},
+  senderState = "",
+  setSenderState = () => {},
   recipient,
   setRecipient,
   recipientAddress,
@@ -89,6 +101,9 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   const handleSelectSender = (client: Client) => {
     setSender(client.name);
     setSenderAddress(client.address || '');
+    setSenderCnpj(client.cnpj || '');
+    setSenderCity(client.city || '');
+    setSenderState(client.state || '');
     setSenderDialogOpen(false);
   };
 
@@ -130,6 +145,17 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
             onDataFetched={(data) => {
               setSender(data.name);
               setSenderAddress(data.address);
+              setSenderCnpj(data.cnpj || '');
+              // Extract city and state from address if available
+              const addressParts = data.address.split(', ');
+              if (addressParts.length > 1) {
+                const cityStatePart = addressParts[addressParts.length - 1];
+                const cityStateMatch = cityStatePart.match(/(.+) - ([A-Z]{2})$/);
+                if (cityStateMatch) {
+                  setSenderCity(cityStateMatch[1]);
+                  setSenderState(cityStateMatch[2]);
+                }
+              }
             }}
           />
           <div>
@@ -151,12 +177,39 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
             </div>
           </div>
           <div>
+            <Label>CNPJ do Remetente</Label>
+            <Input 
+              value={senderCnpj} 
+              onChange={(e) => setSenderCnpj(e.target.value)} 
+              placeholder="Digite o CNPJ do remetente"
+            />
+          </div>
+          <div>
             <Label>Endereço do Remetente</Label>
             <Input 
               value={senderAddress} 
               onChange={(e) => setSenderAddress(e.target.value)} 
               placeholder="Digite o endereço do remetente"
             />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label>Cidade</Label>
+              <Input 
+                value={senderCity} 
+                onChange={(e) => setSenderCity(e.target.value)} 
+                placeholder="Cidade"
+              />
+            </div>
+            <div>
+              <Label>Estado</Label>
+              <Input 
+                value={senderState} 
+                onChange={(e) => setSenderState(e.target.value)} 
+                placeholder="UF"
+                maxLength={2}
+              />
+            </div>
           </div>
         </div>
 

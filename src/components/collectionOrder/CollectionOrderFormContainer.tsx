@@ -42,6 +42,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
       sender: formData.sender,
       senderAddress: formData.senderAddress,
+      senderCnpj: formData.senderCnpj,
+      senderCity: formData.senderCity,
+      senderState: formData.senderState,
       recipient: formData.recipient,
       recipientAddress: formData.recipientAddress,
       originCity: formData.originCity,
@@ -96,6 +99,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       <SenderRecipientSection
         sender={formData.sender}
         senderAddress={formData.senderAddress}
+        senderCnpj={formData.senderCnpj}
+        senderCity={formData.senderCity}
+        senderState={formData.senderState}
         recipient={formData.recipient}
         recipientAddress={formData.recipientAddress}
         shipper={formData.shipper}
@@ -107,6 +113,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         clients={formData.clients}
         setSender={setters.setSender}
         setSenderAddress={setters.setSenderAddress}
+        setSenderCnpj={setters.setSenderCnpj}
+        setSenderCity={setters.setSenderCity}
+        setSenderState={setters.setSenderState}
         setRecipient={setters.setRecipient}
         setRecipientAddress={setters.setRecipientAddress}
         setShipper={setters.setShipper}

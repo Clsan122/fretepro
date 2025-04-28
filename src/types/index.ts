@@ -1,8 +1,12 @@
+
 export interface CollectionOrder {
   id: string;
   orderNumber: string; // Added this field for auto-numbering
   sender: string;
   senderAddress: string;
+  senderCnpj?: string;  // Added for company details
+  senderCity?: string;  // Added for company details
+  senderState?: string; // Added for company details
   recipient: string;
   recipientAddress: string;
   originCity: string;

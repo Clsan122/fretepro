@@ -42,6 +42,9 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       if (!orderToEdit && partiesForm.selectedSenderType === 'my-company') {
         partiesForm.setSender(user.companyName || '');
         partiesForm.setSenderAddress(user.address || '');
+        partiesForm.setSenderCnpj(user.cnpj || '');
+        partiesForm.setSenderCity(user.city || '');
+        partiesForm.setSenderState(user.state || '');
       }
     }
   }, [user, partiesForm.selectedSenderType, orderToEdit]);
@@ -58,6 +61,9 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       // Parties form data
       sender: partiesForm.sender,
       senderAddress: partiesForm.senderAddress,
+      senderCnpj: partiesForm.senderCnpj,
+      senderCity: partiesForm.senderCity,
+      senderState: partiesForm.senderState,
       recipient: partiesForm.recipient,
       recipientAddress: partiesForm.recipientAddress,
       shipper: partiesForm.shipper,
@@ -101,6 +107,9 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       // Parties form methods
       setSender: partiesForm.setSender,
       setSenderAddress: partiesForm.setSenderAddress,
+      setSenderCnpj: partiesForm.setSenderCnpj,
+      setSenderCity: partiesForm.setSenderCity,
+      setSenderState: partiesForm.setSenderState,
       setRecipient: partiesForm.setRecipient,
       setRecipientAddress: partiesForm.setRecipientAddress,
       setShipper: partiesForm.setShipper,

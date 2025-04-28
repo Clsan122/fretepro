@@ -10,6 +10,10 @@ interface OrderHeaderProps {
   clientLogo?: string;
   issuer?: User | Client | null;
   orderNumber?: string;
+  senderCnpj?: string;
+  senderAddress?: string;
+  senderCity?: string;
+  senderState?: string;
 }
 
 export const OrderHeader: React.FC<OrderHeaderProps> = ({
@@ -19,6 +23,10 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
   clientLogo,
   issuer,
   orderNumber,
+  senderCnpj,
+  senderAddress,
+  senderCity,
+  senderState
 }) => {
   // Function to check if issuer has a logo
   const issuerHasLogo = (): boolean => {
@@ -57,7 +65,14 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
           ORDEM DE COLETA {orderNumber && `Nº ${orderNumber}`}
         </h2>
         <p className="text-gray-500 text-xs">Data: {createdAt}</p>
-        {clientName && <p className="font-medium text-xs">Solicitante: {clientName}</p>}
+        {clientName && (
+          <div className="mt-2 text-center">
+            <p className="font-medium text-sm">Solicitante: {clientName}</p>
+            {senderCnpj && <p className="text-xs">CNPJ: {senderCnpj}</p>}
+            {senderAddress && <p className="text-xs">{senderAddress}</p>}
+            {senderCity && senderState && <p className="text-xs">{senderCity} - {senderState}</p>}
+          </div>
+        )}
       </div>
     </div>
   );

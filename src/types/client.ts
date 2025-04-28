@@ -22,4 +22,5 @@ export interface Client {
   phone?: string;
   logo?: string;
   personType: 'physical' | 'legal';
+  userId?: string;     // Added userId field for better data association
 }

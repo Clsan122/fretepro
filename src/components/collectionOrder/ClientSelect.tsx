@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 interface ClientSelectProps {
   label: string;
   selectedValue: string;
-  onClientChange: (value: string, address?: string) => void;
+  onClientChange: (value: string, address?: string, cnpj?: string, city?: string, state?: string) => void;
   className?: string;
 }
 
@@ -44,8 +44,14 @@ export const ClientSelect: React.FC<ClientSelectProps> = ({
   };
 
   const handleSelectClient = (client: Client) => {
-    // Pass both name and address when a client is selected
-    onClientChange(client.name, client.address);
+    // Pass full client data when a client is selected
+    onClientChange(
+      client.name, 
+      client.address, 
+      client.cnpj, 
+      client.city, 
+      client.state
+    );
     setIsDialogOpen(false);
   };
 

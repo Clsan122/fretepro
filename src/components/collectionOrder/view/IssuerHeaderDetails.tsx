@@ -30,8 +30,9 @@ export const IssuerHeaderDetails: React.FC<IssuerHeaderDetailsProps> = ({ issuer
       <div className="text-xs text-center space-y-0.5">
         <span className="block font-medium">{displayName}</span>
         {issuer.cnpj && <span className="block">CNPJ: {issuer.cnpj}</span>}
-        {(issuer.address && issuer.city && issuer.state) && (
-          <span className="block print-small-text">{issuer.address} - {issuer.city}/{issuer.state}</span>
+        {issuer.address && <span className="block">{issuer.address}</span>}
+        {(issuer.city && issuer.state) && (
+          <span className="block print-small-text">{issuer.city}/{issuer.state}</span>
         )}
       </div>
     </div>
