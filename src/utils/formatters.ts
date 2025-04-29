@@ -42,3 +42,12 @@ export const createMultiFreightReceiptUrl = (freightIds: string[]) => {
   if (!freightIds.length) return "";
   return `/multi-freight-receipt?ids=${freightIds.join(",")}`;
 };
+
+// Format date to DD/MM/YYYY
+export const formatDate = (date: Date): string => {
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};

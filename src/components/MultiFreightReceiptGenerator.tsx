@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Freight, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { getClientById } from "@/utils/storage";
-import { formatDate } from "@/utils/formatters";
-import { ReceiptHeader } from "./multi-freight-receipt/ReceiptHeader";
-import { SummaryTable } from "./multi-freight-receipt/SummaryTable";
-import { ReceiptFooter } from "./multi-freight-receipt/ReceiptFooter";
-import { PrintStyles } from "./multi-freight-receipt/PrintStyles";
-import { ClientDetailsSection } from "./multi-freight-receipt/ClientDetailsSection";
+import { format } from "date-fns";
+import ReceiptHeader from "./multi-freight-receipt/ReceiptHeader";
+import SummaryTable from "./multi-freight-receipt/SummaryTable";
+import ReceiptFooter from "./multi-freight-receipt/ReceiptFooter";
+import PrintStyles from "./multi-freight-receipt/PrintStyles";
+import ClientDetailsSection from "./multi-freight-receipt/ClientDetailsSection";
+import { groupFreightsByClient, getDateRangeText } from "@/utils/receipt-helpers";
 
 interface MultiFreightReceiptGeneratorProps {
   freights: Freight[];
@@ -39,12 +40,14 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const requesterName = freights.length > 0 ? freights[0].requesterName : undefined;
   const paymentTerm = freights.length > 0 ? freights[0].paymentTerm : undefined;
 
-  // Format the current date
-  const currentDate = formatDate(new Date());
+  // Get formatted date range for the receipt
+  const dateRangeText = getDateRangeText(freights);
+
+  // Group freights by client for better organization in the receipt
+  const freightsByClient = groupFreightsByClient(freights);
 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo-Multiple-Fretes",
-    // Remove the 'content' property and use only 'contentRef'
     contentRef: printRef,
     onAfterPrint: () => {
       console.log("Printing completed");
@@ -66,12 +69,13 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         <PrintStyles />
         
         <ReceiptHeader 
-          client={client} 
-          user={user} 
-          date={currentDate} 
+          dateRangeText={dateRangeText}
+          currentUser={user} 
         />
 
-        <ClientDetailsSection client={client} />
+        <ClientDetailsSection 
+          freightsByClient={freightsByClient} 
+        />
         
         <SummaryTable 
           freights={freights} 
