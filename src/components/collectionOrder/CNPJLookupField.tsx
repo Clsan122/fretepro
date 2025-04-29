@@ -59,7 +59,7 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
         toast({
           title: "Cliente já cadastrado",
           description: `Este CNPJ já está cadastrado para o cliente ${clientWithSameCNPJ.name}`,
-          variant: "warning",
+          variant: "default",  // Changed from "warning" to "default" since "warning" isn't supported
         });
         
         // Preencher os dados com o cliente existente
