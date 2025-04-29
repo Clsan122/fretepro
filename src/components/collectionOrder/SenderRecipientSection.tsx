@@ -145,7 +145,10 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
             onDataFetched={(data) => {
               setSender(data.name);
               setSenderAddress(data.address);
-              setSenderCnpj(data.cnpj || '');
+              // Only set CNPJ if it exists in the fetched data
+              if ('cnpj' in data) {
+                setSenderCnpj(data.cnpj || '');
+              }
               // Extract city and state from address if available
               const addressParts = data.address.split(', ');
               if (addressParts.length > 1) {
