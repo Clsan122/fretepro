@@ -72,7 +72,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
           dateRangeText={dateRangeText}
           currentUser={user} 
         />
-
+        
         <ClientDetailsSection 
           freightsByClient={freightsByClient} 
         />
