@@ -17,7 +17,6 @@ interface OrderHeaderProps {
 }
 
 export const OrderHeader: React.FC<OrderHeaderProps> = ({
-  companyLogo,
   createdAt,
   clientLogo,
   issuer,

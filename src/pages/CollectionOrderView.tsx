@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import Layout from "@/components/Layout";
 import { getCollectionOrderById, deleteCollectionOrder, saveFreight, getClientById } from "@/utils/storage";
 import { CollectionOrder, Freight, Client } from "@/types";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ActionButtons } from "@/components/collectionOrder/view/ActionButtons";
 import { OrderHeader } from "@/components/collectionOrder/view/OrderHeader";
 import { OrderContent } from "@/components/collectionOrder/view/OrderContent";

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { formatCNPJ } from "@/utils/formatters";
 import { Client } from "@/types";
-import { saveClient } from "@/utils/storage";
+import { saveClient, getClientsByUserId } from "@/utils/storage";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
 
@@ -46,6 +46,33 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
         variant: "destructive",
       });
       return;
+    }
+
+    // Verificar se o CNPJ já está cadastrado
+    if (user) {
+      const existingClients = getClientsByUserId(user.id);
+      const clientWithSameCNPJ = existingClients.find(
+        (client) => client.cnpj === cleanCNPJ
+      );
+      
+      if (clientWithSameCNPJ) {
+        toast({
+          title: "Cliente já cadastrado",
+          description: `Este CNPJ já está cadastrado para o cliente ${clientWithSameCNPJ.name}`,
+          variant: "warning",
+        });
+        
+        // Preencher os dados com o cliente existente
+        onDataFetched({
+          name: clientWithSameCNPJ.name,
+          address: clientWithSameCNPJ.address || "",
+          city: clientWithSameCNPJ.city || "",
+          state: clientWithSameCNPJ.state || "",
+          cnpj: cleanCNPJ,
+        });
+        
+        return;
+      }
     }
 
     setIsFetching(true);

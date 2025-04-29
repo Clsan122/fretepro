@@ -11,13 +11,20 @@ interface OrderContentProps {
 export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
   return (
     <div className="space-y-3 print:space-y-2">
+      {/* Logo e Nome da Transportadora */}
       {order.companyLogo && (
-        <div className="flex justify-center mb-4 print:mb-2">
+        <div className="flex flex-col items-center mb-4 print:mb-2">
           <img 
             src={order.companyLogo} 
             alt="Logo da Transportadora"
-            className="max-h-16 object-contain"
+            className="max-h-16 object-contain mb-2"
           />
+          {order.sender && (
+            <p className="text-center font-semibold">{order.sender}</p>
+          )}
+          {order.senderCnpj && (
+            <p className="text-center text-xs">CNPJ: {order.senderCnpj}</p>
+          )}
         </div>
       )}
 
@@ -28,6 +35,9 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
             <p className="font-semibold text-xs">Remetente:</p>
             <p className="text-xs">{order.sender}</p>
             {order.senderAddress && <p className="text-xs mt-1">{order.senderAddress}</p>}
+            {(order.senderCity && order.senderState) && (
+              <p className="text-xs">{order.senderCity} - {order.senderState}</p>
+            )}
           </div>
           <div>
             <p className="font-semibold text-xs">Destinatário:</p>
@@ -182,4 +192,3 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     </div>
   );
 };
-
