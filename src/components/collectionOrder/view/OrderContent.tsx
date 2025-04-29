@@ -21,21 +21,6 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
         </div>
       )}
 
-      {/* Sender Details (Requester) */}
-      <Card className="border print:border-0 print:shadow-none">
-        <CardContent className="p-3 print:p-2 text-sm">
-          <p className="font-semibold text-xs text-center">SOLICITANTE</p>
-          <div className="mt-1 text-center">
-            <p className="font-medium text-xs">{order.sender}</p>
-            {order.senderCnpj && <p className="text-xs">CNPJ: {order.senderCnpj}</p>}
-            {order.senderAddress && <p className="text-xs">{order.senderAddress}</p>}
-            {order.senderCity && order.senderState && (
-              <p className="text-xs">{order.senderCity} - {order.senderState}</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Sender and Recipient */}
       <Card className="border print:border-0 print:shadow-none">
         <CardContent className="p-3 print:p-2 grid grid-cols-2 gap-2 text-sm">
@@ -197,3 +182,4 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     </div>
   );
 };
+
