@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -106,6 +107,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
       createdAt: initialData?.createdAt || new Date().toISOString(),
       userId: user.id,
       logo: logo || undefined,
+      personType: personType, // Add the missing personType property
     };
 
     onSave(client);
