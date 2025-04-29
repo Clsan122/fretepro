@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CNPJLookupField } from "./CNPJLookupField";
@@ -125,7 +124,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
     setReceiverDialogOpen(false);
   };
 
-  // Helper function to create a styled label
   const createHighlightedLabel = (text: string) => (
     <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
       {text}
@@ -145,20 +143,11 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
             onDataFetched={(data) => {
               setSender(data.name);
               setSenderAddress(data.address);
-              // Only set CNPJ if it exists in the fetched data
-              if ('cnpj' in data) {
-                setSenderCnpj(data.cnpj || '');
+              if (data.cnpj) {
+                setSenderCnpj(data.cnpj);
               }
-              // Extract city and state from address if available
-              const addressParts = data.address.split(', ');
-              if (addressParts.length > 1) {
-                const cityStatePart = addressParts[addressParts.length - 1];
-                const cityStateMatch = cityStatePart.match(/(.+) - ([A-Z]{2})$/);
-                if (cityStateMatch) {
-                  setSenderCity(cityStateMatch[1]);
-                  setSenderState(cityStateMatch[2]);
-                }
-              }
+              setSenderCity(data.city);
+              setSenderState(data.state);
             }}
           />
           <div>
@@ -327,7 +316,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           </div>
         </div>
 
-        {/* Diálogos para seleção de clientes */}
         <ClientListDialog 
           clients={clientsList}
           isOpen={senderDialogOpen}

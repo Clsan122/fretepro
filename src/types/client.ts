@@ -23,4 +23,5 @@ export interface Client {
   logo?: string;
   personType: 'physical' | 'legal';
   userId?: string;     // Added userId field for better data association
+  createdAt?: string;  // Added creation timestamp
 }

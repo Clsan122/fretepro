@@ -10,14 +10,17 @@ import { saveClient } from "@/utils/storage";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
 
+interface CNPJLookupResponse {
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  cnpj?: string;
+}
+
 interface CNPJLookupFieldProps {
   label: string;
-  onDataFetched: (data: {
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-  }) => void;
+  onDataFetched: (data: CNPJLookupResponse) => void;
 }
 
 export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
@@ -52,7 +55,7 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
       
       const data = await response.json();
       
-      const clientData = {
+      const clientData: CNPJLookupResponse = {
         name: data.razao_social,
         address: [
           data.logradouro,
@@ -62,6 +65,7 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
         ].filter(Boolean).join(", "),
         city: data.municipio,
         state: data.uf,
+        cnpj: cleanCNPJ,
       };
 
       // Save as client if user is logged in
@@ -75,6 +79,7 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
           city: clientData.city,
           state: clientData.state,
           phone: data.ddd_telefone_1 || "",
+          personType: 'legal',
           createdAt: new Date().toISOString()
         };
         
