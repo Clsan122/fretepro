@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Freight } from "@/types";
@@ -16,6 +17,14 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 interface MultiFreightReceiptGeneratorProps {
   freights: Freight[];
@@ -27,11 +36,38 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [requesterName, setRequesterName] = useState<string>("");
+  const [requesterName, setRequesterName] = useState<string>(currentUser?.name || "");
+  const [pixKey, setPixKey] = useState<string>(currentUser?.pixKey || "");
+  const [paymentTerm, setPaymentTerm] = useState<string>("30 dias");
+  const [useProfileData, setUseProfileData] = useState(Boolean(currentUser?.name || currentUser?.pixKey));
   
   const dateRangeText = getDateRangeText(freights);
   const totalAmount = getTotalAmount(freights);
   const freightsByClient = groupFreightsByClient(freights);
+  
+  const paymentTermOptions = [
+    { value: "À vista", label: "À vista" },
+    { value: "Por semana", label: "Por semana" },
+    { value: "7 dias", label: "7 dias" },
+    { value: "10 dias", label: "10 dias" },
+    { value: "12 dias", label: "12 dias" },
+    { value: "15 dias", label: "15 dias" },
+    { value: "20 dias", label: "20 dias" },
+    { value: "25 dias", label: "25 dias" },
+    { value: "30 dias", label: "30 dias" },
+    { value: "custom", label: "Outro" },
+  ];
+
+  const handleUseProfileData = (checked: boolean) => {
+    setUseProfileData(checked);
+    if (checked && currentUser) {
+      if (currentUser.pixKey) setPixKey(currentUser.pixKey);
+      if (currentUser.name) setRequesterName(currentUser.name);
+    } else {
+      setPixKey("");
+      setRequesterName("");
+    }
+  };
 
   const handleSave = () => {
     // Save the receipt data to localStorage
@@ -42,6 +78,8 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         totalAmount,
         dateRangeText,
         requesterName,
+        pixKey,
+        paymentTerm
       };
 
       // Get existing receipts or initialize empty array
@@ -68,7 +106,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     documentTitle: "Recibo de Múltiplos Fretes",
     onAfterPrint: () => console.log("Impressão concluída!"),
     pageStyle: "@page { size: A4; margin: 10mm; }",
-    contentRef: componentRef,
+    content: () => componentRef.current,
   });
 
   const handleGeneratePDF = async () => {
@@ -137,19 +175,73 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
 
   return (
     <div className="p-2 md:p-4 max-w-5xl mx-auto">
-      <div className="mb-4 flex flex-col sm:flex-row gap-2 items-start justify-between">
-        <div className="w-full sm:w-auto sm:min-w-[300px]">
-          <Label htmlFor="requester-name">Nome do Solicitante</Label>
-          <Input 
-            id="requester-name"
-            value={requesterName}
-            onChange={(e) => setRequesterName(e.target.value)}
-            placeholder="Informe quem está solicitando o recibo"
-            className="w-full"
-          />
+      <div className="mb-4 space-y-4">
+        <div className="bg-white p-4 rounded-lg border shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium">Informações de Pagamento</h3>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-muted-foreground">Usar dados do perfil</span>
+              <Switch
+                checked={useProfileData}
+                onCheckedChange={handleUseProfileData}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="requester-name" className="text-sm">Nome do Solicitante</Label>
+              <Input 
+                id="requester-name"
+                value={requesterName}
+                onChange={(e) => setRequesterName(e.target.value)}
+                placeholder="Informe quem está solicitando o recibo"
+                className="w-full"
+                disabled={useProfileData}
+              />
+            </div>
+            <div>
+              <Label htmlFor="pix-key" className="text-sm">Chave PIX</Label>
+              <Input 
+                id="pix-key"
+                value={pixKey}
+                onChange={(e) => setPixKey(e.target.value)}
+                placeholder="Informe a chave PIX"
+                className="w-full"
+                disabled={useProfileData}
+              />
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <Label htmlFor="payment-term" className="text-sm">Prazo de Pagamento</Label>
+            <Select 
+              value={paymentTerm} 
+              onValueChange={setPaymentTerm}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione o prazo de pagamento" />
+              </SelectTrigger>
+              <SelectContent>
+                {paymentTermOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {paymentTerm === "custom" && (
+              <Input
+                className="mt-2"
+                placeholder="Especifique o prazo de pagamento"
+                value={paymentTerm === "custom" ? "" : paymentTerm}
+                onChange={(e) => setPaymentTerm(e.target.value)}
+              />
+            )}
+          </div>
         </div>
         
-        <div className="flex gap-2 mt-2 sm:mt-0 w-full sm:w-auto justify-end">
+        <div className="flex gap-2 mt-2 w-full justify-end">
           <Button 
             variant="outline" 
             className="gap-2"
@@ -190,7 +282,8 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         <ReceiptFooter 
           totalAmount={totalAmount} 
           currentUser={currentUser}
-          requesterName={requesterName} 
+          requesterName={requesterName}
+          paymentTerm={paymentTerm}
         />
       </div>
     </div>

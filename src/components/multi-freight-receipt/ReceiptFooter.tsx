@@ -6,12 +6,14 @@ interface ReceiptFooterProps {
   totalAmount: number;
   currentUser: User | null;
   requesterName?: string;
+  paymentTerm?: string;
 }
 
 const ReceiptFooter: React.FC<ReceiptFooterProps> = ({ 
   totalAmount, 
   currentUser,
-  requesterName
+  requesterName,
+  paymentTerm
 }) => {
   // Converter valor para texto por extenso (simplificado)
   const amountInWords = totalAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$', '').trim();
@@ -27,6 +29,9 @@ const ReceiptFooter: React.FC<ReceiptFooterProps> = ({
       <div className="mb-3 border-t border-b border-gray-200 py-2 text-xs print-small-text">
         {requesterName && (
           <p className="mb-1 font-semibold">Solicitante: {requesterName}</p>
+        )}
+        {paymentTerm && (
+          <p className="mb-1 font-semibold">Prazo de Pagamento: {paymentTerm}</p>
         )}
         {currentUser?.pixKey && <p className="mb-1"><span className="font-medium">Chave PIX:</span> {currentUser.pixKey}</p>}
         {currentUser?.bankInfo && <p className="mb-1"><span className="font-medium">Banco:</span> {currentUser.bankInfo}</p>}

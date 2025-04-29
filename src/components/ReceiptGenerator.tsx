@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Freight, Client, User, Driver } from "@/types";
 import { format } from "date-fns";
@@ -53,6 +54,13 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
         </div>
       )}
 
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">Informações de Pagamento</h2>
+        {freight.requesterName && <p><strong>Solicitante:</strong> {freight.requesterName}</p>}
+        {freight.pixKey && <p><strong>Chave PIX:</strong> {freight.pixKey}</p>}
+        {freight.paymentTerm && <p><strong>Prazo de Pagamento:</strong> {freight.paymentTerm}</p>}
+      </div>
+
       {user && (
         <div className="mb-4">
           <h2 className="text-xl font-semibold">Informações da Empresa</h2>
@@ -60,13 +68,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
           {user.cnpj && <p><strong>CNPJ:</strong> {user.cnpj}</p>}
           {user.address && <p><strong>Endereço:</strong> {user.address}</p>}
           <p><strong>Cidade:</strong> {user.city} - {user.state}</p>
-        </div>
-      )}
-      
-      {/* Add requester name before signature if available */}
-      {freight.requesterName && (
-        <div className="mt-4 mb-2 text-sm">
-          <p><strong>Solicitante:</strong> {freight.requesterName}</p>
         </div>
       )}
       
