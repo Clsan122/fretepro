@@ -21,13 +21,23 @@ const { handlePushEvent, handleNotificationClick } = self.notificationManager;
 const { handleClientMessage } = self.messageHandler;
 const { handleShareTarget, handleFileHandler, handleProtocolHandler } = self.shareHandler;
 
+// Nome do cache para a página offline
+const OFFLINE_CACHE = "fretevalor-offline-page";
+const offlineFallbackPage = "/offline.html";
+
 // Destacar o service worker para que ele seja facilmente detectável
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Instalando...');
   event.waitUntil(
     (async () => {
+      // Cache geral do app shell
       await cacheAppShell();
       await cacheScreenshots();
+      
+      // Cache específico para a página offline
+      const offlineCache = await caches.open(OFFLINE_CACHE);
+      await offlineCache.add(offlineFallbackPage);
+      
       self.skipWaiting();
     })()
   );
@@ -42,7 +52,7 @@ self.addEventListener('activate', (event) => {
       const cacheNames = await caches.keys();
       await Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME)
+          .filter(name => name !== CACHE_NAME && name !== OFFLINE_CACHE)
           .map(name => {
             console.log(`[Service Worker] Removendo cache antigo: ${name}`);
             return caches.delete(name);
@@ -54,9 +64,40 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Ativar preload de navegação se suportado
+if (workbox.navigationPreload) {
+  workbox.navigationPreload.enable();
+}
+
 // Manipulador de fetch para interceptar e processar solicitações
 self.addEventListener('fetch', (event) => {
-  // Tentar processar compartilhamento, protocolo ou manipuladores de arquivo
+  // Para requisições de navegação (HTML)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      (async () => {
+        try {
+          // Primeiro, tenta usar a resposta de preload
+          const preloadResponse = await event.preloadResponse;
+          if (preloadResponse) {
+            return preloadResponse;
+          }
+          
+          // Caso não haja preload, tenta a rede
+          const networkResponse = await fetch(event.request);
+          return networkResponse;
+        } catch (error) {
+          // Se falhar por estar offline, use a página offline
+          console.log('[Service Worker] Falha ao buscar. Retornando página offline.');
+          const cache = await caches.open(OFFLINE_CACHE);
+          const cachedResponse = await cache.match(offlineFallbackPage);
+          return cachedResponse;
+        }
+      })()
+    );
+    return;
+  }
+  
+  // Tenta processar compartilhamento, protocolo ou manipuladores de arquivo
   const shareTargetResponse = handleShareTarget(event);
   if (shareTargetResponse) {
     event.respondWith(shareTargetResponse);

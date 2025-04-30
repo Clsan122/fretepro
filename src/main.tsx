@@ -1,8 +1,10 @@
+
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { initializeSyncSystem } from './utils/sync.ts';
+import { toast } from 'sonner';
 
 // Interface para estender o tipo ServiceWorkerRegistration com a propriedade sync
 interface SyncManager {
@@ -19,7 +21,17 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
   pushManager: PushManager;
 }
 
-// Renderizando a aplicação - sem o StrictMode redundante aqui
+// Lista de screenshots para pré-carregar no cache
+const screenshotUrls = [
+  '/screenshots/landing-page.png',
+  '/screenshots/dashboard-relatorios.png',
+  '/screenshots/novo-cliente.png',
+  '/screenshots/ordem-coleta-detalhes.png',
+  '/screenshots/novo-frete.png',
+  '/screenshots/cadastro-motorista.png'
+];
+
+// Renderizando a aplicação
 const root = createRoot(document.getElementById("root")!);
 root.render(<App />);
 
@@ -27,16 +39,6 @@ root.render(<App />);
 initializeSyncSystem().catch(error => {
   console.error('Erro ao inicializar sistema de sincronização:', error);
 });
-
-// Lista de screenshots para pré-carregar no cache
-const screenshotUrls = [
-  '/lovable-uploads/d292b644-b35c-46ac-897b-e2ef8a2e8c61.png', // landing page
-  '/lovable-uploads/14d2b0ad-2879-42cb-840d-ed5262013e0a.png', // dashboard
-  '/lovable-uploads/e0bb8071-4053-437d-a57a-81f03a0853c8.png', // novo cliente
-  '/lovable-uploads/13423698-00b6-42f0-965d-4de4ff2ba345.png', // ordem coleta
-  '/lovable-uploads/e3038efe-77ce-4cb5-8066-735bc2f590c2.png', // novo frete
-  '/lovable-uploads/6085da74-cbb5-4a6f-9c30-6a40bee1c171.png' // cadastro motorista
-];
 
 // Registrar e configurar o Service Worker para o PWA
 if ('serviceWorker' in navigator) {
@@ -99,33 +101,7 @@ if ('serviceWorker' in navigator) {
         }
       }
       
-      // Configurar Push Notifications
-      if (registration.pushManager) {
-        try {
-          const permission = await Notification.requestPermission();
-          if (permission === 'granted') {
-            // Tentar se inscrever para notificações push
-            const subscribeOptions = {
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(
-                'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'
-              )
-            };
-            
-            const subscription = await registration.pushManager.subscribe(subscribeOptions);
-            console.log('Push Notification subscription:', subscription);
-            
-            // Aqui você deveria enviar a subscription para o seu servidor
-            // para armazenar e usar para enviar notificações push
-          } else {
-            console.log('Permissão para notificações não concedida');
-          }
-        } catch (error) {
-          console.error('Erro ao configurar push notifications:', error);
-        }
-      }
-      
-      // Configurar atualização do Service Worker
+      // Configurar nova versão do Service Worker
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker) {
@@ -134,10 +110,21 @@ if ('serviceWorker' in navigator) {
               if (navigator.serviceWorker.controller) {
                 // Service Worker atualizado, notificar usuário
                 console.log('Nova versão disponível! Recarregue a página para atualizar.');
-                // Aqui você poderia mostrar um toast para o usuário recarregar
+                toast.info(
+                  'Nova versão disponível', 
+                  { 
+                    description: 'Clique para atualizar e obter as novidades',
+                    action: {
+                      label: 'Atualizar',
+                      onClick: () => window.location.reload()
+                    },
+                    duration: 10000
+                  }
+                );
               } else {
                 // Primeiro Service Worker instalado
                 console.log('Aplicativo pronto para uso offline.');
+                toast.success('Aplicativo pronto para uso offline');
               }
             }
           };
@@ -148,7 +135,7 @@ if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'SYNC_COMPLETED') {
           console.log('Sincronização concluída:', event.data.timestamp);
-          // Aqui você poderia atualizar a interface ou mostrar notificação
+          toast.success('Sincronização concluída');
         }
         
         if (event.data && event.data.type === 'CACHE_COMPLETE') {
@@ -159,6 +146,8 @@ if ('serviceWorker' in navigator) {
       // Verificar status de conectividade e notificar o Service Worker
       window.addEventListener('online', () => {
         console.log('Conexão de rede restaurada');
+        toast.success('Conexão de rede restaurada');
+        
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
             type: 'ONLINE_STATUS',
@@ -175,6 +164,8 @@ if ('serviceWorker' in navigator) {
       
       window.addEventListener('offline', () => {
         console.log('Conexão de rede perdida');
+        toast.error('Conexão de rede perdida. Algumas funcionalidades podem ficar indisponíveis.');
+        
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
             type: 'ONLINE_STATUS',
@@ -185,6 +176,7 @@ if ('serviceWorker' in navigator) {
       
     } catch (error) {
       console.error('Erro ao registrar o Service Worker:', error);
+      console.info('Falha no registro do ServiceWorker:', error);
     }
   });
 }
