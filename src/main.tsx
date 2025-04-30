@@ -15,7 +15,9 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
   periodicSync?: {
     register(tag: string, options: { minInterval: number }): Promise<void>;
   };
-  pushManager?: PushManager;
+  // Corrigindo o erro TS2430 - tornando pushManager não opcional, mas mantendo
+  // a tipagem compatível com a interface original
+  pushManager: PushManager;
 }
 
 // Renderizando a aplicação
@@ -45,9 +47,13 @@ const screenshotUrls = [
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
+      // Usando uma variável intermediária com tipagem mais específica
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/'
-      }) as ExtendedServiceWorkerRegistration;
+      });
+      
+      // Agora convertemos para o tipo estendido
+      const extendedReg = registration as unknown as ExtendedServiceWorkerRegistration;
       
       console.log('Service Worker registrado com sucesso:', registration.scope);
       
@@ -66,14 +72,14 @@ if ('serviceWorker' in navigator) {
       }
       
       // Configurar Background Sync se o navegador suportar
-      if (registration.sync) {
+      if (extendedReg.sync) {
         try {
           // Registrar sincronização background quando o Service Worker estiver ativo
-          await registration.sync.register('database-sync');
+          await extendedReg.sync.register('database-sync');
           console.log('Background sync registrado!');
           
           // Verificar suporte e permissão para periodic sync
-          if (registration.periodicSync) {
+          if (extendedReg.periodicSync) {
             try {
               // Verificar permissão
               const status = await navigator.permissions.query({
@@ -82,7 +88,7 @@ if ('serviceWorker' in navigator) {
               
               if (status.state === 'granted') {
                 // Registrar periodic sync (uma vez por dia)
-                await registration.periodicSync.register('periodic-sync', {
+                await extendedReg.periodicSync.register('periodic-sync', {
                   minInterval: 24 * 60 * 60 * 1000 // 24 horas
                 });
                 console.log('Periodic background sync registrado!');
@@ -166,8 +172,8 @@ if ('serviceWorker' in navigator) {
         }
         
         // Iniciar sincronização quando ficar online
-        if (registration.sync) {
-          registration.sync.register('database-sync')
+        if (extendedReg.sync) {
+          extendedReg.sync.register('database-sync')
             .catch(err => console.error('Erro ao registrar sync quando ficou online:', err));
         }
       });
