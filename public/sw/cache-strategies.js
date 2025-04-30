@@ -60,6 +60,11 @@ function setupPrecaching() {
 
 // Configurar caching específico para screenshots
 function setupScreenshotsCaching() {
+  const { registerRoute } = workbox.routing;
+  const { CacheFirst } = workbox.strategies;
+  const { CacheableResponsePlugin } = workbox.cacheableResponse;
+  const { ExpirationPlugin } = workbox.expiration;
+  
   registerRoute(
     ({ url }) => SCREENSHOTS.some(screenshot => url.pathname.includes(screenshot)),
     new CacheFirst({
@@ -79,6 +84,11 @@ function setupScreenshotsCaching() {
 
 // Configurar caching de imagens
 function setupImageCaching() {
+  const { registerRoute } = workbox.routing;
+  const { CacheFirst } = workbox.strategies;
+  const { CacheableResponsePlugin } = workbox.cacheableResponse;
+  const { ExpirationPlugin } = workbox.expiration;
+  
   registerRoute(
     ({ request }) => request.destination === 'image',
     new CacheFirst({
@@ -98,6 +108,11 @@ function setupImageCaching() {
 
 // Configurar caching de fontes
 function setupFontCaching() {
+  const { registerRoute } = workbox.routing;
+  const { CacheFirst } = workbox.strategies;
+  const { CacheableResponsePlugin } = workbox.cacheableResponse;
+  const { ExpirationPlugin } = workbox.expiration;
+  
   registerRoute(
     ({ request }) => request.destination === 'font',
     new CacheFirst({
@@ -117,6 +132,11 @@ function setupFontCaching() {
 
 // Configurar caching de scripts e styles
 function setupResourceCaching() {
+  const { registerRoute } = workbox.routing;
+  const { StaleWhileRevalidate } = workbox.strategies;
+  const { CacheableResponsePlugin } = workbox.cacheableResponse;
+  const { ExpirationPlugin } = workbox.expiration;
+  
   registerRoute(
     ({ request }) => request.destination === 'script' || 
                      request.destination === 'style',
@@ -137,6 +157,10 @@ function setupResourceCaching() {
 
 // Configurar caching de páginas HTML
 function setupPagesCaching() {
+  const { registerRoute } = workbox.routing;
+  const { NetworkFirst } = workbox.strategies;
+  const { CacheableResponsePlugin } = workbox.cacheableResponse;
+  
   registerRoute(
     ({ request }) => request.mode === 'navigate',
     new NetworkFirst({

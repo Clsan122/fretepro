@@ -23,12 +23,12 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
 
 // Lista de screenshots para pré-carregar no cache
 const screenshotUrls = [
-  'screenshots/landing-page.png',
-  'screenshots/dashboard-relatorios.png',
-  'screenshots/novo-cliente.png',
-  'screenshots/ordem-coleta-detalhes.png',
-  'screenshots/novo-frete.png',
-  'screenshots/cadastro-motorista.png'
+  '/screenshots/landing-page.png',
+  '/screenshots/dashboard-relatorios.png',
+  '/screenshots/novo-cliente.png',
+  '/screenshots/ordem-coleta-detalhes.png',
+  '/screenshots/novo-frete.png',
+  '/screenshots/cadastro-motorista.png'
 ];
 
 // Renderizando a aplicação
@@ -68,7 +68,8 @@ if ('serviceWorker' in navigator) {
     try {
       // Usando uma variável intermediária com tipagem mais específica
       const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/'
+        scope: '/',
+        updateViaCache: 'none' // Garantir que o SW seja sempre atualizado da rede
       });
       
       // Agora convertemos para o tipo estendido
@@ -163,6 +164,9 @@ if ('serviceWorker' in navigator) {
         
         if (event.data && event.data.type === 'CACHE_COMPLETE') {
           console.log('Cache de screenshots concluído:', event.data.success);
+          if (event.data.success) {
+            toast.success('App preparado para uso offline');
+          }
         }
       });
       
@@ -187,7 +191,7 @@ if ('serviceWorker' in navigator) {
       
       window.addEventListener('offline', () => {
         console.log('Conexão de rede perdida');
-        toast.error('Conexão de rede perdida. Algumas funcionalidades podem ficar indisponíveis.');
+        toast.error('Conexão de rede perdida. O app continuará funcionando no modo offline.');
         
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
@@ -202,6 +206,12 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
+
+// Adicionar listener específico para recarregar SW
+window.addEventListener('appinstalled', (evt) => {
+  console.log('Aplicativo foi instalado!');
+  toast.success('FreteValor instalado com sucesso!');
+});
 
 // Função auxiliar para converter base64 para Uint8Array (usado para VAPID keys)
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
