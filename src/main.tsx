@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { initializeSyncSystem } from './utils/sync.ts';
-import { initializePushNotifications, initialiseState } from './utils/pushNotifications.ts';
+import { initializePushNotifications } from './utils/pushNotifications.ts';
 import { toast } from 'sonner';
 
 // Interface para estender o tipo ServiceWorkerRegistration com a propriedade sync
@@ -77,9 +77,6 @@ if ('serviceWorker' in navigator) {
       const extendedReg = registration as unknown as ExtendedServiceWorkerRegistration;
       
       console.log('Service Worker registrado com sucesso:', registration.scope);
-      
-      // Inicializar estado das notificações
-      initialiseState();
       
       // Inicializar notificações push
       try {
@@ -224,22 +221,6 @@ window.addEventListener('appinstalled', (evt) => {
   console.log('Aplicativo foi instalado!');
   toast.success('FreteValor instalado com sucesso!');
 });
-
-// Função auxiliar para converter base64 para Uint8Array (usado para VAPID keys)
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
-  
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
 
 // Notificar o Service Worker quando o usuário fecha a app
 window.addEventListener('beforeunload', () => {

@@ -33,20 +33,14 @@ function sendSubscriptionToServer(subscription: PushSubscription) {
 // Função para inicializar o estado de notificações
 export async function initializePushNotifications() {
   // Verificar se notificações são suportadas
-  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-    console.warn('Notificações não são suportadas.');
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.warn('Notificações push não são suportadas neste navegador.');
     return false;
   }
 
   // Verificar permissão de notificação atual
   if (Notification.permission === 'denied') {
     console.warn('O usuário bloqueou notificações.');
-    return false;
-  }
-
-  // Verificar se o push messaging é suportado
-  if (!('PushManager' in window)) {
-    console.warn('Push messaging não é suportado.');
     return false;
   }
 
@@ -74,20 +68,14 @@ export async function initializePushNotifications() {
 // Verificar e atualizar estado inicial das notificações
 export function initialiseState() {
   // Verificar se notificações são suportadas
-  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-    console.warn('Notificações não são suportadas.');
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.warn('Notificações push não são suportadas neste navegador.');
     return;
   }
 
   // Verificar permissão de notificação atual
   if (Notification.permission === 'denied') {
     console.warn('O usuário bloqueou notificações.');
-    return;
-  }
-
-  // Verificar se o push messaging é suportado
-  if (!('PushManager' in window)) {
-    console.warn('Push messaging não é suportado.');
     return;
   }
 
@@ -209,4 +197,33 @@ export async function togglePushNotifications(): Promise<boolean> {
   } else {
     return await subscribeToPush();
   }
+}
+
+// Enviar notificação de teste (útil para debugging)
+export async function sendTestNotification() {
+  // Verificar se o navegador suporta notificações
+  if (!('Notification' in window)) {
+    toast.error('Este navegador não suporta notificações');
+    return false;
+  }
+  
+  // Verificar se temos permissão
+  if (Notification.permission !== 'granted') {
+    toast.error('Permissão para notificações não concedida');
+    return false;
+  }
+  
+  // Mostrar uma notificação de teste
+  const notification = new Notification('FreteValor - Teste', {
+    body: 'Esta é uma notificação de teste',
+    icon: '/icons/fretevalor-logo.png',
+    badge: '/icons/fretevalor-logo.png'
+  });
+  
+  notification.onclick = () => {
+    window.focus();
+    notification.close();
+  };
+  
+  return true;
 }

@@ -3,7 +3,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>FreteValor - Gerenciamento de Fretes</title>
     <meta name="description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
     <meta name="author" content="FreteValor" />
@@ -44,22 +44,6 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/icons/fretevalor-logo.png" />
     <link rel="mask-icon" href="/icons/fretevalor-logo.png" color="#1E40AF">
 
-    <!-- Service worker detecção explícita para PWA -->
-    <script>
-      // Verificação preventiva para service worker
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js', {scope: '/'})
-            .then(function(registration) {
-              console.log('ServiceWorker registrado com sucesso:', registration.scope);
-            })
-            .catch(function(error) {
-              console.log('Falha no registro do ServiceWorker:', error);
-            });
-        });
-      }
-    </script>
-
     <meta property="og:title" content="FreteValor - Gerenciamento de Fretes" />
     <meta property="og:description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
     <meta property="og:type" content="website" />
@@ -72,8 +56,18 @@
 
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // Verificar suporte para PWA e importar o validador apenas se estiver em produção
+      if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
+        // Importar script de validação PWA
+        const script = document.createElement('script');
+        script.src = '/sw/pwa-validator.js';
+        script.type = 'text/javascript';
+        document.body.appendChild(script);
+      }
+    </script>
   </body>
 </html>

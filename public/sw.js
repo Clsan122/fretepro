@@ -1,4 +1,6 @@
 
+// Service Worker principal para FreteValor PWA
+// Importa o Workbox para estratégias de cache avançadas
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
 // Importar módulos
@@ -77,7 +79,7 @@ self.addEventListener('activate', (event) => {
 });
 
 // Ativar preload de navegação se suportado
-if (workbox.navigationPreload) {
+if (workbox && workbox.navigationPreload) {
   workbox.navigationPreload.enable();
 }
 
