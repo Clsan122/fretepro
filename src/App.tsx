@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -60,152 +61,162 @@ const RedirectWrapper = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Componente App separado do BrowserRouter
+function AppContent() {
+  return (
+    <AuthProvider>
+      <RedirectWrapper>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/freights"
+            element={
+              <PrivateRoute>
+                <Freights />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/freight-selection"
+            element={
+              <PrivateRoute>
+                <FreightSelection />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/freight-receipt"
+            element={
+              <PrivateRoute>
+                <FreightReceipt />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/multi-freight-receipt"
+            element={
+              <PrivateRoute>
+                <MultiFreightReceipt />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/clients"
+            element={
+              <PrivateRoute>
+                <Clients />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/drivers"
+            element={
+              <PrivateRoute>
+                <Drivers />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/drivers/new"
+            element={
+              <PrivateRoute>
+                <DriverRegister />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/drivers/edit/:id"
+            element={
+              <PrivateRoute>
+                <DriverEdit />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-orders"
+            element={
+              <PrivateRoute>
+                <CollectionOrders />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-order/new"
+            element={
+              <PrivateRoute>
+                <CollectionOrder />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-order/:id"
+            element={
+              <PrivateRoute>
+                <CollectionOrderView />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route
+            path="/collection-order/edit/:id"
+            element={
+              <PrivateRoute>
+                <CollectionOrderEdit />
+              </PrivateRoute>
+            }
+          />
+          
+          <Route path="/shared-content" element={<SharedContent />} />
+          <Route path="/share-error" element={<Navigate to="/" />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+      </RedirectWrapper>
+    </AuthProvider>
+  );
+}
+
+// Componente App agora apenas envolve o conteúdo com BrowserRouter
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <RedirectWrapper>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/freights"
-              element={
-                <PrivateRoute>
-                  <Freights />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/freight-selection"
-              element={
-                <PrivateRoute>
-                  <FreightSelection />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/freight-receipt"
-              element={
-                <PrivateRoute>
-                  <FreightReceipt />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/multi-freight-receipt"
-              element={
-                <PrivateRoute>
-                  <MultiFreightReceipt />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/clients"
-              element={
-                <PrivateRoute>
-                  <Clients />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/drivers"
-              element={
-                <PrivateRoute>
-                  <Drivers />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/drivers/new"
-              element={
-                <PrivateRoute>
-                  <DriverRegister />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/drivers/edit/:id"
-              element={
-                <PrivateRoute>
-                  <DriverEdit />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <Profile />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/collection-orders"
-              element={
-                <PrivateRoute>
-                  <CollectionOrders />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/collection-order/new"
-              element={
-                <PrivateRoute>
-                  <CollectionOrder />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/collection-order/:id"
-              element={
-                <PrivateRoute>
-                  <CollectionOrderView />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/collection-order/edit/:id"
-              element={
-                <PrivateRoute>
-                  <CollectionOrderEdit />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route path="/shared-content" element={<SharedContent />} />
-            <Route path="/share-error" element={<Navigate to="/" />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
-        </RedirectWrapper>
-      </AuthProvider>
-    </BrowserRouter>
+    <React.StrictMode>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </React.StrictMode>
   );
 }
 
