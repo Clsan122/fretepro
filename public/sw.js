@@ -7,7 +7,7 @@ const { CacheableResponsePlugin } = workbox.cacheableResponse;
 const { ExpirationPlugin } = workbox.expiration;
 
 // Nome do cache
-const CACHE_NAME = 'fretevalor-v1';
+const CACHE_NAME = 'fretevalor-v2';
 
 // Lista de arquivos essenciais para o app shell
 const APP_SHELL_FILES = [
@@ -19,15 +19,10 @@ const APP_SHELL_FILES = [
   '/icons/icon-512.png',
   '/icons/maskable-192.png',
   '/icons/maskable-512.png',
-  '/manifest.webmanifest',
-  '/screenshots/home.png',
-  '/screenshots/dashboard.png',
-  '/screenshots/cliente-form.png',
-  '/screenshots/ordem-coleta.png',
-  '/screenshots/motorista-form.png'
+  '/manifest.webmanifest'
 ];
 
-// Instalação do Service Worker
+// Destacar o service worker para que ele seja facilmente detectável
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Instalando...');
   event.waitUntil(
@@ -35,12 +30,27 @@ self.addEventListener('install', (event) => {
       const cache = await caches.open(CACHE_NAME);
       console.log('[Service Worker] Cacheando app shell');
       await cache.addAll(APP_SHELL_FILES);
+      // Adicionar screenshots ao cache
+      try {
+        const screenshotUrls = [
+          '/screenshots/landing-page.png',
+          '/screenshots/dashboard-relatorios.png',
+          '/screenshots/novo-cliente.png',
+          '/screenshots/ordem-coleta-detalhes.png',
+          '/screenshots/novo-frete.png',
+          '/screenshots/cadastro-motorista.png'
+        ];
+        await cache.addAll(screenshotUrls);
+        console.log('[Service Worker] Screenshots cacheados');
+      } catch (err) {
+        console.error('[Service Worker] Erro ao cachear screenshots:', err);
+      }
       self.skipWaiting();
     })()
   );
 });
 
-// Ativação do Service Worker
+// Ativação do Service Worker com skipWaiting e clients.claim para controle imediato
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Ativando...');
   event.waitUntil(
@@ -55,7 +65,7 @@ self.addEventListener('activate', (event) => {
             return caches.delete(name);
           })
       );
-      // Tomar controle de clientes não controlados
+      // Tomar controle de clientes não controlados imediatamente
       await self.clients.claim();
     })()
   );
@@ -64,25 +74,24 @@ self.addEventListener('activate', (event) => {
 // Configuração do Workbox
 workbox.core.setCacheNameDetails({
   prefix: 'fretevalor',
-  suffix: 'v1',
+  suffix: 'v2',
   precache: 'precache',
   runtime: 'runtime'
 });
 
 // Precache manifestos e assets estáticos
 workbox.precaching.precacheAndRoute([
-  { url: '/', revision: '1' },
-  { url: '/index.html', revision: '1' },
-  { url: '/manifest.webmanifest', revision: '1' },
-  { url: '/src/assets/favicon.svg', revision: '1' },
-  { url: '/icons/icon-192.png', revision: '1' },
-  { url: '/icons/icon-512.png', revision: '1' },
-  { url: '/src/index.css', revision: '1' },
-  { url: '/screenshots/home.png', revision: '1' },
-  { url: '/screenshots/dashboard.png', revision: '1' },
-  { url: '/screenshots/cliente-form.png', revision: '1' },
-  { url: '/screenshots/ordem-coleta.png', revision: '1' },
-  { url: '/screenshots/motorista-form.png', revision: '1' }
+  { url: '/', revision: '2' },
+  { url: '/index.html', revision: '2' },
+  { url: '/manifest.webmanifest', revision: '2' },
+  { url: '/icons/icon-192.png', revision: '2' },
+  { url: '/icons/icon-512.png', revision: '2' },
+  { url: '/screenshots/landing-page.png', revision: '1' },
+  { url: '/screenshots/dashboard-relatorios.png', revision: '1' },
+  { url: '/screenshots/novo-cliente.png', revision: '1' },
+  { url: '/screenshots/ordem-coleta-detalhes.png', revision: '1' },
+  { url: '/screenshots/novo-frete.png', revision: '1' },
+  { url: '/screenshots/cadastro-motorista.png', revision: '1' }
 ]);
 
 // Cache para imagens
@@ -150,93 +159,151 @@ registerRoute(
   })
 );
 
-// Interceptar requisições fetch
-self.addEventListener('fetch', (event) => {
-  console.log(`[Service Worker] Requisição: ${event.request.url}`);
+// Ouvir mensagens do cliente
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
   
-  // Para APIs e conteúdo dinâmico, tente usar o cache primeiro, depois a rede
-  if (event.request.url.includes('/api/') || 
-      event.request.url.includes('/rest/') || 
-      event.request.url.includes('supabase.co')) {
-    
-    event.respondWith(
-      (async () => {
-        try {
-          // Tentar buscar da rede primeiro
-          const networkResponse = await fetch(event.request);
-          
-          // Salvar no cache se a resposta foi bem-sucedida
-          if (networkResponse.ok) {
-            const cache = await caches.open('fretevalor-api');
-            await cache.put(event.request, networkResponse.clone());
-          }
-          
-          return networkResponse;
-        } catch (error) {
-          // Se falhar, tentar buscar do cache
-          console.log('[Service Worker] Falha na rede, buscando do cache...');
-          const cachedResponse = await caches.match(event.request);
-          
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          // Se não estiver em cache, tentar fornecer uma resposta offline
-          return new Response(JSON.stringify({ 
-            error: 'Você está offline e este recurso não está disponível em cache.' 
-          }), {
-            headers: { 'Content-Type': 'application/json' }
+  if (event.data && event.data.type === 'CACHE_SCREENSHOTS') {
+    const { urls } = event.data;
+    caches.open(CACHE_NAME).then(cache => {
+      cache.addAll(urls).then(() => {
+        console.log('[Service Worker] Screenshots cacheados via mensagem');
+        if (event.source) {
+          event.source.postMessage({
+            type: 'CACHE_COMPLETE',
+            success: true
           });
         }
-      })()
+      }).catch(error => {
+        console.error('[Service Worker] Erro ao cachear screenshots:', error);
+        if (event.source) {
+          event.source.postMessage({
+            type: 'CACHE_COMPLETE',
+            success: false,
+            error: error.message
+          });
+        }
+      });
+    });
+  }
+  
+  // Sincronização manual solicitada pelo cliente
+  if (event.data && event.data.type === 'SYNC_REQUEST') {
+    console.log('[Service Worker] Recebeu solicitação de sincronização manual');
+    event.waitUntil(
+      syncData().then(() => {
+        // Responder ao cliente que iniciou a sincronização
+        if (event.source) {
+          event.source.postMessage({
+            type: 'SYNC_RESPONSE',
+            success: true,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }).catch((error) => {
+        console.error('[Service Worker] Erro na sincronização manual:', error);
+        if (event.source) {
+          event.source.postMessage({
+            type: 'SYNC_RESPONSE',
+            success: false,
+            error: error.message
+          });
+        }
+      })
     );
   }
 });
 
-// Fallback para página offline
-workbox.routing.setCatchHandler(({ event }) => {
-  if (!event.request || !event.request.destination) {
-    return Response.error();
+// Notification click listener para interação com notificações
+self.addEventListener('notificationclick', (event) => {
+  const notification = event.notification;
+  const action = event.action;
+  
+  if (action === 'close') {
+    notification.close();
+  } else {
+    // Ação padrão é abrir o app
+    notification.close();
+    event.waitUntil(
+      clients.matchAll({type: 'window'}).then(windowClients => {
+        // Verificar se já existe uma janela aberta e focar nela
+        for (const client of windowClients) {
+          if (client.url.indexOf(self.location.origin) !== -1 && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Se não existe nenhuma janela aberta, abrir uma nova
+        if (clients.openWindow) {
+          return clients.openWindow('/');
+        }
+      })
+    );
+  }
+});
+
+// Push notification listener
+self.addEventListener('push', (event) => {
+  if (!event.data) {
+    console.log('[Service Worker] Push recebido mas sem dados');
+    return;
   }
   
-  switch (event.request.destination) {
-    case 'document':
-      return caches.match('/index.html')
-        .then(response => response || new Response('Você está offline. Por favor, verifique sua conexão.', {
-          status: 200,
-          headers: { 'Content-Type': 'text/html' }
-        }));
-    case 'image':
-      return caches.match('/icons/icon-192.png')
-        .then(response => response || new Response('', {
-          status: 200,
-          headers: { 'Content-Type': 'image/png' }
-        }));
-    default:
-      return Response.error();
+  try {
+    const data = event.data.json();
+    const options = {
+      body: data.body || 'Nova notificação do FreteValor',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || '/',
+        timestamp: Date.now()
+      },
+      actions: [
+        {
+          action: 'view',
+          title: 'Ver detalhes'
+        },
+        {
+          action: 'close',
+          title: 'Fechar'
+        }
+      ]
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification(data.title || 'FreteValor', options)
+    );
+  } catch (error) {
+    console.error('[Service Worker] Erro ao processar notificação push:', error);
+    
+    // Tentar mostrar uma notificação padrão
+    event.waitUntil(
+      self.registration.showNotification('FreteValor', {
+        body: 'Nova notificação',
+        icon: '/icons/icon-192.png'
+      })
+    );
   }
 });
 
 // Funcionalidade de Background Sync para sistema distribuído
 // ------------------------------------
 
-// Constantes
-const DB_NAME = 'fretevalor-offline-db';
-const STORE_NAME = 'pendingSync';
-const API_ENDPOINT = 'https://xitctqydapolbooqnrul.supabase.co';
-
-// Abrir ou criar o IndexedDB
+// Função para abrir ou criar o IndexedDB
 function openDatabase() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 2);
+    const request = indexedDB.open('fretevalor-offline-db', 2);
     
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
     
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('pendingSync')) {
+        const store = db.createObjectStore('pendingSync', { keyPath: 'id' });
         store.createIndex('syncId', 'syncId', { unique: false });
         store.createIndex('type', 'type', { unique: false });
         store.createIndex('timestamp', 'timestamp', { unique: false });
@@ -249,8 +316,8 @@ function openDatabase() {
 async function getPendingSyncData() {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
+    const transaction = db.transaction('pendingSync', 'readonly');
+    const store = transaction.objectStore('pendingSync');
     
     // Obter apenas itens não sincronizados
     const items = [];
@@ -274,8 +341,8 @@ async function getPendingSyncData() {
 // Marcar dados como sincronizados
 async function markAsSynced(ids) {
   const db = await openDatabase();
-  const transaction = db.transaction(STORE_NAME, 'readwrite');
-  const store = transaction.objectStore(STORE_NAME);
+  const transaction = db.transaction('pendingSync', 'readwrite');
+  const store = transaction.objectStore('pendingSync');
   
   for (const id of ids) {
     const request = store.get(id);
@@ -294,84 +361,79 @@ async function markAsSynced(ids) {
   });
 }
 
-// Função para sincronizar dados com o servidor
-async function pushLocalDataToDatabase() {
-  const pendingData = await getPendingSyncData();
-  if (!pendingData || pendingData.length === 0) {
-    return Promise.resolve(); // Nada para sincronizar
-  }
-  
-  // IDs dos dados que foram sincronizados com sucesso
-  const syncedIds = [];
-  
-  for (const item of pendingData) {
-    try {
-      const { type, data, syncId, _deleted } = item;
-      
-      // Obter token de autenticação da cache
-      let token = null;
-      try {
-        const cacheResponse = await caches.match('/auth/token');
-        if (cacheResponse) {
-          const tokenData = await cacheResponse.json();
-          token = tokenData.access_token;
-        }
-      } catch (error) {
-        console.error('Erro ao obter token de autenticação:', error);
-      }
-      
-      if (token) {
-        // Realizar operação de sincronização baseada no status do item
-        if (_deleted) {
-          // Tentar excluir item do servidor
-          await fetch(`${API_ENDPOINT}/rest/v1/${type}?sync_id=eq.${syncId}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          // Marcar como sincronizado mesmo se falhar - tentará novamente depois
-          syncedIds.push(item.id);
-        } else {
-          // Tentar salvar/atualizar item no servidor
-          await fetch(`${API_ENDPOINT}/rest/v1/${type}`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'resolution=merge-duplicates'
-            },
-            body: JSON.stringify({
-              ...data,
-              sync_id: syncId,
-              sync_version: data.syncVersion || 1
-            })
-          });
-          
-          // Marcar como sincronizado
-          syncedIds.push(item.id);
-        }
-      }
-    } catch (error) {
-      console.error('Erro sincronizando item:', error);
-      // Continuar com o próximo item mesmo se houver erro
-    }
-  }
-  
-  // Marcar dados como sincronizados
-  if (syncedIds.length > 0) {
-    await markAsSynced(syncedIds);
-  }
-  
-  return Promise.resolve();
-}
-
 // Função principal de sincronização
 async function syncData() {
   try {
-    await pushLocalDataToDatabase();
+    const pendingData = await getPendingSyncData();
+    if (!pendingData || pendingData.length === 0) {
+      return Promise.resolve(); // Nada para sincronizar
+    }
+    
+    // IDs dos dados que foram sincronizados com sucesso
+    const syncedIds = [];
+    
+    for (const item of pendingData) {
+      try {
+        const { type, data, syncId, _deleted } = item;
+        
+        // Obter token de autenticação da cache
+        let token = null;
+        try {
+          const cacheResponse = await caches.match('/auth/token');
+          if (cacheResponse) {
+            const tokenData = await cacheResponse.json();
+            token = tokenData.access_token;
+          }
+        } catch (error) {
+          console.error('Erro ao obter token de autenticação:', error);
+        }
+        
+        if (token) {
+          const API_ENDPOINT = 'https://xitctqydapolbooqnrul.supabase.co';
+          
+          // Realizar operação de sincronização baseada no status do item
+          if (_deleted) {
+            // Tentar excluir item do servidor
+            await fetch(`${API_ENDPOINT}/rest/v1/${type}?sync_id=eq.${syncId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            // Marcar como sincronizado
+            syncedIds.push(item.id);
+          } else {
+            // Tentar salvar/atualizar item no servidor
+            await fetch(`${API_ENDPOINT}/rest/v1/${type}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'resolution=merge-duplicates'
+              },
+              body: JSON.stringify({
+                ...data,
+                sync_id: syncId,
+                sync_version: data.syncVersion || 1
+              })
+            });
+            
+            // Marcar como sincronizado
+            syncedIds.push(item.id);
+          }
+        }
+      } catch (error) {
+        console.error('Erro sincronizando item:', error);
+        // Continuar com o próximo item mesmo se houver erro
+      }
+    }
+    
+    // Marcar dados como sincronizados
+    if (syncedIds.length > 0) {
+      await markAsSynced(syncedIds);
+    }
     
     // Notificar clientes que a sincronização foi concluída
     if (self.clients) {
@@ -404,33 +466,5 @@ self.addEventListener('periodicsync', event => {
   if (event.tag === 'periodic-sync') {
     console.log('[Service Worker] Sincronização periódica iniciada...');
     event.waitUntil(syncData());
-  }
-});
-
-// Mensagens entre client e service worker
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SYNC_REQUEST') {
-    console.log('[Service Worker] Recebeu solicitação de sincronização manual');
-    event.waitUntil(
-      syncData().then(() => {
-        // Responder ao cliente que iniciou a sincronização
-        if (event.source) {
-          event.source.postMessage({
-            type: 'SYNC_RESPONSE',
-            success: true,
-            timestamp: new Date().toISOString()
-          });
-        }
-      }).catch((error) => {
-        console.error('[Service Worker] Erro na sincronização manual:', error);
-        if (event.source) {
-          event.source.postMessage({
-            type: 'SYNC_RESPONSE',
-            success: false,
-            error: error.message
-          });
-        }
-      })
-    );
   }
 });

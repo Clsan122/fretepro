@@ -15,6 +15,7 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
   periodicSync?: {
     register(tag: string, options: { minInterval: number }): Promise<void>;
   };
+  pushManager?: PushManager;
 }
 
 // Renderizando a aplicação
@@ -44,14 +45,17 @@ const screenshotUrls = [
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js') as ExtendedServiceWorkerRegistration;
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      }) as ExtendedServiceWorkerRegistration;
+      
       console.log('Service Worker registrado com sucesso:', registration.scope);
       
       // Pré-carregar screenshots para uso offline
-      if (navigator.onLine) {
+      if (navigator.onLine && navigator.serviceWorker.controller) {
         try {
           // Informar o service worker para adicionar screenshots ao cache
-          navigator.serviceWorker.controller?.postMessage({
+          navigator.serviceWorker.controller.postMessage({
             type: 'CACHE_SCREENSHOTS',
             urls: screenshotUrls
           });
@@ -94,6 +98,32 @@ if ('serviceWorker' in navigator) {
         }
       }
       
+      // Configurar Push Notifications
+      if (registration.pushManager) {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            // Tentar se inscrever para notificações push
+            const subscribeOptions = {
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(
+                'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U'
+              )
+            };
+            
+            const subscription = await registration.pushManager.subscribe(subscribeOptions);
+            console.log('Push Notification subscription:', subscription);
+            
+            // Aqui você deveria enviar a subscription para o seu servidor
+            // para armazenar e usar para enviar notificações push
+          } else {
+            console.log('Permissão para notificações não concedida');
+          }
+        } catch (error) {
+          console.error('Erro ao configurar push notifications:', error);
+        }
+      }
+      
       // Configurar atualização do Service Worker
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
@@ -118,6 +148,10 @@ if ('serviceWorker' in navigator) {
         if (event.data && event.data.type === 'SYNC_COMPLETED') {
           console.log('Sincronização concluída:', event.data.timestamp);
           // Aqui você poderia atualizar a interface ou mostrar notificação
+        }
+        
+        if (event.data && event.data.type === 'CACHE_COMPLETE') {
+          console.log('Cache de screenshots concluído:', event.data.success);
         }
       });
       
@@ -152,4 +186,20 @@ if ('serviceWorker' in navigator) {
       console.error('Erro ao registrar o Service Worker:', error);
     }
   });
+}
+
+// Função auxiliar para converter base64 para Uint8Array (usado para VAPID keys)
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
 }

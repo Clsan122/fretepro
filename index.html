@@ -20,6 +20,12 @@
     <meta name="apple-mobile-web-app-title" content="FreteValor">
     <meta name="msapplication-TileColor" content="#1E40AF">
     <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA status identificadores específicos -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="application-name" content="FreteValor">
+    <meta name="msapplication-tooltip" content="FreteValor - Gerenciamento de Fretes">
+    <meta name="msapplication-starturl" content="/">
 
     <!-- iOS splash screens -->
     <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
@@ -37,6 +43,22 @@
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png" />
     <link rel="mask-icon" href="/icons/icon-192.png" color="#1E40AF">
+
+    <!-- Service worker detecção explícita para PWA -->
+    <script>
+      // Verificação preventiva para service worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js', {scope: '/'})
+            .then(function(registration) {
+              console.log('ServiceWorker registrado com sucesso:', registration.scope);
+            })
+            .catch(function(error) {
+              console.log('Falha no registro do ServiceWorker:', error);
+            });
+        });
+      }
+    </script>
 
     <meta property="og:title" content="FreteValor - Gerenciamento de Fretes" />
     <meta property="og:description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
