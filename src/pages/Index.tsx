@@ -11,7 +11,7 @@ const Index = () => {
         <div className="container mx-auto flex items-center justify-between py-4 px-4 sm:px-6">
           <div className="flex items-center">
             <img 
-              src="/icons/fretevalor-logo.png" 
+              src="/lovable-uploads/0a232117-cd80-495e-aaf2-bf8656b229e9.png" 
               alt="FreteValor Logo" 
               className="h-12 w-auto"
             />
@@ -31,7 +31,7 @@ const Index = () => {
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
             <img 
-              src="/icons/fretevalor-logo.png" 
+              src="/lovable-uploads/0a232117-cd80-495e-aaf2-bf8656b229e9.png" 
               alt="FreteValor Logo" 
               className="h-32 w-auto mb-4"
             />
