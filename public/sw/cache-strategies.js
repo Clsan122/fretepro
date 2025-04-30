@@ -11,7 +11,10 @@ const APP_SHELL_FILES = [
   '/offline.html',
   '/manifest.webmanifest',
   '/src/main.tsx',
-  '/src/index.css'
+  '/src/index.css',
+  '/icons/fretevalor-logo.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
 ];
 
 // Lista de screenshots para armazenar em cache
@@ -22,29 +25,6 @@ const SCREENSHOT_FILES = [
   '/screenshots/ordem-coleta-detalhes.png',
   '/screenshots/novo-frete.png',
   '/screenshots/cadastro-motorista.png'
-];
-
-// Lista de ícones para armazenar em cache
-const ICONS_FILES = [
-  '/icons/fretevalor-logo.png',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/maskable-192.png',
-  '/icons/maskable-512.png',
-  '/android/android-launchericon-512-512.png',
-  '/android/android-launchericon-192-192.png',
-  '/android/android-launchericon-144-144.png',
-  '/android/android-launchericon-96-96.png',
-  '/android/android-launchericon-72-72.png',
-  '/android/android-launchericon-48-48.png',
-  '/icons/splash/apple-splash-2048-2732.png',
-  '/icons/splash/apple-splash-1668-2388.png',
-  '/icons/splash/apple-splash-1536-2048.png',
-  '/icons/splash/apple-splash-1242-2688.png',
-  '/icons/splash/apple-splash-1125-2436.png',
-  '/icons/splash/apple-splash-828-1792.png',
-  '/icons/splash/apple-splash-750-1334.png',
-  '/icons/splash/apple-splash-640-1136.png'
 ];
 
 // Configurar estratégias de cache
@@ -82,7 +62,7 @@ function setupAllCaching() {
     })
   );
   
-  // Imagens - Cache First com fallback
+  // Imagens - Cache First
   workbox.routing.registerRoute(
     ({request}) => request.destination === 'image',
     new workbox.strategies.CacheFirst({
@@ -91,39 +71,6 @@ function setupAllCaching() {
         new workbox.expiration.ExpirationPlugin({
           maxEntries: 100,
           maxAgeSeconds: 60 * 24 * 60 * 60 // 60 dias
-        }),
-        new workbox.cacheableResponse.CacheableResponsePlugin({
-          statuses: [0, 200]
-        })
-      ]
-    })
-  );
-  
-  // Recursos específicos para ícones e screenshots - Cache First com revalidação
-  workbox.routing.registerRoute(
-    ({url}) => url.pathname.includes('/icons/') || url.pathname.includes('/screenshots/'),
-    new workbox.strategies.CacheFirst({
-      cacheName: `${CACHE_NAME}-app-assets`,
-      plugins: [
-        new workbox.expiration.ExpirationPlugin({
-          maxEntries: 50,
-          maxAgeSeconds: 90 * 24 * 60 * 60 // 90 dias
-        }),
-        new workbox.cacheableResponse.CacheableResponsePlugin({
-          statuses: [0, 200]
-        })
-      ]
-    })
-  );
-  
-  // Manifesto - Stale-While-Revalidate
-  workbox.routing.registerRoute(
-    ({url}) => url.pathname.endsWith('manifest.webmanifest'),
-    new workbox.strategies.StaleWhileRevalidate({
-      cacheName: `${CACHE_NAME}-manifest`,
-      plugins: [
-        new workbox.cacheableResponse.CacheableResponsePlugin({
-          statuses: [0, 200]
         })
       ]
     })
@@ -160,7 +107,7 @@ async function cacheAppShell() {
 
 // Cache de screenshots
 async function cacheScreenshots() {
-  const cache = await caches.open(`${CACHE_NAME}-images`);
+  const cache = await caches.open(`${CACHE_NAME}-screenshots`);
   console.log('[Service Worker] Armazenando screenshots em cache');
   try {
     await cache.addAll(SCREENSHOT_FILES);
@@ -172,66 +119,10 @@ async function cacheScreenshots() {
   }
 }
 
-// Cache de ícones
-async function cacheIcons() {
-  const cache = await caches.open(`${CACHE_NAME}-icons`);
-  console.log('[Service Worker] Armazenando ícones em cache');
-  try {
-    await cache.addAll(ICONS_FILES);
-    console.log('[Service Worker] Ícones armazenados com sucesso');
-    return true;
-  } catch (error) {
-    console.error('[Service Worker] Erro ao armazenar ícones:', error);
-    
-    // Tentar novamente com abordagem alternativa caso falhe
-    try {
-      console.log('[Service Worker] Tentando método alternativo de cache para ícones');
-      await Promise.allSettled(
-        ICONS_FILES.map(async (iconPath) => {
-          try {
-            const response = await fetch(iconPath, { cache: 'no-store' });
-            if (response.ok) {
-              await cache.put(iconPath, response);
-            } else {
-              console.warn(`[Service Worker] Não foi possível armazenar: ${iconPath}`);
-            }
-          } catch (fetchErr) {
-            console.warn(`[Service Worker] Erro ao buscar ícone ${iconPath}:`, fetchErr);
-          }
-        })
-      );
-      return true;
-    } catch (retryError) {
-      console.error('[Service Worker] Falha na segunda tentativa de armazenar ícones:', retryError);
-      return false;
-    }
-  }
-}
-
-// Função de diagnóstico para verificar cache
-async function diagnosticCacheCheck() {
-  const allCaches = await caches.keys();
-  const report = {};
-  
-  for (const cacheName of allCaches) {
-    const cache = await caches.open(cacheName);
-    const keys = await cache.keys();
-    report[cacheName] = {
-      itemCount: keys.length,
-      urls: keys.slice(0, 5).map(req => req.url) // Primeiros 5 URLs como amostra
-    };
-  }
-  
-  console.log('[Service Worker] Diagnóstico de cache:', report);
-  return report;
-}
-
 // Exportar para uso global
 self.cacheStrategies = {
   setupAllCaching,
   cacheAppShell,
   cacheScreenshots,
-  cacheIcons,
-  diagnosticCacheCheck,
   CACHE_NAME
 };
