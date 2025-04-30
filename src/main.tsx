@@ -30,18 +30,19 @@ initializeSyncSystem().catch(error => {
   console.error('Erro ao inicializar sistema de sincronização:', error);
 });
 
-// Registro do Service Worker para o PWA
-if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
+// Registrar e configurar o Service Worker para o PWA
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js') as ExtendedServiceWorkerRegistration;
+      console.log('Service Worker registrado com sucesso:', registration.scope);
       
-      // Configurar Background Sync
+      // Configurar Background Sync se o navegador suportar
       if (registration.sync) {
         try {
           // Registrar sincronização background quando o Service Worker estiver ativo
           await registration.sync.register('database-sync');
-          console.log('Background sync registered!');
+          console.log('Background sync registrado!');
           
           // Verificar suporte e permissão para periodic sync
           if (registration.periodicSync) {
@@ -56,16 +57,16 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
                 await registration.periodicSync.register('periodic-sync', {
                   minInterval: 24 * 60 * 60 * 1000 // 24 horas
                 });
-                console.log('Periodic background sync registered!');
+                console.log('Periodic background sync registrado!');
               } else {
-                console.log('Periodic background sync permission not granted.');
+                console.log('Permissão para sincronização periódica não concedida.');
               }
             } catch (err) {
-              console.error('Error registering periodic sync:', err);
+              console.error('Erro ao registrar sincronização periódica:', err);
             }
           }
         } catch (error) {
-          console.error('Error setting up background sync:', error);
+          console.error('Erro ao configurar background sync:', error);
         }
       }
       
@@ -74,12 +75,55 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
         const installingWorker = registration.installing;
         if (installingWorker) {
           installingWorker.onstatechange = () => {
-            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('Novo conteúdo disponível; recarregue a página.');
+            if (installingWorker.state === 'installed') {
+              if (navigator.serviceWorker.controller) {
+                // Service Worker atualizado, notificar usuário
+                console.log('Nova versão disponível! Recarregue a página para atualizar.');
+                // Aqui você poderia mostrar um toast para o usuário recarregar
+              } else {
+                // Primeiro Service Worker instalado
+                console.log('Aplicativo pronto para uso offline.');
+              }
             }
           };
         }
       };
+      
+      // Ouvir mensagens do Service Worker
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'SYNC_COMPLETED') {
+          console.log('Sincronização concluída:', event.data.timestamp);
+          // Aqui você poderia atualizar a interface ou mostrar notificação
+        }
+      });
+      
+      // Verificar status de conectividade e notificar o Service Worker
+      window.addEventListener('online', () => {
+        console.log('Conexão de rede restaurada');
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'ONLINE_STATUS',
+            online: true
+          });
+        }
+        
+        // Iniciar sincronização quando ficar online
+        if (registration.sync) {
+          registration.sync.register('database-sync')
+            .catch(err => console.error('Erro ao registrar sync quando ficou online:', err));
+        }
+      });
+      
+      window.addEventListener('offline', () => {
+        console.log('Conexão de rede perdida');
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'ONLINE_STATUS',
+            online: false
+          });
+        }
+      });
+      
     } catch (error) {
       console.error('Erro ao registrar o Service Worker:', error);
     }

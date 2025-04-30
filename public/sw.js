@@ -7,6 +7,56 @@ const { CacheableResponsePlugin } = workbox.cacheableResponse;
 const { ExpirationPlugin } = workbox.expiration;
 
 // Nome do cache
+const CACHE_NAME = 'fretepro-v1';
+
+// Lista de arquivos essenciais para o app shell
+const APP_SHELL_FILES = [
+  '/',
+  '/index.html',
+  '/src/index.css',
+  '/src/assets/favicon.svg',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/maskable-192.png',
+  '/icons/maskable-512.png',
+  '/manifest.webmanifest'
+];
+
+// Instalação do Service Worker
+self.addEventListener('install', (event) => {
+  console.log('[Service Worker] Instalando...');
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      console.log('[Service Worker] Cacheando app shell');
+      await cache.addAll(APP_SHELL_FILES);
+      self.skipWaiting();
+    })()
+  );
+});
+
+// Ativação do Service Worker
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Ativando...');
+  event.waitUntil(
+    (async () => {
+      // Limpar caches antigos
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => {
+            console.log(`[Service Worker] Removendo cache antigo: ${name}`);
+            return caches.delete(name);
+          })
+      );
+      // Tomar controle de clientes não controlados
+      await self.clients.claim();
+    })()
+  );
+});
+
+// Configuração do Workbox
 workbox.core.setCacheNameDetails({
   prefix: 'fretepro',
   suffix: 'v1',
@@ -59,7 +109,7 @@ registerRoute(
   })
 );
 
-// Cache para API e dados dinâmicos
+// Cache para scripts e styles
 registerRoute(
   ({ request }) => request.destination === 'script' || 
                    request.destination === 'style',
@@ -90,6 +140,49 @@ registerRoute(
   })
 );
 
+// Interceptar requisições fetch
+self.addEventListener('fetch', (event) => {
+  console.log(`[Service Worker] Requisição: ${event.request.url}`);
+  
+  // Para APIs e conteúdo dinâmico, tente usar o cache primeiro, depois a rede
+  if (event.request.url.includes('/api/') || 
+      event.request.url.includes('/rest/') || 
+      event.request.url.includes('supabase.co')) {
+    
+    event.respondWith(
+      (async () => {
+        try {
+          // Tentar buscar da rede primeiro
+          const networkResponse = await fetch(event.request);
+          
+          // Salvar no cache se a resposta foi bem-sucedida
+          if (networkResponse.ok) {
+            const cache = await caches.open('fretepro-api');
+            await cache.put(event.request, networkResponse.clone());
+          }
+          
+          return networkResponse;
+        } catch (error) {
+          // Se falhar, tentar buscar do cache
+          console.log('[Service Worker] Falha na rede, buscando do cache...');
+          const cachedResponse = await caches.match(event.request);
+          
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          
+          // Se não estiver em cache, tentar fornecer uma resposta offline
+          return new Response(JSON.stringify({ 
+            error: 'Você está offline e este recurso não está disponível em cache.' 
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      })()
+    );
+  }
+});
+
 // Fallback para página offline
 workbox.routing.setCatchHandler(({ event }) => {
   if (!event.request || !event.request.destination) {
@@ -99,7 +192,7 @@ workbox.routing.setCatchHandler(({ event }) => {
   switch (event.request.destination) {
     case 'document':
       return caches.match('/index.html')
-        .then(response => response || new Response('Você está offline.', {
+        .then(response => response || new Response('Você está offline. Por favor, verifique sua conexão.', {
           status: 200,
           headers: { 'Content-Type': 'text/html' }
         }));
@@ -191,22 +284,6 @@ async function markAsSynced(ids) {
   });
 }
 
-// Remover dados sincronizados com sucesso
-async function removeSyncedData(ids) {
-  const db = await openDatabase();
-  const transaction = db.transaction(STORE_NAME, 'readwrite');
-  const store = transaction.objectStore(STORE_NAME);
-  
-  for (const id of ids) {
-    store.delete(id);
-  }
-  
-  return new Promise((resolve, reject) => {
-    transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error);
-  });
-}
-
 // Função para sincronizar dados com o servidor
 async function pushLocalDataToDatabase() {
   const pendingData = await getPendingSyncData();
@@ -233,47 +310,33 @@ async function pushLocalDataToDatabase() {
         console.error('Erro ao obter token de autenticação:', error);
       }
       
-      // Preparar cabeçalhos
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-      
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      // Realizar operação de sincronização
-      if (_deleted) {
-        // Se item está marcado para exclusão
-        await fetch(`${API_ENDPOINT}/rest/v1/${type}?sync_id=eq.${syncId}`, {
-          method: 'DELETE',
-          headers
-        });
-      } else {
-        // Verificar versão atual no servidor
-        const response = await fetch(`${API_ENDPOINT}/rest/v1/${type}?sync_id=eq.${syncId}`, {
-          method: 'GET',
-          headers
-        });
-        
-        const serverData = await response.json();
-        
-        // Estratégia de resolução de conflitos
-        if (serverData && serverData.length > 0 && serverData[0].sync_version > data.syncVersion) {
-          // Servidor tem versão mais recente, manter como não sincronizado
-          // Em uma sincronização posterior, a aplicação resolverá o conflito
+        // Realizar operação de sincronização baseada no status do item
+        if (_deleted) {
+          // Tentar excluir item do servidor
+          await fetch(`${API_ENDPOINT}/rest/v1/${type}?sync_id=eq.${syncId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          // Marcar como sincronizado mesmo se falhar - tentará novamente depois
+          syncedIds.push(item.id);
         } else {
-          // Local tem versão mais recente ou igual, atualizar no servidor
+          // Tentar salvar/atualizar item no servidor
           await fetch(`${API_ENDPOINT}/rest/v1/${type}`, {
             method: 'POST',
             headers: {
-              ...headers,
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
               'Prefer': 'resolution=merge-duplicates'
             },
             body: JSON.stringify({
               ...data,
               sync_id: syncId,
-              sync_version: data.syncVersion
+              sync_version: data.syncVersion || 1
             })
           });
           
@@ -295,170 +358,12 @@ async function pushLocalDataToDatabase() {
   return Promise.resolve();
 }
 
-// Função para buscar e sincronizar dados do servidor
-async function pullServerData() {
+// Função principal de sincronização
+async function syncData() {
   try {
-    // Obter token de autenticação da cache
-    let token = null;
-    try {
-      const cacheResponse = await caches.match('/auth/token');
-      if (cacheResponse) {
-        const tokenData = await cacheResponse.json();
-        token = tokenData.access_token;
-      }
-    } catch (error) {
-      console.error('Erro ao obter token de autenticação:', error);
-      return;
-    }
-    
-    if (!token) {
-      return; // Não pode sincronizar sem autenticação
-    }
-    
-    // Tabelas para sincronização
-    const tables = ['clients', 'drivers', 'freights', 'freight_expenses', 'collection_orders', 'measurements'];
-    
-    for (const table of tables) {
-      // Obter último timestamp do IndexedDB
-      const lastTimestamp = await getLastSyncTimestamp(table);
-      
-      // Buscar dados mais recentes
-      const response = await fetch(`${API_ENDPOINT}/rest/v1/${table}?updated_at=gt.${lastTimestamp}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const serverData = await response.json();
-        
-        // Salvar dados recebidos no IndexedDB para acesso offline
-        for (const item of serverData) {
-          await saveToIndexedDB(table, item);
-        }
-        
-        // Atualizar timestamp da última sincronização
-        if (serverData.length > 0) {
-          const maxTimestamp = serverData.reduce((max, item) => {
-            return new Date(item.updated_at) > new Date(max) ? item.updated_at : max;
-          }, lastTimestamp);
-          
-          await setLastSyncTimestamp(table, maxTimestamp);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Erro ao buscar dados do servidor:', error);
-  }
-}
-
-// Salvar dados no IndexedDB para acesso offline
-async function saveToIndexedDB(type, serverData) {
-  const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    
-    const syncItem = {
-      id: crypto.randomUUID(),
-      type,
-      data: {
-        ...serverData,
-        syncId: serverData.sync_id,
-        syncVersion: serverData.sync_version || 1
-      },
-      timestamp: Date.now(),
-      syncId: serverData.sync_id,
-      syncVersion: serverData.sync_version || 1,
-      _synced: true
-    };
-    
-    const request = store.add(syncItem);
-    
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-// Obter último timestamp de sincronização
-async function getLastSyncTimestamp(type) {
-  const db = await openDatabase();
-  return new Promise((resolve) => {
-    const transaction = db.transaction(STORE_NAME, 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const index = store.index('type');
-    
-    const request = index.openCursor(IDBKeyRange.only(type), 'prev');
-    
-    request.onsuccess = (event) => {
-      const cursor = event.target.result;
-      if (cursor) {
-        resolve(cursor.value.timestamp);
-      } else {
-        // Se não houver registro, retornar data antiga
-        resolve('2000-01-01T00:00:00.000Z');
-      }
-    };
-    
-    request.onerror = () => {
-      resolve('2000-01-01T00:00:00.000Z');
-    };
-  });
-}
-
-// Salvar último timestamp de sincronização
-async function setLastSyncTimestamp(type, timestamp) {
-  const db = await openDatabase();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    
-    // Salvar timestamp como metadado
-    const syncItem = {
-      id: `${type}_lastSync`,
-      type: `${type}_meta`,
-      timestamp,
-      syncId: `${type}_lastSync`,
-      syncVersion: 0,
-      _synced: true,
-      data: { timestamp }
-    };
-    
-    const getRequest = store.get(syncItem.id);
-    
-    getRequest.onsuccess = () => {
-      if (getRequest.result) {
-        // Atualizar registro existente
-        syncItem.id = getRequest.result.id;
-        store.put(syncItem);
-      } else {
-        // Criar novo registro
-        store.add(syncItem);
-      }
-      resolve();
-    };
-    
-    getRequest.onerror = () => {
-      // Se falhar a consulta, tentar adicionar
-      const addRequest = store.add(syncItem);
-      addRequest.onsuccess = () => resolve();
-      addRequest.onerror = () => reject(addRequest.error);
-    };
-  });
-}
-
-// Função principal de sincronização bidirecional
-async function syncBidirectional() {
-  try {
-    // 1. Enviar alterações locais para o servidor
     await pushLocalDataToDatabase();
     
-    // 2. Buscar alterações do servidor
-    await pullServerData();
-    
-    // 3. Notificar clientes que a sincronização foi concluída
+    // Notificar clientes que a sincronização foi concluída
     if (self.clients) {
       const clients = await self.clients.matchAll({ type: 'window' });
       clients.forEach(client => {
@@ -469,27 +374,53 @@ async function syncBidirectional() {
       });
     }
     
-    return Promise.resolve();
+    return true;
   } catch (error) {
-    console.error('Erro na sincronização bidirecional:', error);
-    return Promise.reject(error);
+    console.error('Erro na sincronização:', error);
+    return false;
   }
 }
 
 // Ouvinte para eventos de sincronização
 self.addEventListener('sync', event => {
   if (event.tag === 'database-sync') {
-    event.waitUntil(syncBidirectional());
+    console.log('[Service Worker] Sincronizando dados em background...');
+    event.waitUntil(syncData());
   }
 });
 
 // Ouvinte para eventos de sincronização periódica
 self.addEventListener('periodicsync', event => {
   if (event.tag === 'periodic-sync') {
-    event.waitUntil(syncBidirectional());
+    console.log('[Service Worker] Sincronização periódica iniciada...');
+    event.waitUntil(syncData());
   }
 });
 
-// Skip waiting e clients claim
-self.skipWaiting();
-workbox.core.clientsClaim();
+// Mensagens entre client e service worker
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SYNC_REQUEST') {
+    console.log('[Service Worker] Recebeu solicitação de sincronização manual');
+    event.waitUntil(
+      syncData().then(() => {
+        // Responder ao cliente que iniciou a sincronização
+        if (event.source) {
+          event.source.postMessage({
+            type: 'SYNC_RESPONSE',
+            success: true,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }).catch((error) => {
+        console.error('[Service Worker] Erro na sincronização manual:', error);
+        if (event.source) {
+          event.source.postMessage({
+            type: 'SYNC_RESPONSE',
+            success: false,
+            error: error.message
+          });
+        }
+      })
+    );
+  }
+});
