@@ -40,6 +40,28 @@ initializeSyncSystem().catch(error => {
   console.error('Erro ao inicializar sistema de sincronização:', error);
 });
 
+// Pré-carregar screenshots para uso offline
+function preloadScreenshots() {
+  if (navigator.onLine) {
+    screenshotUrls.forEach(url => {
+      try {
+        const preloadImage = new Image();
+        preloadImage.src = url;
+        console.log(`Pré-carregando ${url}`);
+      } catch (err) {
+        console.error(`Erro ao pré-carregar ${url}:`, err);
+      }
+    });
+  }
+}
+
+// Forçar pré-carregamento de imagens críticas
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    preloadScreenshots();
+  }, 2000); // Atrasar o pré-carregamento para não competir com recursos críticos
+});
+
 // Registrar e configurar o Service Worker para o PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
@@ -62,17 +84,6 @@ if ('serviceWorker' in navigator) {
             type: 'CACHE_SCREENSHOTS',
             urls: screenshotUrls
           });
-          
-          // Também forçar o cache de cada imagem individualmente
-          for (const url of screenshotUrls) {
-            try {
-              const preloadImage = new Image();
-              preloadImage.src = url;
-              console.log(`Pré-carregando ${url}`);
-            } catch (err) {
-              console.error(`Erro ao pré-carregar ${url}:`, err);
-            }
-          }
           
           console.log('Solicitação para cache de screenshots enviada');
         } catch (err) {

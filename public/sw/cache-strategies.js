@@ -1,11 +1,6 @@
 
 // Estratégias de cache para diferentes tipos de recursos
 
-const { registerRoute } = workbox.routing;
-const { CacheFirst, NetworkFirst, StaleWhileRevalidate } = workbox.strategies;
-const { CacheableResponsePlugin } = workbox.cacheableResponse;
-const { ExpirationPlugin } = workbox.expiration;
-
 // Nome do cache principal
 const CACHE_NAME = 'fretevalor-v3';
 
@@ -179,14 +174,16 @@ async function cacheScreenshots() {
 function setupAllCaching() {
   setupWorkboxConfig();
   setupPrecaching();
-  setupScreenshotsCaching(); // Nova função específica para screenshots
+  setupScreenshotsCaching();
   setupImageCaching();
   setupFontCaching();
   setupResourceCaching();
   setupPagesCaching();
 }
 
-export {
+// Exportação para o escopo global em vez de usar export/import ES6
+// que não é suportado em todos os service workers
+self.cacheStrategies = {
   CACHE_NAME,
   APP_SHELL_FILES,
   SCREENSHOTS,
