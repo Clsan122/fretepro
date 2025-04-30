@@ -32,35 +32,42 @@
   },
   "screenshots": [
     {
-      "src": "/screenshots/home.png",
+      "src": "/screenshots/landing-page.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
       "label": "Tela inicial do FreteValor"
     },
     {
-      "src": "/screenshots/dashboard.png",
+      "src": "/screenshots/dashboard-relatorios.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Dashboard do FreteValor"
+      "label": "Dashboard com relatórios financeiros"
     },
     {
-      "src": "/screenshots/cliente-form.png",
+      "src": "/screenshots/novo-cliente.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
       "label": "Cadastro de Cliente"
     },
     {
-      "src": "/screenshots/ordem-coleta.png",
+      "src": "/screenshots/ordem-coleta-detalhes.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Ordem de Coleta"
+      "label": "Detalhes da Ordem de Coleta"
     },
     {
-      "src": "/screenshots/motorista-form.png",
+      "src": "/screenshots/novo-frete.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Novo Frete"
+    },
+    {
+      "src": "/screenshots/cadastro-motorista.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",

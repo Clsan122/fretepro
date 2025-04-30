@@ -30,12 +30,36 @@ initializeSyncSystem().catch(error => {
   console.error('Erro ao inicializar sistema de sincronização:', error);
 });
 
+// Lista de screenshots para pré-carregar no cache
+const screenshotUrls = [
+  '/screenshots/landing-page.png',
+  '/screenshots/dashboard-relatorios.png',
+  '/screenshots/novo-cliente.png',
+  '/screenshots/ordem-coleta-detalhes.png',
+  '/screenshots/novo-frete.png',
+  '/screenshots/cadastro-motorista.png'
+];
+
 // Registrar e configurar o Service Worker para o PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js') as ExtendedServiceWorkerRegistration;
       console.log('Service Worker registrado com sucesso:', registration.scope);
+      
+      // Pré-carregar screenshots para uso offline
+      if (navigator.onLine) {
+        try {
+          // Informar o service worker para adicionar screenshots ao cache
+          navigator.serviceWorker.controller?.postMessage({
+            type: 'CACHE_SCREENSHOTS',
+            urls: screenshotUrls
+          });
+          console.log('Solicitação para cache de screenshots enviada');
+        } catch (err) {
+          console.error('Erro ao solicitar cache de screenshots:', err);
+        }
+      }
       
       // Configurar Background Sync se o navegador suportar
       if (registration.sync) {
