@@ -172,7 +172,7 @@ async function getPendingSyncData() {
 async function markAsSynced(ids) {
   const db = await openDatabase();
   const transaction = db.transaction(STORE_NAME, 'readwrite');
-  const store = transaction.objectStore(STORE_NAME');
+  const store = transaction.objectStore(STORE_NAME);
   
   for (const id of ids) {
     const request = store.get(id);
@@ -367,11 +367,11 @@ async function saveToIndexedDB(type, serverData) {
       data: {
         ...serverData,
         syncId: serverData.sync_id,
-        syncVersion: serverData.sync_version
+        syncVersion: serverData.sync_version || 1
       },
       timestamp: Date.now(),
       syncId: serverData.sync_id,
-      syncVersion: serverData.sync_version,
+      syncVersion: serverData.sync_version || 1,
       _synced: true
     };
     

@@ -28,29 +28,37 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
       if ('sync' in registration) {
         try {
           // Registrar sincronização background quando o Service Worker estiver ativo
-          await registration.sync?.register('database-sync');
+          await registration.sync.register('database-sync');
           console.log('Background sync registered!');
           
           // Verificar suporte e permissão para periodic sync
           if ('periodicSync' in registration) {
             try {
-              // Usando type assertion para evitar erros de TypeScript - casting para unknown primeiro
-              const status = await navigator.permissions.query(
-                // Two-step casting through unknown to avoid TypeScript errors
-                {name: 'periodic-background-sync'} as unknown as PermissionDescriptor
-              );
+              // Usando uma abordagem segura para tipo
+              const periodicSyncManager = (registration as any).periodicSync;
               
-              if (status.state === 'granted') {
-                // Registrar periodic sync (uma vez por dia)
-                await (registration as any).periodicSync.register('periodic-sync', {
-                  minInterval: 24 * 60 * 60 * 1000 // 24 horas
-                });
-                console.log('Periodic background sync registered!');
-              } else {
-                console.log('Periodic background sync permission not granted.');
+              if (periodicSyncManager) {
+                try {
+                  // Verificar permissão
+                  const status = await navigator.permissions.query({
+                    name: 'periodic-background-sync' as PermissionName 
+                  });
+                  
+                  if (status.state === 'granted') {
+                    // Registrar periodic sync (uma vez por dia)
+                    await periodicSyncManager.register('periodic-sync', {
+                      minInterval: 24 * 60 * 60 * 1000 // 24 horas
+                    });
+                    console.log('Periodic background sync registered!');
+                  } else {
+                    console.log('Periodic background sync permission not granted.');
+                  }
+                } catch (err) {
+                  console.error('Error registering periodic sync:', err);
+                }
               }
             } catch (err) {
-              console.error('Error registering periodic sync:', err);
+              console.error('Error with periodic sync:', err);
             }
           }
         } catch (error) {

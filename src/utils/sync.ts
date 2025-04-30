@@ -23,10 +23,13 @@ interface SyncItem {
   _conflictResolved?: boolean;
 }
 
+// Tipagem para as tabelas do banco de dados
+type TableName = "clients" | "drivers" | "freights" | "freight_expenses" | "collection_orders" | "measurements";
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Salvar dados para sincronização posterior com sistema distribuído
-export const saveForOfflineSync = async (type: string, data: any): Promise<boolean> => {
+export const saveForOfflineSync = async (type: TableName, data: any): Promise<boolean> => {
   try {
     // Gerar um syncId único se não existir
     if (!data.syncId) {
@@ -121,13 +124,13 @@ export const syncWithServer = async (): Promise<boolean> => {
         // Se o item foi marcado para exclusão
         if (_deleted) {
           await supabase
-            .from(type)
+            .from(type as TableName)
             .delete()
             .match({ sync_id: syncId });
         } else {
           // Verificar versão atual no servidor
           const { data: remoteData } = await supabase
-            .from(type)
+            .from(type as TableName)
             .select('*')
             .eq('sync_id', syncId)
             .maybeSingle();
@@ -135,12 +138,12 @@ export const syncWithServer = async (): Promise<boolean> => {
           // Estratégia de resolução de conflitos - vence a versão mais recente
           if (remoteData && remoteData.sync_version > syncVersion) {
             // Se a versão remota for mais nova, atualizamos o local
-            await updateLocalItem(type, remoteData);
+            await updateLocalItem(type as TableName, remoteData);
             await markItemAsSynced(item.id);
           } else {
             // Se a versão local for mais nova ou igual, atualizamos o remoto
             await supabase
-              .from(type)
+              .from(type as TableName)
               .upsert({
                 ...data,
                 sync_id: syncId,
@@ -165,9 +168,9 @@ export const syncWithServer = async (): Promise<boolean> => {
 };
 
 // Função auxiliar para atualizar item local
-const updateLocalItem = async (type: string, remoteData: any): Promise<void> => {
+const updateLocalItem = async (type: TableName, remoteData: any): Promise<void> => {
   // Atualizar no IndexedDB
-  const db = await openIndexedDB();
+  const db = await openDatabase();
   const transaction = db.transaction('pendingSync', 'readwrite');
   const store = transaction.objectStore('pendingSync');
   
@@ -178,7 +181,7 @@ const updateLocalItem = async (type: string, remoteData: any): Promise<void> => 
     const item = request.result;
     if (item) {
       item.data = remoteData;
-      item.syncVersion = remoteData.sync_version;
+      item.syncVersion = remoteData.sync_version || 1; // Garantir que sync_version existe
       item._synced = true;
       store.put(item);
     }
@@ -194,7 +197,7 @@ const updateLocalItem = async (type: string, remoteData: any): Promise<void> => 
 
 // Função para marcar item como sincronizado
 const markItemAsSynced = async (id: string): Promise<void> => {
-  const db = await openIndexedDB();
+  const db = await openDatabase();
   const transaction = db.transaction('pendingSync', 'readwrite');
   const store = transaction.objectStore('pendingSync');
   
@@ -212,7 +215,7 @@ const markItemAsSynced = async (id: string): Promise<void> => {
 // Função para puxar novos dados do servidor
 const pullNewDataFromServer = async (): Promise<void> => {
   // Obter últimos timestamps de cada tipo de dados
-  const tables = ['clients', 'drivers', 'freights', 'freight_expenses', 'collection_orders', 'measurements'];
+  const tables: TableName[] = ['clients', 'drivers', 'freights', 'freight_expenses', 'collection_orders', 'measurements'];
   
   for (const table of tables) {
     try {
@@ -246,12 +249,12 @@ const pullNewDataFromServer = async (): Promise<void> => {
 };
 
 // Função para salvar dados localmente
-const saveLocalData = async (type: string, data: any): Promise<void> => {
+const saveLocalData = async (type: TableName, data: any): Promise<void> => {
   // Converter formato do servidor para formato local
   const localItem = {
     ...data,
     syncId: data.sync_id,
-    syncVersion: data.sync_version,
+    syncVersion: data.sync_version || 1, // Garantir que sync_version existe
     _synced: true
   };
   
@@ -262,7 +265,10 @@ const saveLocalData = async (type: string, data: any): Promise<void> => {
   const existingIndex = localData.findIndex(item => item.syncId === data.sync_id);
   if (existingIndex >= 0) {
     // Se a versão local for mais nova, não sobrescrever
-    if (localData[existingIndex].syncVersion > data.sync_version) {
+    const localVersion = localData[existingIndex].syncVersion || 0;
+    const remoteVersion = data.sync_version || 0;
+    
+    if (localVersion > remoteVersion) {
       return;
     }
     localData[existingIndex] = localItem;
@@ -279,7 +285,7 @@ const saveLocalData = async (type: string, data: any): Promise<void> => {
     data: localItem,
     timestamp: Date.now(),
     syncId: data.sync_id,
-    syncVersion: data.sync_version,
+    syncVersion: data.sync_version || 1,
     _synced: true
   };
   
@@ -287,7 +293,7 @@ const saveLocalData = async (type: string, data: any): Promise<void> => {
 };
 
 // Obter o timestamp da última sincronização
-const getLastSyncTimestamp = (type: string): string => {
+const getLastSyncTimestamp = (type: TableName): string => {
   const timestamp = localStorage.getItem(`last_sync_${type}`);
   if (timestamp) {
     return timestamp;
@@ -297,12 +303,12 @@ const getLastSyncTimestamp = (type: string): string => {
 };
 
 // Salvar o timestamp da última sincronização
-const setLastSyncTimestamp = (type: string, timestamp: string): void => {
+const setLastSyncTimestamp = (type: TableName, timestamp: string): void => {
   localStorage.setItem(`last_sync_${type}`, timestamp);
 };
 
-// Função para salvar no IndexedDB com suporte a sistema distribuído
-const saveToIndexedDB = async (syncItem: SyncItem): Promise<void> => {
+// Função para abrir conexão com o banco de dados
+const openDatabase = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('fretepro-offline-db', 2);
     
@@ -312,24 +318,7 @@ const saveToIndexedDB = async (syncItem: SyncItem): Promise<void> => {
     };
     
     request.onsuccess = () => {
-      try {
-        const db = request.result;
-        const transaction = db.transaction('pendingSync', 'readwrite');
-        const store = transaction.objectStore('pendingSync');
-        
-        store.add(syncItem);
-        
-        transaction.oncomplete = () => {
-          resolve();
-        };
-        
-        transaction.onerror = () => {
-          reject(transaction.error);
-        };
-      } catch (error) {
-        console.error('Erro ao salvar no IndexedDB:', error);
-        reject(error);
-      }
+      resolve(request.result);
     };
     
     request.onupgradeneeded = (event) => {
@@ -337,7 +326,7 @@ const saveToIndexedDB = async (syncItem: SyncItem): Promise<void> => {
       
       // Verificar se os stores já existem
       if (!db.objectStoreNames.contains('pendingSync')) {
-        const store = db.createObjectStore('pendingSync', { keyPath: 'id', autoIncrement: true });
+        const store = db.createObjectStore('pendingSync', { keyPath: 'id' });
         // Criar índices para buscas eficientes
         store.createIndex('syncId', 'syncId', { unique: false });
         store.createIndex('type', 'type', { unique: false });
@@ -347,8 +336,32 @@ const saveToIndexedDB = async (syncItem: SyncItem): Promise<void> => {
   });
 };
 
+// Função para salvar no IndexedDB com suporte a sistema distribuído
+const saveToIndexedDB = async (syncItem: SyncItem): Promise<void> => {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    try {
+      const transaction = db.transaction('pendingSync', 'readwrite');
+      const store = transaction.objectStore('pendingSync');
+      
+      const request = store.add(syncItem);
+      
+      request.onsuccess = () => {
+        resolve();
+      };
+      
+      request.onerror = () => {
+        reject(request.error);
+      };
+    } catch (error) {
+      console.error('Erro ao salvar no IndexedDB:', error);
+      reject(error);
+    }
+  });
+};
+
 // Obter dados do localStorage com formato padronizado
-const getLocalStorageData = (key: string): any[] => {
+const getLocalStorageData = (key: TableName): any[] => {
   try {
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : [];
@@ -360,40 +373,32 @@ const getLocalStorageData = (key: string): any[] => {
 
 // Obter itens pendentes de sincronização
 const getPendingSyncItems = async (): Promise<SyncItem[]> => {
+  const db = await openDatabase();
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('fretepro-offline-db', 2);
+    const transaction = db.transaction('pendingSync', 'readonly');
+    const store = transaction.objectStore('pendingSync');
     
-    request.onerror = () => {
-      reject(request.error);
+    const items: SyncItem[] = [];
+    
+    // Filtrar apenas os não sincronizados
+    const index = store.index('timestamp');
+    const cursorRequest = index.openCursor();
+    
+    cursorRequest.onsuccess = (event) => {
+      const cursor = (event.target as IDBRequest).result;
+      if (cursor) {
+        const item = cursor.value as SyncItem;
+        if (!item._synced) {
+          items.push(item);
+        }
+        cursor.continue();
+      } else {
+        resolve(items);
+      }
     };
     
-    request.onsuccess = () => {
-      const db = request.result;
-      const transaction = db.transaction('pendingSync', 'readonly');
-      const store = transaction.objectStore('pendingSync');
-      
-      const items: SyncItem[] = [];
-      
-      // Filtrar apenas os não sincronizados
-      const index = store.index('timestamp');
-      const cursorRequest = index.openCursor();
-      
-      cursorRequest.onsuccess = (event) => {
-        const cursor = (event.target as IDBRequest).result;
-        if (cursor) {
-          const item = cursor.value as SyncItem;
-          if (!item._synced) {
-            items.push(item);
-          }
-          cursor.continue();
-        } else {
-          resolve(items);
-        }
-      };
-      
-      cursorRequest.onerror = () => {
-        reject(cursorRequest.error);
-      };
+    cursorRequest.onerror = () => {
+      reject(cursorRequest.error);
     };
   });
 };
@@ -435,7 +440,7 @@ export const startManualSync = async (): Promise<{success: boolean, message: str
 };
 
 // Função para excluir item com suporte ao sistema distribuído
-export const deleteForOfflineSync = async (type: string, syncId: string): Promise<boolean> => {
+export const deleteForOfflineSync = async (type: TableName, syncId: string): Promise<boolean> => {
   try {
     // Marcar como excluído localmente
     const localData = getLocalStorageData(type);
@@ -492,16 +497,20 @@ export const setupPeriodicSync = async (intervalMinutes: number = 15): Promise<b
     
     // Verificar permissão
     if (registration.periodicSync) {
-      const status = await navigator.permissions.query({
-        name: 'periodic-background-sync'
-      } as any);
-      
-      if (status.state === 'granted') {
-        // Registrar sincronização periódica
-        await registration.periodicSync.register('periodic-sync', {
-          minInterval: intervalMinutes * 60 * 1000 // converter minutos para ms
+      try {
+        const status = await navigator.permissions.query({
+          name: 'periodic-background-sync' as PermissionName
         });
-        return true;
+        
+        if (status.state === 'granted') {
+          // Registrar sincronização periódica
+          await registration.periodicSync.register('periodic-sync', {
+            minInterval: intervalMinutes * 60 * 1000 // converter minutos para ms
+          });
+          return true;
+        }
+      } catch (error) {
+        console.error('Erro ao verificar permissão para sincronização periódica:', error);
       }
     }
     
