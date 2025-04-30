@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
@@ -20,11 +19,9 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
   pushManager: PushManager;
 }
 
-// Renderizando a aplicação
+// Renderizando a aplicação - sem o StrictMode redundante aqui
 const root = createRoot(document.getElementById("root")!);
-root.render(
-  <App />
-);
+root.render(<App />);
 
 // Inicializar o sistema de sincronização distribuída
 initializeSyncSystem().catch(error => {
