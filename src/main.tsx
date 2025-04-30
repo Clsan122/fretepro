@@ -5,6 +5,18 @@ import App from './App.tsx';
 import './index.css';
 import { initializeSyncSystem } from './utils/sync.ts';
 
+// Interface para estender o tipo ServiceWorkerRegistration com a propriedade sync
+interface SyncManager {
+  register(tag: string): Promise<void>;
+}
+
+interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
+  sync?: SyncManager;
+  periodicSync?: {
+    register(tag: string, options: { minInterval: number }): Promise<void>;
+  };
+}
+
 // Renderizando a aplicação
 const root = createRoot(document.getElementById("root")!);
 root.render(
@@ -22,43 +34,34 @@ initializeSyncSystem().catch(error => {
 if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js') as ServiceWorkerRegistration;
+      const registration = await navigator.serviceWorker.register('/sw.js') as ExtendedServiceWorkerRegistration;
       
       // Configurar Background Sync
-      if ('sync' in registration) {
+      if (registration.sync) {
         try {
           // Registrar sincronização background quando o Service Worker estiver ativo
           await registration.sync.register('database-sync');
           console.log('Background sync registered!');
           
           // Verificar suporte e permissão para periodic sync
-          if ('periodicSync' in registration) {
+          if (registration.periodicSync) {
             try {
-              // Usando uma abordagem segura para tipo
-              const periodicSyncManager = (registration as any).periodicSync;
+              // Verificar permissão
+              const status = await navigator.permissions.query({
+                name: 'periodic-background-sync' as PermissionName 
+              });
               
-              if (periodicSyncManager) {
-                try {
-                  // Verificar permissão
-                  const status = await navigator.permissions.query({
-                    name: 'periodic-background-sync' as PermissionName 
-                  });
-                  
-                  if (status.state === 'granted') {
-                    // Registrar periodic sync (uma vez por dia)
-                    await periodicSyncManager.register('periodic-sync', {
-                      minInterval: 24 * 60 * 60 * 1000 // 24 horas
-                    });
-                    console.log('Periodic background sync registered!');
-                  } else {
-                    console.log('Periodic background sync permission not granted.');
-                  }
-                } catch (err) {
-                  console.error('Error registering periodic sync:', err);
-                }
+              if (status.state === 'granted') {
+                // Registrar periodic sync (uma vez por dia)
+                await registration.periodicSync.register('periodic-sync', {
+                  minInterval: 24 * 60 * 60 * 1000 // 24 horas
+                });
+                console.log('Periodic background sync registered!');
+              } else {
+                console.log('Periodic background sync permission not granted.');
               }
             } catch (err) {
-              console.error('Error with periodic sync:', err);
+              console.error('Error registering periodic sync:', err);
             }
           }
         } catch (error) {
