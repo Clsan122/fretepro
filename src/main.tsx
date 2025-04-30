@@ -56,18 +56,11 @@ function preloadScreenshots() {
   }
 }
 
-// Forçar pré-carregamento de imagens críticas
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    preloadScreenshots();
-  }, 2000); // Atrasar o pré-carregamento para não competir com recursos críticos
-});
-
 // Registrar e configurar o Service Worker para o PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      // Usando uma variável intermediária com tipagem mais específica
+      // Verificar e registrar o Service Worker
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
         updateViaCache: 'none' // Garantir que o SW seja sempre atualizado da rede
@@ -86,20 +79,26 @@ if ('serviceWorker' in navigator) {
         console.error('Erro ao inicializar notificações push:', err);
       }
       
-      // Pré-carregar screenshots para uso offline
-      if (navigator.onLine && navigator.serviceWorker.controller) {
-        try {
-          // Informar o service worker para adicionar screenshots ao cache
-          navigator.serviceWorker.controller.postMessage({
-            type: 'CACHE_SCREENSHOTS',
-            urls: screenshotUrls
-          });
-          
-          console.log('Solicitação para cache de screenshots enviada');
-        } catch (err) {
-          console.error('Erro ao solicitar cache de screenshots:', err);
+      // Pré-carregar screenshots para uso offline após um curto atraso
+      setTimeout(() => {
+        // Pré-carregar as imagens diretamente pelo navegador
+        preloadScreenshots();
+        
+        // Também solicitar que o service worker armazene em cache
+        if (navigator.serviceWorker.controller) {
+          try {
+            // Informar o service worker para adicionar screenshots ao cache
+            navigator.serviceWorker.controller.postMessage({
+              type: 'CACHE_SCREENSHOTS',
+              urls: screenshotUrls
+            });
+            
+            console.log('Solicitação para cache de screenshots enviada ao SW');
+          } catch (err) {
+            console.error('Erro ao solicitar cache de screenshots:', err);
+          }
         }
-      }
+      }, 2000);
       
       // Configurar Background Sync se o navegador suportar
       if (extendedReg.sync) {

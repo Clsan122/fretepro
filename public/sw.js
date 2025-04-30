@@ -3,6 +3,16 @@
 // Importa o Workbox para estratégias de cache avançadas
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
+// Verificar se o Workbox foi carregado corretamente
+if (!workbox) {
+  console.error('Workbox falhou ao carregar!');
+} else {
+  console.log('Workbox carregado com sucesso!');
+  
+  // Ativar o modo de debug em desenvolvimento
+  workbox.setConfig({ debug: false });
+}
+
 // Importar módulos
 importScripts('/sw/cache-strategies.js');
 importScripts('/sw/sync-manager.js');
@@ -11,12 +21,20 @@ importScripts('/sw/message-handler.js');
 importScripts('/sw/share-handler.js');
 
 // Nome do cache principal
-const CACHE = "fretevalor-main-cache";
+const CACHE = "fretevalor-main-cache-v4";
 const offlineFallbackPage = "/offline.html";
+
+// Lista de imagens PWA críticas para carregar imediatamente
+const CRITICAL_PWA_IMAGES = [
+  '/icons/fretevalor-logo.png',
+  '/android/android-launchericon-192-192.png',
+  '/screenshots/landing-page.png'
+];
 
 // Aguardar até que o workbox esteja carregado
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Instalando...');
+  
   // Garantir que todas as importações estejam carregadas
   if (typeof workbox === 'undefined') {
     console.error('[Service Worker] Workbox não carregou!');
@@ -25,18 +43,44 @@ self.addEventListener('install', (event) => {
 
   event.waitUntil(
     (async () => {
-      // Cache específico para a página offline
-      const cache = await caches.open(CACHE);
-      await cache.add(offlineFallbackPage);
-      
-      // Obter funções exportadas dos módulos
-      if (self.cacheStrategies) {
-        const { cacheAppShell, cacheScreenshots } = self.cacheStrategies;
-        await cacheAppShell();
-        await cacheScreenshots();
+      try {
+        // Cache específico para a página offline
+        const cache = await caches.open(CACHE);
+        await cache.add(offlineFallbackPage);
+        
+        // Obter funções exportadas dos módulos
+        if (self.cacheStrategies) {
+          const { 
+            cacheAppShell, 
+            cacheIcons, 
+            cacheScreenshots,
+            cacheUrls,
+            verifyManifestImagesCached
+          } = self.cacheStrategies;
+          
+          // Armazenar recursos críticos em cache
+          await cacheAppShell();
+          await cacheUrls(CRITICAL_PWA_IMAGES, `${CACHE}-critical-images`);
+          
+          // Iniciar cache de recursos não-críticos, mas não esperar
+          // por eles para ativar o service worker
+          Promise.all([
+            cacheIcons(),
+            cacheScreenshots(),
+            verifyManifestImagesCached()
+          ]).then(results => {
+            console.log('[Service Worker] Cache de recursos concluído:', results);
+          }).catch(error => {
+            console.error('[Service Worker] Erro ao armazenar recursos em cache:', error);
+          });
+        }
+
+        // Imediatamente tomar controle
+        self.skipWaiting();
+        console.log('[Service Worker] Instalado e pronto para uso');
+      } catch (error) {
+        console.error('[Service Worker] Erro durante a instalação:', error);
       }
-      
-      self.skipWaiting();
     })()
   );
 });
@@ -45,6 +89,22 @@ self.addEventListener('install', (event) => {
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
+  }
+  
+  // Gerenciar solicitação para armazenar screenshots em cache
+  if (event.data && event.data.type === "CACHE_SCREENSHOTS" && event.data.urls) {
+    if (self.cacheStrategies && self.cacheStrategies.cacheUrls) {
+      self.cacheStrategies.cacheUrls(event.data.urls, `${CACHE}-screenshots`)
+        .then(success => {
+          // Notificar cliente sobre o status
+          if (event.source && event.source.postMessage) {
+            event.source.postMessage({
+              type: 'CACHE_COMPLETE',
+              success: success
+            });
+          }
+        });
+    }
   }
   
   // Enviar para o handler de mensagens
@@ -58,7 +118,7 @@ self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Ativando...');
   
   // Obter CACHE_NAME do módulo
-  const CACHE_NAME = self.cacheStrategies ? self.cacheStrategies.CACHE_NAME : 'fretevalor-v3';
+  const CACHE_NAME = self.cacheStrategies ? self.cacheStrategies.CACHE_NAME : 'fretevalor-v4';
   
   event.waitUntil(
     (async () => {
@@ -66,14 +126,27 @@ self.addEventListener('activate', (event) => {
       const cacheNames = await caches.keys();
       await Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME && name !== CACHE)
+          .filter(name => {
+            // Manter apenas o cache atual e o cache principal
+            return !name.includes(CACHE_NAME) && !name.includes(CACHE);
+          })
           .map(name => {
             console.log(`[Service Worker] Removendo cache antigo: ${name}`);
             return caches.delete(name);
           })
       );
+      
+      // Verificar o manifesto e atualizar o cache das imagens se necessário
+      if (self.cacheStrategies && self.cacheStrategies.verifyManifestImagesCached) {
+        self.cacheStrategies.verifyManifestImagesCached()
+          .then(success => {
+            console.log(`[Service Worker] Verificação do manifesto: ${success ? 'OK' : 'Falha'}`);
+          });
+      }
+      
       // Tomar controle de clientes não controlados imediatamente
       await self.clients.claim();
+      console.log('[Service Worker] Agora controlando todas as guias');
     })()
   );
 });
@@ -111,6 +184,44 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Verificar se é uma solicitação de imagem do manifesto
+  const url = new URL(event.request.url);
+  if (
+    (url.pathname.startsWith('/icons/') || 
+     url.pathname.startsWith('/android/') || 
+     url.pathname.startsWith('/screenshots/')) &&
+    event.request.destination === 'image'
+  ) {
+    event.respondWith(
+      (async () => {
+        // Primeiro verifica o cache
+        const cacheResponse = await caches.match(event.request);
+        if (cacheResponse) {
+          return cacheResponse;
+        }
+        
+        try {
+          // Tenta buscar da rede
+          const networkResponse = await fetch(event.request, {
+            // Permite imagens CORS, importante para recursos hospedados externamente
+            mode: 'no-cors'
+          });
+          
+          // Armazenar em cache para uso futuro
+          const cache = await caches.open(`${CACHE}-manifest-images`);
+          cache.put(event.request, networkResponse.clone());
+          
+          return networkResponse;
+        } catch (error) {
+          console.error('[Service Worker] Erro ao buscar imagem do manifesto:', error);
+          // Retorna uma resposta vazia se não conseguir carregar a imagem
+          return new Response(null, {status: 404});
+        }
+      })()
+    );
+    return;
+  }
+  
   // Tenta processar compartilhamento, protocolo ou manipuladores de arquivo
   if (self.shareHandler) {
     const { handleShareTarget, handleFileHandler, handleProtocolHandler } = self.shareHandler;
@@ -140,8 +251,7 @@ self.addEventListener('fetch', (event) => {
     }
   }
   
-  // Continuar com estratégias de cache normal
-  // Isso será gerenciado pelo módulo cache-strategies.js
+  // Continuar com estratégias de cache normal gerenciado pelo Workbox
 });
 
 // Configurar estratégias de cache
