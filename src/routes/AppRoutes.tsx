@@ -4,7 +4,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 // Components
 import PrivateRoute from "@/components/auth/PrivateRoute";
-import RedirectWrapper from "@/components/auth/RedirectWrapper";
 
 // Pages
 import Login from "@/pages/Login";
@@ -32,14 +31,14 @@ import SharedContent from '@/pages/SharedContent';
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <RedirectWrapper>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-      </RedirectWrapper>
+      {/* Public routes */}
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       
+      {/* Protected routes */}
       <Route
         path="/dashboard"
         element={
