@@ -1,6 +1,15 @@
 
 // Utilitário para lidar com sincronização offline
 
+// Type declarations for the service worker sync API
+interface SyncManager {
+  register(tag: string): Promise<void>;
+}
+
+interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
+  sync?: SyncManager;
+}
+
 // Salvar dados para sincronização posterior
 export const saveForOfflineSync = async (type: string, data: any): Promise<boolean> => {
   try {
@@ -23,8 +32,8 @@ export const saveForOfflineSync = async (type: string, data: any): Promise<boole
     
     // Solicitar sincronização quando estiver online
     if ('serviceWorker' in navigator && 'SyncManager' in window) {
-      const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register('database-sync');
+      const registration = await navigator.serviceWorker.ready as ExtendedServiceWorkerRegistration;
+      await registration.sync?.register('database-sync');
     }
     
     return true;

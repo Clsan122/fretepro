@@ -12,47 +12,61 @@ root.render(
   </React.StrictMode>
 );
 
+// Type declaration to fix TS errors with background sync
+interface SyncManager {
+  register(tag: string): Promise<void>;
+}
+
+interface PeriodicSyncManager {
+  register(tag: string, options?: { minInterval: number }): Promise<void>;
+}
+
+interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
+  sync?: SyncManager;
+  periodicSync?: PeriodicSyncManager;
+}
+
+// Extended PermissionName to include 'periodic-background-sync'
+type ExtendedPermissionName = PermissionName | 'periodic-background-sync';
+
+interface ExtendedPermissionDescriptor extends PermissionDescriptor {
+  name: ExtendedPermissionName;
+}
+
 // Registro do Service Worker para o PWA
 if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js') as ExtendedServiceWorkerRegistration;
       
       // Configurar Background Sync
-      if ('SyncManager' in window) {
+      if ('sync' in registration) {
         try {
           // Registrar sincronização background quando o Service Worker estiver ativo
-          registration.ready.then(async (reg) => {
+          await registration.sync?.register('database-sync');
+          console.log('Background sync registered!');
+          
+          // Verificar suporte e permissão para periodic sync
+          if ('periodicSync' in registration) {
             try {
-              // Registrar background sync
-              await reg.sync.register('database-sync');
-              console.log('Background sync registered!');
+              // Verificar permissão
+              const status = await navigator.permissions.query({
+                name: 'periodic-background-sync' as ExtendedPermissionName
+              });
               
-              // Verificar suporte e permissão para periodic sync
-              if ('periodicSync' in reg) {
-                try {
-                  // Verificar permissão
-                  const status = await navigator.permissions.query({
-                    name: 'periodic-background-sync',
-                  });
-                  
-                  if (status.state === 'granted') {
-                    // Registrar periodic sync (uma vez por dia)
-                    await reg.periodicSync.register('fetch-new-content', {
-                      minInterval: 24 * 60 * 60 * 1000 // 24 horas
-                    });
-                    console.log('Periodic background sync registered!');
-                  } else {
-                    console.log('Periodic background sync permission not granted.');
-                  }
-                } catch (err) {
-                  console.error('Error registering periodic sync:', err);
-                }
+              if (status.state === 'granted') {
+                // Registrar periodic sync (uma vez por dia)
+                await registration.periodicSync?.register('fetch-new-content', {
+                  minInterval: 24 * 60 * 60 * 1000 // 24 horas
+                });
+                console.log('Periodic background sync registered!');
+              } else {
+                console.log('Periodic background sync permission not granted.');
               }
             } catch (err) {
-              console.error('Error registering background sync:', err);
+              console.error('Error registering periodic sync:', err);
             }
-          });
+          }
         } catch (error) {
           console.error('Error setting up background sync:', error);
         }
@@ -76,7 +90,7 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
 }
 
 // Função de utilidade para salvar dados para sincronização posterior
-export const saveDataForSync = async (data) => {
+export const saveDataForSync = async (data: any) => {
   // Se online, tente enviar imediatamente
   if (navigator.onLine) {
     try {
@@ -104,8 +118,8 @@ export const saveDataForSync = async (data) => {
       await saveToIndexedDB(db, data);
       
       // Solicitar sincronização quando estiver online
-      const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register('database-sync');
+      const registration = await navigator.serviceWorker.ready as ExtendedServiceWorkerRegistration;
+      await registration.sync?.register('database-sync');
       return true;
     } catch (error) {
       console.error('Error saving data for background sync:', error);
@@ -119,14 +133,14 @@ export const saveDataForSync = async (data) => {
 
 // Função para abrir o IndexedDB
 const openIndexedDB = () => {
-  return new Promise((resolve, reject) => {
+  return new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open('fretepro-offline-db', 1);
     
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
     
     request.onupgradeneeded = (event) => {
-      const db = event.target.result;
+      const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains('pendingSync')) {
         db.createObjectStore('pendingSync', { keyPath: 'id', autoIncrement: true });
       }
@@ -135,8 +149,8 @@ const openIndexedDB = () => {
 };
 
 // Função para salvar dados no IndexedDB
-const saveToIndexedDB = (db, data) => {
-  return new Promise((resolve, reject) => {
+const saveToIndexedDB = (db: IDBDatabase, data: any) => {
+  return new Promise<number>((resolve, reject) => {
     const transaction = db.transaction('pendingSync', 'readwrite');
     const store = transaction.objectStore('pendingSync');
     const request = store.add({
@@ -144,7 +158,7 @@ const saveToIndexedDB = (db, data) => {
       timestamp: Date.now()
     });
     
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => resolve(request.result as number);
     request.onerror = () => reject(request.error);
   });
 };
