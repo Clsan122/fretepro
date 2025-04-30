@@ -3,6 +3,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { initializeSyncSystem } from './utils/sync.ts';
 
 // Renderizando a aplicação
 const root = createRoot(document.getElementById("root")!);
@@ -12,28 +13,16 @@ root.render(
   </React.StrictMode>
 );
 
-// Type declaration to fix TS errors with background sync
-interface SyncManager {
-  register(tag: string): Promise<void>;
-}
-
-interface PeriodicSyncManager {
-  register(tag: string, options?: { minInterval: number }): Promise<void>;
-}
-
-interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
-  sync?: SyncManager;
-  periodicSync?: PeriodicSyncManager;
-}
-
-// Instead of extending PermissionName, we'll use a type assertion approach
-// when we actually call navigator.permissions.query
+// Inicializar o sistema de sincronização distribuída
+initializeSyncSystem().catch(error => {
+  console.error('Erro ao inicializar sistema de sincronização:', error);
+});
 
 // Registro do Service Worker para o PWA
 if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js') as ExtendedServiceWorkerRegistration;
+      const registration = await navigator.serviceWorker.register('/sw.js') as ServiceWorkerRegistration;
       
       // Configurar Background Sync
       if ('sync' in registration) {
@@ -53,7 +42,7 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
               
               if (status.state === 'granted') {
                 // Registrar periodic sync (uma vez por dia)
-                await registration.periodicSync?.register('fetch-new-content', {
+                await (registration as any).periodicSync.register('periodic-sync', {
                   minInterval: 24 * 60 * 60 * 1000 // 24 horas
                 });
                 console.log('Periodic background sync registered!');
@@ -85,77 +74,3 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
     }
   });
 }
-
-// Função de utilidade para salvar dados para sincronização posterior
-export const saveDataForSync = async (data: any) => {
-  // Se online, tente enviar imediatamente
-  if (navigator.onLine) {
-    try {
-      const response = await fetch('/api/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (response.ok) {
-        return true;
-      }
-    } catch (error) {
-      console.log('Error sending data, will use background sync instead:', error);
-    }
-  }
-  
-  // Se offline ou falhou ao enviar, salve para sincronização posterior
-  if ('serviceWorker' in navigator && 'SyncManager' in window) {
-    try {
-      // Salvar no IndexedDB
-      const db = await openIndexedDB();
-      await saveToIndexedDB(db, data);
-      
-      // Solicitar sincronização quando estiver online
-      const registration = await navigator.serviceWorker.ready as ExtendedServiceWorkerRegistration;
-      await registration.sync?.register('database-sync');
-      return true;
-    } catch (error) {
-      console.error('Error saving data for background sync:', error);
-      return false;
-    }
-  } else {
-    console.warn('Background sync not supported in this browser.');
-    return false;
-  }
-};
-
-// Função para abrir o IndexedDB
-const openIndexedDB = () => {
-  return new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open('fretepro-offline-db', 1);
-    
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-    
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains('pendingSync')) {
-        db.createObjectStore('pendingSync', { keyPath: 'id', autoIncrement: true });
-      }
-    };
-  });
-};
-
-// Função para salvar dados no IndexedDB
-const saveToIndexedDB = (db: IDBDatabase, data: any) => {
-  return new Promise<number>((resolve, reject) => {
-    const transaction = db.transaction('pendingSync', 'readwrite');
-    const store = transaction.objectStore('pendingSync');
-    const request = store.add({
-      data,
-      timestamp: Date.now()
-    });
-    
-    request.onsuccess = () => resolve(request.result as number);
-    request.onerror = () => reject(request.error);
-  });
-};

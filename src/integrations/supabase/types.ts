@@ -9,10 +9,483 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      clients: {
+        Row: {
+          address: string | null
+          city: string
+          cnpj: string | null
+          cpf: string | null
+          created_at: string
+          email: string | null
+          id: string
+          logo: string | null
+          name: string
+          person_type: string
+          phone: string | null
+          state: string
+          sync_id: string | null
+          sync_version: number | null
+          updated_at: string
+          user_id: string
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          city: string
+          cnpj?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          logo?: string | null
+          name: string
+          person_type: string
+          phone?: string | null
+          state: string
+          sync_id?: string | null
+          sync_version?: number | null
+          updated_at?: string
+          user_id: string
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string
+          cnpj?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          logo?: string | null
+          name?: string
+          person_type?: string
+          phone?: string | null
+          state?: string
+          sync_id?: string | null
+          sync_version?: number | null
+          updated_at?: string
+          user_id?: string
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
+      collection_orders: {
+        Row: {
+          company_logo: string
+          created_at: string
+          cubic_measurement: number
+          destination_city: string
+          destination_state: string
+          driver_cpf: string | null
+          driver_id: string | null
+          driver_name: string | null
+          id: string
+          invoice_number: string
+          issuer_id: string
+          license_plate: string | null
+          merchandise_value: number
+          observations: string | null
+          order_number: string
+          origin_city: string
+          origin_state: string
+          receiver: string
+          receiver_address: string
+          recipient: string
+          recipient_address: string
+          sender: string
+          sender_address: string
+          sender_city: string | null
+          sender_cnpj: string | null
+          sender_state: string | null
+          shipper: string | null
+          shipper_address: string | null
+          sync_id: string | null
+          sync_version: number | null
+          user_id: string
+          volumes: number
+          weight: number
+        }
+        Insert: {
+          company_logo: string
+          created_at?: string
+          cubic_measurement: number
+          destination_city: string
+          destination_state: string
+          driver_cpf?: string | null
+          driver_id?: string | null
+          driver_name?: string | null
+          id?: string
+          invoice_number: string
+          issuer_id: string
+          license_plate?: string | null
+          merchandise_value: number
+          observations?: string | null
+          order_number: string
+          origin_city: string
+          origin_state: string
+          receiver: string
+          receiver_address: string
+          recipient: string
+          recipient_address: string
+          sender: string
+          sender_address: string
+          sender_city?: string | null
+          sender_cnpj?: string | null
+          sender_state?: string | null
+          shipper?: string | null
+          shipper_address?: string | null
+          sync_id?: string | null
+          sync_version?: number | null
+          user_id: string
+          volumes: number
+          weight: number
+        }
+        Update: {
+          company_logo?: string
+          created_at?: string
+          cubic_measurement?: number
+          destination_city?: string
+          destination_state?: string
+          driver_cpf?: string | null
+          driver_id?: string | null
+          driver_name?: string | null
+          id?: string
+          invoice_number?: string
+          issuer_id?: string
+          license_plate?: string | null
+          merchandise_value?: number
+          observations?: string | null
+          order_number?: string
+          origin_city?: string
+          origin_state?: string
+          receiver?: string
+          receiver_address?: string
+          recipient?: string
+          recipient_address?: string
+          sender?: string
+          sender_address?: string
+          sender_city?: string | null
+          sender_cnpj?: string | null
+          sender_state?: string | null
+          shipper?: string | null
+          shipper_address?: string | null
+          sync_id?: string | null
+          sync_version?: number | null
+          user_id?: string
+          volumes?: number
+          weight?: number
+        }
+        Relationships: []
+      }
+      drivers: {
+        Row: {
+          address: string | null
+          antt_code: string
+          body_type: string
+          cpf: string
+          created_at: string
+          id: string
+          license_plate: string
+          name: string
+          phone: string
+          sync_id: string | null
+          sync_version: number | null
+          trailer_plate: string | null
+          updated_at: string
+          user_id: string
+          vehicle_model: string
+          vehicle_type: string
+          vehicle_year: string
+        }
+        Insert: {
+          address?: string | null
+          antt_code: string
+          body_type: string
+          cpf: string
+          created_at?: string
+          id?: string
+          license_plate: string
+          name: string
+          phone: string
+          sync_id?: string | null
+          sync_version?: number | null
+          trailer_plate?: string | null
+          updated_at?: string
+          user_id: string
+          vehicle_model: string
+          vehicle_type: string
+          vehicle_year: string
+        }
+        Update: {
+          address?: string | null
+          antt_code?: string
+          body_type?: string
+          cpf?: string
+          created_at?: string
+          id?: string
+          license_plate?: string
+          name?: string
+          phone?: string
+          sync_id?: string | null
+          sync_version?: number | null
+          trailer_plate?: string | null
+          updated_at?: string
+          user_id?: string
+          vehicle_model?: string
+          vehicle_type?: string
+          vehicle_year?: string
+        }
+        Relationships: []
+      }
+      freight_expenses: {
+        Row: {
+          category: string
+          created_at: string
+          date: string
+          description: string
+          freight_id: string
+          id: string
+          sync_id: string | null
+          sync_version: number | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          date: string
+          description: string
+          freight_id: string
+          id?: string
+          sync_id?: string | null
+          sync_version?: number | null
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          freight_id?: string
+          id?: string
+          sync_id?: string | null
+          sync_version?: number | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freight_expenses_freight_id_fkey"
+            columns: ["freight_id"]
+            isOneToOne: false
+            referencedRelation: "freights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freights: {
+        Row: {
+          accommodation_expenses: number | null
+          arrival_date: string | null
+          cargo_description: string | null
+          cargo_type: string
+          cargo_weight: number | null
+          client_id: string
+          created_at: string
+          cubic_measurement: number | null
+          daily_rate: number | null
+          delivery_proof: string | null
+          departure_date: string | null
+          destination_city: string
+          destination_state: string
+          dimensions: string | null
+          distance: number
+          driver_id: string | null
+          end_date: string | null
+          freight_value: number
+          fuel_expenses: number | null
+          helper_expenses: number | null
+          id: string
+          meal_expenses: number | null
+          observations: string | null
+          origin_city: string
+          origin_state: string
+          other_costs: number | null
+          payment_date: string | null
+          payment_method: string | null
+          payment_proof: string | null
+          payment_status: string
+          payment_term: string | null
+          pix_key: string | null
+          price: number
+          proof_of_delivery_image: string | null
+          requester_name: string | null
+          start_date: string | null
+          status: string
+          sync_id: string | null
+          sync_version: number | null
+          third_party_driver_cost: number | null
+          toll_costs: number | null
+          toll_expenses: number | null
+          total_value: number
+          updated_at: string
+          user_id: string
+          vehicle_type: string | null
+          volumes: number | null
+          weight: number | null
+        }
+        Insert: {
+          accommodation_expenses?: number | null
+          arrival_date?: string | null
+          cargo_description?: string | null
+          cargo_type: string
+          cargo_weight?: number | null
+          client_id: string
+          created_at?: string
+          cubic_measurement?: number | null
+          daily_rate?: number | null
+          delivery_proof?: string | null
+          departure_date?: string | null
+          destination_city: string
+          destination_state: string
+          dimensions?: string | null
+          distance: number
+          driver_id?: string | null
+          end_date?: string | null
+          freight_value: number
+          fuel_expenses?: number | null
+          helper_expenses?: number | null
+          id?: string
+          meal_expenses?: number | null
+          observations?: string | null
+          origin_city: string
+          origin_state: string
+          other_costs?: number | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_proof?: string | null
+          payment_status: string
+          payment_term?: string | null
+          pix_key?: string | null
+          price: number
+          proof_of_delivery_image?: string | null
+          requester_name?: string | null
+          start_date?: string | null
+          status: string
+          sync_id?: string | null
+          sync_version?: number | null
+          third_party_driver_cost?: number | null
+          toll_costs?: number | null
+          toll_expenses?: number | null
+          total_value: number
+          updated_at?: string
+          user_id: string
+          vehicle_type?: string | null
+          volumes?: number | null
+          weight?: number | null
+        }
+        Update: {
+          accommodation_expenses?: number | null
+          arrival_date?: string | null
+          cargo_description?: string | null
+          cargo_type?: string
+          cargo_weight?: number | null
+          client_id?: string
+          created_at?: string
+          cubic_measurement?: number | null
+          daily_rate?: number | null
+          delivery_proof?: string | null
+          departure_date?: string | null
+          destination_city?: string
+          destination_state?: string
+          dimensions?: string | null
+          distance?: number
+          driver_id?: string | null
+          end_date?: string | null
+          freight_value?: number
+          fuel_expenses?: number | null
+          helper_expenses?: number | null
+          id?: string
+          meal_expenses?: number | null
+          observations?: string | null
+          origin_city?: string
+          origin_state?: string
+          other_costs?: number | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_proof?: string | null
+          payment_status?: string
+          payment_term?: string | null
+          pix_key?: string | null
+          price?: number
+          proof_of_delivery_image?: string | null
+          requester_name?: string | null
+          start_date?: string | null
+          status?: string
+          sync_id?: string | null
+          sync_version?: number | null
+          third_party_driver_cost?: number | null
+          toll_costs?: number | null
+          toll_expenses?: number | null
+          total_value?: number
+          updated_at?: string
+          user_id?: string
+          vehicle_type?: string | null
+          volumes?: number | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      measurements: {
+        Row: {
+          collection_order_id: string
+          created_at: string
+          height: number
+          id: string
+          length: number
+          quantity: number
+          sync_id: string | null
+          sync_version: number | null
+          width: number
+        }
+        Insert: {
+          collection_order_id: string
+          created_at?: string
+          height: number
+          id?: string
+          length: number
+          quantity: number
+          sync_id?: string | null
+          sync_version?: number | null
+          width: number
+        }
+        Update: {
+          collection_order_id?: string
+          created_at?: string
+          height?: number
+          id?: string
+          length?: number
+          quantity?: number
+          sync_id?: string | null
+          sync_version?: number | null
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "measurements_collection_order_id_fkey"
+            columns: ["collection_order_id"]
+            isOneToOne: false
+            referencedRelation: "collection_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
           avatar_url: string | null
+          bank_info: string | null
           city: string | null
           cnpj: string | null
           company_logo: string | null
@@ -30,6 +503,7 @@ export type Database = {
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          bank_info?: string | null
           city?: string | null
           cnpj?: string | null
           company_logo?: string | null
@@ -47,6 +521,7 @@ export type Database = {
         Update: {
           address?: string | null
           avatar_url?: string | null
+          bank_info?: string | null
           city?: string | null
           cnpj?: string | null
           company_logo?: string | null
