@@ -45,10 +45,11 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
           // Verificar suporte e permissão para periodic sync
           if ('periodicSync' in registration) {
             try {
-              // Usando type assertion para evitar erros de TypeScript
-              const status = await navigator.permissions.query({
-                name: 'periodic-background-sync'
-              } as PermissionDescriptor);
+              // Usando type assertion para evitar erros de TypeScript - casting para unknown primeiro
+              const status = await navigator.permissions.query(
+                // Two-step casting through unknown to avoid TypeScript errors
+                {name: 'periodic-background-sync'} as unknown as PermissionDescriptor
+              );
               
               if (status.state === 'granted') {
                 // Registrar periodic sync (uma vez por dia)
