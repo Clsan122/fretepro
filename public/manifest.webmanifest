@@ -120,25 +120,13 @@
   ],
   "icons": [
     {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/fretevalor-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/maskable-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icons/maskable-512.png",
+      "src": "/icons/fretevalor-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -150,14 +138,14 @@
       "short_name": "Novo Frete",
       "description": "Cadastrar novo frete",
       "url": "/freights",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icons/fretevalor-logo.png", "sizes": "512x512", "type": "image/png" }]
     },
     {
       "name": "Ordem de Coleta",
       "short_name": "Coleta",
       "description": "Gerar ordem de coleta",
       "url": "/collection-order",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icons/fretevalor-logo.png", "sizes": "512x512", "type": "image/png" }]
     }
   ],
   "widgets": [
