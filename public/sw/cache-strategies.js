@@ -15,10 +15,8 @@ const APP_SHELL_FILES = [
   '/index.html',
   '/src/index.css',
   '/src/assets/favicon.svg',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/maskable-192.png',
-  '/icons/maskable-512.png',
+  '/android/android-launchericon-192-192.png',
+  '/android/android-launchericon-512-512.png',
   '/manifest.webmanifest'
 ];
 
@@ -38,8 +36,8 @@ function setupPrecaching() {
     { url: '/', revision: '2' },
     { url: '/index.html', revision: '2' },
     { url: '/manifest.webmanifest', revision: '2' },
-    { url: '/icons/icon-192.png', revision: '2' },
-    { url: '/icons/icon-512.png', revision: '2' },
+    { url: '/android/android-launchericon-192-192.png', revision: '1' },
+    { url: '/android/android-launchericon-512-512.png', revision: '1' },
     { url: '/screenshots/landing-page.png', revision: '1' },
     { url: '/screenshots/dashboard-relatorios.png', revision: '1' },
     { url: '/screenshots/novo-cliente.png', revision: '1' },
