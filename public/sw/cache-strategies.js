@@ -1,23 +1,24 @@
 
-// Estratégias de cache para diferentes tipos de recursos
+// Estratégias de cache para o Service Worker
 
-// Nome do cache principal
+// Nome do cache atual
 const CACHE_NAME = 'fretevalor-v3';
 
-// Lista de arquivos essenciais para o app shell
+// Lista de arquivos para o app shell
 const APP_SHELL_FILES = [
   '/',
   '/index.html',
+  '/offline.html',
+  '/manifest.webmanifest',
+  '/src/main.tsx',
   '/src/index.css',
-  '/src/assets/favicon.svg',
-  '/android/android-launchericon-192-192.png',
-  '/android/android-launchericon-512-512.png',
   '/icons/fretevalor-logo.png',
-  '/manifest.webmanifest'
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
 ];
 
-// Lista de screenshots para garantir que sejam cacheadas
-const SCREENSHOTS = [
+// Lista de screenshots para armazenar em cache
+const SCREENSHOT_FILES = [
   '/screenshots/landing-page.png',
   '/screenshots/dashboard-relatorios.png',
   '/screenshots/novo-cliente.png',
@@ -26,192 +27,102 @@ const SCREENSHOTS = [
   '/screenshots/cadastro-motorista.png'
 ];
 
-// Configuração do Workbox
-function setupWorkboxConfig() {
-  workbox.core.setCacheNameDetails({
-    prefix: 'fretevalor',
-    suffix: 'v3',
-    precache: 'precache',
-    runtime: 'runtime'
-  });
-}
-
-// Precache manifestos e assets estáticos
-function setupPrecaching() {
-  workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '3' },
-    { url: '/index.html', revision: '3' },
-    { url: '/manifest.webmanifest', revision: '3' },
-    { url: '/icons/fretevalor-logo.png', revision: '1' },
-    { url: '/android/android-launchericon-192-192.png', revision: '1' },
-    { url: '/android/android-launchericon-512-512.png', revision: '1' },
-    { url: '/android/android-launchericon-144-144.png', revision: '1' },
-    { url: '/android/android-launchericon-96-96.png', revision: '1' },
-    { url: '/android/android-launchericon-72-72.png', revision: '1' },
-    { url: '/android/android-launchericon-48-48.png', revision: '1' },
-    { url: '/screenshots/landing-page.png', revision: '2' },
-    { url: '/screenshots/dashboard-relatorios.png', revision: '2' },
-    { url: '/screenshots/novo-cliente.png', revision: '2' },
-    { url: '/screenshots/ordem-coleta-detalhes.png', revision: '2' },
-    { url: '/screenshots/novo-frete.png', revision: '2' },
-    { url: '/screenshots/cadastro-motorista.png', revision: '2' }
-  ]);
-}
-
-// Configurar caching específico para screenshots
-function setupScreenshotsCaching() {
-  const { registerRoute } = workbox.routing;
-  const { CacheFirst } = workbox.strategies;
-  const { CacheableResponsePlugin } = workbox.cacheableResponse;
-  const { ExpirationPlugin } = workbox.expiration;
+// Configurar estratégias de cache
+function setupAllCaching() {
+  // Configurar caches e estratégias
+  console.log('[Service Worker] Configurando estratégias de cache');
   
-  registerRoute(
-    ({ url }) => SCREENSHOTS.some(screenshot => url.pathname.includes(screenshot)),
-    new CacheFirst({
-      cacheName: 'fretevalor-screenshots',
+  // Páginas HTML principais - Network first, fallback para cache
+  workbox.routing.registerRoute(
+    ({request}) => request.mode === 'navigate',
+    new workbox.strategies.NetworkFirst({
+      cacheName: CACHE_NAME,
       plugins: [
-        new CacheableResponsePlugin({
-          statuses: [0, 200]
-        }),
-        new ExpirationPlugin({
-          maxEntries: 10,
-          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 dias
+        new workbox.expiration.ExpirationPlugin({
+          maxEntries: 20,
+          maxAgeSeconds: 7 * 24 * 60 * 60 // 1 semana
         })
       ]
     })
   );
-}
-
-// Configurar caching de imagens
-function setupImageCaching() {
-  const { registerRoute } = workbox.routing;
-  const { CacheFirst } = workbox.strategies;
-  const { CacheableResponsePlugin } = workbox.cacheableResponse;
-  const { ExpirationPlugin } = workbox.expiration;
   
-  registerRoute(
-    ({ request }) => request.destination === 'image',
-    new CacheFirst({
-      cacheName: 'fretevalor-images',
+  // Recursos estáticos (JS, CSS) - Stale-While-Revalidate
+  workbox.routing.registerRoute(
+    ({request}) => 
+      request.destination === 'script' || 
+      request.destination === 'style',
+    new workbox.strategies.StaleWhileRevalidate({
+      cacheName: `${CACHE_NAME}-static`,
       plugins: [
-        new CacheableResponsePlugin({
-          statuses: [0, 200]
-        }),
-        new ExpirationPlugin({
+        new workbox.expiration.ExpirationPlugin({
           maxEntries: 60,
           maxAgeSeconds: 30 * 24 * 60 * 60 // 30 dias
         })
       ]
     })
   );
-}
-
-// Configurar caching de fontes
-function setupFontCaching() {
-  const { registerRoute } = workbox.routing;
-  const { CacheFirst } = workbox.strategies;
-  const { CacheableResponsePlugin } = workbox.cacheableResponse;
-  const { ExpirationPlugin } = workbox.expiration;
   
-  registerRoute(
-    ({ request }) => request.destination === 'font',
-    new CacheFirst({
-      cacheName: 'fretevalor-fonts',
+  // Imagens - Cache First
+  workbox.routing.registerRoute(
+    ({request}) => request.destination === 'image',
+    new workbox.strategies.CacheFirst({
+      cacheName: `${CACHE_NAME}-images`,
       plugins: [
-        new CacheableResponsePlugin({
-          statuses: [0, 200]
-        }),
-        new ExpirationPlugin({
-          maxEntries: 30,
-          maxAgeSeconds: 60 * 60 * 24 * 365 // 1 ano
+        new workbox.expiration.ExpirationPlugin({
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 24 * 60 * 60 // 60 dias
         })
       ]
     })
   );
-}
-
-// Configurar caching de scripts e styles
-function setupResourceCaching() {
-  const { registerRoute } = workbox.routing;
-  const { StaleWhileRevalidate } = workbox.strategies;
-  const { CacheableResponsePlugin } = workbox.cacheableResponse;
-  const { ExpirationPlugin } = workbox.expiration;
   
-  registerRoute(
-    ({ request }) => request.destination === 'script' || 
-                     request.destination === 'style',
-    new StaleWhileRevalidate({
-      cacheName: 'fretevalor-resources',
+  // API requests - Network First com cache de fallback
+  workbox.routing.registerRoute(
+    new RegExp('/api/.*'),
+    new workbox.strategies.NetworkFirst({
+      cacheName: `${CACHE_NAME}-api`,
       plugins: [
-        new CacheableResponsePlugin({
-          statuses: [0, 200]
-        }),
-        new ExpirationPlugin({
+        new workbox.expiration.ExpirationPlugin({
           maxEntries: 50,
-          maxAgeSeconds: 24 * 60 * 60 // 24 horas
+          maxAgeSeconds: 5 * 60 // 5 minutos
         })
       ]
     })
   );
 }
 
-// Configurar caching de páginas HTML
-function setupPagesCaching() {
-  const { registerRoute } = workbox.routing;
-  const { NetworkFirst } = workbox.strategies;
-  const { CacheableResponsePlugin } = workbox.cacheableResponse;
-  
-  registerRoute(
-    ({ request }) => request.mode === 'navigate',
-    new NetworkFirst({
-      cacheName: 'fretevalor-pages',
-      plugins: [
-        new CacheableResponsePlugin({
-          statuses: [0, 200]
-        })
-      ]
-    })
-  );
-}
-
-// Inicializar o app shell no cache
+// Cache do app shell (arquivos críticos)
 async function cacheAppShell() {
   const cache = await caches.open(CACHE_NAME);
-  console.log('[Service Worker] Cacheando app shell');
-  return cache.addAll(APP_SHELL_FILES);
-}
-
-// Cachear screenshots
-async function cacheScreenshots() {
-  const cache = await caches.open(CACHE_NAME);
+  console.log('[Service Worker] Armazenando App Shell em cache');
   try {
-    await cache.addAll(SCREENSHOTS);
-    console.log('[Service Worker] Screenshots cacheados com sucesso');
+    await cache.addAll(APP_SHELL_FILES);
+    console.log('[Service Worker] App Shell armazenado em cache com sucesso');
     return true;
-  } catch (err) {
-    console.error('[Service Worker] Erro ao cachear screenshots:', err);
+  } catch (error) {
+    console.error('[Service Worker] Erro ao armazenar App Shell em cache:', error);
     return false;
   }
 }
 
-// Configurar todas as estratégias de cache
-function setupAllCaching() {
-  setupWorkboxConfig();
-  setupPrecaching();
-  setupScreenshotsCaching();
-  setupImageCaching();
-  setupFontCaching();
-  setupResourceCaching();
-  setupPagesCaching();
+// Cache de screenshots
+async function cacheScreenshots() {
+  const cache = await caches.open(`${CACHE_NAME}-screenshots`);
+  console.log('[Service Worker] Armazenando screenshots em cache');
+  try {
+    await cache.addAll(SCREENSHOT_FILES);
+    console.log('[Service Worker] Screenshots armazenados com sucesso');
+    return true;
+  } catch (error) {
+    console.error('[Service Worker] Erro ao armazenar screenshots:', error);
+    return false;
+  }
 }
 
-// Exportação para o escopo global em vez de usar export/import ES6
-// que não é suportado em todos os service workers
+// Exportar para uso global
 self.cacheStrategies = {
-  CACHE_NAME,
-  APP_SHELL_FILES,
-  SCREENSHOTS,
   setupAllCaching,
   cacheAppShell,
-  cacheScreenshots
+  cacheScreenshots,
+  CACHE_NAME
 };

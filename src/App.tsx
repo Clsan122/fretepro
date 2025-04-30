@@ -14,8 +14,20 @@ export const ConnectivityContext = React.createContext<ConnectivityContextType>(
   isOnline: navigator.onLine
 });
 
+// Criar contexto para notificações push
+interface NotificationContextType {
+  showNotificationButton: boolean;
+  setShowNotificationButton: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const NotificationContext = React.createContext<NotificationContextType>({
+  showNotificationButton: false,
+  setShowNotificationButton: () => {}
+});
+
 function App() {
   const [isOnline, setIsOnline] = React.useState<boolean>(navigator.onLine);
+  const [showNotificationButton, setShowNotificationButton] = React.useState<boolean>(false);
   
   React.useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -23,6 +35,16 @@ function App() {
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    
+    // Verificar suporte a notificações
+    const checkNotificationSupport = () => {
+      const isSupported = 'Notification' in window && 
+                          'serviceWorker' in navigator && 
+                          'PushManager' in window;
+      setShowNotificationButton(isSupported);
+    };
+    
+    checkNotificationSupport();
     
     return () => {
       window.removeEventListener('online', handleOnline);
@@ -33,10 +55,12 @@ function App() {
   return (
     <BrowserRouter>
       <ConnectivityContext.Provider value={{ isOnline }}>
-        <AuthProvider>
-          <AppRoutes />
-          <Toaster />
-        </AuthProvider>
+        <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
+          <AuthProvider>
+            <AppRoutes />
+            <Toaster />
+          </AuthProvider>
+        </NotificationContext.Provider>
       </ConnectivityContext.Provider>
     </BrowserRouter>
   );

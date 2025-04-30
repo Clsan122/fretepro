@@ -12,8 +12,8 @@ function handlePushEvent(event) {
     const data = event.data.json();
     const options = {
       body: data.body || 'Nova notificação do FreteValor',
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
+      icon: '/icons/fretevalor-logo.png',
+      badge: '/icons/fretevalor-logo.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/',
@@ -38,7 +38,7 @@ function handlePushEvent(event) {
     // Tentar mostrar uma notificação padrão
     return self.registration.showNotification('FreteValor', {
       body: 'Nova notificação',
-      icon: '/icons/icon-192.png'
+      icon: '/icons/fretevalor-logo.png'
     });
   }
 }
@@ -55,21 +55,28 @@ function handleNotificationClick(event) {
   
   // Ação padrão é abrir o app
   notification.close();
+  
+  // Tentar extrair URL personalizada da notificação
+  const urlToOpen = notification.data && notification.data.url 
+    ? new URL(notification.data.url, self.location.origin).href 
+    : self.location.origin;
+  
   return clients.matchAll({type: 'window'}).then(windowClients => {
     // Verificar se já existe uma janela aberta e focar nela
     for (const client of windowClients) {
-      if (client.url.indexOf(self.location.origin) !== -1 && 'focus' in client) {
+      if (client.url === urlToOpen && 'focus' in client) {
         return client.focus();
       }
     }
     // Se não existe nenhuma janela aberta, abrir uma nova
     if (clients.openWindow) {
-      return clients.openWindow('/');
+      return clients.openWindow(urlToOpen);
     }
   });
 }
 
-export {
+// Exportar para uso global
+self.notificationManager = {
   handlePushEvent,
   handleNotificationClick
 };
