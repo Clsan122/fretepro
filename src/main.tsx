@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
@@ -32,12 +33,12 @@ initializeSyncSystem().catch(error => {
 
 // Lista de screenshots para pré-carregar no cache
 const screenshotUrls = [
-  '/screenshots/landing-page.png',
-  '/screenshots/dashboard-relatorios.png',
-  '/screenshots/novo-cliente.png',
-  '/screenshots/ordem-coleta-detalhes.png',
-  '/screenshots/novo-frete.png',
-  '/screenshots/cadastro-motorista.png'
+  '/lovable-uploads/d292b644-b35c-46ac-897b-e2ef8a2e8c61.png', // landing page
+  '/lovable-uploads/14d2b0ad-2879-42cb-840d-ed5262013e0a.png', // dashboard
+  '/lovable-uploads/e0bb8071-4053-437d-a57a-81f03a0853c8.png', // novo cliente
+  '/lovable-uploads/13423698-00b6-42f0-965d-4de4ff2ba345.png', // ordem coleta
+  '/lovable-uploads/e3038efe-77ce-4cb5-8066-735bc2f590c2.png', // novo frete
+  '/lovable-uploads/6085da74-cbb5-4a6f-9c30-6a40bee1c171.png' // cadastro motorista
 ];
 
 // Registrar e configurar o Service Worker para o PWA

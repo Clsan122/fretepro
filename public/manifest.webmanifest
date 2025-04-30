@@ -1,19 +1,24 @@
 
 {
-  "name": "FreteValor - Gerenciamento de Fretes",
-  "short_name": "FreteValor",
-  "description": "Sistema de gerenciamento de fretes para motoristas e transportadoras.",
+  "name": "FretePro - Gerenciamento de Fretes",
+  "short_name": "FretePro",
+  "description": "Sistema completo de gerenciamento de fretes para motoristas e transportadoras.",
   "lang": "pt-BR",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "browser"],
-  "background_color": "#1E40AF",
-  "theme_color": "#1E40AF",
-  "orientation": "portrait",
+  "background_color": "#0369A1",
+  "theme_color": "#0369A1",
+  "orientation": "portrait-primary",
   "scope": "/",
-  "id": "fretevalor-app",
+  "id": "fretepro-app",
   "dir": "ltr",
-  "categories": ["business", "productivity", "logistics", "transportation"],
+  "categories": [
+    "business",
+    "productivity",
+    "logistics",
+    "transportation"
+  ],
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "prefer_related_applications": false,
   "related_applications": [
@@ -54,7 +59,7 @@
   ],
   "protocol_handlers": [
     {
-      "protocol": "web+fretevalor",
+      "protocol": "web+fretepro",
       "url": "/%s"
     }
   ],
@@ -76,58 +81,58 @@
   },
   "screenshots": [
     {
-      "src": "/screenshots/landing-page.png",
+      "src": "/lovable-uploads/d292b644-b35c-46ac-897b-e2ef8a2e8c61.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Tela inicial do FreteValor"
+      "label": "Página inicial do FretePro"
     },
     {
-      "src": "/screenshots/dashboard-relatorios.png",
+      "src": "/lovable-uploads/14d2b0ad-2879-42cb-840d-ed5262013e0a.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
       "label": "Dashboard com relatórios financeiros"
     },
     {
-      "src": "/screenshots/novo-cliente.png",
+      "src": "/lovable-uploads/e0bb8071-4053-437d-a57a-81f03a0853c8.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Cadastro de Cliente"
+      "label": "Cadastro de novo cliente"
     },
     {
-      "src": "/screenshots/ordem-coleta-detalhes.png",
+      "src": "/lovable-uploads/13423698-00b6-42f0-965d-4de4ff2ba345.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Detalhes da Ordem de Coleta"
+      "label": "Detalhes da ordem de coleta"
     },
     {
-      "src": "/screenshots/novo-frete.png",
+      "src": "/lovable-uploads/e3038efe-77ce-4cb5-8066-735bc2f590c2.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Cadastro de Novo Frete"
+      "label": "Cadastro de novo frete"
     },
     {
-      "src": "/screenshots/cadastro-motorista.png",
+      "src": "/lovable-uploads/6085da74-cbb5-4a6f-9c30-6a40bee1c171.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Cadastro de Motorista"
+      "label": "Cadastro de motorista"
     }
   ],
   "icons": [
     {
-      "src": "/icons/fretevalor-logo.png",
+      "src": "/lovable-uploads/0a232117-cd80-495e-aaf2-bf8656b229e9.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/fretevalor-logo.png",
-      "sizes": "512x512",
+      "src": "/lovable-uploads/0a232117-cd80-495e-aaf2-bf8656b229e9.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     }
@@ -138,14 +143,14 @@
       "short_name": "Novo Frete",
       "description": "Cadastrar novo frete",
       "url": "/freights",
-      "icons": [{ "src": "/icons/fretevalor-logo.png", "sizes": "512x512", "type": "image/png" }]
+      "icons": [{ "src": "/lovable-uploads/0a232117-cd80-495e-aaf2-bf8656b229e9.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Ordem de Coleta",
       "short_name": "Coleta",
       "description": "Gerar ordem de coleta",
-      "url": "/collection-order",
-      "icons": [{ "src": "/icons/fretevalor-logo.png", "sizes": "512x512", "type": "image/png" }]
+      "url": "/collection-order/new",
+      "icons": [{ "src": "/lovable-uploads/0a232117-cd80-495e-aaf2-bf8656b229e9.png", "sizes": "192x192", "type": "image/png" }]
     }
   ],
   "widgets": [
@@ -155,7 +160,7 @@
       "description": "Mostra um resumo financeiro dos últimos fretes",
       "screenshots": [
         {
-          "src": "/screenshots/dashboard-relatorios.png",
+          "src": "/lovable-uploads/14d2b0ad-2879-42cb-840d-ed5262013e0a.png",
           "sizes": "750x1334",
           "label": "Resumo Financeiro"
         }
@@ -167,7 +172,7 @@
       "description": "Exibe as próximas entregas agendadas",
       "screenshots": [
         {
-          "src": "/screenshots/ordem-coleta-detalhes.png",
+          "src": "/lovable-uploads/13423698-00b6-42f0-965d-4de4ff2ba345.png",
           "sizes": "750x1334",
           "label": "Próximas Entregas"
         }
