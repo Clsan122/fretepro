@@ -1,20 +1,14 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
 import Logo from "@/components/Logo";
-
 const Index = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen flex flex-col bg-gradient-to-b from-freight-50 to-freight-100 dark:from-freight-900 dark:to-freight-950">
       <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-sm border-b border-freight-200/20 dark:border-freight-800/20">
         <div className="container mx-auto flex items-center justify-between py-4 px-4 sm:px-6">
           <div className="flex items-center">
-            <img 
-              src="/icons/fretevalor-logo.png" 
-              alt="FreteValor Logo" 
-              className="h-12 w-auto"
-            />
+            <img alt="FreteValor Logo" className="h-12 w-auto" src="/lovable-uploads/db0b6b6b-f7cd-4ae3-b5d4-0891d534053d.png" />
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <Button variant="ghost" onClick={() => navigate("/login")} className="text-freight-700 hover:text-freight-800 bg-white/80 hover:bg-white dark:text-freight-300 dark:bg-white/5 dark:hover:bg-white/10 px-3 sm:px-4 mx-[4px]">
@@ -30,16 +24,10 @@ const Index = () => {
       <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
-            <img 
-              src="/icons/fretevalor-logo.png" 
-              alt="FreteValor Logo" 
-              className="h-32 w-auto mb-4"
-            />
+            <img alt="FreteValor Logo" className="h-32 w-auto mb-4" src="/lovable-uploads/1464ba1d-5a26-4acb-b741-3ee809d70d42.png" />
           </div>
           
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-freight-800 dark:text-freight-200">
-            FreteValor
-          </h1>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-freight-800 dark:text-freight-200">FretePro</h1>
           <p className="text-lg sm:text-xl mb-8 text-freight-600 dark:text-freight-400">
             A solução completa para gerenciamento de fretes e transportes
           </p>
