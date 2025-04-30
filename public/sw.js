@@ -7,7 +7,7 @@ const { CacheableResponsePlugin } = workbox.cacheableResponse;
 const { ExpirationPlugin } = workbox.expiration;
 
 // Nome do cache
-const CACHE_NAME = 'fretepro-v1';
+const CACHE_NAME = 'fretevalor-v1';
 
 // Lista de arquivos essenciais para o app shell
 const APP_SHELL_FILES = [
@@ -19,7 +19,12 @@ const APP_SHELL_FILES = [
   '/icons/icon-512.png',
   '/icons/maskable-192.png',
   '/icons/maskable-512.png',
-  '/manifest.webmanifest'
+  '/manifest.webmanifest',
+  '/screenshots/home.png',
+  '/screenshots/dashboard.png',
+  '/screenshots/cliente-form.png',
+  '/screenshots/ordem-coleta.png',
+  '/screenshots/motorista-form.png'
 ];
 
 // Instalação do Service Worker
@@ -58,7 +63,7 @@ self.addEventListener('activate', (event) => {
 
 // Configuração do Workbox
 workbox.core.setCacheNameDetails({
-  prefix: 'fretepro',
+  prefix: 'fretevalor',
   suffix: 'v1',
   precache: 'precache',
   runtime: 'runtime'
@@ -72,14 +77,19 @@ workbox.precaching.precacheAndRoute([
   { url: '/src/assets/favicon.svg', revision: '1' },
   { url: '/icons/icon-192.png', revision: '1' },
   { url: '/icons/icon-512.png', revision: '1' },
-  { url: '/src/index.css', revision: '1' }
+  { url: '/src/index.css', revision: '1' },
+  { url: '/screenshots/home.png', revision: '1' },
+  { url: '/screenshots/dashboard.png', revision: '1' },
+  { url: '/screenshots/cliente-form.png', revision: '1' },
+  { url: '/screenshots/ordem-coleta.png', revision: '1' },
+  { url: '/screenshots/motorista-form.png', revision: '1' }
 ]);
 
 // Cache para imagens
 registerRoute(
   ({ request }) => request.destination === 'image',
   new CacheFirst({
-    cacheName: 'fretepro-images',
+    cacheName: 'fretevalor-images',
     plugins: [
       new CacheableResponsePlugin({
         statuses: [0, 200]
@@ -96,7 +106,7 @@ registerRoute(
 registerRoute(
   ({ request }) => request.destination === 'font',
   new CacheFirst({
-    cacheName: 'fretepro-fonts',
+    cacheName: 'fretevalor-fonts',
     plugins: [
       new CacheableResponsePlugin({
         statuses: [0, 200]
@@ -114,7 +124,7 @@ registerRoute(
   ({ request }) => request.destination === 'script' || 
                    request.destination === 'style',
   new StaleWhileRevalidate({
-    cacheName: 'fretepro-resources',
+    cacheName: 'fretevalor-resources',
     plugins: [
       new CacheableResponsePlugin({
         statuses: [0, 200]
@@ -131,7 +141,7 @@ registerRoute(
 registerRoute(
   ({ request }) => request.mode === 'navigate',
   new NetworkFirst({
-    cacheName: 'fretepro-pages',
+    cacheName: 'fretevalor-pages',
     plugins: [
       new CacheableResponsePlugin({
         statuses: [0, 200]
@@ -157,7 +167,7 @@ self.addEventListener('fetch', (event) => {
           
           // Salvar no cache se a resposta foi bem-sucedida
           if (networkResponse.ok) {
-            const cache = await caches.open('fretepro-api');
+            const cache = await caches.open('fretevalor-api');
             await cache.put(event.request, networkResponse.clone());
           }
           
@@ -211,7 +221,7 @@ workbox.routing.setCatchHandler(({ event }) => {
 // ------------------------------------
 
 // Constantes
-const DB_NAME = 'fretepro-offline-db';
+const DB_NAME = 'fretevalor-offline-db';
 const STORE_NAME = 'pendingSync';
 const API_ENDPOINT = 'https://xitctqydapolbooqnrul.supabase.co';
 

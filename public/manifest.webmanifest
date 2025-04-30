@@ -1,7 +1,7 @@
 
 {
-  "name": "Frete Pro - Gerenciamento de Fretes",
-  "short_name": "FretePro",
+  "name": "FreteValor - Gerenciamento de Fretes",
+  "short_name": "FreteValor",
   "description": "Sistema de gerenciamento de fretes para motoristas e transportadoras.",
   "lang": "pt-BR",
   "start_url": ".",
@@ -10,7 +10,7 @@
   "theme_color": "#1E40AF",
   "orientation": "portrait",
   "scope": ".",
-  "id": "fretepro-app",
+  "id": "fretevalor-app",
   "dir": "ltr",
   "categories": ["business", "productivity", "logistics", "transportation"],
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
@@ -32,25 +32,39 @@
   },
   "screenshots": [
     {
-      "src": "/screenshots/dashboard.png",
-      "sizes": "1280x720",
+      "src": "/screenshots/home.png",
+      "sizes": "750x1334",
       "type": "image/png",
-      "platform": "wide",
-      "label": "Dashboard do FretePro"
+      "platform": "narrow",
+      "label": "Tela inicial do FreteValor"
     },
     {
-      "src": "/screenshots/fretes.png",
-      "sizes": "1280x720",
+      "src": "/screenshots/dashboard.png",
+      "sizes": "750x1334",
       "type": "image/png",
-      "platform": "wide",
-      "label": "Lista de Fretes"
+      "platform": "narrow",
+      "label": "Dashboard do FreteValor"
+    },
+    {
+      "src": "/screenshots/cliente-form.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Cliente"
     },
     {
       "src": "/screenshots/ordem-coleta.png",
-      "sizes": "1280x720",
+      "sizes": "750x1334",
       "type": "image/png",
-      "platform": "wide",
+      "platform": "narrow",
       "label": "Ordem de Coleta"
+    },
+    {
+      "src": "/screenshots/motorista-form.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Motorista"
     }
   ],
   "icons": [
