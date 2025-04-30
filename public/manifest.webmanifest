@@ -6,6 +6,7 @@
   "lang": "pt-BR",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
   "background_color": "#1E40AF",
   "theme_color": "#1E40AF",
   "orientation": "portrait",
@@ -29,6 +30,49 @@
   ],
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
+  },
+  "handle_links": "preferred",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "application/json": [".json"],
+        "text/csv": [".csv"]
+      },
+      "name": "Importar dados de fretes"
+    },
+    {
+      "action": "/view-pdf",
+      "accept": {
+        "application/pdf": [".pdf"]
+      },
+      "name": "Visualizar recibos"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+fretevalor",
+      "url": "/%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "receipts",
+          "accept": ["application/pdf", "image/*"]
+        }
+      ]
+    }
   },
   "screenshots": [
     {
@@ -115,5 +159,35 @@
       "url": "/collection-order",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
-  ]
+  ],
+  "widgets": [
+    {
+      "name": "Resumo Financeiro",
+      "tag": "financeiro",
+      "description": "Mostra um resumo financeiro dos últimos fretes",
+      "screenshots": [
+        {
+          "src": "/screenshots/dashboard-relatorios.png",
+          "sizes": "750x1334",
+          "label": "Resumo Financeiro"
+        }
+      ]
+    },
+    {
+      "name": "Próximas Entregas",
+      "tag": "entregas",
+      "description": "Exibe as próximas entregas agendadas",
+      "screenshots": [
+        {
+          "src": "/screenshots/ordem-coleta-detalhes.png",
+          "sizes": "750x1334",
+          "label": "Próximas Entregas"
+        }
+      ]
+    }
+  ],
+  "background_sync": {
+    "periodic": true,
+    "min_period": 86400
+  }
 }

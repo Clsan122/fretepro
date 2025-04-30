@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -25,6 +24,7 @@ import CollectionOrderEdit from "./pages/CollectionOrderEdit";
 import FreightSelection from "./pages/FreightSelection";
 import MultiFreightReceipt from "./pages/MultiFreightReceipt";
 import FreightReceipt from "./pages/FreightReceipt";
+import SharedContent from './pages/SharedContent';
 
 // Private Route Component
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -198,6 +198,8 @@ function App() {
               }
             />
             
+            <Route path="/shared-content" element={<SharedContent />} />
+            <Route path="/share-error" element={<Navigate to="/" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />

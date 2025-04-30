@@ -6,6 +6,7 @@ importScripts('/sw/cache-strategies.js');
 importScripts('/sw/sync-manager.js');
 importScripts('/sw/notification-manager.js');
 importScripts('/sw/message-handler.js');
+importScripts('/sw/share-handler.js');
 
 // Obter funções exportadas dos módulos
 const { 
@@ -18,6 +19,7 @@ const {
 const { syncData } = self.syncManager;
 const { handlePushEvent, handleNotificationClick } = self.notificationManager;
 const { handleClientMessage } = self.messageHandler;
+const { handleShareTarget, handleFileHandler, handleProtocolHandler } = self.shareHandler;
 
 // Destacar o service worker para que ele seja facilmente detectável
 self.addEventListener('install', (event) => {
@@ -50,6 +52,30 @@ self.addEventListener('activate', (event) => {
       await self.clients.claim();
     })()
   );
+});
+
+// Manipulador de fetch para interceptar e processar solicitações
+self.addEventListener('fetch', (event) => {
+  // Tentar processar compartilhamento, protocolo ou manipuladores de arquivo
+  const shareTargetResponse = handleShareTarget(event);
+  if (shareTargetResponse) {
+    event.respondWith(shareTargetResponse);
+    return;
+  }
+  
+  const fileHandlerResponse = handleFileHandler(event);
+  if (fileHandlerResponse) {
+    event.respondWith(fileHandlerResponse);
+    return;
+  }
+  
+  const protocolResponse = handleProtocolHandler(event);
+  if (protocolResponse) {
+    event.respondWith(protocolResponse);
+    return;
+  }
+  
+  // Continuar com estratégias de cache normal se não for um compartilhamento
 });
 
 // Configurar estratégias de cache
