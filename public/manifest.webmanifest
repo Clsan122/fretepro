@@ -7,11 +7,11 @@
   "start_url": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "browser"],
-  "background_color": "#0369A1",
-  "theme_color": "#0369A1",
-  "orientation": "portrait-primary",
+  "background_color": "#1E40AF",
+  "theme_color": "#1E40AF",
+  "orientation": "portrait",
   "scope": "/",
-  "id": "fretepro-app",
+  "id": "fretevalor-app",
   "dir": "ltr",
   "categories": [
     "business",
@@ -59,7 +59,7 @@
   ],
   "protocol_handlers": [
     {
-      "protocol": "web+fretepro",
+      "protocol": "web+fretevalor",
       "url": "/%s"
     }
   ],
@@ -81,66 +81,70 @@
   },
   "screenshots": [
     {
-      "src": "/screenshots/landing-page.png",
+      "src": "screenshots/landing-page.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Página inicial do FreteValor"
+      "label": "Tela inicial do FreteValor"
     },
     {
-      "src": "/screenshots/dashboard-relatorios.png",
+      "src": "screenshots/dashboard-relatorios.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
       "label": "Dashboard com relatórios financeiros"
     },
     {
-      "src": "/screenshots/novo-cliente.png",
+      "src": "screenshots/novo-cliente.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Cadastro de novo cliente"
+      "label": "Cadastro de Cliente"
     },
     {
-      "src": "/screenshots/ordem-coleta-detalhes.png",
+      "src": "screenshots/ordem-coleta-detalhes.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Detalhes da ordem de coleta"
+      "label": "Detalhes da Ordem de Coleta"
     },
     {
-      "src": "/screenshots/novo-frete.png",
+      "src": "screenshots/novo-frete.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Cadastro de novo frete"
+      "label": "Cadastro de Novo Frete"
     },
     {
-      "src": "/screenshots/cadastro-motorista.png",
+      "src": "screenshots/cadastro-motorista.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Cadastro de motorista"
+      "label": "Cadastro de Motorista"
     }
   ],
   "icons": [
     {
-      "src": "android/android-launchericon-512-512.png",
+      "src": "icons/fretevalor-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "android/android-launchericon-192-192.png",
+      "src": "icons/fretevalor-logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "maskable"
+    },
+    {
+      "src": "android/android-launchericon-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     },
     {
       "src": "android/android-launchericon-192-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "type": "image/png"
     },
     {
       "src": "android/android-launchericon-144-144.png",
@@ -160,27 +164,6 @@
     {
       "src": "android/android-launchericon-48-48.png",
       "sizes": "48x48",
-      "type": "image/png"
-    },
-    {
-      "src": "ios/1024.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "ios/180.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "ios/152.png",
-      "sizes": "152x152",
-      "type": "image/png"
-    },
-    {
-      "src": "ios/120.png",
-      "sizes": "120x120",
       "type": "image/png"
     }
   ],
@@ -207,7 +190,7 @@
       "description": "Mostra um resumo financeiro dos últimos fretes",
       "screenshots": [
         {
-          "src": "/screenshots/dashboard-relatorios.png",
+          "src": "screenshots/dashboard-relatorios.png",
           "sizes": "750x1334",
           "label": "Resumo Financeiro"
         }
@@ -219,7 +202,7 @@
       "description": "Exibe as próximas entregas agendadas",
       "screenshots": [
         {
-          "src": "/screenshots/ordem-coleta-detalhes.png",
+          "src": "screenshots/ordem-coleta-detalhes.png",
           "sizes": "750x1334",
           "label": "Próximas Entregas"
         }

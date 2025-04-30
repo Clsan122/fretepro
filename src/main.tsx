@@ -23,12 +23,12 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
 
 // Lista de screenshots para pré-carregar no cache
 const screenshotUrls = [
-  '/screenshots/landing-page.png',
-  '/screenshots/dashboard-relatorios.png',
-  '/screenshots/novo-cliente.png',
-  '/screenshots/ordem-coleta-detalhes.png',
-  '/screenshots/novo-frete.png',
-  '/screenshots/cadastro-motorista.png'
+  'screenshots/landing-page.png',
+  'screenshots/dashboard-relatorios.png',
+  'screenshots/novo-cliente.png',
+  'screenshots/ordem-coleta-detalhes.png',
+  'screenshots/novo-frete.png',
+  'screenshots/cadastro-motorista.png'
 ];
 
 // Renderizando a aplicação
@@ -62,6 +62,18 @@ if ('serviceWorker' in navigator) {
             type: 'CACHE_SCREENSHOTS',
             urls: screenshotUrls
           });
+          
+          // Também forçar o cache de cada imagem individualmente
+          for (const url of screenshotUrls) {
+            try {
+              const preloadImage = new Image();
+              preloadImage.src = url;
+              console.log(`Pré-carregando ${url}`);
+            } catch (err) {
+              console.error(`Erro ao pré-carregar ${url}:`, err);
+            }
+          }
+          
           console.log('Solicitação para cache de screenshots enviada');
         } catch (err) {
           console.error('Erro ao solicitar cache de screenshots:', err);
@@ -176,7 +188,6 @@ if ('serviceWorker' in navigator) {
       
     } catch (error) {
       console.error('Erro ao registrar o Service Worker:', error);
-      console.info('Falha no registro do ServiceWorker:', error);
     }
   });
 }

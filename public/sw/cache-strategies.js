@@ -7,7 +7,7 @@ const { CacheableResponsePlugin } = workbox.cacheableResponse;
 const { ExpirationPlugin } = workbox.expiration;
 
 // Nome do cache principal
-const CACHE_NAME = 'fretevalor-v2';
+const CACHE_NAME = 'fretevalor-v3';
 
 // Lista de arquivos essenciais para o app shell
 const APP_SHELL_FILES = [
@@ -17,14 +17,25 @@ const APP_SHELL_FILES = [
   '/src/assets/favicon.svg',
   '/android/android-launchericon-192-192.png',
   '/android/android-launchericon-512-512.png',
+  '/icons/fretevalor-logo.png',
   '/manifest.webmanifest'
+];
+
+// Lista de screenshots para garantir que sejam cacheadas
+const SCREENSHOTS = [
+  '/screenshots/landing-page.png',
+  '/screenshots/dashboard-relatorios.png',
+  '/screenshots/novo-cliente.png',
+  '/screenshots/ordem-coleta-detalhes.png',
+  '/screenshots/novo-frete.png',
+  '/screenshots/cadastro-motorista.png'
 ];
 
 // Configuração do Workbox
 function setupWorkboxConfig() {
   workbox.core.setCacheNameDetails({
     prefix: 'fretevalor',
-    suffix: 'v2',
+    suffix: 'v3',
     precache: 'precache',
     runtime: 'runtime'
   });
@@ -33,18 +44,42 @@ function setupWorkboxConfig() {
 // Precache manifestos e assets estáticos
 function setupPrecaching() {
   workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '2' },
-    { url: '/index.html', revision: '2' },
-    { url: '/manifest.webmanifest', revision: '2' },
+    { url: '/', revision: '3' },
+    { url: '/index.html', revision: '3' },
+    { url: '/manifest.webmanifest', revision: '3' },
+    { url: '/icons/fretevalor-logo.png', revision: '1' },
     { url: '/android/android-launchericon-192-192.png', revision: '1' },
     { url: '/android/android-launchericon-512-512.png', revision: '1' },
-    { url: '/screenshots/landing-page.png', revision: '1' },
-    { url: '/screenshots/dashboard-relatorios.png', revision: '1' },
-    { url: '/screenshots/novo-cliente.png', revision: '1' },
-    { url: '/screenshots/ordem-coleta-detalhes.png', revision: '1' },
-    { url: '/screenshots/novo-frete.png', revision: '1' },
-    { url: '/screenshots/cadastro-motorista.png', revision: '1' }
+    { url: '/android/android-launchericon-144-144.png', revision: '1' },
+    { url: '/android/android-launchericon-96-96.png', revision: '1' },
+    { url: '/android/android-launchericon-72-72.png', revision: '1' },
+    { url: '/android/android-launchericon-48-48.png', revision: '1' },
+    { url: '/screenshots/landing-page.png', revision: '2' },
+    { url: '/screenshots/dashboard-relatorios.png', revision: '2' },
+    { url: '/screenshots/novo-cliente.png', revision: '2' },
+    { url: '/screenshots/ordem-coleta-detalhes.png', revision: '2' },
+    { url: '/screenshots/novo-frete.png', revision: '2' },
+    { url: '/screenshots/cadastro-motorista.png', revision: '2' }
   ]);
+}
+
+// Configurar caching específico para screenshots
+function setupScreenshotsCaching() {
+  registerRoute(
+    ({ url }) => SCREENSHOTS.some(screenshot => url.pathname.includes(screenshot)),
+    new CacheFirst({
+      cacheName: 'fretevalor-screenshots',
+      plugins: [
+        new CacheableResponsePlugin({
+          statuses: [0, 200]
+        }),
+        new ExpirationPlugin({
+          maxEntries: 10,
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 dias
+        })
+      ]
+    })
+  );
 }
 
 // Configurar caching de imagens
@@ -131,16 +166,8 @@ async function cacheAppShell() {
 async function cacheScreenshots() {
   const cache = await caches.open(CACHE_NAME);
   try {
-    const screenshotUrls = [
-      '/screenshots/landing-page.png',
-      '/screenshots/dashboard-relatorios.png',
-      '/screenshots/novo-cliente.png',
-      '/screenshots/ordem-coleta-detalhes.png',
-      '/screenshots/novo-frete.png',
-      '/screenshots/cadastro-motorista.png'
-    ];
-    await cache.addAll(screenshotUrls);
-    console.log('[Service Worker] Screenshots cacheados');
+    await cache.addAll(SCREENSHOTS);
+    console.log('[Service Worker] Screenshots cacheados com sucesso');
     return true;
   } catch (err) {
     console.error('[Service Worker] Erro ao cachear screenshots:', err);
@@ -152,6 +179,7 @@ async function cacheScreenshots() {
 function setupAllCaching() {
   setupWorkboxConfig();
   setupPrecaching();
+  setupScreenshotsCaching(); // Nova função específica para screenshots
   setupImageCaching();
   setupFontCaching();
   setupResourceCaching();
@@ -161,6 +189,7 @@ function setupAllCaching() {
 export {
   CACHE_NAME,
   APP_SHELL_FILES,
+  SCREENSHOTS,
   setupAllCaching,
   cacheAppShell,
   cacheScreenshots
