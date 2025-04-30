@@ -12,117 +12,6 @@
   "orientation": "portrait",
   "scope": "/",
   "id": "fretevalor-app",
-  "dir": "ltr",
-  "categories": [
-    "business",
-    "productivity",
-    "logistics",
-    "transportation"
-  ],
-  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
-  "prefer_related_applications": false,
-  "related_applications": [
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=app.lovable.5a9941b135664df199580caf8b922a6c",
-      "id": "app.lovable.5a9941b135664df199580caf8b922a6c"
-    }
-  ],
-  "scope_extensions": [
-    {
-      "origin": "https://5a9941b1-3566-4df1-9958-0caf8b922a6c.lovableproject.com"
-    }
-  ],
-  "launch_handler": {
-    "client_mode": ["navigate-existing", "auto"]
-  },
-  "handle_links": "preferred",
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "file_handlers": [
-    {
-      "action": "/import",
-      "accept": {
-        "application/json": [".json"],
-        "text/csv": [".csv"]
-      },
-      "name": "Importar dados de fretes"
-    },
-    {
-      "action": "/view-pdf",
-      "accept": {
-        "application/pdf": [".pdf"]
-      },
-      "name": "Visualizar recibos"
-    }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+fretevalor",
-      "url": "/%s"
-    }
-  ],
-  "share_target": {
-    "action": "/share-target",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "receipts",
-          "accept": ["application/pdf", "image/*"]
-        }
-      ]
-    }
-  },
-  "screenshots": [
-    {
-      "src": "/screenshots/landing-page.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Tela inicial do FreteValor"
-    },
-    {
-      "src": "/screenshots/dashboard-relatorios.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Dashboard com relatórios financeiros"
-    },
-    {
-      "src": "/screenshots/novo-cliente.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Cadastro de Cliente"
-    },
-    {
-      "src": "/screenshots/ordem-coleta-detalhes.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Detalhes da Ordem de Coleta"
-    },
-    {
-      "src": "/screenshots/novo-frete.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Cadastro de Novo Frete"
-    },
-    {
-      "src": "/screenshots/cadastro-motorista.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Cadastro de Motorista"
-    }
-  ],
   "icons": [
     {
       "src": "/icons/fretevalor-logo.png",
@@ -167,6 +56,50 @@
       "type": "image/png"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshots/landing-page.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Tela inicial do FreteValor"
+    },
+    {
+      "src": "/screenshots/dashboard-relatorios.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Dashboard com relatórios financeiros"
+    },
+    {
+      "src": "/screenshots/novo-cliente.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Cliente"
+    },
+    {
+      "src": "/screenshots/ordem-coleta-detalhes.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Detalhes da Ordem de Coleta"
+    },
+    {
+      "src": "/screenshots/novo-frete.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Novo Frete"
+    },
+    {
+      "src": "/screenshots/cadastro-motorista.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Motorista"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Novo Frete",
@@ -183,34 +116,20 @@
       "icons": [{ "src": "/android/android-launchericon-96-96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ],
-  "widgets": [
-    {
-      "name": "Resumo Financeiro",
-      "tag": "financeiro",
-      "description": "Mostra um resumo financeiro dos últimos fretes",
-      "screenshots": [
+  "share_target": {
+    "action": "/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
         {
-          "src": "/screenshots/dashboard-relatorios.png",
-          "sizes": "750x1334",
-          "label": "Resumo Financeiro"
-        }
-      ]
-    },
-    {
-      "name": "Próximas Entregas",
-      "tag": "entregas",
-      "description": "Exibe as próximas entregas agendadas",
-      "screenshots": [
-        {
-          "src": "/screenshots/ordem-coleta-detalhes.png",
-          "sizes": "750x1334",
-          "label": "Próximas Entregas"
+          "name": "receipts",
+          "accept": ["application/pdf", "image/*"]
         }
       ]
     }
-  ],
-  "background_sync": {
-    "periodic": true,
-    "min_period": 86400
   }
 }

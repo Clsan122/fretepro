@@ -31,9 +31,10 @@ self.addEventListener('install', (event) => {
       
       // Obter funções exportadas dos módulos
       if (self.cacheStrategies) {
-        const { cacheAppShell, cacheScreenshots } = self.cacheStrategies;
+        const { cacheAppShell, cacheScreenshots, cacheIcons } = self.cacheStrategies;
         await cacheAppShell();
         await cacheScreenshots();
+        await cacheIcons(); // Nova função para garantir cache dos ícones
       }
       
       self.skipWaiting();
@@ -45,6 +46,22 @@ self.addEventListener('install', (event) => {
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
+  }
+  
+  // Processar solicitações de precacheamento de imagens
+  if (event.data && event.data.type === "CACHE_IMAGES") {
+    if (self.cacheStrategies) {
+      const { cacheScreenshots, cacheIcons } = self.cacheStrategies;
+      cacheScreenshots();
+      cacheIcons();
+      
+      if (event.source) {
+        event.source.postMessage({
+          type: 'CACHE_IMAGES_COMPLETE',
+          success: true
+        });
+      }
+    }
   }
   
   // Enviar para o handler de mensagens
@@ -66,7 +83,7 @@ self.addEventListener('activate', (event) => {
       const cacheNames = await caches.keys();
       await Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME && name !== CACHE)
+          .filter(name => name !== CACHE_NAME && name !== CACHE && name !== `${CACHE_NAME}-images` && name !== `${CACHE_NAME}-icons`)
           .map(name => {
             console.log(`[Service Worker] Removendo cache antigo: ${name}`);
             return caches.delete(name);
@@ -85,6 +102,40 @@ if (workbox && workbox.navigationPreload) {
 
 // Manipulador de fetch para interceptar e processar solicitações
 self.addEventListener('fetch', (event) => {
+  // Para requisições de imagens específicas (ícones e screenshots)
+  if (event.request.url.includes('/icons/') || event.request.url.includes('/screenshots/')) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        
+        return fetch(event.request)
+          .then((response) => {
+            // Não armazenar em cache respostas com erro
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+            
+            // Clonar a resposta, pois ela só pode ser usada uma vez
+            const responseToCache = response.clone();
+            
+            caches.open(`${CACHE}-images`).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+            
+            return response;
+          })
+          .catch((error) => {
+            console.error('[Service Worker] Erro ao buscar imagem:', error);
+            // Verificar se temos uma versão de fallback desta imagem
+            return caches.match('/placeholder.svg');
+          });
+      })
+    );
+    return;
+  }
+
   // Para requisições de navegação (HTML)
   if (event.request.mode === 'navigate') {
     event.respondWith(
