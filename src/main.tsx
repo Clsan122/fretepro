@@ -26,12 +26,8 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
   periodicSync?: PeriodicSyncManager;
 }
 
-// Extended PermissionName to include 'periodic-background-sync'
-type ExtendedPermissionName = PermissionName | 'periodic-background-sync';
-
-interface ExtendedPermissionDescriptor extends PermissionDescriptor {
-  name: ExtendedPermissionName;
-}
+// Instead of extending PermissionName, we'll use a type assertion approach
+// when we actually call navigator.permissions.query
 
 // Registro do Service Worker para o PWA
 if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
@@ -49,10 +45,10 @@ if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
           // Verificar suporte e permissão para periodic sync
           if ('periodicSync' in registration) {
             try {
-              // Verificar permissão
+              // Usando type assertion para evitar erros de TypeScript
               const status = await navigator.permissions.query({
-                name: 'periodic-background-sync' as ExtendedPermissionName
-              });
+                name: 'periodic-background-sync'
+              } as PermissionDescriptor);
               
               if (status.state === 'granted') {
                 // Registrar periodic sync (uma vez por dia)
