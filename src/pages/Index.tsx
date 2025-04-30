@@ -1,14 +1,20 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
 import Logo from "@/components/Logo";
+
 const Index = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen flex flex-col bg-gradient-to-b from-freight-50 to-freight-100 dark:from-freight-900 dark:to-freight-950">
       <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-sm border-b border-freight-200/20 dark:border-freight-800/20">
         <div className="container mx-auto flex items-center justify-between py-4 px-4 sm:px-6">
           <div className="flex items-center">
-            <img alt="FreteValor Logo" src="/lovable-uploads/c7332421-1306-4a9a-938c-8d258513ca66.png" className="fretevalor" />
+            <img 
+              src="/icons/fretevalor-logo.png" 
+              alt="FreteValor Logo" 
+              className="h-12 w-auto"
+            />
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <Button variant="ghost" onClick={() => navigate("/login")} className="text-freight-700 hover:text-freight-800 bg-white/80 hover:bg-white dark:text-freight-300 dark:bg-white/5 dark:hover:bg-white/10 px-3 sm:px-4 mx-[4px]">
@@ -24,7 +30,11 @@ const Index = () => {
       <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
-            <img src="/lovable-uploads/0a232117-cd80-495e-aaf2-bf8656b229e9.png" alt="FreteValor Logo" className="h-32 w-auto mb-4" />
+            <img 
+              src="/icons/fretevalor-logo.png" 
+              alt="FreteValor Logo" 
+              className="h-32 w-auto mb-4"
+            />
           </div>
           
           <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-freight-800 dark:text-freight-200">
