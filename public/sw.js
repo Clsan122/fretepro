@@ -8,6 +8,10 @@ importScripts('/sw/notification-manager.js');
 importScripts('/sw/message-handler.js');
 importScripts('/sw/share-handler.js');
 
+// Nome do cache principal
+const CACHE = "fretevalor-main-cache";
+const offlineFallbackPage = "/offline.html";
+
 // Aguardar até que o workbox esteja carregado
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Instalando...');
@@ -17,36 +21,34 @@ self.addEventListener('install', (event) => {
     return;
   }
 
-  // Obter funções exportadas dos módulos
-  const { 
-    setupAllCaching, 
-    cacheAppShell, 
-    cacheScreenshots, 
-    CACHE_NAME 
-  } = self.cacheStrategies;
-
-  const { syncData } = self.syncManager || {};
-  const { handlePushEvent, handleNotificationClick } = self.notificationManager || {};
-  const { handleClientMessage } = self.messageHandler || {};
-  const { handleShareTarget, handleFileHandler, handleProtocolHandler } = self.shareHandler || {};
-
-  // Nome do cache para a página offline
-  const OFFLINE_CACHE = "fretevalor-offline-page";
-  const offlineFallbackPage = "/offline.html";
-
   event.waitUntil(
     (async () => {
-      // Cache geral do app shell
-      await cacheAppShell();
-      await cacheScreenshots();
-      
       // Cache específico para a página offline
-      const offlineCache = await caches.open(OFFLINE_CACHE);
-      await offlineCache.add(offlineFallbackPage);
+      const cache = await caches.open(CACHE);
+      await cache.add(offlineFallbackPage);
+      
+      // Obter funções exportadas dos módulos
+      if (self.cacheStrategies) {
+        const { cacheAppShell, cacheScreenshots } = self.cacheStrategies;
+        await cacheAppShell();
+        await cacheScreenshots();
+      }
       
       self.skipWaiting();
     })()
   );
+});
+
+// Mensagem para ativar o service worker imediatamente
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+  
+  // Enviar para o handler de mensagens
+  if (self.messageHandler && self.messageHandler.handleClientMessage) {
+    self.messageHandler.handleClientMessage(event);
+  }
 });
 
 // Ativação do Service Worker com skipWaiting e clients.claim para controle imediato
@@ -54,8 +56,7 @@ self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Ativando...');
   
   // Obter CACHE_NAME do módulo
-  const { CACHE_NAME } = self.cacheStrategies;
-  const OFFLINE_CACHE = "fretevalor-offline-page";
+  const CACHE_NAME = self.cacheStrategies ? self.cacheStrategies.CACHE_NAME : 'fretevalor-v3';
   
   event.waitUntil(
     (async () => {
@@ -63,7 +64,7 @@ self.addEventListener('activate', (event) => {
       const cacheNames = await caches.keys();
       await Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME && name !== OFFLINE_CACHE)
+          .filter(name => name !== CACHE_NAME && name !== CACHE)
           .map(name => {
             console.log(`[Service Worker] Removendo cache antigo: ${name}`);
             return caches.delete(name);
@@ -82,10 +83,6 @@ if (workbox.navigationPreload) {
 
 // Manipulador de fetch para interceptar e processar solicitações
 self.addEventListener('fetch', (event) => {
-  const { handleShareTarget, handleFileHandler, handleProtocolHandler } = self.shareHandler || {};
-  const OFFLINE_CACHE = "fretevalor-offline-page";
-  const offlineFallbackPage = "/offline.html";
-  
   // Para requisições de navegação (HTML)
   if (event.request.mode === 'navigate') {
     event.respondWith(
@@ -103,7 +100,7 @@ self.addEventListener('fetch', (event) => {
         } catch (error) {
           // Se falhar por estar offline, use a página offline
           console.log('[Service Worker] Falha ao buscar. Retornando página offline.');
-          const cache = await caches.open(OFFLINE_CACHE);
+          const cache = await caches.open(CACHE);
           const cachedResponse = await cache.match(offlineFallbackPage);
           return cachedResponse;
         }
@@ -113,58 +110,60 @@ self.addEventListener('fetch', (event) => {
   }
   
   // Tenta processar compartilhamento, protocolo ou manipuladores de arquivo
-  if (handleShareTarget) {
-    const shareTargetResponse = handleShareTarget(event);
-    if (shareTargetResponse) {
-      event.respondWith(shareTargetResponse);
-      return;
+  if (self.shareHandler) {
+    const { handleShareTarget, handleFileHandler, handleProtocolHandler } = self.shareHandler;
+    
+    if (handleShareTarget) {
+      const shareTargetResponse = handleShareTarget(event);
+      if (shareTargetResponse) {
+        event.respondWith(shareTargetResponse);
+        return;
+      }
+    }
+    
+    if (handleFileHandler) {
+      const fileHandlerResponse = handleFileHandler(event);
+      if (fileHandlerResponse) {
+        event.respondWith(fileHandlerResponse);
+        return;
+      }
+    }
+    
+    if (handleProtocolHandler) {
+      const protocolResponse = handleProtocolHandler(event);
+      if (protocolResponse) {
+        event.respondWith(protocolResponse);
+        return;
+      }
     }
   }
   
-  if (handleFileHandler) {
-    const fileHandlerResponse = handleFileHandler(event);
-    if (fileHandlerResponse) {
-      event.respondWith(fileHandlerResponse);
-      return;
-    }
-  }
-  
-  if (handleProtocolHandler) {
-    const protocolResponse = handleProtocolHandler(event);
-    if (protocolResponse) {
-      event.respondWith(protocolResponse);
-      return;
-    }
-  }
-  
-  // Continuar com estratégias de cache normal se não for um compartilhamento
+  // Continuar com estratégias de cache normal
+  // Isso será gerenciado pelo módulo cache-strategies.js
 });
 
 // Configurar estratégias de cache
-const { setupAllCaching } = self.cacheStrategies || {};
-if (setupAllCaching) {
-  setupAllCaching();
+if (self.cacheStrategies && self.cacheStrategies.setupAllCaching) {
+  self.cacheStrategies.setupAllCaching();
 }
 
-// Adicionar ouvintes de eventos
-const { handleClientMessage } = self.messageHandler || {};
-const { handlePushEvent, handleNotificationClick } = self.notificationManager || {};
-
-if (handleClientMessage) {
-  self.addEventListener('message', handleClientMessage);
-}
-
-if (handlePushEvent) {
-  self.addEventListener('push', handlePushEvent);
-}
-
-if (handleNotificationClick) {
-  self.addEventListener('notificationclick', handleNotificationClick);
+// Configurar ouvintes para notificações push
+if (self.notificationManager) {
+  const { handlePushEvent, handleNotificationClick } = self.notificationManager;
+  
+  if (handlePushEvent) {
+    self.addEventListener('push', handlePushEvent);
+  }
+  
+  if (handleNotificationClick) {
+    self.addEventListener('notificationclick', handleNotificationClick);
+  }
 }
 
 // Ouvinte para eventos de sincronização
-const { syncData } = self.syncManager || {};
-if (syncData) {
+if (self.syncManager && self.syncManager.syncData) {
+  const { syncData } = self.syncManager;
+  
   self.addEventListener('sync', event => {
     if (event.tag === 'database-sync') {
       console.log('[Service Worker] Sincronizando dados em background...');

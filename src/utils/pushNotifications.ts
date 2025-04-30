@@ -71,6 +71,60 @@ export async function initializePushNotifications() {
   }
 }
 
+// Verificar e atualizar estado inicial das notificações
+export function initialiseState() {
+  // Verificar se notificações são suportadas
+  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
+    console.warn('Notificações não são suportadas.');
+    return;
+  }
+
+  // Verificar permissão de notificação atual
+  if (Notification.permission === 'denied') {
+    console.warn('O usuário bloqueou notificações.');
+    return;
+  }
+
+  // Verificar se o push messaging é suportado
+  if (!('PushManager' in window)) {
+    console.warn('Push messaging não é suportado.');
+    return;
+  }
+
+  // Precisamos do registro do service worker para verificar uma inscrição
+  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    // Já temos uma inscrição de mensagem push?
+    serviceWorkerRegistration.pushManager.getSubscription()
+      .then(function(subscription) {
+        // Habilitar qualquer UI que assine/cancele assinatura de 
+        // mensagens push.
+        const pushButton = document.querySelector('.js-push-button');
+        if (pushButton) {
+          (pushButton as HTMLButtonElement).disabled = false;
+        }
+
+        if (!subscription) {
+          // Não estamos inscritos em push, então definir interface 
+          // para permitir que o usuário habilite push
+          return;
+        }
+
+        // Manter o servidor sincronizado com o ID de inscrição mais recente
+        sendSubscriptionToServer(subscription);
+
+        // Definir interface para mostrar que eles se inscreveram em
+        // mensagens push
+        if (pushButton) {
+          (pushButton as HTMLButtonElement).textContent = 'Desativar Notificações';
+        }
+        isPushEnabled = true;
+      })
+      .catch(function(err) {
+        console.warn('Erro durante getSubscription()', err);
+      });
+  });
+}
+
 // Solicitar permissão de notificação e se inscrever no push
 export async function subscribeToPush() {
   try {

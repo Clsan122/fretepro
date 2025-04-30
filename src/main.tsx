@@ -1,9 +1,10 @@
+
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { initializeSyncSystem } from './utils/sync.ts';
-import { initializePushNotifications } from './utils/pushNotifications.ts';
+import { initializePushNotifications, initialiseState } from './utils/pushNotifications.ts';
 import { toast } from 'sonner';
 
 // Interface para estender o tipo ServiceWorkerRegistration com a propriedade sync
@@ -76,6 +77,9 @@ if ('serviceWorker' in navigator) {
       const extendedReg = registration as unknown as ExtendedServiceWorkerRegistration;
       
       console.log('Service Worker registrado com sucesso:', registration.scope);
+      
+      // Inicializar estado das notificações
+      initialiseState();
       
       // Inicializar notificações push
       try {
@@ -236,3 +240,12 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   }
   return outputArray;
 }
+
+// Notificar o Service Worker quando o usuário fecha a app
+window.addEventListener('beforeunload', () => {
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'APP_CLOSING'
+    });
+  }
+});

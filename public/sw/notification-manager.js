@@ -75,8 +75,37 @@ function handleNotificationClick(event) {
   });
 }
 
+// Enviar notificação para o usuário
+function sendNotification(title, options = {}) {
+  return self.registration.showNotification(title, {
+    icon: '/icons/fretevalor-logo.png',
+    badge: '/icons/fretevalor-logo.png',
+    vibrate: [100, 50, 100],
+    ...options
+  });
+}
+
+// Alerta de status offline para o usuário
+function notifyOfflineStatus() {
+  return sendNotification('FreteValor está offline', {
+    body: 'Você está offline, mas ainda pode usar o aplicativo.',
+    tag: 'connectivity-change'
+  });
+}
+
+// Alerta de status online para o usuário
+function notifyOnlineStatus() {
+  return sendNotification('FreteValor está online', {
+    body: 'Conexão com internet restaurada!',
+    tag: 'connectivity-change'
+  });
+}
+
 // Exportar para uso global
 self.notificationManager = {
   handlePushEvent,
-  handleNotificationClick
+  handleNotificationClick,
+  sendNotification,
+  notifyOfflineStatus,
+  notifyOnlineStatus
 };
