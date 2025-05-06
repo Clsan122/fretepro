@@ -1,7 +1,6 @@
 
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Calculator } from "lucide-react";
 import { navigationItems } from "@/components/navigation/BottomNavigation";
 import { useAuth } from "@/context/AuthContext";
 import { 
@@ -22,9 +21,9 @@ interface SidebarComponentProps {
 }
 
 const SidebarComponent: React.FC<SidebarComponentProps> = ({ handleNavigate }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
+  const navigate = useNavigate();
   
   const isActive = (path: string) => location.pathname === path;
   

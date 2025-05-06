@@ -8,7 +8,6 @@ import { useTheme } from "./ThemeProvider";
 
 // Import components
 import Header from "./layout/Header";
-import MobileMenu from "./layout/MobileMenu";
 import BottomNavigation from "./navigation/BottomNavigation";
 
 const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
@@ -40,14 +39,6 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
         isMenuOpen={isMenuOpen} 
         toggleMenu={toggleMenu} 
       />
-      
-      {/* Mobile Menu Component */}
-      {isMobile && (
-        <MobileMenu 
-          isMenuOpen={isMenuOpen} 
-          setIsMenuOpen={setIsMenuOpen} 
-        />
-      )}
 
       {/* Main Content */}
       <main className={cn("flex-grow container mx-auto px-4 py-4", isMobile && "pb-20")}>
