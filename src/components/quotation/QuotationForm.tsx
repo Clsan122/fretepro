@@ -39,6 +39,8 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
     drivers, 
     updateField, 
     handleClientSelect,
+    handleLoadProfileData,
+    handleLoadCompanyData,
     handleSubmit: submitHandler,
     handleConvertToOrder: convertHandler,
     isSubmitting,
@@ -94,17 +96,16 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               clientId={formData.clientId}
               clients={clients}
               onClientChange={handleClientSelect}
+              onLoadProfileData={handleLoadProfileData}
+              onLoadCompanyData={handleLoadCompanyData}
             />
           </div>
         </div>
         
-        {/* Remetente e Destinatário */}
+        {/* Remetente e Destinatário - Componente modificado */}
         <SenderRecipientSection 
           sender={formData.sender}
           senderAddress={formData.senderAddress}
-          senderCity={formData.senderCity}
-          senderState={formData.senderState}
-          senderCnpj={formData.senderCnpj || ""}
           recipient={formData.recipient}
           recipientAddress={formData.recipientAddress}
           shipper={formData.shipper}

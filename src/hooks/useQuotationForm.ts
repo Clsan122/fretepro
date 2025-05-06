@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useQuotationFormState } from "./quotation/useQuotationFormState";
@@ -66,6 +65,29 @@ export const useQuotationForm = (initialData?: Partial<QuotationFormData>) => {
   // Handle client selection
   const handleClientSelect = (clientId: string) => {
     handleClientChange(clientId, updateField);
+  };
+
+  // Load profile data
+  const handleLoadProfileData = (profileData: any) => {
+    if (profileData) {
+      updateField("sender", profileData.name || "");
+      updateField("senderAddress", profileData.address || "");
+      
+      // Pode popular mais campos conforme necessário
+      toast.success("Dados do perfil carregados com sucesso!");
+    }
+  };
+
+  // Load company data
+  const handleLoadCompanyData = (companyData: any) => {
+    if (companyData) {
+      updateField("sender", companyData.name || "");
+      updateField("senderAddress", companyData.address || "");
+      updateField("senderCnpj", companyData.cnpj || "");
+      
+      // Pode popular mais campos conforme necessário
+      toast.success("Dados da empresa carregados com sucesso!");
+    }
   };
 
   // Calculate insurance based on merchandise value and percentage
@@ -152,6 +174,8 @@ export const useQuotationForm = (initialData?: Partial<QuotationFormData>) => {
     drivers,
     handleConvertToOrder,
     handleExportPDF,
-    updateCalculations
+    updateCalculations,
+    handleLoadProfileData,
+    handleLoadCompanyData
   };
 };

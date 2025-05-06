@@ -3,14 +3,10 @@ import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import CNPJLookupField from "@/components/quotation/CNPJLookupField";
 
 interface SenderRecipientSectionProps {
   sender: string;
   senderAddress: string;
-  senderCity: string;
-  senderState: string;
-  senderCnpj: string;
   recipient: string;
   recipientAddress: string;
   shipper: string;
@@ -21,9 +17,6 @@ interface SenderRecipientSectionProps {
 const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   sender,
   senderAddress,
-  senderCity,
-  senderState,
-  senderCnpj,
   recipient,
   recipientAddress,
   shipper,
@@ -41,16 +34,6 @@ const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
             <Label className="text-base md:text-lg font-semibold pb-1 text-purple-700 border-b-2 border-purple-300 inline-block">
               REMETENTE
             </Label>
-            <CNPJLookupField 
-              label="CNPJ do Remetente"
-              onDataFetched={(data) => {
-                updateField("sender", data.name);
-                updateField("senderAddress", data.address);
-                updateField("senderCnpj", data.cnpj || "");
-                updateField("senderCity", data.city);
-                updateField("senderState", data.state);
-              }}
-            />
             <div>
               <Label>Nome do Remetente</Label>
               <Input 
@@ -66,25 +49,6 @@ const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
                 onChange={(e) => updateField("senderAddress", e.target.value)}
                 placeholder="Digite o endereço do remetente" 
               />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label>Cidade</Label>
-                <Input 
-                  value={senderCity} 
-                  onChange={(e) => updateField("senderCity", e.target.value)}
-                  placeholder="Cidade" 
-                />
-              </div>
-              <div>
-                <Label>Estado</Label>
-                <Input 
-                  value={senderState} 
-                  onChange={(e) => updateField("senderState", e.target.value)}
-                  placeholder="UF" 
-                  maxLength={2}
-                />
-              </div>
             </div>
           </div>
           

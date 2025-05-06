@@ -7,6 +7,7 @@ interface FormActionsProps {
   onCancel?: () => void;
   onConvertToOrder: () => void;
   onExportPDF: () => void;
+  onShare?: () => void;
   isSubmitting: boolean;
 }
 
@@ -14,6 +15,7 @@ const FormActions: React.FC<FormActionsProps> = ({
   onCancel,
   onConvertToOrder,
   onExportPDF,
+  onShare,
   isSubmitting,
 }) => {
   return (
@@ -36,6 +38,18 @@ const FormActions: React.FC<FormActionsProps> = ({
           <Download className="h-4 w-4" />
           Exportar PDF
         </Button>
+
+        {onShare && (
+          <Button 
+            type="button" 
+            variant="outline"
+            onClick={onShare}
+            className="flex items-center gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            Compartilhar
+          </Button>
+        )}
         
         <Button 
           type="button" 
