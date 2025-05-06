@@ -36,16 +36,17 @@ const QuotationPage: React.FC = () => {
   };
   
   const handleConvertToOrder = (order: CollectionOrder) => {
-    // Salvar a ordem de coleta gerada pela cotação
-    saveCollectionOrder(order);
-    
-    toast({
-      title: "Ordem de coleta criada",
-      description: "Ordem de coleta criada com sucesso a partir da cotação!",
+    // Redirecionar para a página de criação de ordem de coleta com os dados preenchidos
+    navigate("/collection-order", { 
+      state: { 
+        prefillData: order
+      } 
     });
     
-    // Navegar para a visualização da ordem
-    navigate(`/collection-orders`);
+    toast({
+      title: "Dados transferidos",
+      description: "Os dados da cotação foram transferidos para o formulário de ordem de coleta.",
+    });
   };
 
   const handleCancel = () => {

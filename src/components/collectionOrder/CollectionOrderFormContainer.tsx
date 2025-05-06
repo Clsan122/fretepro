@@ -12,33 +12,29 @@ import { LocationDetailsSection } from "./sections/LocationDetailsSection";
 import { v4 as uuidv4 } from "uuid";
 import { generateOrderNumber } from "@/utils/orderNumber";
 import { useAuth } from "@/context/AuthContext";
-import { useLocation } from "react-router-dom";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
   onCancel: () => void;
   orderToEdit?: CollectionOrder;
-  fromQuotation?: boolean; // Add the fromQuotation prop
 }
 
 const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> = ({
   onSave,
   onCancel,
-  orderToEdit,
-  fromQuotation = false // Default to false
+  orderToEdit
 }) => {
-  const { user } = useAuth();
+  const authContext = useAuth();
   const { formData, setters } = useCollectionOrderForm({ orderToEdit });
   
   console.log("CollectionOrderFormContainer - orderToEdit:", orderToEdit);
-  console.log("CollectionOrderFormContainer - fromQuotation:", fromQuotation);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting form with data:", formData);
 
     if (!formData.sender || !formData.recipient || !formData.originCity || 
-        !formData.originState || !formData.destinationCity || !formData.destinationState || !user) {
+        !formData.originState || !formData.destinationCity || !formData.destinationState || !authContext?.user) {
       console.error("Dados obrigatórios não preenchidos");
       return;
     }
@@ -75,10 +71,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       companyLogo: formData.companyLogo,
       issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
-      userId: user.id,
+      userId: authContext.user.id,
       shipper: formData.shipper,
       shipperAddress: formData.shipperAddress,
-      fromQuotation: fromQuotation // Add the fromQuotation flag to the order
     };
 
     console.log("Saving order:", newOrder);
@@ -175,7 +170,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       <FormActions
         onCancel={onCancel}
         isEditing={Boolean(orderToEdit)}
-        submitLabel={orderToEdit ? "Atualizar Ordem" : (fromQuotation ? "Criar Ordem a partir da Cotação" : "Cadastrar Ordem")}
+        submitLabel={orderToEdit ? "Atualizar Ordem" : "Cadastrar Ordem"}
       />
     </form>
   );

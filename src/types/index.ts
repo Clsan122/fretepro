@@ -1,4 +1,3 @@
-
 export interface CollectionOrder {
   id: string;
   orderNumber: string; // Added this field for auto-numbering
@@ -32,6 +31,7 @@ export interface CollectionOrder {
   userId: string;
   shipper?: string;
   shipperAddress?: string;
+  // Removemos a propriedade fromQuotation
 }
 
 export interface Driver {

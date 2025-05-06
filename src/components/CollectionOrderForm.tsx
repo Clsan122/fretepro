@@ -7,14 +7,12 @@ interface CollectionOrderFormProps {
   onSave: (order: CollectionOrder) => void;
   onCancel: () => void;
   orderToEdit?: CollectionOrder;
-  fromQuotation?: boolean;
 }
 
 const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({ 
   onSave, 
   onCancel, 
-  orderToEdit,
-  fromQuotation = false
+  orderToEdit
 }) => {
   console.log("CollectionOrderForm - orderToEdit:", orderToEdit);
   
@@ -23,7 +21,6 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       onSave={onSave}
       onCancel={onCancel}
       orderToEdit={orderToEdit}
-      fromQuotation={fromQuotation}
     />
   );
 };
