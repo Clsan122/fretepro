@@ -14,6 +14,8 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   onCancel, 
   orderToEdit 
 }) => {
+  console.log("CollectionOrderForm - orderToEdit:", orderToEdit);
+  
   return (
     <CollectionOrderFormContainer
       onSave={onSave}

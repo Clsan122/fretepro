@@ -16,12 +16,21 @@ const CollectionOrderPage: React.FC = () => {
   const prefillData = location.state?.prefillData as CollectionOrder | undefined;
 
   const handleSaveOrder = (order: CollectionOrder) => {
-    saveCollectionOrder(order);
-    toast({
-      title: "Ordem de coleta cadastrada",
-      description: "A ordem de coleta foi cadastrada com sucesso!",
-    });
-    navigate("/collection-orders");
+    try {
+      saveCollectionOrder(order);
+      toast({
+        title: "Ordem de coleta cadastrada",
+        description: "A ordem de coleta foi cadastrada com sucesso!",
+      });
+      navigate("/collection-orders");
+    } catch (error) {
+      console.error("Erro ao salvar ordem de coleta:", error);
+      toast({
+        title: "Erro ao cadastrar",
+        description: "Ocorreu um erro ao salvar a ordem de coleta.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -37,6 +46,7 @@ const CollectionOrderPage: React.FC = () => {
         <CollectionOrderForm 
           onSave={handleSaveOrder} 
           onCancel={handleCancel}
+          orderToEdit={prefillData}
         />
       </div>
     </Layout>

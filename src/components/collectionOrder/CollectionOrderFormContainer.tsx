@@ -26,32 +26,25 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   orderToEdit
 }) => {
   const { user } = useAuth();
-  const location = useLocation();
-  const prefillData = location.state?.prefillData as CollectionOrder | undefined;
+  const { formData, setters } = useCollectionOrderForm({ orderToEdit });
   
-  const { formData, setters } = useCollectionOrderForm({ orderToEdit: orderToEdit || prefillData });
-
-  // Quando recebemos dados prefill da cotação, preenchemos os campos
-  useEffect(() => {
-    if (prefillData && !orderToEdit) {
-      // Os dados já serão preenchidos pelo hook useCollectionOrderForm
-      console.log("Preenchendo formulário com dados da cotação:", prefillData);
-    }
-  }, [prefillData, orderToEdit]);
+  console.log("CollectionOrderFormContainer - orderToEdit:", orderToEdit);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting form with data:", formData);
 
     if (!formData.sender || !formData.recipient || !formData.originCity || 
         !formData.originState || !formData.destinationCity || !formData.destinationState || !user) {
+      console.error("Dados obrigatórios não preenchidos");
       return;
     }
 
     const selectedDriver = formData.drivers.find(d => d.id === formData.driverId);
 
     const newOrder = {
-      id: orderToEdit ? orderToEdit.id : prefillData?.id || uuidv4(),
-      orderNumber: orderToEdit ? orderToEdit.orderNumber : prefillData?.orderNumber || generateOrderNumber(),
+      id: orderToEdit ? orderToEdit.id : uuidv4(),
+      orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
       sender: formData.sender,
       senderAddress: formData.senderAddress,
       senderCnpj: formData.senderCnpj,
@@ -84,6 +77,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       shipperAddress: formData.shipperAddress
     };
 
+    console.log("Saving order:", newOrder);
     onSave(newOrder as CollectionOrder);
   };
 
