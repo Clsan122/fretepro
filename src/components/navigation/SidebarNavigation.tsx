@@ -1,8 +1,6 @@
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 import { navigationItems } from "./BottomNavigation";
 import { ProfileMenuGroup } from "../sidebar/ProfileMenuGroup";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -10,13 +8,12 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 interface SidebarNavigationProps {
   isMobile: boolean;
   sidebarOpen: boolean;
-  toggleSidebar: () => void;
+  toggleSidebar?: () => void;
   handleNavigate: (path: string) => void;
 }
 
 const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   sidebarOpen,
-  toggleSidebar,
   handleNavigate,
 }) => {
   if (!sidebarOpen) return null;
@@ -27,9 +24,6 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
         <div className="fixed top-0 left-0 z-50 h-screen w-64 bg-white dark:bg-gray-800 p-4 shadow-lg">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">FretePro</h2>
-            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
           </div>
           
           <ul className="space-y-2">
