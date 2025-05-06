@@ -49,7 +49,7 @@ export const useLocationApi = () => {
     fetchStates();
   }, []);
 
-  const getCitiesByState = async (uf: string) => {
+  const getCitiesByState = async (uf: string): Promise<City[]> => {
     if (!uf || uf === 'EX') {
       return [];
     }
@@ -57,13 +57,17 @@ export const useLocationApi = () => {
     try {
       // Using the Brasil API for more comprehensive city data
       const url = `https://brasilapi.com.br/api/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`;
+      console.log(`Fetching cities for UF ${uf} from: ${url}`);
+      
       const response = await fetch(url);
       
       if (!response.ok) {
+        console.error(`Server error when fetching cities: ${response.status} ${response.statusText}`);
         throw new Error(`Falha ao buscar cidades para UF ${uf}`);
       }
       
       const data = await response.json();
+      console.log(`Cities data received for ${uf}:`, data);
       
       // Transform the data to match the expected format
       if (Array.isArray(data)) {
@@ -73,6 +77,8 @@ export const useLocationApi = () => {
         }));
         return cities.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
       }
+      
+      console.warn(`Received non-array data for UF ${uf}:`, data);
       return [];
     } catch (err: any) {
       console.error(`Erro ao buscar cidades para UF ${uf}:`, err);

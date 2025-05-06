@@ -1,4 +1,3 @@
-
 import React from "react";
 import { OriginLocationFields } from "./OriginLocationFields";
 import { DestinationLocationFields } from "./DestinationLocationFields";
@@ -19,6 +18,10 @@ interface LocationsSectionProps {
   setDestinationCity: (value: string) => void;
   destinationState: string;
   setDestinationState: (value: string) => void;
+  receiver?: string;
+  setReceiver?: (value: string) => void;
+  receiverAddress?: string;
+  setReceiverAddress?: (value: string) => void;
 }
 
 export const LocationsSection: React.FC<LocationsSectionProps> = ({
@@ -30,6 +33,10 @@ export const LocationsSection: React.FC<LocationsSectionProps> = ({
   setDestinationCity,
   destinationState,
   setDestinationState,
+  receiver,
+  setReceiver,
+  receiverAddress,
+  setReceiverAddress,
 }) => {
   return (
     <Card>
@@ -57,6 +64,13 @@ export const LocationsSection: React.FC<LocationsSectionProps> = ({
             />
           </div>
         </div>
+        
+        {/* Only render receiver fields if they are provided */}
+        {setReceiver && setReceiverAddress && (
+          <div className="space-y-4 mt-4">
+            
+          </div>
+        )}
       </CardContent>
     </Card>
   );

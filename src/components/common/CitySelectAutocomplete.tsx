@@ -43,9 +43,10 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
       setLoading(true);
       try {
         const citiesData = await getCitiesByState(uf);
-        setSuggestions(citiesData || []);
+        setSuggestions(citiesData || []); // Ensure we always have an array
       } catch (error) {
         console.error("Erro ao buscar cidades:", error);
+        setSuggestions([]);
       } finally {
         setLoading(false);
       }
@@ -55,8 +56,10 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
   }, [uf, getCitiesByState]);
   
   // Filtra sugestões baseado no input
-  const filterSuggestions = (input: string) => {
-    if (!input.trim() || !suggestions.length) return [];
+  const filterSuggestions = (input: string): City[] => {
+    if (!input.trim() || !suggestions || suggestions.length === 0) {
+      return [];
+    }
     
     return suggestions.filter(city => 
       city.nome.toLowerCase().includes(input.toLowerCase())

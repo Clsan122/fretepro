@@ -41,7 +41,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
       setLoading(true);
       try {
         const citiesData = await getCitiesByState(stateAbbreviation);
-        setCities(citiesData);
+        setCities(citiesData || []);
       } catch (error) {
         console.error("Erro ao buscar cidades:", error);
         setCities([]);
@@ -92,7 +92,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-full">
+      <PopoverContent className="p-0 w-full" align="start">
         <Command shouldFilter={false}>
           <CommandInput 
             placeholder="Buscar cidade..." 
@@ -102,27 +102,29 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           <CommandEmpty>
             {loading ? "Carregando cidades..." : "Nenhuma cidade encontrada."}
           </CommandEmpty>
-          <CommandGroup className="max-h-60 overflow-y-auto">
-            {filteredCities.map((city) => (
-              <CommandItem
-                key={city.codigo_ibge || city.nome}
-                value={city.nome}
-                onSelect={() => {
-                  onChange(city.nome);
-                  setOpen(false);
-                  setSearchTerm("");
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === city.nome ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {city.nome}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {filteredCities.length > 0 && (
+            <CommandGroup className="max-h-60 overflow-y-auto">
+              {filteredCities.map((city) => (
+                <CommandItem
+                  key={city.codigo_ibge || city.nome}
+                  value={city.nome}
+                  onSelect={() => {
+                    onChange(city.nome);
+                    setOpen(false);
+                    setSearchTerm("");
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === city.nome ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {city.nome}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
         </Command>
       </PopoverContent>
     </Popover>
