@@ -13,6 +13,7 @@ interface CityAutocompleteProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  autoComplete?: string; // Added autoComplete property to fix the type error
 }
 
 export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
@@ -21,6 +22,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
   onChange,
   placeholder = "Selecione a cidade",
   className,
+  autoComplete, // Make sure to include it in the component props
 }) => {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,6 +60,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           role="combobox"
           aria-expanded={open}
           className={cn("w-full justify-between", className)}
+          data-autocomplete={autoComplete} // Use the autoComplete property where appropriate
         >
           {value || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
