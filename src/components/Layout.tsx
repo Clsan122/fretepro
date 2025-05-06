@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
+import { useTheme } from "./ThemeProvider";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);

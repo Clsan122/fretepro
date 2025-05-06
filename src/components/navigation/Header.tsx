@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/button";
 import { MenuIcon, Moon, Sun, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface HeaderProps {
   toggleSidebar: () => void;
-  theme: string;
-  toggleTheme: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) => {
+const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     await logout();
