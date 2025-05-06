@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,10 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { generateOrderNumber } from "@/utils/orderNumber";
 import { CollectionOrder, Measurement } from "@/types";
+import CurrencyInput from "@/components/common/CurrencyInput";
+import PercentageInput from "@/components/common/PercentageInput";
+import { CityAutocomplete } from "@/components/common/CityAutocomplete";
+import { BRAZILIAN_CITIES } from "@/utils/cities-data";
 
 interface QuotationFormProps {
   onSave?: (data: QuotationFormData) => void;
@@ -29,12 +33,28 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   onConvertToOrder,
   initialData
 }) => {
-  const { formData, clients, drivers, updateField, handleClientChange, calculateCubicMeasurement } = useQuotationForm(initialData);
+  const { 
+    formData, 
+    clients, 
+    drivers, 
+    updateField, 
+    handleClientChange, 
+    calculateCubicMeasurement, 
+    updateInsurance, 
+    updateTotal 
+  } = useQuotationForm(initialData);
+  
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Calculate initial values on first load
+  useEffect(() => {
+    updateInsurance();
+    updateTotal();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +130,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       merchandiseValue: formData.merchandiseValue,
       invoiceNumber: "", // A ser preenchido depois
       observations: formData.observations,
-      driverId: formData.driverId,
+      driverId: formData.driverId !== "none" ? formData.driverId : undefined,
       companyLogo: user.companyLogo || "",
       issuerId: user.id,
       createdAt: new Date().toISOString(),
@@ -124,6 +144,9 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       navigate("/collection-order", { state: { prefillData: newOrder } });
     }
   };
+
+  // Estados brasileiros para o select
+  const brazilianStates = Object.keys(BRAZILIAN_CITIES).sort();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
@@ -273,20 +296,30 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
                 ORIGEM
               </Label>
               <div>
-                <Label>Cidade de Origem</Label>
-                <Input 
-                  value={formData.originCity} 
-                  onChange={(e) => updateField("originCity", e.target.value)}
-                  placeholder="Digite a cidade de origem" 
-                />
+                <Label>Estado de Origem</Label>
+                <Select 
+                  value={formData.originState} 
+                  onValueChange={(value) => updateField("originState", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brazilianStates.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <Label>Estado de Origem</Label>
-                <Input 
-                  value={formData.originState} 
-                  onChange={(e) => updateField("originState", e.target.value)}
-                  placeholder="UF" 
-                  maxLength={2}
+                <Label>Cidade de Origem</Label>
+                <CityAutocomplete
+                  stateAbbreviation={formData.originState}
+                  value={formData.originCity}
+                  onChange={(value) => updateField("originCity", value)}
+                  placeholder="Selecione a cidade"
                 />
               </div>
             </div>
@@ -296,20 +329,30 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
                 DESTINO
               </Label>
               <div>
-                <Label>Cidade de Destino</Label>
-                <Input 
-                  value={formData.destinationCity} 
-                  onChange={(e) => updateField("destinationCity", e.target.value)}
-                  placeholder="Digite a cidade de destino" 
-                />
+                <Label>Estado de Destino</Label>
+                <Select 
+                  value={formData.destinationState} 
+                  onValueChange={(value) => updateField("destinationState", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brazilianStates.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <Label>Estado de Destino</Label>
-                <Input 
-                  value={formData.destinationState} 
-                  onChange={(e) => updateField("destinationState", e.target.value)}
-                  placeholder="UF" 
-                  maxLength={2}
+                <Label>Cidade de Destino</Label>
+                <CityAutocomplete
+                  stateAbbreviation={formData.destinationState}
+                  value={formData.destinationCity}
+                  onChange={(value) => updateField("destinationCity", value)}
+                  placeholder="Selecione a cidade"
                 />
               </div>
             </div>
@@ -344,10 +387,9 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
             </div>
             <div>
               <Label>Valor da Mercadoria (R$)</Label>
-              <Input 
-                type="number"
-                value={formData.merchandiseValue || ""} 
-                onChange={(e) => updateField("merchandiseValue", Number(e.target.value))}
+              <CurrencyInput 
+                value={formData.merchandiseValue} 
+                onChange={(value) => updateField("merchandiseValue", value)}
                 placeholder="Valor da mercadoria" 
               />
             </div>
@@ -425,25 +467,77 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
           <CardTitle className="text-lg md:text-xl text-purple-700">Valor da Cotação</CardTitle>
         </CardHeader>
         <CardContent className="py-2 px-3 md:px-4">
-          <div>
-            <Label>Valor Cotado (R$)</Label>
-            <Input 
-              type="number"
-              value={formData.quotedValue || ""} 
-              onChange={(e) => updateField("quotedValue", Number(e.target.value))}
-              placeholder="Valor da cotação" 
-              className="text-lg font-bold text-green-700"
-            />
-          </div>
-          
-          <div className="mt-4">
-            <Label>Observações</Label>
-            <Textarea 
-              value={formData.observations} 
-              onChange={(e) => updateField("observations", e.target.value)}
-              placeholder="Observações sobre a cotação" 
-              rows={3}
-            />
+          <div className="space-y-3">
+            <div>
+              <Label>Valor Frete (R$)</Label>
+              <CurrencyInput 
+                value={formData.quotedValue} 
+                onChange={(value) => updateField("quotedValue", value)}
+                placeholder="Valor do frete" 
+                className="text-lg font-bold text-green-700"
+              />
+            </div>
+            
+            <div>
+              <Label>Pedágio (R$)</Label>
+              <CurrencyInput 
+                value={formData.toll} 
+                onChange={(value) => updateField("toll", value)}
+                placeholder="Valor de pedágio" 
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label>Seguro - Porcentagem (%)</Label>
+                <PercentageInput 
+                  value={formData.insurancePercentage} 
+                  onChange={(value) => updateField("insurancePercentage", value)}
+                  placeholder="Percentual do seguro" 
+                />
+              </div>
+              <div>
+                <Label>Valor do Seguro (R$)</Label>
+                <CurrencyInput 
+                  value={formData.insurance} 
+                  onChange={(value) => updateField("insurance", value)}
+                  placeholder="Valor do seguro" 
+                  disabled={true}
+                />
+                <p className="text-xs text-gray-500 mt-1">Calculado com base no percentual e valor da mercadoria</p>
+              </div>
+            </div>
+            
+            <div>
+              <Label>Outros Custos (R$)</Label>
+              <CurrencyInput 
+                value={formData.others} 
+                onChange={(value) => updateField("others", value)}
+                placeholder="Outros custos" 
+              />
+            </div>
+            
+            <div className="mt-4 pt-2 border-t border-gray-200">
+              <Label className="text-lg font-bold">Total (R$)</Label>
+              <CurrencyInput
+                value={formData.totalValue} 
+                onChange={(value) => updateField("totalValue", value)}
+                placeholder="Total da cotação" 
+                className="text-xl font-bold text-green-800"
+                disabled={true}
+              />
+              <p className="text-xs text-gray-500 mt-1">Soma de frete + pedágio + seguro + outros</p>
+            </div>
+            
+            <div className="mt-4">
+              <Label>Observações</Label>
+              <Textarea 
+                value={formData.observations} 
+                onChange={(e) => updateField("observations", e.target.value)}
+                placeholder="Observações sobre a cotação" 
+                rows={3}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

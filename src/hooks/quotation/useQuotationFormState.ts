@@ -37,6 +37,11 @@ export const useQuotationFormState = (initialData?: Partial<QuotationFormData>) 
     vehicleType: initialData?.vehicleType || "",
     
     quotedValue: initialData?.quotedValue || 0,
+    toll: initialData?.toll || 0, 
+    insurance: initialData?.insurance || 0,
+    insurancePercentage: initialData?.insurancePercentage || 0.3, // default 0.3%
+    others: initialData?.others || 0,
+    totalValue: initialData?.totalValue || 0,
     
     driverId: initialData?.driverId || undefined
   });
