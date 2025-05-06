@@ -4,7 +4,6 @@ import AppRoutes from "@/routes/AppRoutes";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { MobileNav } from "@/components/MobileNav";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient({
@@ -22,7 +21,6 @@ function App() {
         <Router>
           <AuthProvider>
             <AppRoutes />
-            <MobileNav />
             <Toaster />
           </AuthProvider>
         </Router>

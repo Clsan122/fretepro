@@ -5,12 +5,11 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "./ThemeProvider";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
-// Import our new components
+// Import components
 import Header from "./layout/Header";
 import MobileMenu from "./layout/MobileMenu";
-import SidebarComponent from "./layout/SidebarComponent";
+import BottomNavigation from "./navigation/BottomNavigation";
 
 const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
@@ -50,21 +49,10 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
         />
       )}
 
-      <div className="flex flex-1">
-        {/* Desktop Sidebar */}
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex w-full">
-            {!isMobile && (
-              <SidebarComponent handleNavigate={handleNavigate} />
-            )}
-
-            {/* Content */}
-            <main className={cn("flex-grow container mx-auto px-4 py-4", isMobile && "has-mobile-nav")}>
-              {children || <Outlet />}
-            </main>
-          </div>
-        </SidebarProvider>
-      </div>
+      {/* Main Content */}
+      <main className={cn("flex-grow container mx-auto px-4 py-4", isMobile && "pb-20")}>
+        {children || <Outlet />}
+      </main>
 
       {/* Footer */}
       <footer className="bg-background-800 text-center py-4 border-t border-border/50 mt-auto">
@@ -74,6 +62,9 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
           </p>
         </div>
       </footer>
+
+      {/* Mobile Navigation - only on mobile */}
+      {isMobile && <BottomNavigation />}
     </div>
   );
 };

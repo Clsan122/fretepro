@@ -1,6 +1,6 @@
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Calculator } from "lucide-react";
 import { navigationItems } from "@/components/navigation/BottomNavigation";
 import { useAuth } from "@/context/AuthContext";
@@ -23,22 +23,15 @@ interface SidebarComponentProps {
 
 const SidebarComponent: React.FC<SidebarComponentProps> = ({ handleNavigate }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = useAuth();
+  
+  const isActive = (path: string) => location.pathname === path;
   
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-
-  // Add quotation to sidebar menu items
-  const sidebarMenuItems = [
-    ...navigationItems,
-    {
-      name: "Cotação",
-      path: "/quotations",
-      icon: Calculator
-    }
-  ];
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -50,11 +43,11 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ handleNavigate }) =
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sidebarMenuItems.map((item) => (
+              {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton 
                     tooltip={item.name}
-                    isActive={window.location.pathname === item.path}
+                    isActive={isActive(item.path)}
                     onClick={() => handleNavigate(item.path)}
                   >
                     <item.icon className="mr-2 h-4 w-4" />
@@ -75,7 +68,7 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ handleNavigate }) =
                 <SidebarMenuButton 
                   tooltip="Perfil"
                   onClick={() => handleNavigate("/profile")}
-                  isActive={window.location.pathname === "/profile"}
+                  isActive={isActive("/profile")}
                 >
                   <svg className="mr-2 h-4 w-4" fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />

@@ -1,7 +1,6 @@
 
 import React from "react";
-import AppLayout from "./AppLayout";
-import SidebarComponent from "@/components/layout/SidebarComponent";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -10,6 +9,7 @@ import { SidebarProvider } from "./ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import SidebarComponent from "@/components/layout/SidebarComponent";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,6 +18,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isOnline = useOnlineStatus();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
@@ -30,7 +31,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const handleNavigate = (path: string) => {
-    // Navigation logic here
+    navigate(path);
+    if (isMobile) {
+      setIsMenuOpen(false);
+    }
   };
 
   return (
@@ -42,34 +46,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           toggleMenu={toggleMenu} 
         />
         <div className="flex flex-1">
-          {/* Collapsible Sidebar with proper hiding */}
-          <div className={cn(
-            "transition-all duration-300 ease-in-out", 
-            sidebarOpen ? "w-64" : "w-0"
-          )}>
+          {/* Desktop Sidebar - only show on non-mobile */}
+          {!isMobile && (
             <div className={cn(
-              "h-full overflow-hidden transition-all duration-300",
-              sidebarOpen ? "opacity-100" : "opacity-0 w-0"
+              "transition-all duration-300 ease-in-out", 
+              sidebarOpen ? "w-64" : "w-0"
             )}>
-              <SidebarComponent handleNavigate={handleNavigate} />
+              <div className={cn(
+                "h-full overflow-hidden transition-all duration-300",
+                sidebarOpen ? "opacity-100" : "opacity-0 w-0"
+              )}>
+                <SidebarComponent handleNavigate={handleNavigate} />
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="flex-1 flex flex-col">
-            <div className="bg-background dark:bg-background/95 p-2 border-b flex items-center">
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={toggleSidebar}
-                className="h-8 w-8"
-              >
-                {sidebarOpen ? (
-                  <ChevronLeft className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            {/* Toggle button for sidebar - only on desktop */}
+            {!isMobile && (
+              <div className="bg-background dark:bg-background/95 p-2 border-b flex items-center">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className="h-8 w-8"
+                >
+                  {sidebarOpen ? (
+                    <ChevronLeft className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            )}
             
             <main className="flex-1 overflow-y-auto bg-muted/40">
               <div className="layout-main">
@@ -78,6 +87,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </main>
           </div>
         </div>
+
+        {/* Mobile Navigation - only on mobile */}
         {isMobile && <BottomNavigation />}
       </div>
     </SidebarProvider>

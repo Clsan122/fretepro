@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { navigationItems } from "@/components/navigation/BottomNavigation";
 
 interface MobileMenuProps {
   isMenuOpen: boolean;
@@ -40,36 +41,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
     >
       <div className="container mx-auto px-4 py-4">
         <nav className="flex flex-col space-y-3">
-          <a 
-            onClick={() => handleNavigation("/dashboard")} 
-            className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
-          >
-            Dashboard
-          </a>
-          <a 
-            onClick={() => handleNavigation("/clients")} 
-            className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
-          >
-            Clientes
-          </a>
-          <a 
-            onClick={() => handleNavigation("/freights")}
-            className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
-          >
-            Fretes
-          </a>
-          <a 
-            onClick={() => handleNavigation("/collection-orders")}
-            className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
-          >
-            Ordens de Coleta
-          </a>
-          <a 
-            onClick={() => handleNavigation("/quotations")}
-            className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
-          >
-            Cotação
-          </a>
+          {navigationItems.map((item) => (
+            <a 
+              key={item.name}
+              onClick={() => handleNavigation(item.path)} 
+              className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
+            >
+              {item.name}
+            </a>
+          ))}
           <a 
             onClick={() => handleNavigation("/profile")}
             className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
