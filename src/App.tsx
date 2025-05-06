@@ -1,5 +1,5 @@
 
-import React from "react";
+import * as React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "./components/ui/toaster";
@@ -26,7 +26,7 @@ export const NotificationContext = React.createContext<NotificationContextType>(
 });
 
 function App() {
-  // Move useState hooks inside the component function
+  // Use React.useState explicitly to avoid the null reference error
   const [isOnline, setIsOnline] = React.useState<boolean>(navigator.onLine);
   const [showNotificationButton, setShowNotificationButton] = React.useState<boolean>(false);
   
