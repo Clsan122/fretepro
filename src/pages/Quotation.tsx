@@ -34,7 +34,7 @@ const QuotationPage: React.FC = () => {
     });
     
     // Navegar para a visualização da ordem
-    navigate(`/collection-orders/${order.id}`);
+    navigate(`/collection-orders`);
   };
 
   const handleCancel = () => {
@@ -43,8 +43,8 @@ const QuotationPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Nova Cotação</h1>
+      <div className="p-2 sm:p-4 max-w-7xl mx-auto">
+        <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-700">Nova Cotação</h1>
         <QuotationForm 
           onSave={handleSaveQuotation}
           onCancel={handleCancel}

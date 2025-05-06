@@ -126,21 +126,21 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
       {/* Cliente */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações do Cliente</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="py-3 px-3 md:px-4">
+          <CardTitle className="text-lg md:text-xl text-purple-700">Informações do Cliente</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="py-2 px-3 md:px-4">
+          <div className="space-y-3">
             <div>
               <Label>Cliente</Label>
               <Select 
                 value={formData.clientId} 
                 onValueChange={(value) => handleClientChange(value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione um cliente" />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,14 +157,14 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       </Card>
       
       {/* Informações do Remetente e Destinatário */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Remetente e Destinatário</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="py-3 px-3 md:px-4">
+          <CardTitle className="text-lg md:text-xl text-purple-700">Remetente e Destinatário</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
+        <CardContent className="py-2 px-3 md:px-4">
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <Label className="text-base md:text-lg font-semibold pb-1 text-purple-700 border-b-2 border-purple-300 inline-block">
                 REMETENTE
               </Label>
               <CNPJLookupField 
@@ -214,8 +214,8 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               </div>
             </div>
             
-            <div className="space-y-4">
-              <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
+            <div className="space-y-3 pt-2">
+              <Label className="text-base md:text-lg font-semibold pb-1 text-purple-700 border-b-2 border-purple-300 inline-block">
                 DESTINATÁRIO
               </Label>
               <div>
@@ -236,8 +236,8 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               </div>
             </div>
             
-            <div className="space-y-4">
-              <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
+            <div className="space-y-3 pt-2">
+              <Label className="text-base md:text-lg font-semibold pb-1 text-purple-700 border-b-2 border-purple-300 inline-block">
                 EXPEDIDOR
               </Label>
               <div>
@@ -262,14 +262,14 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       </Card>
       
       {/* Localização */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações de Origem e Destino</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="py-3 px-3 md:px-4">
+          <CardTitle className="text-lg md:text-xl text-purple-700">Informações de Origem e Destino</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="py-2 px-3 md:px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
+            <div className="space-y-3">
+              <Label className="text-base md:text-lg font-semibold pb-1 text-purple-700 border-b-2 border-purple-300 inline-block">
                 ORIGEM
               </Label>
               <div>
@@ -291,8 +291,8 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               </div>
             </div>
             
-            <div className="space-y-4">
-              <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
+            <div className="space-y-3">
+              <Label className="text-base md:text-lg font-semibold pb-1 text-purple-700 border-b-2 border-purple-300 inline-block">
                 DESTINO
               </Label>
               <div>
@@ -318,17 +318,17 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       </Card>
       
       {/* Informações da Carga */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações da Carga</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="py-3 px-3 md:px-4">
+          <CardTitle className="text-lg md:text-xl text-purple-700">Informações da Carga</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="py-2 px-3 md:px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <Label>Volumes</Label>
               <Input 
                 type="number"
-                value={formData.volumes} 
+                value={formData.volumes || ""} 
                 onChange={(e) => updateField("volumes", Number(e.target.value))}
                 placeholder="Quantidade de volumes" 
               />
@@ -337,7 +337,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               <Label>Peso (kg)</Label>
               <Input 
                 type="number"
-                value={formData.weight} 
+                value={formData.weight || ""} 
                 onChange={(e) => updateField("weight", Number(e.target.value))}
                 placeholder="Peso em kg" 
               />
@@ -346,7 +346,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               <Label>Valor da Mercadoria (R$)</Label>
               <Input 
                 type="number"
-                value={formData.merchandiseValue} 
+                value={formData.merchandiseValue || ""} 
                 onChange={(e) => updateField("merchandiseValue", Number(e.target.value))}
                 placeholder="Valor da mercadoria" 
               />
@@ -355,15 +355,15 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
           
           {/* Dimensões */}
           <div className="mt-4">
-            <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1">
+            <Label className="text-base md:text-lg font-semibold pb-1 text-purple-700 border-b-2 border-purple-300 inline-block">
               DIMENSÕES
             </Label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
               <div>
                 <Label>Comprimento (cm)</Label>
                 <Input 
                   type="number"
-                  value={formData.length} 
+                  value={formData.length || ""} 
                   onChange={(e) => updateField("length", Number(e.target.value))}
                   placeholder="Comprimento" 
                 />
@@ -372,7 +372,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
                 <Label>Largura (cm)</Label>
                 <Input 
                   type="number"
-                  value={formData.width} 
+                  value={formData.width || ""} 
                   onChange={(e) => updateField("width", Number(e.target.value))}
                   placeholder="Largura" 
                 />
@@ -381,7 +381,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
                 <Label>Altura (cm)</Label>
                 <Input 
                   type="number"
-                  value={formData.height} 
+                  value={formData.height || ""} 
                   onChange={(e) => updateField("height", Number(e.target.value))}
                   placeholder="Altura" 
                 />
@@ -390,7 +390,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
             {/* Mostrar Cubagem calculada */}
             {formData.length > 0 && formData.width > 0 && formData.height > 0 && (
               <div className="mt-2">
-                <p className="text-sm font-medium">
+                <p className="text-sm font-medium text-purple-700">
                   Cubagem: {calculateCubicMeasurement().toFixed(3)} m³
                 </p>
               </div>
@@ -403,7 +403,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               value={formData.vehicleType} 
               onValueChange={(value) => updateField("vehicleType", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione o tipo de veículo" />
               </SelectTrigger>
               <SelectContent>
@@ -420,16 +420,16 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       </Card>
       
       {/* Valor da Cotação */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Valor da Cotação</CardTitle>
+      <Card className="shadow-sm">
+        <CardHeader className="py-3 px-3 md:px-4">
+          <CardTitle className="text-lg md:text-xl text-purple-700">Valor da Cotação</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="py-2 px-3 md:px-4">
           <div>
             <Label>Valor Cotado (R$)</Label>
             <Input 
               type="number"
-              value={formData.quotedValue} 
+              value={formData.quotedValue || ""} 
               onChange={(e) => updateField("quotedValue", Number(e.target.value))}
               placeholder="Valor da cotação" 
               className="text-lg font-bold text-green-700"
@@ -449,9 +449,9 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       </Card>
       
       {/* Botões de Ação */}
-      <div className="flex flex-col sm:flex-row justify-end gap-2">
+      <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4 mb-10 sm:mb-0">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto order-3 sm:order-1">
             Cancelar
           </Button>
         )}
@@ -460,11 +460,16 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
           type="button" 
           variant="secondary"
           onClick={handleConvertToOrder}
+          className="w-full sm:w-auto order-2"
         >
-          Converter em Ordem de Coleta
+          Converter em Ordem
         </Button>
         
-        <Button type="submit" disabled={isSubmitting}>
+        <Button 
+          type="submit" 
+          disabled={isSubmitting} 
+          className="w-full sm:w-auto order-1 sm:order-3 bg-purple-600 hover:bg-purple-700"
+        >
           {isSubmitting ? "Salvando..." : "Salvar Cotação"}
         </Button>
       </div>
