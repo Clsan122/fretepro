@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { CollectionOrder } from "@/types";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
 import { SenderRecipientSection } from "./SenderRecipientSection";
@@ -12,6 +12,7 @@ import { LocationDetailsSection } from "./sections/LocationDetailsSection";
 import { v4 as uuidv4 } from "uuid";
 import { generateOrderNumber } from "@/utils/orderNumber";
 import { useAuth } from "@/context/AuthContext";
+import { useLocation } from "react-router-dom";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -25,7 +26,18 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   orderToEdit
 }) => {
   const { user } = useAuth();
-  const { formData, setters } = useCollectionOrderForm({ orderToEdit });
+  const location = useLocation();
+  const prefillData = location.state?.prefillData as CollectionOrder | undefined;
+  
+  const { formData, setters } = useCollectionOrderForm({ orderToEdit: orderToEdit || prefillData });
+
+  // Quando recebemos dados prefill da cotação, preenchemos os campos
+  useEffect(() => {
+    if (prefillData && !orderToEdit) {
+      // Os dados já serão preenchidos pelo hook useCollectionOrderForm
+      console.log("Preenchendo formulário com dados da cotação:", prefillData);
+    }
+  }, [prefillData, orderToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +50,8 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     const selectedDriver = formData.drivers.find(d => d.id === formData.driverId);
 
     const newOrder = {
-      id: orderToEdit ? orderToEdit.id : uuidv4(),
-      orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
+      id: orderToEdit ? orderToEdit.id : prefillData?.id || uuidv4(),
+      orderNumber: orderToEdit ? orderToEdit.orderNumber : prefillData?.orderNumber || generateOrderNumber(),
       sender: formData.sender,
       senderAddress: formData.senderAddress,
       senderCnpj: formData.senderCnpj,

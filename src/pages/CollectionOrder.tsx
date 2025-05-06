@@ -2,14 +2,18 @@
 import React from "react";
 import Layout from "@/components/Layout";
 import CollectionOrderForm from "@/components/CollectionOrderForm";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CollectionOrder } from "@/types";
 import { saveCollectionOrder } from "@/utils/storage";
 
 const CollectionOrderPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Verificar se temos dados preenchidos da cotação
+  const prefillData = location.state?.prefillData as CollectionOrder | undefined;
 
   const handleSaveOrder = (order: CollectionOrder) => {
     saveCollectionOrder(order);
@@ -27,6 +31,9 @@ const CollectionOrderPage: React.FC = () => {
   return (
     <Layout>
       <div className="p-4 md:p-6">
+        <h1 className="text-2xl font-bold mb-4">
+          {prefillData ? "Criar Ordem de Coleta a partir de Cotação" : "Nova Ordem de Coleta"}
+        </h1>
         <CollectionOrderForm 
           onSave={handleSaveOrder} 
           onCancel={handleCancel}
