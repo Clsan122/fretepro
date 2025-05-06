@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { useLocationApi, City } from "@/hooks/useLocationApi";
+import { useCitiesByUf, City } from "@/hooks/useCitiesByUf";
 
 interface CitySelectAutocompleteProps {
   uf: string;
@@ -21,47 +21,22 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
   autoComplete
 }) => {
   const [inputValue, setInputValue] = useState(value);
-  const [suggestions, setSuggestions] = useState<City[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [loading, setLoading] = useState(false);
   
-  const { getCitiesByState } = useLocationApi();
+  const { cities, loading } = useCitiesByUf(uf);
   
   // Atualiza o inputValue quando o valor externo muda
   useEffect(() => {
     setInputValue(value);
   }, [value]);
   
-  // Busca cidades quando o UF muda
-  useEffect(() => {
-    const loadCities = async () => {
-      if (!uf || uf === 'EX') {
-        setSuggestions([]);
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        const citiesData = await getCitiesByState(uf);
-        setSuggestions(citiesData || []); // Ensure we always have an array
-      } catch (error) {
-        console.error("Erro ao buscar cidades:", error);
-        setSuggestions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadCities();
-  }, [uf, getCitiesByState]);
-  
   // Filtra sugestões baseado no input
   const filterSuggestions = (input: string): City[] => {
-    if (!input.trim() || !suggestions || suggestions.length === 0) {
+    if (!input.trim() || !cities || cities.length === 0) {
       return [];
     }
     
-    return suggestions.filter(city => 
+    return cities.filter(city => 
       city.nome.toLowerCase().includes(input.toLowerCase())
     );
   };

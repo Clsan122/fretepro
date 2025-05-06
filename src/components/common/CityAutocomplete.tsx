@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocationApi, City } from "@/hooks/useLocationApi";
+import { useCitiesByUf, City } from "@/hooks/useCitiesByUf";
 
 interface CityAutocompleteProps {
   stateAbbreviation: string;
@@ -26,32 +26,8 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [cities, setCities] = useState<City[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const { getCitiesByState } = useLocationApi();
-
-  useEffect(() => {
-    const fetchCities = async () => {
-      if (!stateAbbreviation || stateAbbreviation === "EX") {
-        setCities([]);
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const citiesData = await getCitiesByState(stateAbbreviation);
-        setCities(citiesData || []);
-      } catch (error) {
-        console.error("Erro ao buscar cidades:", error);
-        setCities([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCities();
-  }, [stateAbbreviation, getCitiesByState]);
+  
+  const { cities, loading } = useCitiesByUf(stateAbbreviation);
 
   // Filter cities based on search term
   const filteredCities = useMemo(() => {
