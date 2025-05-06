@@ -59,6 +59,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/driver" element={<PrivateRoute><DriverRegister /></PrivateRoute>} />
       <Route path="/driver/:id" element={<PrivateRoute><DriverEdit /></PrivateRoute>} />
       
+      {/* Nova rota que corresponde ao que é usado no Drivers.tsx */}
+      <Route path="/drivers/new" element={<PrivateRoute><DriverRegister /></PrivateRoute>} />
+      <Route path="/drivers/edit/:id" element={<PrivateRoute><DriverEdit /></PrivateRoute>} />
+      
       {/* Ordens de Coleta */}
       <Route path="/collection-orders" element={<PrivateRoute><CollectionOrders /></PrivateRoute>} />
       <Route path="/collection-order" element={<PrivateRoute><CollectionOrder /></PrivateRoute>} />
