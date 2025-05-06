@@ -35,7 +35,7 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ handleNavigate }) =
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader className="flex items-center justify-center py-3">
-        <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">FretePro</h2>
+        <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">FreteValor</h2>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
