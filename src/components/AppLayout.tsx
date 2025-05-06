@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Calculator } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -45,6 +45,16 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
       setIsMenuOpen(false);
     }
   };
+
+  // Add quotation to sidebar menu items
+  const sidebarMenuItems = [
+    ...navigationItems,
+    {
+      name: "Cotação",
+      path: "/quotations",
+      icon: Calculator
+    }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background dark:bg-background w-full">
@@ -157,7 +167,7 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
                 </a>
                 <a 
                   onClick={() => {
-                    navigate("/quotation");
+                    navigate("/quotations");
                     setIsMenuOpen(false);
                   }}
                   className="py-2 px-3 rounded hover:bg-accent cursor-pointer"
@@ -201,7 +211,7 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
                   <SidebarGroupLabel>Menu</SidebarGroupLabel>
                   <SidebarGroupContent>
                     <SidebarMenu>
-                      {navigationItems.map((item) => (
+                      {sidebarMenuItems.map((item) => (
                         <SidebarMenuItem key={item.name}>
                           <SidebarMenuButton 
                             tooltip={item.name}
