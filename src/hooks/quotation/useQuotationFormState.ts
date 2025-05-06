@@ -46,20 +46,6 @@ export const useQuotationFormState = (initialData?: Partial<QuotationFormData>) 
     driverId: initialData?.driverId || undefined
   });
 
-  // Set default sender info if creating new quotation and user has company data
-  useEffect(() => {
-    if (!initialData?.sender && user?.companyName) {
-      setFormData(prev => ({
-        ...prev,
-        sender: user.companyName || '',
-        senderAddress: user.address || '',
-        senderCity: user.city || '',
-        senderState: user.state || '',
-        senderCnpj: user.cnpj || ''
-      }));
-    }
-  }, [user, initialData]);
-
   // Function to update any field in the form
   const updateField = (field: keyof QuotationFormData, value: any) => {
     setFormData(prev => ({

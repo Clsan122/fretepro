@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { QuotationFormData } from "@/hooks/useQuotationForm";
 import { CollectionOrder } from "@/types";
+import { motion } from "framer-motion";
 
 const QuotationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,7 +57,9 @@ const QuotationPage: React.FC = () => {
     return (
       <Layout>
         <div className="p-2 sm:p-4 max-w-7xl mx-auto">
-          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-700">Nova Cotação</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-700 dark:text-purple-400">
+            Nova Cotação
+          </h1>
           <div className="text-center py-8">Carregando formulário...</div>
         </div>
       </Layout>
@@ -65,14 +68,21 @@ const QuotationPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="p-2 sm:p-4 max-w-7xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-700">Nova Cotação</h1>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="p-2 sm:p-4 max-w-7xl mx-auto"
+      >
+        <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-purple-700 dark:text-purple-400">
+          Nova Cotação
+        </h1>
         <QuotationForm 
           onSave={handleSaveQuotation}
           onCancel={handleCancel}
           onConvertToOrder={handleConvertToOrder}
         />
-      </div>
+      </motion.div>
     </Layout>
   );
 };
