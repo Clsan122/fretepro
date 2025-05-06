@@ -53,14 +53,16 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
       <div className="flex flex-1">
         {/* Desktop Sidebar */}
         <SidebarProvider defaultOpen={true}>
-          {!isMobile && (
-            <SidebarComponent handleNavigate={handleNavigate} />
-          )}
+          <div className="flex w-full">
+            {!isMobile && (
+              <SidebarComponent handleNavigate={handleNavigate} />
+            )}
 
-          {/* Content */}
-          <main className={cn("flex-grow container mx-auto px-4 py-4", isMobile && "has-mobile-nav")}>
-            {children || <Outlet />}
-          </main>
+            {/* Content */}
+            <main className={cn("flex-grow container mx-auto px-4 py-4", isMobile && "has-mobile-nav")}>
+              {children || <Outlet />}
+            </main>
+          </div>
         </SidebarProvider>
       </div>
 
