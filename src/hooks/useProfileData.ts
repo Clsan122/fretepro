@@ -12,6 +12,17 @@ interface ProfileData {
   phone?: string;
 }
 
+interface UserWithCustomProperties {
+  id?: string;
+  email?: string | null;
+  name?: string;
+  displayName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  phone?: string;
+}
+
 export const useProfileData = () => {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -25,12 +36,17 @@ export const useProfileData = () => {
       // Simulando carregamento de dados do perfil
       // Em uma implementação real, isso seria uma chamada API
       setTimeout(() => {
+        const userWithCustomProps = user as unknown as UserWithCustomProperties;
+        
         setProfileData({
-          name: user.displayName || user.email?.split('@')[0] || 'Usuário',
-          address: user.address || '',
-          city: user.city || '',
-          state: user.state || '',
-          phone: user.phone || '',
+          name: userWithCustomProps.name || 
+                userWithCustomProps.displayName || 
+                userWithCustomProps.email?.split('@')[0] || 
+                'Usuário',
+          address: userWithCustomProps.address || '',
+          city: userWithCustomProps.city || '',
+          state: userWithCustomProps.state || '',
+          phone: userWithCustomProps.phone || '',
         });
         
         setCompanyData({

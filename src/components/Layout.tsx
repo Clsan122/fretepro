@@ -1,10 +1,11 @@
+
 import React, { useState } from "react";
 import AppLayout from "./AppLayout";
 import SidebarComponent from "@/components/layout/SidebarComponent";
 import Header from "@/components/layout/Header";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
@@ -14,22 +15,35 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { isOnline } = useOnlineStatus();
-  const { isMobile } = useMobile();
+  const isOnline = useOnlineStatus();
+  const isMobile = useIsMobile();
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleNavigate = (path: string) => {
+    // Navigation logic here
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Header 
+        isMobile={isMobile} 
+        isMenuOpen={isMenuOpen} 
+        toggleMenu={toggleMenu} 
+      />
       <div className="flex flex-1">
         {/* Sidebar com capacidade de toggle */}
         <div className={cn("transition-all duration-300 ease-in-out", 
           sidebarVisible ? "w-64" : "w-0 overflow-hidden")}>
-          <SidebarComponent />
+          <SidebarComponent handleNavigate={handleNavigate} />
         </div>
         
         <div className="flex-1 flex flex-col">
