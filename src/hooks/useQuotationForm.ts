@@ -59,19 +59,31 @@ export const useQuotationForm = (initialData?: Partial<QuotationFormData>) => {
   const { formData, updateField } = useQuotationFormState(initialData);
   
   // Additional hooks for quotation functionality
-  const { clients, selectedClient, setSelectedClient } = useQuotationClients(formData.clientId);
+  const { clients, handleClientChange } = useQuotationClients();
   const { drivers } = useQuotationDrivers();
-  const { updateCalculations } = useQuotationCalculations(formData, updateField);
+  const { calculateCubicMeasurement, calculateInsurance, calculateTotal } = useQuotationCalculations();
   
   // Handle client selection
   const handleClientSelect = (clientId: string) => {
-    updateField("clientId", clientId);
-    
-    // Find the selected client
-    const client = clients.find(c => c.id === clientId);
-    if (client) {
-      setSelectedClient(client);
-    }
+    handleClientChange(clientId, updateField);
+  };
+
+  // Calculate insurance based on merchandise value and percentage
+  const updateInsurance = () => {
+    const insuranceValue = calculateInsurance(formData.merchandiseValue, formData.insurancePercentage);
+    updateField("insurance", insuranceValue);
+  };
+
+  // Update total value based on all components
+  const updateTotal = () => {
+    const total = calculateTotal(formData.quotedValue, formData.toll, formData.insurance, formData.others);
+    updateField("totalValue", total);
+  };
+
+  // Update calculations when needed
+  const updateCalculations = () => {
+    updateInsurance();
+    updateTotal();
   };
   
   // Handle form submission
@@ -136,7 +148,6 @@ export const useQuotationForm = (initialData?: Partial<QuotationFormData>) => {
     handleSubmit,
     isSubmitting,
     clients,
-    selectedClient,
     handleClientSelect,
     drivers,
     handleConvertToOrder,

@@ -3,34 +3,32 @@ import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { useCitiesByUf } from "@/hooks/useCitiesByUf";
 import { BRAZILIAN_STATES } from "@/utils/constants";
 
 interface LocationSectionProps {
   originCity: string;
-  setOriginCity: (city: string) => void;
   originState: string;
-  setOriginState: (state: string) => void;
   destinationCity: string;
-  setDestinationCity: (city: string) => void;
   destinationState: string;
-  setDestinationState: (state: string) => void;
+  updateField: (field: string, value: any) => void;
 }
 
 export const LocationSection: React.FC<LocationSectionProps> = ({
   originCity,
-  setOriginCity,
   originState,
-  setOriginState,
   destinationCity,
-  setDestinationCity,
   destinationState,
-  setDestinationState,
+  updateField,
 }) => {
   const { cities: originCities, loading: originLoading } = useCitiesByUf(originState);
   const { cities: destinationCities, loading: destinationLoading } = useCitiesByUf(destinationState);
+
+  const setOriginCity = (city: string) => updateField("originCity", city);
+  const setOriginState = (state: string) => updateField("originState", state);
+  const setDestinationCity = (city: string) => updateField("destinationCity", city);
+  const setDestinationState = (state: string) => updateField("destinationState", state);
 
   return (
     <Card>
@@ -51,8 +49,8 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {BRAZILIAN_STATES.map((state) => (
-                    <SelectItem key={state.uf} value={state.uf}>
-                      {state.name} ({state.uf})
+                    <SelectItem key={state.abbreviation} value={state.abbreviation}>
+                      {state.name} ({state.abbreviation})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -62,15 +60,30 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
             <div className="space-y-2">
               <Label htmlFor="originCity">Cidade de Origem</Label>
               {originState ? (
-                <Combobox
-                  items={originCities.map(city => ({
-                    label: city.nome,
-                    value: city.nome,
-                  }))}
-                  value={originCity}
-                  onChange={setOriginCity}
-                  placeholder={originLoading ? "Carregando..." : "Selecione a cidade"}
-                />
+                originCities.length > 0 ? (
+                  <Select
+                    value={originCity}
+                    onValueChange={setOriginCity}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={originLoading ? "Carregando..." : "Selecione a cidade"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {originCities.map(city => (
+                        <SelectItem key={city.codigo_ibge} value={city.nome}>
+                          {city.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input 
+                    id="originCity" 
+                    value={originCity} 
+                    onChange={(e) => setOriginCity(e.target.value)} 
+                    placeholder={originLoading ? "Carregando cidades..." : "Digite o nome da cidade"} 
+                  />
+                )
               ) : (
                 <Input 
                   id="originCity" 
@@ -94,8 +107,8 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {BRAZILIAN_STATES.map((state) => (
-                    <SelectItem key={state.uf} value={state.uf}>
-                      {state.name} ({state.uf})
+                    <SelectItem key={state.abbreviation} value={state.abbreviation}>
+                      {state.name} ({state.abbreviation})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -105,15 +118,30 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
             <div className="space-y-2">
               <Label htmlFor="destinationCity">Cidade de Destino</Label>
               {destinationState ? (
-                <Combobox
-                  items={destinationCities.map(city => ({
-                    label: city.nome,
-                    value: city.nome,
-                  }))}
-                  value={destinationCity}
-                  onChange={setDestinationCity}
-                  placeholder={destinationLoading ? "Carregando..." : "Selecione a cidade"}
-                />
+                destinationCities.length > 0 ? (
+                  <Select
+                    value={destinationCity}
+                    onValueChange={setDestinationCity}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={destinationLoading ? "Carregando..." : "Selecione a cidade"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {destinationCities.map(city => (
+                        <SelectItem key={city.codigo_ibge} value={city.nome}>
+                          {city.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input 
+                    id="destinationCity" 
+                    value={destinationCity} 
+                    onChange={(e) => setDestinationCity(e.target.value)} 
+                    placeholder={destinationLoading ? "Carregando cidades..." : "Digite o nome da cidade"} 
+                  />
+                )
               ) : (
                 <Input 
                   id="destinationCity" 
@@ -130,3 +158,5 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
     </Card>
   );
 };
+
+export default LocationSection;

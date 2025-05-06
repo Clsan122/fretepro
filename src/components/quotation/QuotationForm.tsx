@@ -33,13 +33,14 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
 }) => {
   const { 
     formData, 
-    clients, 
+    clients,
     drivers, 
     updateField, 
-    handleClientChange, 
-    calculateCubicMeasurement, 
-    updateInsurance, 
-    updateTotal 
+    handleClientSelect,
+    handleSubmit: submitHandler,
+    handleConvertToOrder: convertHandler,
+    handleExportPDF: exportPDFHandler,
+    isSubmitting,
   } = useQuotationForm(initialData);
   
   const { toast } = useToast();
@@ -47,104 +48,20 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   const navigate = useNavigate();
   const pdfExportComponent = useRef<PDFExport>(null);
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [logo, setLogo] = useState("");
+  const [logo, setLogo] = useState(formData.logo || "");
 
-  // Calculate initial values on first load
   useEffect(() => {
-    updateInsurance();
-    updateTotal();
-  }, []);
+    // Update logo in form data when it changes
+    updateField("logo", logo);
+  }, [logo]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    if (!formData.sender || !formData.recipient || !formData.originCity || !formData.destinationCity) {
-      toast({
-        title: "Erro de validação",
-        description: "Por favor, preencha todos os campos obrigatórios",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-    
-    if (onSave) {
-      onSave({
-        ...formData,
-        logo
-      });
-    }
-    
-    toast({
-      title: "Cotação salva",
-      description: "Cotação salva com sucesso",
-    });
-    
-    setIsSubmitting(false);
+    submitHandler(e);
   };
   
   const handleConvertToOrder = () => {
-    if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para criar uma ordem de coleta",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Calcular a cubagem baseada nas dimensões
-    const cubicMeasurement = calculateCubicMeasurement();
-    
-    // Criar o objeto de medida
-    const measurement: Measurement = {
-      id: uuidv4(),
-      length: formData.length,
-      width: formData.width,
-      height: formData.height,
-      quantity: 1
-    };
-    
-    // Criar a ordem de coleta baseada na cotação
-    const newOrder: CollectionOrder = {
-      id: uuidv4(),
-      orderNumber: generateOrderNumber(),
-      sender: formData.sender,
-      senderAddress: formData.senderAddress,
-      senderCnpj: formData.senderCnpj,
-      senderCity: formData.senderCity,
-      senderState: formData.senderState,
-      recipient: formData.recipient,
-      recipientAddress: formData.recipientAddress,
-      originCity: formData.originCity,
-      originState: formData.originState,
-      destinationCity: formData.destinationCity,
-      destinationState: formData.destinationState,
-      shipper: formData.shipper,
-      shipperAddress: formData.shipperAddress,
-      receiver: "", // A ser preenchido depois
-      receiverAddress: "", // A ser preenchido depois
-      volumes: formData.volumes,
-      weight: formData.weight,
-      measurements: [measurement],
-      cubicMeasurement: cubicMeasurement,
-      merchandiseValue: formData.merchandiseValue,
-      invoiceNumber: "", // A ser preenchido depois
-      observations: formData.observations,
-      driverId: formData.driverId !== "none" ? formData.driverId : undefined,
-      companyLogo: logo || user.companyLogo || "",
-      issuerId: user.id,
-      createdAt: new Date().toISOString(),
-      userId: user.id
-    };
-    
-    navigate("/collection-order", { 
-      state: { 
-        prefillData: newOrder
-      } 
-    });
+    convertHandler();
   };
 
   const handleExportPDF = () => {
@@ -167,7 +84,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
             <ClientSection 
               clientId={formData.clientId}
               clients={clients}
-              onClientChange={handleClientChange}
+              onClientChange={handleClientSelect}
             />
           </div>
         </div>
@@ -204,7 +121,10 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
           width={formData.width}
           height={formData.height}
           vehicleType={formData.vehicleType}
-          calculateCubicMeasurement={calculateCubicMeasurement}
+          calculateCubicMeasurement={() => {
+            // Calculando localmente para não depender da função no hook
+            return (formData.length * formData.width * formData.height) / 1000000;
+          }}
           updateField={updateField}
         />
         
@@ -271,7 +191,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               <p><strong>Volumes:</strong> {formData.volumes}</p>
               <p><strong>Peso:</strong> {formData.weight} kg</p>
               <p><strong>Dimensões:</strong> {formData.length}x{formData.width}x{formData.height} m</p>
-              <p><strong>Cubagem:</strong> {calculateCubicMeasurement()} m³</p>
+              <p><strong>Cubagem:</strong> {(formData.length * formData.width * formData.height) / 1000000} m³</p>
               <p><strong>Valor da Mercadoria:</strong> R$ {formData.merchandiseValue.toFixed(2)}</p>
               <p><strong>Tipo de Veículo:</strong> {formData.vehicleType || "N/A"}</p>
             </div>
