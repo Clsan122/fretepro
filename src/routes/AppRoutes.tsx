@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import Clients from "@/pages/Clients";
 import Freights from "@/pages/Freights";
+import FreightNew from "@/pages/FreightNew";
 import Drivers from "@/pages/Drivers";
 import DriverRegister from "@/pages/DriverRegister";
 import DriverEdit from "@/pages/DriverEdit";
@@ -48,6 +49,7 @@ const AppRoutes: React.FC = () => {
       
       {/* Fretes */}
       <Route path="/freights" element={<PrivateRoute><Freights /></PrivateRoute>} />
+      <Route path="/freights/new" element={<PrivateRoute><FreightNew /></PrivateRoute>} />
       <Route path="/freight/:id/receipt" element={<PrivateRoute><FreightReceipt /></PrivateRoute>} />
       <Route path="/freight/receipts" element={<PrivateRoute><FreightSelection /></PrivateRoute>} />
       <Route path="/freight/multi-receipt" element={<PrivateRoute><MultiFreightReceipt /></PrivateRoute>} />

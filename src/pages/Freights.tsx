@@ -34,7 +34,6 @@ const Freights: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [freights, setFreights] = useState<Freight[]>([]);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
@@ -45,16 +44,6 @@ const Freights: React.FC = () => {
       setFreights(userFreights);
     }
   }, [user]);
-
-  const handleCreateFreight = (newFreight: Freight) => {
-    saveFreight(newFreight);
-    setFreights(prevFreights => [newFreight, ...prevFreights]);
-    setIsCreateDialogOpen(false);
-    toast({
-      title: "Frete cadastrado",
-      description: "O frete foi cadastrado com sucesso!"
-    });
-  };
 
   const handleEditFreight = (updatedFreight: Freight) => {
     saveFreight(updatedFreight);
@@ -86,6 +75,10 @@ const Freights: React.FC = () => {
     navigate(`/freight-receipt?ids=${freight.id}`);
   };
 
+  const handleCreateNew = () => {
+    navigate("/freights/new");
+  };
+
   return (
     <Layout>
       <div className="container mx-auto py-6">
@@ -104,7 +97,7 @@ const Freights: React.FC = () => {
               Recibo Múltiplo
             </Button>
             <Button 
-              onClick={() => setIsCreateDialogOpen(true)} 
+              onClick={handleCreateNew}
               className="gap-2 w-full sm:w-auto"
             >
               <Plus className="h-4 w-4" />
@@ -207,18 +200,6 @@ const Freights: React.FC = () => {
             </div>
           </div>
         )}
-
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Novo Frete</DialogTitle>
-            </DialogHeader>
-            <FreightForm 
-              onSave={handleCreateFreight} 
-              onCancel={() => setIsCreateDialogOpen(false)} 
-            />
-          </DialogContent>
-        </Dialog>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
