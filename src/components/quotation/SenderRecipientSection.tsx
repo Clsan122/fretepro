@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { CNPJLookupField } from "@/components/collectionOrder/CNPJLookupField";
+import CNPJLookupField from "@/components/quotation/CNPJLookupField";
 
 interface SenderRecipientSectionProps {
   sender: string;
