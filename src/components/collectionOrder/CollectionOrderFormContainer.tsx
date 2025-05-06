@@ -18,17 +18,20 @@ interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
   onCancel: () => void;
   orderToEdit?: CollectionOrder;
+  fromQuotation?: boolean; // Add the fromQuotation prop
 }
 
 const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> = ({
   onSave,
   onCancel,
-  orderToEdit
+  orderToEdit,
+  fromQuotation = false // Default to false
 }) => {
   const { user } = useAuth();
   const { formData, setters } = useCollectionOrderForm({ orderToEdit });
   
   console.log("CollectionOrderFormContainer - orderToEdit:", orderToEdit);
+  console.log("CollectionOrderFormContainer - fromQuotation:", fromQuotation);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +77,8 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
       shipper: formData.shipper,
-      shipperAddress: formData.shipperAddress
+      shipperAddress: formData.shipperAddress,
+      fromQuotation: fromQuotation // Add the fromQuotation flag to the order
     };
 
     console.log("Saving order:", newOrder);
@@ -171,7 +175,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       <FormActions
         onCancel={onCancel}
         isEditing={Boolean(orderToEdit)}
-        submitLabel={orderToEdit ? "Atualizar Ordem" : "Cadastrar Ordem"}
+        submitLabel={orderToEdit ? "Atualizar Ordem" : (fromQuotation ? "Criar Ordem a partir da Cotação" : "Cadastrar Ordem")}
       />
     </form>
   );

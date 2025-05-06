@@ -15,17 +15,8 @@ export interface State {
 }
 
 export interface City {
-  id: number;
   nome: string;
-  microrregiao: {
-    id: number;
-    nome: string;
-    mesorregiao: {
-      id: number;
-      nome: string;
-      UF: State;
-    };
-  };
+  codigo_ibge: string;
 }
 
 export const useLocationApi = () => {
@@ -64,14 +55,25 @@ export const useLocationApi = () => {
     }
 
     try {
-      const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+      // Using the Brasil API for more comprehensive city data
+      const url = `https://brasilapi.com.br/api/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`;
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Falha ao buscar cidades para UF ${uf}`);
       }
       
       const data = await response.json();
-      return data as City[];
+      
+      // Transform the data to match the expected format
+      if (Array.isArray(data)) {
+        const cities = data.map(item => ({
+          nome: item.nome,
+          codigo_ibge: item.codigo_ibge || ""
+        }));
+        return cities.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      }
+      return [];
     } catch (err: any) {
       console.error(`Erro ao buscar cidades para UF ${uf}:`, err);
       return [];

@@ -22,7 +22,7 @@ export const useCitiesByUf = (uf: string) => {
     setError(null);
     
     try {
-      // Using all requested providers (including wikipedia)
+      // Using Brasil API for better city data
       const url = `https://brasilapi.com.br/api/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`;
       const response = await fetch(url);
       
@@ -39,7 +39,7 @@ export const useCitiesByUf = (uf: string) => {
         const sorted = data
           .map((item) => ({
             nome: item.nome,
-            codigo_ibge: item.codigo_ibge || item.codigoIbge || undefined,
+            codigo_ibge: item.codigo_ibge || "",
           }))
           .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
         setCities(sorted);

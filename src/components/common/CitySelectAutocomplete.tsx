@@ -9,6 +9,7 @@ interface CitySelectAutocompleteProps {
   onChange: (value: string) => void;
   placeholder?: string;
   id?: string;
+  autoComplete?: string;
 }
 
 export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
@@ -16,7 +17,8 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
   value,
   onChange,
   placeholder = "Digite a cidade",
-  id
+  id,
+  autoComplete
 }) => {
   const [inputValue, setInputValue] = useState(value);
   const [suggestions, setSuggestions] = useState<City[]>([]);
@@ -90,6 +92,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
         value={inputValue}
         onChange={handleChange}
         placeholder={placeholder}
+        autoComplete={autoComplete}
         onFocus={() => !isExterior && setShowSuggestions(true)}
         onBlur={() => {
           // Pequeno delay para permitir o clique nas sugestões
@@ -112,7 +115,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
         <div className="absolute z-50 w-full bg-background border border-input mt-1 rounded-md shadow-md max-h-60 overflow-auto">
           {filteredSuggestions.slice(0, 10).map((city) => (
             <div
-              key={city.id}
+              key={city.codigo_ibge || city.nome}
               className="px-3 py-2 cursor-pointer hover:bg-accent text-sm"
               onMouseDown={() => handleSuggestionClick(city.nome)}
             >

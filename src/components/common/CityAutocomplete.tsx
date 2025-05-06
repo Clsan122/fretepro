@@ -105,7 +105,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           <CommandGroup className="max-h-60 overflow-y-auto">
             {filteredCities.map((city) => (
               <CommandItem
-                key={city.id}
+                key={city.codigo_ibge || city.nome}
                 value={city.nome}
                 onSelect={() => {
                   onChange(city.nome);
