@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
 import AppRoutes from "./routes/AppRoutes";
 import { useEffect } from "react";
 import { initializeSyncSystem } from "./utils/sync";
@@ -79,11 +80,13 @@ function AppContent() {
   return (
     <ConnectivityContext.Provider value={{ isOnline, lastSyncTimestamp, setLastSyncTimestamp }}>
       <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
-        <AuthProvider>
-          <AppRoutes />
-          <Toaster />
-          <SonnerToaster position="top-right" closeButton richColors />
-        </AuthProvider>
+        <TooltipProvider>
+          <AuthProvider>
+            <AppRoutes />
+            <Toaster />
+            <SonnerToaster position="top-right" closeButton richColors />
+          </AuthProvider>
+        </TooltipProvider>
       </NotificationContext.Provider>
     </ConnectivityContext.Provider>
   );
