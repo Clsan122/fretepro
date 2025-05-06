@@ -21,13 +21,14 @@ importScripts('/sw/message-handler.js');
 importScripts('/sw/share-handler.js');
 
 // Nome do cache principal
-const CACHE = "fretevalor-main-cache-v4";
+const CACHE = "fretevalor-main-cache-v5";
 const offlineFallbackPage = "/offline.html";
 
 // Lista de imagens PWA críticas para carregar imediatamente
 const CRITICAL_PWA_IMAGES = [
   '/icons/fretevalor-logo.png',
   '/android/android-launchericon-192-192.png',
+  '/ios/180.png',
   '/screenshots/landing-page.png'
 ];
 
@@ -62,8 +63,7 @@ self.addEventListener('install', (event) => {
           await cacheAppShell();
           await cacheUrls(CRITICAL_PWA_IMAGES, `${CACHE}-critical-images`);
           
-          // Iniciar cache de recursos não-críticos, mas não esperar
-          // por eles para ativar o service worker
+          // Iniciar cache de recursos não-críticos
           Promise.all([
             cacheIcons(),
             cacheScreenshots(),
@@ -118,7 +118,7 @@ self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Ativando...');
   
   // Obter CACHE_NAME do módulo
-  const CACHE_NAME = self.cacheStrategies ? self.cacheStrategies.CACHE_NAME : 'fretevalor-v4';
+  const CACHE_NAME = self.cacheStrategies ? self.cacheStrategies.CACHE_NAME : 'fretevalor-v5';
   
   event.waitUntil(
     (async () => {
@@ -156,6 +156,31 @@ if (workbox && workbox.navigationPreload) {
   workbox.navigationPreload.enable();
 }
 
+// Melhorar a sincronização de dados quando o navegador ficar online
+self.addEventListener('online', () => {
+  console.log('[Service Worker] Dispositivo ficou online. Iniciando sincronização...');
+  
+  if (self.syncManager && self.syncManager.syncData) {
+    self.syncManager.syncData()
+      .then((result) => {
+        console.log('[Service Worker] Sincronização automática concluída:', result);
+        
+        // Notificar clientes sobre o status
+        self.clients.matchAll().then((clients) => {
+          clients.forEach((client) => {
+            client.postMessage({
+              type: 'SYNC_COMPLETED',
+              timestamp: new Date().toISOString()
+            });
+          });
+        });
+      })
+      .catch((error) => {
+        console.error('[Service Worker] Erro na sincronização automática:', error);
+      });
+  }
+});
+
 // Manipulador de fetch para interceptar e processar solicitações
 self.addEventListener('fetch', (event) => {
   // Para requisições de navegação (HTML)
@@ -189,6 +214,7 @@ self.addEventListener('fetch', (event) => {
   if (
     (url.pathname.startsWith('/icons/') || 
      url.pathname.startsWith('/android/') || 
+     url.pathname.startsWith('/ios/') || 
      url.pathname.startsWith('/screenshots/')) &&
     event.request.destination === 'image'
   ) {
@@ -251,6 +277,11 @@ self.addEventListener('fetch', (event) => {
     }
   }
   
+  // Adicionar suporte a API para Supabase - não cachear requisições para a API
+  if (url.hostname.includes('supabase') || url.pathname.includes('/rest/') || url.pathname.includes('/auth/')) {
+    return; // Deixa o Supabase lidar com a requisição normalmente
+  }
+  
   // Continuar com estratégias de cache normal gerenciado pelo Workbox
 });
 
@@ -291,3 +322,18 @@ if (self.syncManager && self.syncManager.syncData) {
     }
   });
 }
+
+// Adicionar manipulador para logout - limpar caches sensíveis
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'USER_LOGOUT') {
+    // Limpar cache que pode conter dados sensíveis do usuário
+    caches.keys().then(cacheNames => {
+      cacheNames.forEach(cacheName => {
+        if (cacheName.includes('-user-') || cacheName.includes('-private-')) {
+          caches.delete(cacheName);
+          console.log(`[Service Worker] Cache removido após logout: ${cacheName}`);
+        }
+      });
+    });
+  }
+});

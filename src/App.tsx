@@ -3,15 +3,22 @@ import * as React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "./components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 import AppRoutes from "./routes/AppRoutes";
+import { useEffect } from "react";
+import { initializeSyncSystem } from "./utils/sync";
 
 // Create connectivity context for sharing online/offline state
 interface ConnectivityContextType {
   isOnline: boolean;
+  lastSyncTimestamp: string | null;
+  setLastSyncTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const ConnectivityContext = React.createContext<ConnectivityContextType>({
-  isOnline: navigator.onLine
+  isOnline: navigator.onLine,
+  lastSyncTimestamp: null,
+  setLastSyncTimestamp: () => {},
 });
 
 // Create context for push notifications
@@ -25,12 +32,13 @@ export const NotificationContext = React.createContext<NotificationContextType>(
   setShowNotificationButton: () => {}
 });
 
-function App() {
+function AppContent() {
   // Use React.useState explicitly to avoid the null reference error
   const [isOnline, setIsOnline] = React.useState<boolean>(navigator.onLine);
   const [showNotificationButton, setShowNotificationButton] = React.useState<boolean>(false);
+  const [lastSyncTimestamp, setLastSyncTimestamp] = React.useState<string | null>(null);
   
-  React.useEffect(() => {
+  useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     
@@ -45,6 +53,21 @@ function App() {
       setShowNotificationButton(isSupported);
     };
     
+    // Inicializar sistema de sincronização
+    initializeSyncSystem().catch(error => {
+      console.error('Erro ao inicializar sistema de sincronização:', error);
+    });
+    
+    // Receber mensagens do Service Worker
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'SYNC_COMPLETED') {
+          console.log('Sincronização concluída:', event.data.timestamp);
+          setLastSyncTimestamp(event.data.timestamp);
+        }
+      });
+    }
+    
     checkNotificationSupport();
     
     return () => {
@@ -54,15 +77,22 @@ function App() {
   }, []);
 
   return (
+    <ConnectivityContext.Provider value={{ isOnline, lastSyncTimestamp, setLastSyncTimestamp }}>
+      <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
+        <AuthProvider>
+          <AppRoutes />
+          <Toaster />
+          <SonnerToaster position="top-right" closeButton richColors />
+        </AuthProvider>
+      </NotificationContext.Provider>
+    </ConnectivityContext.Provider>
+  );
+}
+
+function App() {
+  return (
     <BrowserRouter>
-      <ConnectivityContext.Provider value={{ isOnline }}>
-        <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
-          <AuthProvider>
-            <AppRoutes />
-            <Toaster />
-          </AuthProvider>
-        </NotificationContext.Provider>
-      </ConnectivityContext.Provider>
+      <AppContent />
     </BrowserRouter>
   );
 }

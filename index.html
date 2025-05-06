@@ -3,13 +3,13 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
     <title>FreteValor - Gerenciamento de Fretes</title>
     <meta name="description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
     <meta name="author" content="FreteValor" />
 
     <link rel="icon" href="/icons/fretevalor-logo.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/icons/fretevalor-logo.png" />
+    <link rel="apple-touch-icon" href="/ios/180.png" />
     <meta name="theme-color" content="#1E40AF" />
 
     <!-- PWA Manifesto e ícones para Android/iOS/Windows -->
@@ -26,23 +26,41 @@
     <meta name="application-name" content="FreteValor">
     <meta name="msapplication-tooltip" content="FreteValor - Gerenciamento de Fretes">
     <meta name="msapplication-starturl" content="/">
+    <meta name="msapplication-TileImage" content="/ios/144.png">
+
+    <!-- iOS icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/ios/180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/ios/152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/ios/144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/ios/120.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/ios/114.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/ios/76.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/ios/72.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/ios/60.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="/ios/57.png">
 
     <!-- iOS splash screens -->
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-1668-2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-1536-2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-1242-2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-1125-2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-828-1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-750-1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
-    <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-640-1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-2048-2732.png" media="(prefers-color-scheme: dark) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-1668-2388.png" media="(prefers-color-scheme: dark) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-1536-2048.png" media="(prefers-color-scheme: dark) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-1242-2688.png" media="(prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-1125-2436.png" media="(prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-828-1792.png" media="(prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-750-1334.png" media="(prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-dark-640-1136.png" media="(prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    
+    <!-- Light mode splash screens -->
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-2048-2732.png" media="(prefers-color-scheme: light) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-1668-2388.png" media="(prefers-color-scheme: light) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-1536-2048.png" media="(prefers-color-scheme: light) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-1242-2688.png" media="(prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-1125-2436.png" media="(prefers-color-scheme: light) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-828-1792.png" media="(prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-750-1334.png" media="(prefers-color-scheme: light) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/ios/splash/apple-splash-640-1136.png" media="(prefers-color-scheme: light) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 
-    <!-- Extra icons for Windows/Android PWA -->
-    <link rel="icon" sizes="192x192" href="/icons/fretevalor-logo.png" />
-    <link rel="icon" sizes="512x512" href="/icons/fretevalor-logo.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/icons/fretevalor-logo.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="/icons/fretevalor-logo.png" />
-    <link rel="mask-icon" href="/icons/fretevalor-logo.png" color="#1E40AF">
+    <!-- Windows PWA support -->
+    <meta name="msapplication-config" content="browserconfig.xml">
 
     <meta property="og:title" content="FreteValor - Gerenciamento de Fretes" />
     <meta property="og:description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
@@ -67,6 +85,11 @@
         script.src = '/sw/pwa-validator.js';
         script.type = 'text/javascript';
         document.body.appendChild(script);
+      }
+      
+      // Melhorar a experiência em iOS
+      if (navigator.standalone) {
+        document.documentElement.classList.add('standalone');
       }
     </script>
   </body>

@@ -2,107 +2,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FreteValor - Sem conexão</title>
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#1E40AF">
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      background-color: #f9fafb;
-      color: #1f2937;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-    
-    .offline-container {
-      max-width: 500px;
-      padding: 30px;
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    h1 {
-      color: #1E40AF;
-      margin-bottom: 20px;
-    }
-    
-    p {
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-    
-    .icon {
-      font-size: 60px;
-      margin-bottom: 20px;
-      color: #1E40AF;
-    }
-    
-    .button {
-      background-color: #1E40AF;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    
-    .button:hover {
-      background-color: #1c3879;
-    }
-    
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #111827;
-        color: #e5e7eb;
-      }
-      
-      .offline-container {
-        background-color: #1f2937;
-      }
-      
-      h1 {
-        color: #60a5fa;
-      }
-      
-      .icon {
-        color: #60a5fa;
-      }
-      
-      .button {
-        background-color: #2563eb;
-      }
-      
-      .button:hover {
-        background-color: #1d4ed8;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreteValor - Offline</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1E40AF;
+            margin-top: 0;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+        .button {
+            background-color: #1E40AF;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-  <div class="offline-container">
-    <div class="icon">📶</div>
-    <h1>Sem conexão com a internet</h1>
-    <p>Não foi possível carregar a página solicitada porque você está offline. Verifique sua conexão e tente novamente.</p>
-    <p>Algumas funcionalidades do FreteValor estão disponíveis offline, mas esta página específica requer conexão com a internet.</p>
-    <button class="button" onclick="window.location.reload()">Tentar novamente</button>
-  </div>
-  
-  <script>
-    // Check if the user comes back online
-    window.addEventListener('online', () => {
-      window.location.reload();
-    });
-  </script>
+    <div class="container">
+        <img src="/icons/fretevalor-logo.png" alt="FreteValor Logo" class="logo">
+        <h1>Você está offline</h1>
+        <p>Parece que você está sem conexão com a internet no momento.</p>
+        <p>Muitas funcionalidades do FreteValor ainda estão disponíveis no modo offline.</p>
+        <a href="/" class="button">Tentar novamente</a>
+        <div class="info">
+            <p>O FreteValor utiliza armazenamento local para garantir que você possa continuar trabalhando mesmo sem internet.</p>
+            <p>Seus dados serão sincronizados automaticamente quando a conexão for restabelecida.</p>
+        </div>
+    </div>
 </body>
 </html>
