@@ -52,3 +52,11 @@ export const formatDate = (date: Date): string => {
     year: 'numeric'
   });
 };
+
+// Format number as Brazilian currency (R$)
+export const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(value);
+};
