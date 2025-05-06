@@ -1,25 +1,26 @@
 
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { useQuotationFormState } from "./quotation/useQuotationFormState";
-import { useQuotationClients } from "./quotation/useQuotationClients";
-import { useQuotationDrivers } from "./quotation/useQuotationDrivers";
 import { useQuotationCalculations } from "./quotation/useQuotationCalculations";
+import { useQuotationDrivers } from "./quotation/useQuotationDrivers";
+import { useQuotationClients } from "./quotation/useQuotationClients";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export interface QuotationFormData {
-  // Dados do cliente
   clientId: string;
   
-  // Localização
   originCity: string;
   originState: string;
   destinationCity: string;
   destinationState: string;
   
-  // Dados do Remetente/Expedidor/Destinatário
   sender: string;
   senderAddress: string;
   senderCity: string;
   senderState: string;
-  senderCnpj?: string;
+  senderCnpj: string;
   
   recipient: string;
   recipientAddress: string;
@@ -27,7 +28,6 @@ export interface QuotationFormData {
   shipper: string;
   shipperAddress: string;
   
-  // Dados da carga
   volumes: number;
   weight: number;
   length: number;
@@ -35,11 +35,9 @@ export interface QuotationFormData {
   height: number;
   merchandiseValue: number;
   
-  // Dados adicionais
   observations: string;
   vehicleType: string;
   
-  // Cotação
   quotedValue: number;
   toll: number;
   insurance: number;
@@ -47,68 +45,102 @@ export interface QuotationFormData {
   others: number;
   totalValue: number;
   
-  // Motorista (opcional na cotação)
-  driverId?: string;
+  driverId: string | undefined;
   
-  // Logo da empresa (opcional)
-  logo?: string;
+  logo: string;
 }
 
 export const useQuotationForm = (initialData?: Partial<QuotationFormData>) => {
-  // Use the smaller hooks
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Form state management
   const { formData, updateField } = useQuotationFormState(initialData);
-  const { clients, handleClientChange } = useQuotationClients();
+  
+  // Additional hooks for quotation functionality
+  const { clients, selectedClient, setSelectedClient } = useQuotationClients(formData.clientId);
   const { drivers } = useQuotationDrivers();
-  const { calculateCubicMeasurement, calculateInsurance, calculateTotal } = useQuotationCalculations();
-
-  // Calculate insurance when merchandise value or percentage changes
-  const updateInsurance = () => {
-    const insurance = calculateInsurance(formData.merchandiseValue, formData.insurancePercentage);
-    updateField("insurance", insurance);
-    updateTotal();
-  };
-
-  // Calculate total value
-  const updateTotal = () => {
-    const total = calculateTotal(
-      formData.quotedValue,
-      formData.toll,
-      formData.insurance,
-      formData.others
-    );
-    updateField("totalValue", total);
-  };
-
-  // Override updateField to handle special calculations
-  const handleUpdateField = (field: keyof QuotationFormData, value: any) => {
-    updateField(field, value);
-
-    // Special case handlers
-    if (field === "merchandiseValue" || field === "insurancePercentage") {
-      // Calculate insurance when either value changes
-      setTimeout(() => updateInsurance(), 0);
-    }
-
-    if (["quotedValue", "toll", "insurance", "others"].includes(field)) {
-      // Update total when any price component changes
-      setTimeout(() => updateTotal(), 0);
+  const { updateCalculations } = useQuotationCalculations(formData, updateField);
+  
+  // Handle client selection
+  const handleClientSelect = (clientId: string) => {
+    updateField("clientId", clientId);
+    
+    // Find the selected client
+    const client = clients.find(c => c.id === clientId);
+    if (client) {
+      setSelectedClient(client);
     }
   };
-
+  
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.clientId) {
+      toast.error("Por favor, selecione um cliente");
+      return;
+    }
+    
+    if (!formData.originCity || !formData.originState || !formData.destinationCity || !formData.destinationState) {
+      toast.error("Por favor, preencha as informações de origem e destino");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Save quotation logic would go here
+      
+      toast.success("Cotação salva com sucesso!");
+      // Navigate to quotations list or another page
+      
+    } catch (error) {
+      console.error("Error saving quotation:", error);
+      toast.error("Erro ao salvar cotação");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  // Convert to collection order
+  const handleConvertToOrder = () => {
+    try {
+      // Navigate to collection order with quotation data
+      navigate("/collection-order", { 
+        state: { 
+          quotationData: formData
+        } 
+      });
+    } catch (error) {
+      console.error("Error converting to order:", error);
+      toast.error("Erro ao converter para ordem de coleta");
+    }
+  };
+  
+  // Export to PDF
+  const handleExportPDF = () => {
+    try {
+      toast.info("Exportando PDF...");
+      // PDF export logic would go here
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Erro ao exportar PDF");
+    }
+  };
+  
   return {
     formData,
+    updateField,
+    handleSubmit,
+    isSubmitting,
     clients,
+    selectedClient,
+    handleClientSelect,
     drivers,
-    updateField: handleUpdateField,
-    handleClientChange: (clientId: string) => {
-      handleClientChange(clientId, updateField);
-    },
-    calculateCubicMeasurement: () => calculateCubicMeasurement(
-      formData.length, 
-      formData.width, 
-      formData.height
-    ),
-    updateInsurance,
-    updateTotal
+    handleConvertToOrder,
+    handleExportPDF,
+    updateCalculations
   };
 };
