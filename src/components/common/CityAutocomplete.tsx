@@ -1,60 +1,54 @@
 
-import React, { useState, useMemo } from "react";
-import { Input } from "@/components/ui/input";
-import { BRAZILIAN_CITIES } from "@/utils/cities-data";
+import React, { useState, useEffect, useMemo } from "react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { ChevronsUpDown, Check } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BRAZILIAN_CITIES } from "@/utils/cities-data";
 
 interface CityAutocompleteProps {
   stateAbbreviation: string;
   value: string;
-  onChange: (city: string) => void;
-  label?: string;
+  onChange: (value: string) => void;
   placeholder?: string;
-  disabled?: boolean;
-  autoComplete?: string;
+  className?: string;
 }
 
 export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
   stateAbbreviation,
   value,
   onChange,
-  label,
-  placeholder = "Selecione a cidade...",
-  disabled,
-  autoComplete = "address-level2",
+  placeholder = "Selecione a cidade",
+  className,
 }) => {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const cities = useMemo(() => {
-    if (!stateAbbreviation || stateAbbreviation === 'EX') return [];
-    // Get cities from data and sort them alphabetically
-    const stateCities = BRAZILIAN_CITIES[stateAbbreviation] || [];
-    return [...stateCities].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-  }, [stateAbbreviation]);
-
-  // Filtrar cidades conforme busca do usuário
+  // Filter cities based on the state abbreviation and search term
   const filteredCities = useMemo(() => {
-    if (!search) return cities;
-    return cities.filter(city => city.toLowerCase().includes(search.toLowerCase()));
-  }, [cities, search]);
+    // Ensure we have a valid state and cities data
+    if (!stateAbbreviation || !BRAZILIAN_CITIES[stateAbbreviation]) {
+      return [];
+    }
 
-  if (!stateAbbreviation || stateAbbreviation === "EX") {
-    // Caso seja exterior, mostrar um input normal
-    return (
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled}
-        autoComplete={autoComplete}
-      />
+    const cities = BRAZILIAN_CITIES[stateAbbreviation] || [];
+    
+    if (searchTerm === "") {
+      return cities;
+    }
+    
+    return cities.filter((city) =>
+      city.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }
+  }, [stateAbbreviation, searchTerm]);
+
+  // Reset value when state changes
+  useEffect(() => {
+    if (value && stateAbbreviation && !filteredCities.includes(value)) {
+      onChange("");
+    }
+  }, [stateAbbreviation]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -63,24 +57,21 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", disabled && "opacity-50")}
-          disabled={disabled}
-          type="button"
+          className={cn("w-full justify-between", className)}
         >
           {value || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full min-w-[220px] max-h-[280px] p-0 z-50">
-        <Command>
-          <CommandInput
-            placeholder="Buscar cidade..."
-            value={search}
-            onValueChange={setSearch}
-            autoFocus
+      <PopoverContent className="p-0 w-full">
+        <Command shouldFilter={false}>
+          <CommandInput 
+            placeholder="Buscar cidade..." 
+            value={searchTerm}
+            onValueChange={setSearchTerm}
           />
           <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
-          <CommandGroup className="max-h-64 overflow-y-auto">
+          <CommandGroup className="max-h-60 overflow-y-auto">
             {filteredCities.map((city) => (
               <CommandItem
                 key={city}
@@ -88,11 +79,14 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
                 onSelect={() => {
                   onChange(city);
                   setOpen(false);
+                  setSearchTerm("");
                 }}
-                className="cursor-pointer"
               >
                 <Check
-                  className={cn("mr-2 h-4 w-4", value === city ? "opacity-100" : "opacity-0")}
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === city ? "opacity-100" : "opacity-0"
+                  )}
                 />
                 {city}
               </CommandItem>

@@ -65,7 +65,7 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput placeholder="Buscar cliente..." />
           <CommandEmpty>Cliente não encontrado.</CommandEmpty>
           <CommandGroup>
