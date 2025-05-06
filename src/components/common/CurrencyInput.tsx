@@ -1,8 +1,8 @@
 
 import React from "react";
-import { Input, InputProps } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 
-interface CurrencyInputProps extends Omit<InputProps, "onChange" | "value"> {
+interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
   value: number;
   onChange: (value: number) => void;
   placeholder?: string;
