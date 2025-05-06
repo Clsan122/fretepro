@@ -5,7 +5,6 @@ import QuotationForm from "@/components/quotation/QuotationForm";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { QuotationFormData } from "@/hooks/useQuotationForm";
-import { saveCollectionOrder } from "@/utils/storage";
 import { CollectionOrder } from "@/types";
 
 const QuotationPage: React.FC = () => {

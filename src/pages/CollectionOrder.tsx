@@ -12,7 +12,7 @@ const CollectionOrderPage: React.FC = () => {
   const location = useLocation();
   const { toast } = useToast();
   
-  // Verificar se temos dados preenchidos para edição
+  // Check if we have data for editing or conversion from quotation
   const prefillData = location.state?.prefillData as CollectionOrder | undefined;
 
   const handleSaveOrder = (order: CollectionOrder) => {
