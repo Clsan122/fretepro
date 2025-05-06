@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
+import { FileText, Download, Share2 } from "lucide-react";
 
 interface FormActionsProps {
   onCancel?: () => void;
@@ -33,7 +33,7 @@ const FormActions: React.FC<FormActionsProps> = ({
           onClick={onExportPDF}
           className="flex items-center gap-2"
         >
-          <FileText className="h-4 w-4" />
+          <Download className="h-4 w-4" />
           Exportar PDF
         </Button>
         

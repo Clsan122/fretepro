@@ -28,6 +28,7 @@ import CollectionOrderEdit from "@/pages/CollectionOrderEdit";
 import CollectionOrderView from "@/pages/CollectionOrderView";
 import Quotations from "@/pages/Quotations";
 import Quotation from "@/pages/Quotation";
+import QuotationView from "@/pages/QuotationView";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -72,6 +73,7 @@ const AppRoutes: React.FC = () => {
       {/* Cotações */}
       <Route path="/quotations" element={<PrivateRoute><Quotations /></PrivateRoute>} />
       <Route path="/quotation" element={<PrivateRoute><Quotation /></PrivateRoute>} />
+      <Route path="/quotation/view" element={<PrivateRoute><QuotationView /></PrivateRoute>} />
 
       {/* Not Found */}
       <Route path="*" element={<NotFound />} />
