@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { useCitiesByUf } from "@/hooks/useCitiesByUf";
-import { brazilianStates } from "@/utils/constants";
+import { BRAZILIAN_STATES } from "@/utils/constants";
 
 interface LocationSectionProps {
   originState: string;
@@ -76,9 +76,9 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                   className="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 mt-1 bg-background"
                 >
                   <option value="">Selecione</option>
-                  {brazilianStates.map((state) => (
-                    <option key={state.value} value={state.value}>
-                      {state.label}
+                  {BRAZILIAN_STATES.map((state) => (
+                    <option key={state.abbreviation} value={state.abbreviation}>
+                      {state.abbreviation} - {state.name}
                     </option>
                   ))}
                 </select>
@@ -122,9 +122,9 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                   className="w-full border border-gray-300 dark:border-gray-700 rounded px-3 py-2 mt-1 bg-background"
                 >
                   <option value="">Selecione</option>
-                  {brazilianStates.map((state) => (
-                    <option key={state.value} value={state.value}>
-                      {state.label}
+                  {BRAZILIAN_STATES.map((state) => (
+                    <option key={state.abbreviation} value={state.abbreviation}>
+                      {state.abbreviation} - {state.name}
                     </option>
                   ))}
                 </select>

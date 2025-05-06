@@ -43,7 +43,9 @@ export const useQuotationFormState = (initialData?: Partial<QuotationFormData>) 
     others: initialData?.others || 0,
     totalValue: initialData?.totalValue || 0,
     
-    driverId: initialData?.driverId || undefined
+    driverId: initialData?.driverId || undefined,
+    
+    logo: initialData?.logo || ""
   });
 
   // Function to update any field in the form

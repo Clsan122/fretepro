@@ -49,6 +49,9 @@ export interface QuotationFormData {
   
   // Motorista (opcional na cotação)
   driverId?: string;
+  
+  // Logo da empresa (opcional)
+  logo?: string;
 }
 
 export const useQuotationForm = (initialData?: Partial<QuotationFormData>) => {
