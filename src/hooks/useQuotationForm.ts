@@ -1,8 +1,8 @@
 
-import { useState, useEffect } from "react";
-import { Client, Driver } from "@/types";
-import { useAuth } from "@/context/AuthContext";
-import { getClientsByUserId, getDriversByUserId } from "@/utils/storage";
+import { useQuotationFormState } from "./quotation/useQuotationFormState";
+import { useQuotationClients } from "./quotation/useQuotationClients";
+import { useQuotationDrivers } from "./quotation/useQuotationDrivers";
+import { useQuotationCalculations } from "./quotation/useQuotationCalculations";
 
 export interface QuotationFormData {
   // Dados do cliente
@@ -47,107 +47,22 @@ export interface QuotationFormData {
 }
 
 export const useQuotationForm = (initialData?: Partial<QuotationFormData>) => {
-  const { user } = useAuth();
-
-  const [clients, setClients] = useState<Client[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  
-  const [formData, setFormData] = useState<QuotationFormData>({
-    clientId: initialData?.clientId || "",
-    
-    originCity: initialData?.originCity || "",
-    originState: initialData?.originState || "",
-    destinationCity: initialData?.destinationCity || "",
-    destinationState: initialData?.destinationState || "",
-    
-    sender: initialData?.sender || "",
-    senderAddress: initialData?.senderAddress || "",
-    senderCity: initialData?.senderCity || "",
-    senderState: initialData?.senderState || "",
-    senderCnpj: initialData?.senderCnpj || "",
-    
-    recipient: initialData?.recipient || "",
-    recipientAddress: initialData?.recipientAddress || "",
-    
-    shipper: initialData?.shipper || "",
-    shipperAddress: initialData?.shipperAddress || "",
-    
-    volumes: initialData?.volumes || 0,
-    weight: initialData?.weight || 0,
-    length: initialData?.length || 0,
-    width: initialData?.width || 0,
-    height: initialData?.height || 0,
-    merchandiseValue: initialData?.merchandiseValue || 0,
-    
-    observations: initialData?.observations || "",
-    vehicleType: initialData?.vehicleType || "",
-    
-    quotedValue: initialData?.quotedValue || 0,
-    
-    driverId: initialData?.driverId || undefined
-  });
-
-  // Carregar clientes e motoristas
-  useEffect(() => {
-    if (user) {
-      const userClients = getClientsByUserId(user.id);
-      setClients(userClients);
-      
-      const userDrivers = getDriversByUserId(user.id);
-      setDrivers(userDrivers);
-      
-      // Se for usuário logado e nenhum remetente definido, usar dados do usuário
-      if (!initialData?.sender && user.companyName) {
-        setFormData(prev => ({
-          ...prev,
-          sender: user.companyName || '',
-          senderAddress: user.address || '',
-          senderCity: user.city || '',
-          senderState: user.state || '',
-          senderCnpj: user.cnpj || ''
-        }));
-      }
-    }
-  }, [user, initialData]);
-
-  // Handle para mudança de cliente selecionado
-  const handleClientChange = (clientId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      clientId
-    }));
-    
-    // Encontrar dados do cliente
-    const selectedClient = clients.find(client => client.id === clientId);
-    if (selectedClient) {
-      setFormData(prev => ({
-        ...prev,
-        recipient: selectedClient.name,
-        recipientAddress: selectedClient.address || '',
-      }));
-    }
-  };
-
-  // Função para atualizar qualquer campo do formulário
-  const updateField = (field: keyof QuotationFormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  // Calcular a cubagem
-  const calculateCubicMeasurement = () => {
-    const cubicMeasurement = (formData.length * formData.width * formData.height) / 1000000;
-    return cubicMeasurement;
-  };
+  // Use the smaller hooks
+  const { formData, updateField } = useQuotationFormState(initialData);
+  const { clients, handleClientChange } = useQuotationClients();
+  const { drivers } = useQuotationDrivers();
+  const { calculateCubicMeasurement } = useQuotationCalculations();
 
   return {
     formData,
     clients,
     drivers,
     updateField,
-    handleClientChange,
-    calculateCubicMeasurement
+    handleClientChange: (clientId: string) => handleClientChange(clientId, updateField),
+    calculateCubicMeasurement: () => calculateCubicMeasurement(
+      formData.length, 
+      formData.width, 
+      formData.height
+    )
   };
 };
