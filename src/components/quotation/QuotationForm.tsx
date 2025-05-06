@@ -140,7 +140,13 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       onConvertToOrder(newOrder);
     } else {
       // Navegar para a página de criação de ordem com os dados pré-preenchidos
-      navigate("/collection-order", { state: { prefillData: newOrder } });
+      // e indicar que veio de uma cotação
+      navigate("/collection-order", { 
+        state: { 
+          prefillData: newOrder,
+          fromQuotation: true 
+        } 
+      });
     }
   };
 

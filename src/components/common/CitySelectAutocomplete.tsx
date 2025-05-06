@@ -1,20 +1,13 @@
 
-import React, { useMemo, useState } from "react";
-import { useCitiesByUf } from "@/hooks/useCitiesByUf";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check, MapPin } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { useLocationApi, City } from "@/hooks/useLocationApi";
 
 interface CitySelectAutocompleteProps {
   uf: string;
   value: string;
-  onChange: (city: string) => void;
+  onChange: (value: string) => void;
   placeholder?: string;
-  disabled?: boolean;
-  label?: string;
   id?: string;
 }
 
@@ -22,83 +15,112 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
   uf,
   value,
   onChange,
-  placeholder = "Selecione a cidade",
-  disabled,
-  label,
-  id,
+  placeholder = "Digite a cidade",
+  id
 }) => {
-  const [open, setOpen] = useState(false);
-  const [filter, setFilter] = useState("");
-  const { cities, loading } = useCitiesByUf(uf);
-
-  // Filtrar cidades conforme busca do usuário
-  const filteredCities = useMemo(() => {
-    if (!filter.trim()) return cities;
-    return cities.filter(city =>
-      city.nome.toLowerCase().includes(filter.toLowerCase())
+  const [inputValue, setInputValue] = useState(value);
+  const [suggestions, setSuggestions] = useState<City[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const { getCitiesByState } = useLocationApi();
+  
+  // Atualiza o inputValue quando o valor externo muda
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+  
+  // Busca cidades quando o UF muda
+  useEffect(() => {
+    const loadCities = async () => {
+      if (!uf || uf === 'EX') {
+        setSuggestions([]);
+        return;
+      }
+      
+      setLoading(true);
+      try {
+        const citiesData = await getCitiesByState(uf);
+        setSuggestions(citiesData || []);
+      } catch (error) {
+        console.error("Erro ao buscar cidades:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadCities();
+  }, [uf, getCitiesByState]);
+  
+  // Filtra sugestões baseado no input
+  const filterSuggestions = (input: string) => {
+    if (!input.trim() || !suggestions.length) return [];
+    
+    return suggestions.filter(city => 
+      city.nome.toLowerCase().includes(input.toLowerCase())
     );
-  }, [cities, filter]);
-
-  // Caso seja "EX", campo texto normal para informar país/cidade externa
-  if (!uf || uf === "EX") {
-    return (
+  };
+  
+  const filteredSuggestions = filterSuggestions(inputValue);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    setShowSuggestions(true);
+    
+    // Se o campo for limpo, propaga a mudança
+    if (!value) {
+      onChange("");
+    }
+  };
+  
+  const handleSuggestionClick = (cityName: string) => {
+    setInputValue(cityName);
+    onChange(cityName);
+    setShowSuggestions(false);
+  };
+  
+  // Caso UF seja Exterior, não mostra sugestões
+  const isExterior = uf === 'EX';
+  
+  return (
+    <div className="relative">
       <Input
         id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Informe a cidade ou país"
-        disabled={disabled}
+        value={inputValue}
+        onChange={handleChange}
+        placeholder={placeholder}
+        onFocus={() => !isExterior && setShowSuggestions(true)}
+        onBlur={() => {
+          // Pequeno delay para permitir o clique nas sugestões
+          setTimeout(() => setShowSuggestions(false), 200);
+          
+          // Se o valor for válido, propaga a mudança
+          if (inputValue && inputValue !== value) {
+            onChange(inputValue);
+          }
+        }}
       />
-    );
-  }
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn("w-full justify-between", disabled && "opacity-50")}
-          disabled={disabled}
-        >
-          {value || placeholder}
-          <MapPin className="ml-2 h-4 w-4 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start">
-        <div className="p-2">
-          <Input
-            placeholder="Buscar cidade..."
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="mb-2"
-          />
+      
+      {loading && (
+        <div className="absolute z-50 w-full bg-background border border-input mt-1 rounded-md shadow-md">
+          <div className="px-3 py-2 text-sm text-muted-foreground">Carregando...</div>
         </div>
-        <ScrollArea className="h-[200px]">
-          {loading ? (
-            <div className="p-2 text-center text-sm text-muted-foreground">
-              Carregando cidades...
+      )}
+      
+      {showSuggestions && !isExterior && !loading && filteredSuggestions.length > 0 && (
+        <div className="absolute z-50 w-full bg-background border border-input mt-1 rounded-md shadow-md max-h-60 overflow-auto">
+          {filteredSuggestions.slice(0, 10).map((city) => (
+            <div
+              key={city.id}
+              className="px-3 py-2 cursor-pointer hover:bg-accent text-sm"
+              onMouseDown={() => handleSuggestionClick(city.nome)}
+            >
+              {city.nome}
             </div>
-          ) : filteredCities.length > 0 ? (
-            filteredCities.map((city) => (
-              <Button
-                key={city.codigo_ibge + city.nome}
-                variant="ghost"
-                className="w-full justify-start text-left"
-                onClick={() => { onChange(city.nome); setOpen(false); }}
-              >
-                {city.nome === value && <Check className="mr-2 h-4 w-4" />}
-                {city.nome}
-              </Button>
-            ))
-          ) : (
-            <div className="p-2 text-center text-sm text-muted-foreground">
-              Nenhuma cidade encontrada
-            </div>
-          )}
-        </ScrollArea>
-      </PopoverContent>
-    </Popover>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };

@@ -14,6 +14,8 @@ const CollectionOrderPage: React.FC = () => {
   
   // Verificar se temos dados preenchidos da cotação
   const prefillData = location.state?.prefillData as CollectionOrder | undefined;
+  // Identificar se veio de uma cotação
+  const fromQuotation = location.state?.fromQuotation as boolean || false;
 
   const handleSaveOrder = (order: CollectionOrder) => {
     try {
@@ -41,12 +43,17 @@ const CollectionOrderPage: React.FC = () => {
     <Layout>
       <div className="p-4 md:p-6">
         <h1 className="text-2xl font-bold mb-4">
-          {prefillData ? "Criar Ordem de Coleta a partir de Cotação" : "Nova Ordem de Coleta"}
+          {prefillData && fromQuotation 
+            ? "Criar Ordem de Coleta a partir de Cotação" 
+            : prefillData 
+              ? "Editar Ordem de Coleta" 
+              : "Nova Ordem de Coleta"}
         </h1>
         <CollectionOrderForm 
           onSave={handleSaveOrder} 
           onCancel={handleCancel}
           orderToEdit={prefillData}
+          fromQuotation={fromQuotation}
         />
       </div>
     </Layout>
