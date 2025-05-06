@@ -42,12 +42,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           toggleMenu={toggleMenu} 
         />
         <div className="flex flex-1">
-          {/* Collapsible Sidebar */}
+          {/* Collapsible Sidebar with proper hiding */}
           <div className={cn(
             "transition-all duration-300 ease-in-out", 
-            sidebarOpen ? "w-64" : "w-0 md:w-16"
+            sidebarOpen ? "w-64" : "w-0"
           )}>
-            <SidebarComponent handleNavigate={handleNavigate} />
+            <div className={cn(
+              "h-full overflow-hidden transition-all duration-300",
+              sidebarOpen ? "opacity-100" : "opacity-0 w-0"
+            )}>
+              <SidebarComponent handleNavigate={handleNavigate} />
+            </div>
           </div>
           
           <div className="flex-1 flex flex-col">
