@@ -18,10 +18,13 @@ import { startManualSync } from "@/utils/sync";
 import { useToast } from "@/hooks/use-toast";
 
 const UserMenu: React.FC = () => {
-  const { user, logout } = useAuth();
+  const authContext = useAuth();
   const { toast } = useToast();
   
-  if (!user) return null;
+  // Early return if auth context is not available
+  if (!authContext || !authContext.user) return null;
+  
+  const { user, logout } = authContext;
   
   const initials = user.name
     ? user.name

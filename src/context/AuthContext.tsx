@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
@@ -17,7 +16,8 @@ type AuthContextType = {
   setUser: (user: User) => void;
 };
 
-const AuthContext = createContext<AuthContextType>({
+// Create a default context value to avoid null checks
+const defaultAuthContextValue: AuthContextType = {
   user: null,
   isAuthenticated: false,
   loading: false,
@@ -25,8 +25,12 @@ const AuthContext = createContext<AuthContextType>({
   register: async () => false,
   logout: () => {},
   setUser: () => {},
-});
+};
 
+// Create the context with a default value
+const AuthContext = createContext<AuthContextType>(defaultAuthContextValue);
+
+// Custom hook to use the auth context
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

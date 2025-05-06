@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Menu, Home, TruckIcon, Users, FileText, LogOut, ChevronDown, X, Settings, Calculator } from "lucide-react";
@@ -22,7 +21,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const authContext = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [activeDropdown, setActiveDropdown] = React.useState<string | null>(null);
 
@@ -35,9 +34,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    logout();
-    navigate("/");
+    if (authContext) {
+      authContext.logout();
+      navigate("/");
+    }
   };
+
+  // Check if user is available before rendering user-specific UI
+  const user = authContext?.user;
 
   return (
     <div className="min-h-screen flex flex-col">
