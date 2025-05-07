@@ -73,14 +73,14 @@ export const FreightCompositionSection: React.FC<FreightCompositionSectionProps>
             <Input id="tollValue" type="number" step="0.01" value={tollValue.toString()} onChange={e => setTollValue(Number(e.target.value))} placeholder="Valor do pedágio" min="0" className="transition-all focus:ring-freight-500 focus:border-freight-500" />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 px-0 mx-0 py-0">
             <Label htmlFor="insuranceValue" className="text-base">Seguro</Label>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 px-0 mx-0">
               <div className="relative flex-grow">
-                <Input id="insuranceValue" type="number" step="0.01" value={insuranceValue.toString()} onChange={e => setInsuranceValue(Number(e.target.value))} placeholder="Valor do seguro" min="0" className="transition-all focus:ring-freight-500 focus:border-freight-500 px-[14px]" />
+                <Input id="insuranceValue" type="number" step="0.01" value={insuranceValue.toString()} onChange={e => setInsuranceValue(Number(e.target.value))} placeholder="Valor do seguro" min="0" className="transition-all focus:ring-freight-500 focus:border-freight-500 mx-0 px-[9px]" />
               </div>
               <div className="flex w-24 items-center px-[3px] mx-[34px]">
-                <Input id="insuranceRate" type="number" step="0.01" value={insuranceRate.toString()} onChange={e => handleInsuranceRateChange(Number(e.target.value))} min="0" max="100" className="w-16 text-center transition-all focus:ring-freight-500 focus:border-freight-500 mx-0 px-0" />
+                <Input id="insuranceRate" type="number" step="0.01" value={insuranceRate.toString()} onChange={e => handleInsuranceRateChange(Number(e.target.value))} min="0" max="100" className="w-16 text-center transition-all focus:ring-freight-500 focus:border-freight-500 px-px mx-[8px]" />
                 <span className="ml-1 text-xs whitespace-nowrap px-0 mx-[5px]">%</span>
               </div>
             </div>
@@ -99,11 +99,11 @@ export const FreightCompositionSection: React.FC<FreightCompositionSectionProps>
         </div>
       </CardContent>
       
-      <CardFooter className="bg-freight-50/50 dark:bg-freight-900/50 border-t border-freight-100 dark:border-freight-800 flex justify-between items-center">
+      <CardFooter className="bg-freight-50/50 dark:bg-freight-900/50 border-t border-freight-100 dark:border-freight-800 flex justify-between items-center py-[3px]">
         <div className="flex items-center space-x-2">
           <span className="text-freight-700 dark:text-freight-300 font-medium">Total:</span>
         </div>
-        <div className="text-xl font-bold text-freight-700 dark:text-freight-300">
+        <div className="text-xl font-bold text-freight-700 dark:text-freight-300 py-0 my-[6px]">
           {formatCurrency(totalValue)}
         </div>
       </CardFooter>
