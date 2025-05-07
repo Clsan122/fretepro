@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -33,6 +34,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { QuotationData } from "@/components/quotation/types";
 import { formatCurrency, formatDate } from "@/utils/formatters";
+import { generateQuotationPdf } from "@/utils/pdfGenerator";
 
 const Quotations: React.FC = () => {
   const { user } = useAuth();
@@ -41,19 +43,6 @@ const Quotations: React.FC = () => {
   
   const [quotations, setQuotations] = useState<QuotationData[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
-  };
-  
-  // Format currency
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
   
   useEffect(() => {
     if (user) {
@@ -65,7 +54,7 @@ const Quotations: React.FC = () => {
           (quotation: any) => quotation.userId === user.id
         );
         
-        // Ensure all quotations have a status property
+        // Ensure all quotations have a valid status property
         const updatedQuotations = userQuotations.map((quotation: any) => ({
           ...quotation,
           status: quotation.status === "closed" ? "closed" : "open"
@@ -160,10 +149,29 @@ const Quotations: React.FC = () => {
   };
   
   const handleGeneratePdf = (quotation: QuotationData) => {
-    toast({
-      title: "Gerando PDF",
-      description: "Funcionalidade será implementada em breve"
-    });
+    generateQuotationPdf(quotation.id)
+      .then(success => {
+        if (success) {
+          toast({
+            title: "PDF gerado",
+            description: "O PDF da cotação foi gerado com sucesso"
+          });
+        } else {
+          toast({
+            title: "Erro",
+            description: "Não foi possível gerar o PDF",
+            variant: "destructive"
+          });
+        }
+      })
+      .catch(error => {
+        console.error("Error generating PDF:", error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao gerar o PDF",
+          variant: "destructive"
+        });
+      });
   };
   
   return (
