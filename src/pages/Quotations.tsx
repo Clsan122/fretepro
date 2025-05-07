@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -33,6 +32,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { QuotationData } from "@/components/quotation/types";
+import { formatCurrency, formatDate } from "@/utils/formatters";
 
 const Quotations: React.FC = () => {
   const { user } = useAuth();
@@ -62,14 +62,14 @@ const Quotations: React.FC = () => {
         const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
         // Filter quotations for current user
         const userQuotations = storedQuotations.filter(
-          (quotation: QuotationData) => quotation.userId === user.id
+          (quotation: any) => quotation.userId === user.id
         );
         
         // Ensure all quotations have a status property
         const updatedQuotations = userQuotations.map((quotation: any) => ({
           ...quotation,
-          status: quotation.status || "open"
-        }));
+          status: quotation.status === "closed" ? "closed" : "open"
+        })) as QuotationData[];
         
         setQuotations(updatedQuotations);
         
@@ -140,7 +140,7 @@ const Quotations: React.FC = () => {
       
       // Update in localStorage
       const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
-      const updatedStoredQuotations = storedQuotations.map((quotation: QuotationData) =>
+      const updatedStoredQuotations = storedQuotations.map((quotation: any) =>
         quotation.id === id ? { ...quotation, status: newStatus } : quotation
       );
       localStorage.setItem('quotations', JSON.stringify(updatedStoredQuotations));
