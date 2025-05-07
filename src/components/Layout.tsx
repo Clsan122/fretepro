@@ -8,10 +8,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarProvider } from "./ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-import { ChevronLeft, ChevronRight, WifiOff } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import SidebarComponent from "@/components/layout/SidebarComponent";
 import InstallPWA from "./common/InstallPWA";
-import PushNotificationButton from "./notifications/PushNotificationButton";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -47,15 +46,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           isMenuOpen={isMenuOpen} 
           toggleMenu={toggleMenu} 
         />
-        
-        {/* Offline Banner */}
-        {!isOnline && (
-          <div className="bg-amber-500 text-white py-1 px-4 text-center text-sm flex items-center justify-center gap-2">
-            <WifiOff size={14} />
-            <span>Você está no modo offline. Os dados serão sincronizados quando você ficar online.</span>
-          </div>
-        )}
-        
         <div className="flex flex-1">
           {/* Desktop Sidebar - only show on non-mobile */}
           {!isMobile && (
@@ -90,18 +80,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           )}
           
           <div className="flex-1 flex flex-col relative">
+            {/* Indicador de status online/offline */}
+            {!isOnline && (
+              <div className="bg-orange-500/90 text-white text-center py-1 px-2 text-sm">
+                Você está offline. Algumas funcionalidades podem estar limitadas.
+              </div>
+            )}
+            
             <main className="flex-1 overflow-y-auto bg-muted/40">
               <div className="layout-main pb-20 md:pb-4">
                 {children}
               </div>
             </main>
-            
-            {/* Notification settings - apenas exibir uma vez na versão desktop */}
-            {!isMobile && (
-              <div className="fixed bottom-8 right-4 z-40">
-                <PushNotificationButton />
-              </div>
-            )}
             
             {/* Botão de instalação do PWA */}
             <InstallPWA />

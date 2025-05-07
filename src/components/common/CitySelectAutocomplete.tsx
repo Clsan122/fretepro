@@ -1,164 +1,148 @@
 
-import React, { useState, useEffect, useMemo } from "react";
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-import { useCitiesByUf } from "@/hooks/useCitiesByUf";
+import React, { useState, useEffect, useRef } from "react";
+import { Input } from "@/components/ui/input";
+import { useCitiesByUf, City } from "@/hooks/useCitiesByUf";
 
 interface CitySelectAutocompleteProps {
+  uf: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  disabled?: boolean;
   id?: string;
-  uf: string;
+  autoComplete?: string;
 }
 
 export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
+  uf,
   value,
   onChange,
-  placeholder = "Digite para buscar a cidade",
-  disabled = false,
+  placeholder = "Digite a cidade",
   id,
-  uf,
+  autoComplete
 }) => {
-  const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const { cities, loading } = useCitiesByUf(uf);
-  const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    // Reset input value when UF changes
-    if (uf) {
-      setInputValue("");
-    }
-  }, [uf]);
+  const [inputValue, setInputValue] = useState(value);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [debouncedInput, setDebouncedInput] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
   
-  // Normalize text (remove accents and make lowercase)
-  const normalizeText = (text: string): string => {
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-  };
-
-  const filteredCities = useMemo(() => {
-    if (!inputValue || inputValue.length < 1) {
-      return showAll ? cities : [];
+  const { cities, loading } = useCitiesByUf(uf);
+  
+  // Atualiza o inputValue quando o valor externo muda
+  useEffect(() => {
+    setInputValue(value);
+    setDebouncedInput(value);
+  }, [value]);
+  
+  // Implementação de debounce para melhorar performance
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedInput(inputValue);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+  
+  // Filtra sugestões baseado no input com destaque para iniciais
+  const filterSuggestions = (input: string): City[] => {
+    if (!input.trim() || !cities || cities.length === 0) {
+      return [];
     }
-
-    const normalizedInput = normalizeText(inputValue);
+    
+    const normalizedInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     
     return cities.filter(city => {
-      const normalizedCity = normalizeText(city.nome);
+      const normalizedCityName = city.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return normalizedCityName.includes(normalizedInput);
+    }).sort((a, b) => {
+      // Prioriza cidades que começam com o input
+      const aStarts = a.nome.toLowerCase().startsWith(input.toLowerCase());
+      const bStarts = b.nome.toLowerCase().startsWith(input.toLowerCase());
       
-      // Match by full name
-      if (normalizedCity.includes(normalizedInput)) {
-        return true;
-      }
-      
-      // Match by initials
-      const words = normalizedCity.split(' ');
-      if (words.length > 1) {
-        const initials = words.map(word => word[0]).join('');
-        return initials.includes(normalizedInput);
-      }
-      
-      return false;
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return a.nome.localeCompare(b.nome);
     });
-  }, [cities, inputValue, showAll]);
-
-  const handleInputChange = (value: string) => {
+  };
+  
+  const filteredSuggestions = filterSuggestions(debouncedInput);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     setInputValue(value);
+    setShowSuggestions(true);
     
-    // Show all results when input is empty and user clicks on the field
-    if (value.length === 0) {
-      setShowAll(true);
-    } else if (value.length > 0) {
-      setShowAll(true);
+    // Se o campo for limpo, propaga a mudança
+    if (!value) {
+      onChange("");
     }
   };
-
-  const handleSelect = (selectedValue: string) => {
-    onChange(selectedValue);
-    setInputValue("");
-    setOpen(false);
+  
+  const handleSuggestionClick = (cityName: string) => {
+    setInputValue(cityName);
+    onChange(cityName);
+    setShowSuggestions(false);
+    inputRef.current?.blur();
   };
-
-  if (uf === 'EX') {
-    // For foreign countries, use a regular input
-    return (
-      <input
-        type="text"
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      />
-    );
-  }
-
+  
+  // Caso UF seja Exterior, não mostra sugestões
+  const isExterior = uf === 'EX';
+  
   return (
-    <Command className="relative bg-background" shouldFilter={false}>
-      <CommandInput
+    <div className="relative">
+      <Input
+        ref={inputRef}
         id={id}
-        placeholder={placeholder}
-        disabled={disabled}
         value={inputValue}
-        onValueChange={handleInputChange}
+        onChange={handleChange}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        onFocus={() => !isExterior && setShowSuggestions(true)}
         onBlur={() => {
-          setTimeout(() => {
-            setOpen(false);
-          }, 200);
+          // Pequeno delay para permitir o clique nas sugestões
+          setTimeout(() => setShowSuggestions(false), 200);
+          
+          // Se o valor for válido, propaga a mudança
+          if (inputValue && inputValue !== value) {
+            onChange(inputValue);
+          }
         }}
-        onFocus={() => setOpen(true)}
-        className={cn(
-          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        )}
       />
-      {open && (
-        <div className="absolute mt-1 w-full z-10">
-          <CommandList className="max-h-52 overflow-y-auto rounded-md border bg-popover shadow-md">
-            {loading ? (
-              <CommandGroup>
-                <CommandItem disabled>Carregando...</CommandItem>
-              </CommandGroup>
-            ) : filteredCities.length === 0 ? (
-              <CommandEmpty>
-                {uf ? "Nenhuma cidade encontrada" : "Selecione um estado primeiro"}
-              </CommandEmpty>
-            ) : (
-              <>
-                {filteredCities.map((city) => (
-                  <CommandItem
-                    key={city.codigo_ibge || city.nome}
-                    value={city.nome}
-                    onSelect={() => handleSelect(city.nome)}
-                    className={cn("cursor-pointer", city.nome === value && "bg-accent text-accent-foreground")}
-                  >
-                    {city.nome}
-                  </CommandItem>
-                ))}
-              </>
-            )}
-          </CommandList>
+      
+      {loading && (
+        <div className="absolute z-50 w-full bg-background border border-input mt-1 rounded-md shadow-md">
+          <div className="px-3 py-2 text-sm text-muted-foreground">Carregando...</div>
         </div>
       )}
-      {value && !open && (
-        <div className="mt-1 flex items-center gap-1">
-          <div className="rounded-md bg-secondary px-2 py-1 text-xs">
-            {value}
-            <button
-              type="button"
-              className="ml-1 text-secondary-foreground hover:text-destructive"
-              onClick={() => onChange("")}
-            >
-              ×
-            </button>
-          </div>
+      
+      {showSuggestions && !isExterior && !loading && filteredSuggestions.length > 0 && (
+        <div className="absolute z-50 w-full bg-background border border-input mt-1 rounded-md shadow-md max-h-60 overflow-auto">
+          {filteredSuggestions.slice(0, 15).map((city) => {
+            // Destaca parte do texto correspondente ao input
+            const cityName = city.nome;
+            const index = cityName.toLowerCase().indexOf(inputValue.toLowerCase());
+            
+            return (
+              <div
+                key={city.codigo_ibge || city.nome}
+                className="px-3 py-2 cursor-pointer hover:bg-accent text-sm"
+                onMouseDown={() => handleSuggestionClick(city.nome)}
+              >
+                {index >= 0 ? (
+                  <>
+                    {cityName.substring(0, index)}
+                    <span className="font-semibold bg-yellow-100 dark:bg-yellow-900/30">
+                      {cityName.substring(index, index + inputValue.length)}
+                    </span>
+                    {cityName.substring(index + inputValue.length)}
+                  </>
+                ) : (
+                  cityName
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
-    </Command>
+    </div>
   );
 };
