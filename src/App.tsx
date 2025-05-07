@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "./components/ui/toaster";
 import AppRoutes from "./routes/AppRoutes";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 // Criar contexto de conectividade para compartilhar estado online/offline
 interface ConnectivityContextType {
@@ -54,14 +55,16 @@ function App() {
 
   return (
     <BrowserRouter>
-      <ConnectivityContext.Provider value={{ isOnline }}>
-        <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
-          <AuthProvider>
-            <AppRoutes />
-            <Toaster />
-          </AuthProvider>
-        </NotificationContext.Provider>
-      </ConnectivityContext.Provider>
+      <TooltipProvider>
+        <ConnectivityContext.Provider value={{ isOnline }}>
+          <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
+            <AuthProvider>
+              <AppRoutes />
+              <Toaster />
+            </AuthProvider>
+          </NotificationContext.Provider>
+        </ConnectivityContext.Provider>
+      </TooltipProvider>
     </BrowserRouter>
   );
 }
