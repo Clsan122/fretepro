@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { BRAZILIAN_CITIES } from "@/utils/cities-data";
+import { useBrazilCities } from "@/hooks/useBrazilCities";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -29,18 +29,12 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-
-  const cities = useMemo(() => {
-    if (!stateAbbreviation || stateAbbreviation === 'EX') return [];
-    // Get cities from data and sort them alphabetically
-    const stateCities = BRAZILIAN_CITIES[stateAbbreviation] || [];
-    return [...stateCities].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-  }, [stateAbbreviation]);
+  const { cities, loading } = useBrazilCities(stateAbbreviation);
 
   // Filtrar cidades conforme busca do usuário
   const filteredCities = useMemo(() => {
     if (!search) return cities;
-    return cities.filter(city => city.toLowerCase().includes(search.toLowerCase()));
+    return cities.filter(city => city.nome.toLowerCase().includes(search.toLowerCase()));
   }, [cities, search]);
 
   if (!stateAbbreviation || stateAbbreviation === "EX") {
@@ -79,25 +73,31 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
             onValueChange={setSearch}
             autoFocus
           />
-          <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
-          <CommandGroup className="max-h-64 overflow-y-auto">
-            {filteredCities.map((city) => (
-              <CommandItem
-                key={city}
-                value={city}
-                onSelect={() => {
-                  onChange(city);
-                  setOpen(false);
-                }}
-                className="cursor-pointer"
-              >
-                <Check
-                  className={cn("mr-2 h-4 w-4", value === city ? "opacity-100" : "opacity-0")}
-                />
-                {city}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {loading ? (
+            <div className="py-2 px-4 text-sm text-muted-foreground">Carregando cidades...</div>
+          ) : (
+            <>
+              <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
+              <CommandGroup className="max-h-64 overflow-y-auto">
+                {filteredCities.map((city) => (
+                  <CommandItem
+                    key={city.codigo_ibge}
+                    value={city.nome}
+                    onSelect={() => {
+                      onChange(city.nome);
+                      setOpen(false);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Check
+                      className={cn("mr-2 h-4 w-4", value === city.nome ? "opacity-100" : "opacity-0")}
+                    />
+                    {city.nome}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
         </Command>
       </PopoverContent>
     </Popover>

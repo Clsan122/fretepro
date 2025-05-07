@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState } from "react";
-import { useCitiesByUf } from "@/hooks/useCitiesByUf";
+import { useBrazilCities } from "@/hooks/useBrazilCities";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
-  const { cities, loading } = useCitiesByUf(uf);
+  const { cities, loading } = useBrazilCities(uf);
 
   // Filtrar cidades conforme busca do usuário
   const filteredCities = useMemo(() => {
@@ -83,7 +83,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
           ) : filteredCities.length > 0 ? (
             filteredCities.map((city) => (
               <Button
-                key={city.codigo_ibge + city.nome}
+                key={city.codigo_ibge}
                 variant="ghost"
                 className="w-full justify-start text-left"
                 onClick={() => { onChange(city.nome); setOpen(false); }}
