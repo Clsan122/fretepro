@@ -13,11 +13,12 @@ import { LocationSection } from "@/components/quotation/LocationSection";
 import { FreightCompositionSection } from "@/components/quotation/FreightCompositionSection";
 import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
-import { Loader2, Save, FileDown, FilePdf } from "lucide-react";
+import { Loader2, Save, FileDown, FileText } from "lucide-react";
 import { getClientsByUserId } from "@/utils/storage";
 import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
 import { generateQuotationNumber } from "@/utils/quotationNumber";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { generateQuotationPdf } from "@/utils/pdfGenerator";
 
 const QuotationForm: React.FC = () => {
   const { user } = useAuth();
@@ -268,42 +269,21 @@ const QuotationForm: React.FC = () => {
           description: "Aguarde enquanto preparamos o documento..."
         });
         
-        // Dar tempo para o DOM renderizar completamente
-        setTimeout(async () => {
-          const printElement = document.getElementById('quotation-pdf-preview');
-          
-          if (!printElement) {
-            throw new Error("Elemento de impressão não encontrado");
-          }
-          
-          const canvas = await html2canvas(printElement, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            windowWidth: 800,
-            backgroundColor: '#FFFFFF'
-          });
-          
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
-          
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const imgWidth = pageWidth - 20; // Margem de 10mm em cada lado
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          
-          pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-          
-          pdf.save(`cotacao-previa-${new Date().getTime()}.pdf`);
-          
+        // Use the utility function to generate the PDF
+        const success = await generateQuotationPdf("preview");
+        
+        if (success) {
           toast({
             title: "PDF gerado",
             description: "O PDF foi baixado com sucesso"
           });
-        }, 500);
+        } else {
+          toast({
+            title: "Erro",
+            description: "Não foi possível gerar o PDF",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
@@ -402,7 +382,7 @@ const QuotationForm: React.FC = () => {
               className="w-full md:w-auto"
               onClick={handleGeneratePdf}
             >
-              <FilePdf className="mr-2 h-5 w-5" />
+              <FileText className="mr-2 h-5 w-5" />
               Visualizar PDF
             </Button>
             
@@ -434,7 +414,7 @@ const QuotationForm: React.FC = () => {
             </Button>
             <Button onClick={handleDownloadPdf} className="gap-2">
               <span className="hidden sm:inline">Baixar PDF</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-down h-5 w-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+              <FileDown className="h-5 w-5" />
             </Button>
           </div>
           
