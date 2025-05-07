@@ -49,7 +49,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
     const normalizedInput = normalizeText(inputValue);
     
     return cities.filter(city => {
-      const normalizedCity = normalizeText(city);
+      const normalizedCity = normalizeText(city.nome);
       
       // Match by full name
       if (normalizedCity.includes(normalizedInput)) {
@@ -132,12 +132,12 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
               <>
                 {filteredCities.map((city) => (
                   <CommandItem
-                    key={city}
-                    value={city}
-                    onSelect={() => handleSelect(city)}
-                    className={cn("cursor-pointer", city === value && "bg-accent text-accent-foreground")}
+                    key={city.codigo_ibge || city.nome}
+                    value={city.nome}
+                    onSelect={() => handleSelect(city.nome)}
+                    className={cn("cursor-pointer", city.nome === value && "bg-accent text-accent-foreground")}
                   >
-                    {city}
+                    {city.nome}
                   </CommandItem>
                 ))}
               </>
