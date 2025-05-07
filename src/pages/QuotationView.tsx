@@ -18,6 +18,7 @@ const QuotationView: React.FC = () => {
   const [quotation, setQuotation] = useState<QuotationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   
   useEffect(() => {
     if (id) {
@@ -52,31 +53,40 @@ const QuotationView: React.FC = () => {
     }
   }, [id, navigate, toast]);
 
-  const handleGeneratePdf = () => {
+  const handleGeneratePdf = async () => {
     if (id) {
-      generateQuotationPdf(id)
-        .then(success => {
-          if (success) {
-            toast({
-              title: "PDF gerado",
-              description: "O PDF da cotação foi gerado com sucesso"
-            });
-          } else {
-            toast({
-              title: "Erro",
-              description: "Não foi possível gerar o PDF",
-              variant: "destructive"
-            });
-          }
-        })
-        .catch(error => {
-          console.error("Error generating PDF:", error);
+      setGeneratingPdf(true);
+      
+      toast({
+        title: "Gerando PDF",
+        description: "Aguarde enquanto preparamos o documento..."
+      });
+      
+      try {
+        const success = await generateQuotationPdf(id);
+        
+        if (success) {
+          toast({
+            title: "PDF gerado",
+            description: "O PDF da cotação foi gerado com sucesso"
+          });
+        } else {
           toast({
             title: "Erro",
-            description: "Ocorreu um erro ao gerar o PDF",
+            description: "Não foi possível gerar o PDF",
             variant: "destructive"
           });
+        }
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao gerar o PDF",
+          variant: "destructive"
         });
+      } finally {
+        setGeneratingPdf(false);
+      }
     }
   };
 
@@ -146,10 +156,11 @@ const QuotationView: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={handleGeneratePdf}
+                disabled={generatingPdf}
                 className="flex items-center"
               >
                 <Download className="mr-2 h-4 w-4" />
-                Baixar PDF
+                {generatingPdf ? "Gerando..." : "Baixar PDF"}
               </Button>
               <Button
                 variant="outline"
@@ -171,6 +182,7 @@ const QuotationView: React.FC = () => {
           </div>
         </div>
         
+        {/* Conteúdo do PDF */}
         <div className="print-container">
           <Card className="p-6 shadow-md print-no-shadow">
             <QuotationPdfDocument quotation={quotation} />

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -13,7 +12,7 @@ import { LocationSection } from "@/components/quotation/LocationSection";
 import { FreightCompositionSection } from "@/components/quotation/FreightCompositionSection";
 import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
-import { Loader2, Save, FileDown, FileText } from "lucide-react";
+import { Loader2, Save, FileDown, FileText, Printer } from "lucide-react";
 import { getClientsByUserId } from "@/utils/storage";
 import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
 import { generateQuotationNumber } from "@/utils/quotationNumber";
@@ -62,6 +61,7 @@ const QuotationForm: React.FC = () => {
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(false);
   const [quotationForPdf, setQuotationForPdf] = useState<QuotationData | null>(null);
   const [tempOrderNumber, setTempOrderNumber] = useState<string>("");
+  const [generatingPdf, setGeneratingPdf] = useState<boolean>(false);
   
   useEffect(() => {
     // Calculate insurance value based on merchandise value and rate
@@ -264,6 +264,8 @@ const QuotationForm: React.FC = () => {
   const handleDownloadPdf = async () => {
     try {
       if (quotationForPdf) {
+        setGeneratingPdf(true);
+        
         toast({
           title: "Gerando PDF",
           description: "Aguarde enquanto preparamos o documento..."
@@ -292,6 +294,8 @@ const QuotationForm: React.FC = () => {
         description: "Não foi possível gerar o PDF",
         variant: "destructive"
       });
+    } finally {
+      setGeneratingPdf(false);
     }
   };
   
@@ -405,21 +409,31 @@ const QuotationForm: React.FC = () => {
       {/* Modal para exibição do PDF */}
       <Dialog open={isPdfOpen} onOpenChange={setIsPdfOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogTitle>Pré-visualização da Cotação</DialogTitle>
+          <DialogTitle className="flex justify-between items-center">
+            <span>Pré-visualização da Cotação</span>
+          </DialogTitle>
           
           <div className="flex justify-end gap-2 mb-4">
             <Button variant="outline" onClick={handlePrintPdf} className="gap-2">
+              <Printer className="h-5 w-5" />
               <span className="hidden sm:inline">Imprimir</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-printer h-5 w-5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
             </Button>
-            <Button onClick={handleDownloadPdf} className="gap-2">
-              <span className="hidden sm:inline">Baixar PDF</span>
+            <Button 
+              onClick={handleDownloadPdf} 
+              disabled={generatingPdf}
+              className="gap-2"
+            >
               <FileDown className="h-5 w-5" />
+              <span className="hidden sm:inline">
+                {generatingPdf ? "Gerando..." : "Baixar PDF"}
+              </span>
             </Button>
           </div>
           
-          <div id="quotation-pdf-preview" className="p-6 bg-white border rounded-md">
-            {quotationForPdf && <QuotationPdfDocument quotation={quotationForPdf} />}
+          <div className="p-2 border rounded-md bg-white">
+            <div id="quotation-pdf-preview" className="overflow-auto scale-[0.7] origin-top-left mx-auto">
+              {quotationForPdf && <QuotationPdfDocument quotation={quotationForPdf} />}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
