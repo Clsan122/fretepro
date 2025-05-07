@@ -52,7 +52,7 @@ export const OriginLocationFields: React.FC<OriginLocationFieldsProps> = ({
           uf={originState}
           value={originCity}
           onChange={setOriginCity}
-          placeholder={originState === 'EX' ? "Digite o país de origem" : "Selecione a cidade"}
+          placeholder={originState === 'EX' ? "Digite o país de origem" : "Digite para buscar a cidade"}
           id="originCity"
         />
       </div>

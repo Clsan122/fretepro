@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NetworkStatusProvider } from "@/context/NetworkStatusContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,14 +20,18 @@ function App() {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
-        <NetworkStatusProvider>
-          <Router>
-            <AuthProvider>
-              <AppRoutes />
-              <Toaster />
-            </AuthProvider>
-          </Router>
-        </NetworkStatusProvider>
+        <TooltipProvider>
+          <NetworkStatusProvider>
+            <Router>
+              <AuthProvider>
+                <div className="min-h-screen bg-background antialiased overflow-hidden">
+                  <AppRoutes />
+                  <Toaster />
+                </div>
+              </AuthProvider>
+            </Router>
+          </NetworkStatusProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
