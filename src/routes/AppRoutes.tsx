@@ -1,5 +1,6 @@
+
 import * as React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 // Components
 import PrivateRoute from "@/components/auth/PrivateRoute";
@@ -40,7 +41,7 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       
       {/* Protected routes */}
-      <Route element={<PrivateRoute />}>
+      <Route element={<PrivateRoute><Outlet /></PrivateRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         
@@ -64,7 +65,7 @@ const AppRoutes = () => {
         <Route path="/collection-order/:id/edit" element={<CollectionOrderEdit />} />
         <Route path="/collection-order/:id/view" element={<CollectionOrderView />} />
         
-        {/* Quotation Routes - NEW */}
+        {/* Quotation Routes */}
         <Route path="/quotations" element={<Quotations />} />
         <Route path="/quotation/new" element={<QuotationForm />} />
       </Route>
