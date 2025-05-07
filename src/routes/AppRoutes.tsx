@@ -1,78 +1,84 @@
 
-import * as React from "react";
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { PrivateRoute } from "@/components/auth/PrivateRoute";
 
-// Components
-import PrivateRoute from "@/components/auth/PrivateRoute";
-
-// Pages
+// Public Pages
+import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
-import Index from "@/pages/Index";
-import Dashboard from "@/pages/Dashboard";
-import Freights from "@/pages/Freights";
-import Clients from "@/pages/Clients";
-import Drivers from "@/pages/Drivers";
-import Profile from "@/pages/Profile";
-import DriverEdit from "@/pages/DriverEdit";
-import DriverRegister from "@/pages/DriverRegister";
-import NotFound from "@/pages/NotFound";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
+import NotFound from "@/pages/NotFound";
+import SharedContent from "@/pages/SharedContent";
+
+// Protected Pages
+import Dashboard from "@/pages/Dashboard";
+import Profile from "@/pages/Profile";
+import Drivers from "@/pages/Drivers";
+import DriverRegister from "@/pages/DriverRegister";
+import DriverEdit from "@/pages/DriverEdit";
+import Clients from "@/pages/Clients";
+import Freights from "@/pages/Freights";
 import CollectionOrders from "@/pages/CollectionOrders";
 import CollectionOrder from "@/pages/CollectionOrder";
 import CollectionOrderView from "@/pages/CollectionOrderView";
 import CollectionOrderEdit from "@/pages/CollectionOrderEdit";
-import FreightSelection from "@/pages/FreightSelection";
-import MultiFreightReceipt from "@/pages/MultiFreightReceipt";
 import FreightReceipt from "@/pages/FreightReceipt";
-import SharedContent from '@/pages/SharedContent';
-import QuotationForm from "@/pages/QuotationForm";
+import MultiFreightReceipt from "@/pages/MultiFreightReceipt";
 import Quotations from "@/pages/Quotations";
+import QuotationForm from "@/pages/QuotationForm";
+import QuotationView from "@/pages/QuotationView";
+import QuotationEdit from "@/pages/QuotationEdit";
+import FreightSelection from "@/pages/FreightSelection";
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<Index />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      
-      {/* Protected routes */}
-      <Route element={<PrivateRoute><Outlet /></PrivateRoute>}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Index />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/shared/:type/:id" element={<SharedContent />} />
         
-        {/* Drivers Routes */}
-        <Route path="/drivers" element={<Drivers />} />
-        <Route path="/driver/register" element={<DriverRegister />} />
-        <Route path="/driver/:id/edit" element={<DriverEdit />} />
+        {/* Protected Routes */}
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         
-        {/* Clients Routes */}
-        <Route path="/clients" element={<Clients />} />
+        {/* Driver Routes */}
+        <Route path="/drivers" element={<PrivateRoute><Drivers /></PrivateRoute>} />
+        <Route path="/driver/new" element={<PrivateRoute><DriverRegister /></PrivateRoute>} />
+        <Route path="/driver/:id" element={<PrivateRoute><DriverEdit /></PrivateRoute>} />
         
-        {/* Freights Routes */}
-        <Route path="/freights" element={<Freights />} />
-        <Route path="/freight/selection" element={<FreightSelection />} />
-        <Route path="/freight/receipt/:id" element={<FreightReceipt />} />
-        <Route path="/multi-freight/receipt" element={<MultiFreightReceipt />} />
+        {/* Client Routes */}
+        <Route path="/clients" element={<PrivateRoute><Clients /></PrivateRoute>} />
         
-        {/* Collection Orders Routes */}
-        <Route path="/collection-orders" element={<CollectionOrders />} />
-        <Route path="/collection-order/new" element={<CollectionOrder />} />
-        <Route path="/collection-order/:id/edit" element={<CollectionOrderEdit />} />
-        <Route path="/collection-order/:id/view" element={<CollectionOrderView />} />
+        {/* Freight Routes */}
+        <Route path="/freights" element={<PrivateRoute><Freights /></PrivateRoute>} />
+        <Route path="/freight/:id/receipt" element={<PrivateRoute><FreightReceipt /></PrivateRoute>} />
+        <Route path="/multi-freight-receipt" element={<PrivateRoute><MultiFreightReceipt /></PrivateRoute>} />
+        <Route path="/freight-selection" element={<PrivateRoute><FreightSelection /></PrivateRoute>} />
+        
+        {/* Collection Order Routes */}
+        <Route path="/collection-orders" element={<PrivateRoute><CollectionOrders /></PrivateRoute>} />
+        <Route path="/collection-order/new" element={<PrivateRoute><CollectionOrder /></PrivateRoute>} />
+        <Route path="/collection-order/:id" element={<PrivateRoute><CollectionOrderView /></PrivateRoute>} />
+        <Route path="/collection-order/edit/:id" element={<PrivateRoute><CollectionOrderEdit /></PrivateRoute>} />
         
         {/* Quotation Routes */}
-        <Route path="/quotations" element={<Quotations />} />
-        <Route path="/quotation/new" element={<QuotationForm />} />
-      </Route>
-      
-      <Route path="/shared/:id" element={<SharedContent />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="/quotations" element={<PrivateRoute><Quotations /></PrivateRoute>} />
+        <Route path="/quotation/new" element={<PrivateRoute><QuotationForm /></PrivateRoute>} />
+        <Route path="/quotation/view/:id" element={<PrivateRoute><QuotationView /></PrivateRoute>} />
+        <Route path="/quotation/edit/:id" element={<PrivateRoute><QuotationEdit /></PrivateRoute>} />
+        
+        {/* 404 and Redirect */}
+        <Route path="/404" element={<NotFound />} />
+        <Route path="*" element={<Navigate to="/404" />} />
+      </Routes>
+    </Router>
   );
 };
 

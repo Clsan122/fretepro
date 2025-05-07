@@ -8,20 +8,9 @@ export const generateQuotationPdf = async (quotationId: string): Promise<boolean
     // Em um ambiente de produção, aqui seria usado o chrome-headless-render-pdf
     // através de uma chamada a uma API do backend
     
-    // Exemplo da estrutura esperada:
-    // const response = await fetch('/api/generate-pdf', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ quotationId, type: 'quotation' })
-    // });
-    
-    // Comando para usar chrome-headless-render-pdf:
-    // chrome-headless-render-pdf --url=http://localhost:3000/quotation/{quotationId}/pdf 
-    //   --pdf=cotacao-{quotationId}.pdf --include-background --display-header-footer
-
     console.log("Gerando PDF para cotação:", quotationId);
-    console.log("Comando seria: chrome-headless-render-pdf --url=http://localhost:3000/quotation/" + 
-      quotationId + "/pdf --pdf=cotacao-" + quotationId + ".pdf --include-background --display-header-footer");
+    console.log("Comando seria: chrome-headless-render-pdf --url=http://localhost:3000/quotation/view/" + 
+      quotationId + " --pdf=cotacao-" + quotationId + ".pdf --include-background --display-header-footer");
       
     // Por enquanto só imprime a página atual usando a API de impressão do browser
     window.print();
@@ -75,6 +64,20 @@ export const generateMultiFreightReceiptPdf = async (freightIds: string[]): Prom
     return true;
   } catch (error) {
     console.error("Erro ao gerar PDF:", error);
+    return false;
+  }
+};
+
+export const sendQuotationByEmail = async (quotationId: string, emailTo: string): Promise<boolean> => {
+  try {
+    // Esta é uma função simulada para envio de email com a cotação
+    // Em um ambiente real, você faria uma chamada para o backend
+    console.log(`Enviando cotação ${quotationId} por email para ${emailTo}`);
+    
+    // Simula o sucesso do envio
+    return true;
+  } catch (error) {
+    console.error("Erro ao enviar email:", error);
     return false;
   }
 };

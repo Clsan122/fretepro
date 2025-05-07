@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,21 +11,21 @@ import { CargoSection } from "@/components/quotation/CargoSection";
 import { LocationSection } from "@/components/quotation/LocationSection";
 import { FreightCompositionSection } from "@/components/quotation/FreightCompositionSection";
 import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
-import { Loader2, Save, FileDown } from "lucide-react";
+import { Loader2, Save, ArrowLeft } from "lucide-react";
 import { getClientsByUserId } from "@/utils/storage";
 import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
-import { generateQuotationNumber } from "@/utils/quotationNumber";
 
-const QuotationForm: React.FC = () => {
+const QuotationEdit: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   
   // Form state
   const [companyLogo, setCompanyLogo] = useState<string>("");
   const [creatorId, setCreatorId] = useState<string>(user?.id || "");
   const [creatorName, setCreatorName] = useState<string>(user?.name || "");
+  const [orderNumber, setOrderNumber] = useState<string>("");
   
   // Location information
   const [originCity, setOriginCity] = useState<string>("");
@@ -52,9 +51,12 @@ const QuotationForm: React.FC = () => {
   const [otherCosts, setOtherCosts] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
+  const [status, setStatus] = useState<"open" | "closed">("open");
+  const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
   
   // UI states
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingQuotation, setLoadingQuotation] = useState<boolean>(true);
   const [clients, setClients] = useState<any[]>([]);
   
   useEffect(() => {
@@ -78,6 +80,61 @@ const QuotationForm: React.FC = () => {
       setClients(userClients);
     }
   }, [user]);
+  
+  useEffect(() => {
+    if (id && user) {
+      setLoadingQuotation(true);
+      try {
+        const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
+        const quotationToEdit = storedQuotations.find((q: any) => q.id === id && q.userId === user.id);
+        
+        if (quotationToEdit) {
+          // Preencher o formulário com os dados da cotação
+          setCompanyLogo(quotationToEdit.creatorLogo || "");
+          setCreatorId(quotationToEdit.creatorId || user?.id || "");
+          setCreatorName(quotationToEdit.creatorName || "");
+          setOrderNumber(quotationToEdit.orderNumber || "");
+          setOriginCity(quotationToEdit.originCity || "");
+          setOriginState(quotationToEdit.originState || "");
+          setDestinationCity(quotationToEdit.destinationCity || "");
+          setDestinationState(quotationToEdit.destinationState || "");
+          setVolumes(quotationToEdit.volumes || 0);
+          setWeight(quotationToEdit.weight || 0);
+          setMeasurements(quotationToEdit.measurements || [
+            { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 }
+          ]);
+          setCargoType(quotationToEdit.cargoType || "general");
+          setMerchandiseValue(quotationToEdit.merchandiseValue || 0);
+          setVehicleType(quotationToEdit.vehicleType || "");
+          setFreightValue(quotationToEdit.freightValue || 0);
+          setTollValue(quotationToEdit.tollValue || 0);
+          setInsuranceValue(quotationToEdit.insuranceValue || 0);
+          setInsuranceRate(quotationToEdit.insuranceRate || 0.15);
+          setOtherCosts(quotationToEdit.otherCosts || 0);
+          setTotalValue(quotationToEdit.totalValue || 0);
+          setNotes(quotationToEdit.notes || "");
+          setStatus(quotationToEdit.status || "open");
+          setCreatedAt(quotationToEdit.createdAt || new Date().toISOString());
+        } else {
+          toast({
+            title: "Erro",
+            description: "Cotação não encontrada",
+            variant: "destructive"
+          });
+          navigate("/quotations");
+        }
+      } catch (error) {
+        console.error("Error loading quotation:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar a cotação",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingQuotation(false);
+      }
+    }
+  }, [id, user, navigate, toast]);
   
   const handleMeasurementChange = (id: string, field: keyof QuotationMeasurement, value: number) => {
     setMeasurements(
@@ -130,7 +187,7 @@ const QuotationForm: React.FC = () => {
   };
   
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || !id) return;
     
     if (!originCity || !originState || !destinationCity || !destinationState) {
       toast({
@@ -144,12 +201,12 @@ const QuotationForm: React.FC = () => {
     setLoading(true);
     
     try {
-      // Generate a sequential order number
-      const orderNumber = generateQuotationNumber();
+      // Get existing quotations
+      const existingQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
       
-      // Create quotation object
-      const quotation: QuotationData = {
-        id: uuidv4(),
+      // Create updated quotation object
+      const updatedQuotation: QuotationData = {
+        id,
         orderNumber,
         creatorId,
         creatorName,
@@ -171,27 +228,31 @@ const QuotationForm: React.FC = () => {
         otherCosts,
         totalValue,
         notes,
-        createdAt: new Date().toISOString(),
+        createdAt,
         userId: user.id,
-        status: "open" // Nova cotação sempre começa como aberta
+        status
       };
       
-      // Save to localStorage (in a real app, this would be saved to a database)
-      const existingQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
-      localStorage.setItem('quotations', JSON.stringify([...existingQuotations, quotation]));
+      // Find and update the quotation
+      const updatedQuotations = existingQuotations.map((q: any) => 
+        q.id === id ? updatedQuotation : q
+      );
+      
+      // Save to localStorage
+      localStorage.setItem('quotations', JSON.stringify(updatedQuotations));
       
       toast({
         title: "Sucesso",
-        description: "Cotação salva com sucesso"
+        description: "Cotação atualizada com sucesso"
       });
       
-      // Navigate to quotation view instead of list
-      navigate(`/quotation/view/${quotation.id}`);
+      // Navigate to quotation view
+      navigate(`/quotation/view/${id}`);
     } catch (error) {
-      console.error("Error saving quotation:", error);
+      console.error("Error updating quotation:", error);
       toast({
         title: "Erro",
-        description: "Ocorreu um erro ao salvar a cotação",
+        description: "Ocorreu um erro ao atualizar a cotação",
         variant: "destructive"
       });
     } finally {
@@ -199,12 +260,15 @@ const QuotationForm: React.FC = () => {
     }
   };
   
-  const handleGeneratePdf = () => {
-    toast({
-      title: "Gerando PDF",
-      description: "Para gerar um PDF, primeiro salve a cotação."
-    });
-  };
+  if (loadingQuotation) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <p>Carregando cotação...</p>
+        </div>
+      </Layout>
+    );
+  }
   
   return (
     <Layout>
@@ -212,12 +276,24 @@ const QuotationForm: React.FC = () => {
         <div className="flex flex-col space-y-6">
           <Card className="bg-gradient-to-br from-card to-card/90 backdrop-blur-sm shadow-lg dark:from-gray-800 dark:to-gray-900/90">
             <CardHeader>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-center md:text-left text-freight-700 dark:text-freight-300">
-                Nova Cotação de Frete
-              </CardTitle>
-              <CardDescription className="text-center md:text-left">
-                Preencha os campos abaixo para gerar uma nova cotação
-              </CardDescription>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl md:text-3xl font-bold text-freight-700 dark:text-freight-300">
+                    Editar Cotação de Frete
+                  </CardTitle>
+                  <CardDescription className="text-left">
+                    Cotação #{orderNumber}
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/quotations")}
+                  className="hidden md:flex items-center"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Voltar
+                </Button>
+              </div>
             </CardHeader>
           </Card>
           
@@ -283,7 +359,7 @@ const QuotationForm: React.FC = () => {
             <Button
               variant="outline"
               className="w-full md:w-auto"
-              onClick={() => navigate("/quotations")}
+              onClick={() => navigate(`/quotation/view/${id}`)}
             >
               Cancelar
             </Button>
@@ -298,7 +374,7 @@ const QuotationForm: React.FC = () => {
               ) : (
                 <Save className="mr-2 h-5 w-5" />
               )}
-              Salvar Cotação
+              Salvar Alterações
             </Button>
           </div>
         </div>
@@ -307,4 +383,4 @@ const QuotationForm: React.FC = () => {
   );
 };
 
-export default QuotationForm;
+export default QuotationEdit;

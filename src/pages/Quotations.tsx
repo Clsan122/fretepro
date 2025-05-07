@@ -26,6 +26,7 @@ import {
   FileDown,
   Trash2,
   Eye,
+  Edit,
   CheckCircle,
   XCircle,
   Lock,
@@ -35,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { QuotationData } from "@/components/quotation/types";
 import { formatCurrency, formatDate } from "@/utils/formatters";
 import { generateQuotationPdf } from "@/utils/pdfGenerator";
+import { generateQuotationNumber } from "@/utils/quotationNumber";
 
 const Quotations: React.FC = () => {
   const { user } = useAuth();
@@ -54,12 +56,18 @@ const Quotations: React.FC = () => {
           (quotation: any) => quotation.userId === user.id
         );
         
-        // Ensure all quotations have a valid status property
-        const updatedQuotations = userQuotations.map((quotation: any) => ({
-          ...quotation,
-          // Make sure the status is strictly "closed" or "open" (as required by QuotationData type)
-          status: quotation.status === "closed" ? "closed" : "open"
-        })) as QuotationData[]; // Cast to ensure TypeScript knows this is now a valid QuotationData[]
+        // Ensure all quotations have a valid status property and order number
+        const updatedQuotations = userQuotations.map((quotation: any) => {
+          // If quotation doesn't have order number, generate one
+          const orderNumber = quotation.orderNumber || generateQuotationNumber();
+          
+          return {
+            ...quotation,
+            // Make sure the status is strictly "closed" or "open" (as required by QuotationData type)
+            status: quotation.status === "closed" ? "closed" : "open",
+            orderNumber
+          };
+        }) as QuotationData[]; // Cast to ensure TypeScript knows this is now a valid QuotationData[]
         
         setQuotations(updatedQuotations);
         
@@ -174,6 +182,14 @@ const Quotations: React.FC = () => {
         });
       });
   };
+
+  const handleViewQuotation = (quotationId: string) => {
+    navigate(`/quotation/view/${quotationId}`);
+  };
+
+  const handleEditQuotation = (quotationId: string) => {
+    navigate(`/quotation/edit/${quotationId}`);
+  };
   
   return (
     <Layout>
@@ -271,14 +287,17 @@ const Quotations: React.FC = () => {
                                 variant="ghost" 
                                 size="icon"
                                 className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800"
-                                onClick={() => {
-                                  toast({
-                                    title: "Visualizar",
-                                    description: "Funcionalidade em desenvolvimento"
-                                  });
-                                }}
+                                onClick={() => handleViewQuotation(quotation.id)}
                               >
                                 <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800"
+                                onClick={() => handleEditQuotation(quotation.id)}
+                              >
+                                <Edit className="h-4 w-4" />
                               </Button>
                               <Button 
                                 variant="ghost" 
