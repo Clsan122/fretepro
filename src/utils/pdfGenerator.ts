@@ -3,20 +3,89 @@
  * Módulo para geração de PDF usando chrome-headless-render-pdf
  */
 
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
 export const generateQuotationPdf = async (quotationId: string): Promise<boolean> => {
   try {
-    // Em um ambiente de produção, aqui seria usado o chrome-headless-render-pdf
-    // através de uma chamada a uma API do backend
+    const printElement = document.getElementById('quotation-pdf');
     
-    console.log("Gerando PDF para cotação:", quotationId);
-    console.log("Comando seria: chrome-headless-render-pdf --url=http://localhost:3000/quotation/view/" + 
-      quotationId + " --pdf=cotacao-" + quotationId + ".pdf --include-background --display-header-footer");
-      
-    // Por enquanto só imprime a página atual usando a API de impressão do browser
-    window.print();
+    if (!printElement) {
+      throw new Error("Elemento de impressão não encontrado");
+    }
+    
+    const canvas = await html2canvas(printElement, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      windowWidth: 800,
+      backgroundColor: '#FFFFFF'
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imgWidth = pageWidth - 20; // Margem de 10mm em cada lado
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+    
+    pdf.save(`cotacao-${quotationId}.pdf`);
     return true;
   } catch (error) {
     console.error("Erro ao gerar PDF:", error);
+    return false;
+  }
+};
+
+// Função para visualizar PDF no formato de pré-visualização
+export const previewQuotationPdf = async (quotationData: any): Promise<boolean> => {
+  try {
+    const tempContainer = document.createElement('div');
+    tempContainer.id = 'quotation-pdf-preview';
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    document.body.appendChild(tempContainer);
+    
+    // Renderizar o conteúdo da cotação no container temporário
+    // Isto depende de como sua estrutura do QuotationPdfDocument está implementada
+    // e seria substituído por um componente React real em uma aplicação
+    
+    const canvas = await html2canvas(tempContainer, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      windowWidth: 800,
+      backgroundColor: '#FFFFFF'
+    });
+    
+    document.body.removeChild(tempContainer);
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imgWidth = pageWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+    
+    // Abre o PDF em uma nova janela
+    const pdfOutput = pdf.output('datauristring');
+    window.open(pdfOutput, '_blank');
+    
+    return true;
+  } catch (error) {
+    console.error("Erro ao gerar pré-visualização do PDF:", error);
     return false;
   }
 };

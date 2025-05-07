@@ -12,10 +12,12 @@ import { CargoSection } from "@/components/quotation/CargoSection";
 import { LocationSection } from "@/components/quotation/LocationSection";
 import { FreightCompositionSection } from "@/components/quotation/FreightCompositionSection";
 import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
-import { Loader2, Save, FileDown } from "lucide-react";
+import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
+import { Loader2, Save, FileDown, FilePdf } from "lucide-react";
 import { getClientsByUserId } from "@/utils/storage";
 import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
 import { generateQuotationNumber } from "@/utils/quotationNumber";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const QuotationForm: React.FC = () => {
   const { user } = useAuth();
@@ -56,6 +58,9 @@ const QuotationForm: React.FC = () => {
   // UI states
   const [loading, setLoading] = useState<boolean>(false);
   const [clients, setClients] = useState<any[]>([]);
+  const [isPdfOpen, setIsPdfOpen] = useState<boolean>(false);
+  const [quotationForPdf, setQuotationForPdf] = useState<QuotationData | null>(null);
+  const [tempOrderNumber, setTempOrderNumber] = useState<string>("");
   
   useEffect(() => {
     // Calculate insurance value based on merchandise value and rate
@@ -78,6 +83,12 @@ const QuotationForm: React.FC = () => {
       setClients(userClients);
     }
   }, [user]);
+  
+  // Gerar temporariamente um número de cotação para pré-visualização
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    setTempOrderNumber(`${currentYear}XXXX`);
+  }, []);
   
   const handleMeasurementChange = (id: string, field: keyof QuotationMeasurement, value: number) => {
     setMeasurements(
@@ -200,10 +211,108 @@ const QuotationForm: React.FC = () => {
   };
   
   const handleGeneratePdf = () => {
-    toast({
-      title: "Gerando PDF",
-      description: "Para gerar um PDF, primeiro salve a cotação."
-    });
+    // Validar dados mínimos necessários
+    if (!creatorName || !originCity || !originState || !destinationCity || !destinationState) {
+      toast({
+        title: "Dados incompletos",
+        description: "Preencha pelo menos origem, destino e dados do emissor para gerar o PDF",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Criar objeto temporário de cotação para a visualização do PDF
+    const tempQuotation: QuotationData = {
+      id: "preview",
+      orderNumber: tempOrderNumber,
+      creatorId,
+      creatorName,
+      creatorLogo: companyLogo,
+      originCity,
+      originState,
+      destinationCity,
+      destinationState,
+      volumes,
+      weight,
+      measurements,
+      cargoType,
+      merchandiseValue,
+      vehicleType,
+      freightValue,
+      tollValue,
+      insuranceValue,
+      insuranceRate,
+      otherCosts,
+      totalValue,
+      notes,
+      createdAt: new Date().toISOString(),
+      userId: user?.id || "",
+      status: "open"
+    };
+    
+    setQuotationForPdf(tempQuotation);
+    setIsPdfOpen(true);
+  };
+  
+  const handlePrintPdf = async () => {
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+  
+  const handleDownloadPdf = async () => {
+    try {
+      if (quotationForPdf) {
+        toast({
+          title: "Gerando PDF",
+          description: "Aguarde enquanto preparamos o documento..."
+        });
+        
+        // Dar tempo para o DOM renderizar completamente
+        setTimeout(async () => {
+          const printElement = document.getElementById('quotation-pdf-preview');
+          
+          if (!printElement) {
+            throw new Error("Elemento de impressão não encontrado");
+          }
+          
+          const canvas = await html2canvas(printElement, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            windowWidth: 800,
+            backgroundColor: '#FFFFFF'
+          });
+          
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+          });
+          
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const imgWidth = pageWidth - 20; // Margem de 10mm em cada lado
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          
+          pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+          
+          pdf.save(`cotacao-previa-${new Date().getTime()}.pdf`);
+          
+          toast({
+            title: "PDF gerado",
+            description: "O PDF foi baixado com sucesso"
+          });
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
@@ -287,6 +396,15 @@ const QuotationForm: React.FC = () => {
             >
               Cancelar
             </Button>
+
+            <Button
+              variant="outline"
+              className="w-full md:w-auto"
+              onClick={handleGeneratePdf}
+            >
+              <FilePdf className="mr-2 h-5 w-5" />
+              Visualizar PDF
+            </Button>
             
             <Button
               className="w-full md:w-auto bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all"
@@ -303,6 +421,28 @@ const QuotationForm: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal para exibição do PDF */}
+      <Dialog open={isPdfOpen} onOpenChange={setIsPdfOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogTitle>Pré-visualização da Cotação</DialogTitle>
+          
+          <div className="flex justify-end gap-2 mb-4">
+            <Button variant="outline" onClick={handlePrintPdf} className="gap-2">
+              <span className="hidden sm:inline">Imprimir</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-printer h-5 w-5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            </Button>
+            <Button onClick={handleDownloadPdf} className="gap-2">
+              <span className="hidden sm:inline">Baixar PDF</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-down h-5 w-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+            </Button>
+          </div>
+          
+          <div id="quotation-pdf-preview" className="p-6 bg-white border rounded-md">
+            {quotationForPdf && <QuotationPdfDocument quotation={quotationForPdf} />}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
