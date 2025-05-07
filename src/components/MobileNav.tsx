@@ -58,3 +58,5 @@ export const MobileNav: React.FC = () => {
     </motion.div>
   );
 };
+
+export default MobileNav;

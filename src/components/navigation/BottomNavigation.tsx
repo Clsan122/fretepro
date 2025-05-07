@@ -9,7 +9,7 @@ export const navigationItems = [
   { name: "Motoristas", path: "/drivers", icon: Truck },
   { name: "Fretes", path: "/freights", icon: Package },
   { name: "Coletas", path: "/collection-orders", icon: FileText },
-  { name: "Cotação", path: "/quotations", icon: Calculator }
+  { name: "Cotação", path: "/quotation", icon: Calculator }
 ];
 
 const BottomNavigation: React.FC = () => {
