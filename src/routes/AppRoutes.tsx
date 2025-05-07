@@ -70,7 +70,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/collection-order/:id" element={<PrivateRoute><CollectionOrderEdit /></PrivateRoute>} />
       <Route path="/collection-order/:id/view" element={<PrivateRoute><CollectionOrderView /></PrivateRoute>} />
       
-      {/* Cotações */}
+      {/* Cotações - Garantir que ambas as rotas funcionem */}
       <Route path="/quotations" element={<PrivateRoute><Quotations /></PrivateRoute>} />
       <Route path="/quotation" element={<PrivateRoute><Quotation /></PrivateRoute>} />
       <Route path="/quotation/view" element={<PrivateRoute><QuotationView /></PrivateRoute>} />

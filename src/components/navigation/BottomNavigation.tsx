@@ -9,7 +9,7 @@ export const navigationItems = [
   { name: "Motoristas", path: "/drivers", icon: Truck },
   { name: "Fretes", path: "/freights", icon: Package },
   { name: "Coletas", path: "/collection-orders", icon: FileText },
-  { name: "Cotação", path: "/quotation", icon: Calculator }
+  { name: "Cotação", path: "/quotations", icon: Calculator } // Corrigido para /quotations
 ];
 
 const BottomNavigation: React.FC = () => {
@@ -19,12 +19,7 @@ const BottomNavigation: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
   
   const handleNavigation = (path: string) => {
-    // Special case for quotation - redirect to the quotation view directly
-    if (path === "/quotations") {
-      navigate("/quotation");
-    } else {
-      navigate(path);
-    }
+    navigate(path);
   };
   
   return (

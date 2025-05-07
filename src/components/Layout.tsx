@@ -96,9 +96,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
             </main>
             
-            {/* Notification settings on desktop */}
+            {/* Notification settings - apenas exibir uma vez na versão desktop */}
             {!isMobile && (
-              <div className="fixed top-20 right-4 z-40">
+              <div className="fixed bottom-8 right-4 z-40">
                 <PushNotificationButton />
               </div>
             )}

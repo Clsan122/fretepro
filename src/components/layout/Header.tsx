@@ -7,7 +7,6 @@ import SidebarComponent from "./SidebarComponent";
 import MobileMenu from "./MobileMenu";
 import { cn } from "@/lib/utils";
 import SyncIndicator from "../common/SyncIndicator";
-import { PushNotificationButton } from "../notifications/PushNotificationButton";
 
 interface HeaderProps {
   isMobile: boolean;
@@ -46,8 +45,6 @@ const Header: React.FC<HeaderProps> = ({ isMobile, isMenuOpen, toggleMenu }) => 
           {/* Right Side - Actions */}
           <div className="flex items-center gap-2">
             <SyncIndicator />
-            
-            <PushNotificationButton />
             
             {/* Theme Toggle Button */}
             <Button
