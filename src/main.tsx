@@ -34,7 +34,11 @@ const screenshotUrls = [
 
 // Renderizando a aplicação
 const root = createRoot(document.getElementById("root")!);
-root.render(<App />);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
 // Inicializar o sistema de sincronização distribuída
 initializeSyncSystem().catch(error => {
