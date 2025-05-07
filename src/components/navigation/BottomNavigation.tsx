@@ -18,13 +18,22 @@ const BottomNavigation: React.FC = () => {
   
   const isActive = (path: string) => location.pathname === path;
   
+  const handleNavigation = (path: string) => {
+    // Special case for quotation - redirect to the quotation view directly
+    if (path === "/quotations") {
+      navigate("/quotation");
+    } else {
+      navigate(path);
+    }
+  };
+  
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg md:hidden">
       <div className="grid grid-cols-6 h-16">
         {navigationItems.map((item) => (
           <button
             key={item.name}
-            onClick={() => navigate(item.path)}
+            onClick={() => handleNavigation(item.path)}
             className={`flex flex-col items-center justify-center ${
               isActive(item.path) 
                 ? "text-purple-600 dark:text-purple-400" 

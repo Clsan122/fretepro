@@ -1,112 +1,61 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, BellOff } from "lucide-react";
-import { 
-  initializePushNotifications, 
-  isPushNotificationEnabled, 
-  togglePushNotifications,
-  sendTestNotification
-} from "@/utils/pushNotifications";
 import { toast } from "sonner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { 
+  isPushNotificationEnabled, 
+  togglePushNotifications 
+} from "@/utils/pushNotifications";
 
-export function PushNotificationButton() {
-  const [isEnabled, setIsEnabled] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [permissionState, setPermissionState] = useState<string>("default");
-
+export const PushNotificationButton: React.FC = () => {
+  const [enabled, setEnabled] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  
   useEffect(() => {
-    // Verificar permissão atual
-    if ('Notification' in window) {
-      setPermissionState(Notification.permission);
-    }
-
-    async function checkStatus() {
-      try {
-        await initializePushNotifications();
-        setIsEnabled(isPushNotificationEnabled());
-      } catch (error) {
-        console.error("Erro ao verificar status das notificações:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    checkStatus();
+    // Check if push notifications are already enabled
+    setEnabled(isPushNotificationEnabled());
   }, []);
-
+  
   const handleToggle = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const result = await togglePushNotifications();
-      setIsEnabled(isPushNotificationEnabled());
+      setEnabled(result);
       
-      if (result) {
-        toast.success(isEnabled ? 
-          "Notificações desativadas com sucesso" : 
-          "Notificações ativadas com sucesso");
-        
-        // Se acabou de ativar, envia uma notificação de teste
-        if (!isEnabled) {
-          setTimeout(() => {
-            sendTestNotification();
-          }, 1000);
-        }
-      }
+      toast.success(result 
+        ? "Notificações ativadas com sucesso" 
+        : "Notificações desativadas"
+      );
     } catch (error) {
       console.error("Erro ao alternar notificações:", error);
-      toast.error("Erro ao configurar notificações");
+      toast.error("Ocorreu um erro. Tente novamente.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
-
-  // Renderiza tooltip diferente dependendo do estado da permissão
-  const getTooltipContent = () => {
-    if (permissionState === 'denied') {
-      return "Notificações bloqueadas no navegador. Verifique as configurações do site.";
-    }
-    if (isEnabled) {
-      return "Clique para desativar notificações";
-    }
-    return "Clique para ativar notificações";
-  }
-
+  
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant={isEnabled ? "default" : "outline"}
-            size="sm"
-            onClick={handleToggle}
-            disabled={isLoading || permissionState === 'denied'}
-            className="flex items-center gap-2"
-            aria-label={isEnabled ? "Desativar notificações" : "Ativar notificações"}
-          >
-            {isEnabled ? (
-              <>
-                <Bell size={16} />
-                <span className="hidden sm:inline">Notificações</span>
-              </>
-            ) : (
-              <>
-                <BellOff size={16} />
-                <span className="hidden sm:inline">Notificações</span>
-              </>
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          {getTooltipContent()}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Button 
+      onClick={handleToggle}
+      variant={enabled ? "default" : "outline"}
+      size="sm"
+      disabled={loading}
+      className="flex items-center gap-2"
+    >
+      {enabled ? (
+        <>
+          <Bell size={16} />
+          <span>Desativar Notificações</span>
+        </>
+      ) : (
+        <>
+          <BellOff size={16} />
+          <span>Ativar Notificações</span>
+        </>
+      )}
+    </Button>
   );
-}
+};
+
+export default PushNotificationButton;
