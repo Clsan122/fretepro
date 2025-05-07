@@ -8,6 +8,11 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
+// Define interface for Safari's navigator which has the standalone property
+interface SafariNavigator extends Navigator {
+  standalone?: boolean;
+}
+
 const InstallPWA: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
@@ -16,7 +21,7 @@ const InstallPWA: React.FC = () => {
   useEffect(() => {
     // Check if already installed as PWA
     if (window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone === true) {
+        (window.navigator as SafariNavigator).standalone === true) {
       setIsInstalled(true);
       return;
     }

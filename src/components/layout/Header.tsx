@@ -16,10 +16,10 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isMobile, isMenuOpen, toggleMenu }) => {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   const handleThemeToggle = () => {
-    setTheme(theme === "light" ? "dark" : "light");
+    toggleTheme();
   };
 
   return (
