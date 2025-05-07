@@ -57,8 +57,9 @@ const Quotations: React.FC = () => {
         // Ensure all quotations have a valid status property
         const updatedQuotations = userQuotations.map((quotation: any) => ({
           ...quotation,
+          // Make sure the status is strictly "closed" or "open" (as required by QuotationData type)
           status: quotation.status === "closed" ? "closed" : "open"
-        })) as QuotationData[];
+        })) as QuotationData[]; // Cast to ensure TypeScript knows this is now a valid QuotationData[]
         
         setQuotations(updatedQuotations);
         
@@ -118,10 +119,10 @@ const Quotations: React.FC = () => {
         return;
       }
       
-      // Toggle the status
-      const newStatus = quotationToUpdate.status === "open" ? "closed" : "open";
+      // Toggle the status - explicitly using the literal values accepted by our type
+      const newStatus: "open" | "closed" = quotationToUpdate.status === "open" ? "closed" : "open";
       
-      // Update in state
+      // Update in state - map to create a new array
       const updatedQuotations = quotations.map(quotation => 
         quotation.id === id ? { ...quotation, status: newStatus } : quotation
       );
