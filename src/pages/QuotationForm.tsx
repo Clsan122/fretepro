@@ -23,40 +23,7 @@ import { FreightCompositionSection } from "@/components/quotation/FreightComposi
 import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
 import { Loader2, Save, FileDown, Send } from "lucide-react";
 import { getClientsByUserId } from "@/utils/storage";
-
-interface QuotationMeasurement {
-  id: string;
-  length: number;
-  width: number;
-  height: number;
-  quantity: number;
-}
-
-export interface QuotationData {
-  id: string;
-  orderNumber?: string;
-  creatorId: string;
-  creatorName: string;
-  creatorLogo?: string;
-  originCity: string;
-  originState: string;
-  destinationCity: string;
-  destinationState: string;
-  volumes: number;
-  weight: number;
-  measurements: QuotationMeasurement[];
-  cargoType: string;
-  merchandiseValue: number;
-  vehicleType: string;
-  freightValue: number;
-  tollValue: number;
-  insuranceValue: number;
-  otherCosts: number;
-  totalValue: number;
-  notes?: string;
-  createdAt: string;
-  userId: string;
-}
+import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
 
 const QuotationForm: React.FC = () => {
   const { user } = useAuth();
@@ -89,6 +56,7 @@ const QuotationForm: React.FC = () => {
   const [freightValue, setFreightValue] = useState<number>(0);
   const [tollValue, setTollValue] = useState<number>(0);
   const [insuranceValue, setInsuranceValue] = useState<number>(0);
+  const [insuranceRate, setInsuranceRate] = useState<number>(0.15);
   const [otherCosts, setOtherCosts] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
@@ -98,12 +66,12 @@ const QuotationForm: React.FC = () => {
   const [clients, setClients] = useState<any[]>([]);
   
   useEffect(() => {
-    // Calculate insurance value based on merchandise value (0.5%)
+    // Calculate insurance value based on merchandise value and rate
     if (merchandiseValue > 0) {
-      const calculatedInsurance = merchandiseValue * 0.005;
+      const calculatedInsurance = merchandiseValue * (insuranceRate / 100);
       setInsuranceValue(calculatedInsurance);
     }
-  }, [merchandiseValue]);
+  }, [merchandiseValue, insuranceRate]);
   
   useEffect(() => {
     // Calculate total value
@@ -204,11 +172,13 @@ const QuotationForm: React.FC = () => {
         freightValue,
         tollValue,
         insuranceValue,
+        insuranceRate,
         otherCosts,
         totalValue,
         notes,
         createdAt: new Date().toISOString(),
-        userId: user.id
+        userId: user.id,
+        status: "open" // Nova cotação sempre começa como aberta
       };
       
       // Save to localStorage (in a real app, this would be saved to a database)
@@ -303,6 +273,9 @@ const QuotationForm: React.FC = () => {
             setTollValue={setTollValue}
             insuranceValue={insuranceValue}
             setInsuranceValue={setInsuranceValue}
+            insuranceRate={insuranceRate}
+            setInsuranceRate={setInsuranceRate}
+            merchandiseValue={merchandiseValue}
             otherCosts={otherCosts}
             setOtherCosts={setOtherCosts}
             totalValue={totalValue}

@@ -20,22 +20,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, Plus, FileDown, Trash2, Eye } from "lucide-react";
-
-interface QuotationData {
-  id: string;
-  orderNumber?: string;
-  creatorId: string;
-  creatorName: string;
-  creatorLogo?: string;
-  originCity: string;
-  originState: string;
-  destinationCity: string;
-  destinationState: string;
-  totalValue: number;
-  createdAt: string;
-  userId: string;
-}
+import {
+  FileText,
+  Plus,
+  FileDown,
+  Trash2,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Lock,
+  Unlock
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { QuotationData } from "@/components/quotation/types";
 
 const Quotations: React.FC = () => {
   const { user } = useAuth();
@@ -67,7 +64,20 @@ const Quotations: React.FC = () => {
         const userQuotations = storedQuotations.filter(
           (quotation: QuotationData) => quotation.userId === user.id
         );
-        setQuotations(userQuotations);
+        
+        // Ensure all quotations have a status property
+        const updatedQuotations = userQuotations.map((quotation: any) => ({
+          ...quotation,
+          status: quotation.status || "open"
+        }));
+        
+        setQuotations(updatedQuotations);
+        
+        // Update localStorage with the updated quotations
+        localStorage.setItem('quotations', JSON.stringify([
+          ...storedQuotations.filter((q: any) => q.userId !== user.id),
+          ...updatedQuotations
+        ]));
       } catch (error) {
         console.error("Error loading quotations:", error);
         toast({
@@ -108,6 +118,52 @@ const Quotations: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+  
+  const handleToggleStatus = (id: string) => {
+    try {
+      // Get the quotation to update
+      const quotationToUpdate = quotations.find(q => q.id === id);
+      
+      if (!quotationToUpdate) {
+        return;
+      }
+      
+      // Toggle the status
+      const newStatus = quotationToUpdate.status === "open" ? "closed" : "open";
+      
+      // Update in state
+      const updatedQuotations = quotations.map(quotation => 
+        quotation.id === id ? { ...quotation, status: newStatus } : quotation
+      );
+      setQuotations(updatedQuotations);
+      
+      // Update in localStorage
+      const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
+      const updatedStoredQuotations = storedQuotations.map((quotation: QuotationData) =>
+        quotation.id === id ? { ...quotation, status: newStatus } : quotation
+      );
+      localStorage.setItem('quotations', JSON.stringify(updatedStoredQuotations));
+      
+      toast({
+        title: "Status atualizado",
+        description: `Cotação marcada como ${newStatus === "closed" ? "fechada" : "aberta"}`
+      });
+    } catch (error) {
+      console.error("Error updating quotation status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status da cotação",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleGeneratePdf = (quotation: QuotationData) => {
+    toast({
+      title: "Gerando PDF",
+      description: "Funcionalidade será implementada em breve"
+    });
   };
   
   return (
@@ -166,6 +222,7 @@ const Quotations: React.FC = () => {
                         <TableHead>Origem</TableHead>
                         <TableHead>Destino</TableHead>
                         <TableHead>Valor Total</TableHead>
+                        <TableHead>Status</TableHead>
                         <TableHead>Data</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
@@ -181,6 +238,23 @@ const Quotations: React.FC = () => {
                           <TableCell>{`${quotation.originCity}/${quotation.originState}`}</TableCell>
                           <TableCell>{`${quotation.destinationCity}/${quotation.destinationState}`}</TableCell>
                           <TableCell>{formatCurrency(quotation.totalValue)}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={quotation.status === "closed" ? "default" : "outline"}
+                              className={
+                                quotation.status === "closed" 
+                                  ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300" 
+                                  : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300"
+                              }
+                            >
+                              {quotation.status === "closed" ? (
+                                <CheckCircle className="mr-1 h-3 w-3" />
+                              ) : (
+                                <XCircle className="mr-1 h-3 w-3" />
+                              )}
+                              {quotation.status === "closed" ? "Fechada" : "Aberta"}
+                            </Badge>
+                          </TableCell>
                           <TableCell>{formatDate(quotation.createdAt)}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
@@ -201,14 +275,26 @@ const Quotations: React.FC = () => {
                                 variant="ghost" 
                                 size="icon"
                                 className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800"
-                                onClick={() => {
-                                  toast({
-                                    title: "PDF",
-                                    description: "Funcionalidade em desenvolvimento"
-                                  });
-                                }}
+                                onClick={() => handleGeneratePdf(quotation)}
                               >
                                 <FileDown className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className={`h-8 w-8 ${
+                                  quotation.status === "closed" 
+                                    ? "text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/30" 
+                                    : "text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/30"
+                                }`}
+                                onClick={() => handleToggleStatus(quotation.id)}
+                                title={quotation.status === "closed" ? "Reabrir cotação" : "Fechar cotação"}
+                              >
+                                {quotation.status === "closed" ? (
+                                  <Unlock className="h-4 w-4" />
+                                ) : (
+                                  <Lock className="h-4 w-4" />
+                                )}
                               </Button>
                               <Button 
                                 variant="ghost" 

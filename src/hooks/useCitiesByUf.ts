@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useState } from "react";
+import { BRAZILIAN_CITIES } from "@/utils/cities-data";
 
 export interface City {
   nome: string;
@@ -22,32 +23,22 @@ export const useCitiesByUf = (uf: string) => {
     setError(null);
     
     try {
-      // Using all requested providers (including wikipedia)
-      const url = `https://brasilapi.com.br/api/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`;
-      const response = await fetch(url);
+      // Em um ambiente real, faríamos uma chamada à API
+      // Mas para este exemplo, usaremos os dados previamente carregados
+      const citiesForState = BRAZILIAN_CITIES[uf] || [];
       
-      // Check if response is ok before parsing
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Erro ao buscar cidades para UF ${uf}`);
-      }
+      // Convertendo para o formato de City com codigo_ibge
+      const formattedCities: City[] = citiesForState.map((cityName, index) => ({
+        nome: cityName,
+        codigo_ibge: `${uf}${index.toString().padStart(6, '0')}`
+      }));
       
-      const data = await response.json();
+      // Ordenar alfabeticamente
+      const sorted = formattedCities.sort((a, b) => 
+        a.nome.localeCompare(b.nome, "pt-BR")
+      );
       
-      if (Array.isArray(data)) {
-        // Sort alphabetically by name
-        const sorted = data
-          .map((item) => ({
-            nome: item.nome,
-            codigo_ibge: item.codigo_ibge || item.codigoIbge || undefined,
-          }))
-          .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-        setCities(sorted);
-      } else {
-        // If data is not an array but response was OK, return empty array
-        setCities([]);
-        console.warn(`Dados recebidos para UF ${uf} não são um array:`, data);
-      }
+      setCities(sorted);
     } catch (e: any) {
       setError(e.message || "Erro ao buscar cidades");
       console.error(`Erro ao buscar cidades para UF ${uf}:`, e);

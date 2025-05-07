@@ -19,6 +19,9 @@ interface FreightCompositionSectionProps {
   setTollValue: (value: number) => void;
   insuranceValue: number;
   setInsuranceValue: (value: number) => void;
+  insuranceRate: number;
+  setInsuranceRate: (value: number) => void;
+  merchandiseValue: number;
   otherCosts: number;
   setOtherCosts: (value: number) => void;
   totalValue: number;
@@ -33,6 +36,9 @@ export const FreightCompositionSection: React.FC<FreightCompositionSectionProps>
   setTollValue,
   insuranceValue,
   setInsuranceValue,
+  insuranceRate,
+  setInsuranceRate,
+  merchandiseValue,
   otherCosts,
   setOtherCosts,
   totalValue,
@@ -45,6 +51,16 @@ export const FreightCompositionSection: React.FC<FreightCompositionSectionProps>
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  // Handle insurance rate change
+  const handleInsuranceRateChange = (newRate: number) => {
+    setInsuranceRate(newRate);
+    if (merchandiseValue > 0) {
+      // Calculate the insurance value based on the new rate
+      const calculatedInsurance = merchandiseValue * (newRate / 100);
+      setInsuranceValue(calculatedInsurance);
+    }
   };
 
   return (
@@ -89,17 +105,34 @@ export const FreightCompositionSection: React.FC<FreightCompositionSectionProps>
 
           <div className="space-y-2">
             <Label htmlFor="insuranceValue" className="text-base">Seguro</Label>
-            <Input 
-              id="insuranceValue" 
-              type="number" 
-              step="0.01" 
-              value={insuranceValue.toString()} 
-              onChange={e => setInsuranceValue(Number(e.target.value))} 
-              placeholder="Valor do seguro" 
-              min="0"
-              className="transition-all focus:ring-freight-500 focus:border-freight-500"
-            />
-            <p className="text-xs text-muted-foreground">Calculado como 0.5% do valor da mercadoria</p>
+            <div className="flex items-center space-x-2">
+              <div className="relative flex-grow">
+                <Input 
+                  id="insuranceValue" 
+                  type="number" 
+                  step="0.01" 
+                  value={insuranceValue.toString()} 
+                  onChange={e => setInsuranceValue(Number(e.target.value))} 
+                  placeholder="Valor do seguro" 
+                  min="0"
+                  className="transition-all focus:ring-freight-500 focus:border-freight-500"
+                />
+              </div>
+              <div className="flex w-24 items-center">
+                <Input
+                  id="insuranceRate"
+                  type="number"
+                  step="0.01"
+                  value={insuranceRate.toString()}
+                  onChange={e => handleInsuranceRateChange(Number(e.target.value))}
+                  min="0"
+                  max="100"
+                  className="w-16 text-center transition-all focus:ring-freight-500 focus:border-freight-500"
+                />
+                <span className="ml-1 text-xs whitespace-nowrap">%</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Calculado sobre o valor da mercadoria</p>
           </div>
 
           <div className="space-y-2">
