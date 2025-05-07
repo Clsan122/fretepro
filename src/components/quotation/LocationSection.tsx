@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -16,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CitySelectAutocomplete } from "@/components/common/CitySelectAutocomplete";
 
 const BRAZILIAN_STATES = [
   { value: "AC", label: "Acre" },
@@ -85,11 +85,16 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="originState">Estado</Label>
-              <Select value={originState} onValueChange={onOriginStateChange}>
+              <Select value={originState} onValueChange={(value) => {
+                onOriginStateChange(value);
+                // Limpar cidade quando mudar o estado
+                onOriginCityChange("");
+              }}>
                 <SelectTrigger id="originState" className="w-full">
                   <SelectValue placeholder="Selecione o estado" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="EX" className="cursor-pointer">Exterior</SelectItem>
                   {BRAZILIAN_STATES.map((state) => (
                     <SelectItem key={state.value} value={state.value} className="cursor-pointer">
                       {state.label}
@@ -100,12 +105,12 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
             </div>
             <div className="space-y-2">
               <Label htmlFor="originCity">Cidade</Label>
-              <Input
-                id="originCity"
-                placeholder="Digite a cidade de origem"
+              <CitySelectAutocomplete
+                uf={originState}
                 value={originCity}
-                onChange={(e) => onOriginCityChange(e.target.value)}
-                className="w-full"
+                onChange={onOriginCityChange}
+                placeholder={originState === "EX" ? "Digite o país de origem" : "Selecione a cidade"}
+                id="originCity"
               />
             </div>
           </div>
@@ -117,11 +122,16 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="destinationState">Estado</Label>
-              <Select value={destinationState} onValueChange={onDestinationStateChange}>
+              <Select value={destinationState} onValueChange={(value) => {
+                onDestinationStateChange(value);
+                // Limpar cidade quando mudar o estado
+                onDestinationCityChange("");
+              }}>
                 <SelectTrigger id="destinationState" className="w-full">
                   <SelectValue placeholder="Selecione o estado" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="EX" className="cursor-pointer">Exterior</SelectItem>
                   {BRAZILIAN_STATES.map((state) => (
                     <SelectItem key={state.value} value={state.value} className="cursor-pointer">
                       {state.label}
@@ -132,12 +142,12 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
             </div>
             <div className="space-y-2">
               <Label htmlFor="destinationCity">Cidade</Label>
-              <Input
-                id="destinationCity"
-                placeholder="Digite a cidade de destino"
+              <CitySelectAutocomplete
+                uf={destinationState}
                 value={destinationCity}
-                onChange={(e) => onDestinationCityChange(e.target.value)}
-                className="w-full"
+                onChange={onDestinationCityChange}
+                placeholder={destinationState === "EX" ? "Digite o país de destino" : "Selecione a cidade"}
+                id="destinationCity"
               />
             </div>
           </div>
