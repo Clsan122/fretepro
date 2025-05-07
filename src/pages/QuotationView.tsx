@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
 import { QuotationData } from "@/components/quotation/types";
-import { generateQuotationPdf } from "@/utils/pdfGenerator";
+import { generateQuotationPdf } from "@/utils/pdf/quotationPdf";
 import { Share2, Download, Printer, Send, Edit, ArrowLeft } from "lucide-react";
 
 const QuotationView: React.FC = () => {
