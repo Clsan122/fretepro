@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -27,8 +26,10 @@ import FreightSelection from "@/pages/FreightSelection";
 import MultiFreightReceipt from "@/pages/MultiFreightReceipt";
 import FreightReceipt from "@/pages/FreightReceipt";
 import SharedContent from '@/pages/SharedContent';
+import QuotationForm from "@/pages/QuotationForm";
+import Quotations from "@/pages/Quotations";
 
-const AppRoutes: React.FC = () => {
+const AppRoutes = () => {
   return (
     <Routes>
       {/* Public routes */}
@@ -39,134 +40,36 @@ const AppRoutes: React.FC = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       
       {/* Protected routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
+      <Route element={<PrivateRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        
+        {/* Drivers Routes */}
+        <Route path="/drivers" element={<Drivers />} />
+        <Route path="/driver/register" element={<DriverRegister />} />
+        <Route path="/driver/:id/edit" element={<DriverEdit />} />
+        
+        {/* Clients Routes */}
+        <Route path="/clients" element={<Clients />} />
+        
+        {/* Freights Routes */}
+        <Route path="/freights" element={<Freights />} />
+        <Route path="/freight/selection" element={<FreightSelection />} />
+        <Route path="/freight/receipt/:id" element={<FreightReceipt />} />
+        <Route path="/multi-freight/receipt" element={<MultiFreightReceipt />} />
+        
+        {/* Collection Orders Routes */}
+        <Route path="/collection-orders" element={<CollectionOrders />} />
+        <Route path="/collection-order/new" element={<CollectionOrder />} />
+        <Route path="/collection-order/:id/edit" element={<CollectionOrderEdit />} />
+        <Route path="/collection-order/:id/view" element={<CollectionOrderView />} />
+        
+        {/* Quotation Routes - NEW */}
+        <Route path="/quotations" element={<Quotations />} />
+        <Route path="/quotation/new" element={<QuotationForm />} />
+      </Route>
       
-      <Route
-        path="/freights"
-        element={
-          <PrivateRoute>
-            <Freights />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/freight-selection"
-        element={
-          <PrivateRoute>
-            <FreightSelection />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/freight-receipt"
-        element={
-          <PrivateRoute>
-            <FreightReceipt />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/multi-freight-receipt"
-        element={
-          <PrivateRoute>
-            <MultiFreightReceipt />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/clients"
-        element={
-          <PrivateRoute>
-            <Clients />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/drivers"
-        element={
-          <PrivateRoute>
-            <Drivers />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/drivers/new"
-        element={
-          <PrivateRoute>
-            <DriverRegister />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/drivers/edit/:id"
-        element={
-          <PrivateRoute>
-            <DriverEdit />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/collection-orders"
-        element={
-          <PrivateRoute>
-            <CollectionOrders />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/collection-order/new"
-        element={
-          <PrivateRoute>
-            <CollectionOrder />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/collection-order/:id"
-        element={
-          <PrivateRoute>
-            <CollectionOrderView />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route
-        path="/collection-order/edit/:id"
-        element={
-          <PrivateRoute>
-            <CollectionOrderEdit />
-          </PrivateRoute>
-        }
-      />
-      
-      <Route path="/shared-content" element={<SharedContent />} />
-      <Route path="/share-error" element={<Navigate to="/" />} />
+      <Route path="/shared/:id" element={<SharedContent />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
