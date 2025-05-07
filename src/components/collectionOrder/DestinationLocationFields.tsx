@@ -52,7 +52,7 @@ export const DestinationLocationFields: React.FC<DestinationLocationFieldsProps>
           uf={destinationState}
           value={destinationCity}
           onChange={setDestinationCity}
-          placeholder={destinationState === 'EX' ? "Digite o país de destino" : "Digite para buscar a cidade"}
+          placeholder={destinationState === 'EX' ? "Digite o país de destino" : "Selecione a cidade"}
           id="destinationCity"
         />
       </div>

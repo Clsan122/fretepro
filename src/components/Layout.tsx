@@ -1,105 +1,113 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/layout/Header";
-import BottomNavigation from "@/components/navigation/BottomNavigation";
-import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { SidebarProvider } from "./ui/sidebar";
-import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import SidebarComponent from "@/components/layout/SidebarComponent";
-import InstallPWA from "./common/InstallPWA";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import Header from "./navigation/Header";
+import BottomNavigation from "@/components/BottomNavigation";
+import SidebarNavigation from "./navigation/SidebarNavigation";
+import { navigationItems } from "./navigation/BottomNavigation";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const isOnline = useOnlineStatus();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
+  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("theme") || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+    }
+    return "light";
+  });
+  
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-
+  
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
+  
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme("dark");
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+  
   const handleNavigate = (path: string) => {
     navigate(path);
     if (isMobile) {
-      setIsMenuOpen(false);
+      setSidebarOpen(false);
     }
   };
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen flex-col">
-        <Header 
-          isMobile={isMobile} 
-          isMenuOpen={isMenuOpen} 
-          toggleMenu={toggleMenu} 
-        />
-        <div className="flex flex-1">
-          {/* Desktop Sidebar - only show on non-mobile */}
-          {!isMobile && (
-            <aside className={cn(
-              "transition-all duration-300 ease-in-out border-r border-border/60", 
-              sidebarOpen ? "w-64" : "w-12"
-            )}>
-              <div className={cn(
-                "h-full transition-all duration-300",
-                sidebarOpen ? "opacity-100" : "opacity-70"
-              )}>
-                <SidebarComponent handleNavigate={handleNavigate} />
-                
-                {/* Botão de toggle da sidebar */}
-                <div className="absolute left-0 bottom-4 w-full flex justify-center">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={toggleSidebar}
-                    className="h-8 w-8"
-                    aria-label={sidebarOpen ? "Recolher sidebar" : "Expandir sidebar"}
+      <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
+        <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
+          <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+            <div className="mb-6 px-2">
+              <h2 className="text-2xl font-semibold text-freight-700 dark:text-freight-300">FretePro</h2>
+            </div>
+            
+            <ul className="space-y-2">
+              {navigationItems.map((item) => (
+                <li key={item.name}>
+                  <button
+                    className="w-full flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-freight-50 dark:hover:bg-freight-900 rounded-lg transition-colors"
+                    onClick={() => handleNavigate(item.path)}
                   >
-                    {sidebarOpen ? (
-                      <ChevronLeft className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </aside>
-          )}
-          
-          <div className="flex-1 flex flex-col relative">
-            {/* Indicador de status online/offline */}
-            {!isOnline && (
-              <div className="bg-orange-500/90 text-white text-center py-1 px-2 text-sm">
-                Você está offline. Algumas funcionalidades podem estar limitadas.
-              </div>
-            )}
-            
-            <main className="flex-1 overflow-y-auto bg-muted/40">
-              <div className="layout-main pb-20 md:pb-4">
-                {children}
-              </div>
-            </main>
-            
-            {/* Botão de instalação do PWA */}
-            <InstallPWA />
+                    <item.icon className="mr-2 h-5 w-5" />
+                    {item.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        </aside>
 
-        {/* Mobile Navigation - only on mobile */}
-        {isMobile && <BottomNavigation />}
+        {isMobile && (
+          <SidebarNavigation
+            isMobile={isMobile}
+            sidebarOpen={sidebarOpen}
+            toggleSidebar={toggleSidebar}
+            handleNavigate={handleNavigate}
+          />
+        )}
+        
+        <div className="flex flex-col min-h-screen w-full md:ml-64 pb-16 md:pb-0">
+          <Header 
+            toggleSidebar={toggleSidebar} 
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
+          
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+            {children}
+          </main>
+        </div>
+        
+        <BottomNavigation />
       </div>
     </SidebarProvider>
   );

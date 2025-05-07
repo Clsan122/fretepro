@@ -12,8 +12,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
-    "@progress/kendo-licensing": "^1.5.3",
-    "@progress/kendo-react-pdf": "^10.2.0",
     "@pwabuilder/cli": "^0.0.17",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
@@ -49,7 +47,6 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
-    "framer-motion": "^12.10.0",
     "html2canvas": "^1.4.1",
     "input-otp": "^1.2.4",
     "jspdf": "^3.0.1",

@@ -1,93 +1,216 @@
 
 {
-  "name": "FreteValor - Controle de Fretes",
+  "name": "FreteValor - Gerenciamento de Fretes",
   "short_name": "FreteValor",
-  "description": "Cadastre e acompanhe seus fretes e tenha um relatório de todos os seus rendimentos. Gere ordens de coleta e recibos de fretes.",
+  "description": "Sistema completo de gerenciamento de fretes para motoristas e transportadoras.",
+  "lang": "pt-BR",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#7c3aed",
-  "icons": [
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "background_color": "#1E40AF",
+  "theme_color": "#1E40AF",
+  "orientation": "portrait",
+  "scope": "/",
+  "id": "fretevalor-app",
+  "dir": "ltr",
+  "categories": [
+    "business",
+    "productivity",
+    "logistics",
+    "transportation"
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "prefer_related_applications": false,
+  "related_applications": [
     {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/maskable-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icons/maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=app.lovable.5a9941b135664df199580caf8b922a6c",
+      "id": "app.lovable.5a9941b135664df199580caf8b922a6c"
     }
   ],
+  "scope_extensions": [
+    {
+      "origin": "https://5a9941b1-3566-4df1-9958-0caf8b922a6c.lovableproject.com"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "handle_links": "preferred",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "application/json": [".json"],
+        "text/csv": [".csv"]
+      },
+      "name": "Importar dados de fretes"
+    },
+    {
+      "action": "/view-pdf",
+      "accept": {
+        "application/pdf": [".pdf"]
+      },
+      "name": "Visualizar recibos"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+fretevalor",
+      "url": "/%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "receipts",
+          "accept": ["application/pdf", "image/*"]
+        }
+      ]
+    }
+  },
   "screenshots": [
     {
-      "src": "/screenshots/dashboard.png",
+      "src": "/screenshots/landing-page.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Dashboard do FreteValor"
+      "label": "Tela inicial do FreteValor"
     },
     {
-      "src": "/screenshots/cliente-form.png",
+      "src": "/screenshots/dashboard-relatorios.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Cadastro de Clientes"
+      "label": "Dashboard com relatórios financeiros"
     },
     {
-      "src": "/screenshots/ordem-coleta.png",
+      "src": "/screenshots/novo-cliente.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
-      "label": "Ordens de Coleta"
+      "label": "Cadastro de Cliente"
+    },
+    {
+      "src": "/screenshots/ordem-coleta-detalhes.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Detalhes da Ordem de Coleta"
+    },
+    {
+      "src": "/screenshots/novo-frete.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Novo Frete"
+    },
+    {
+      "src": "/screenshots/cadastro-motorista.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Cadastro de Motorista"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icons/fretevalor-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/fretevalor-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/android/android-launchericon-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/android/android-launchericon-192-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android/android-launchericon-144-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/android/android-launchericon-96-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/android/android-launchericon-72-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/android/android-launchericon-48-48.png",
+      "sizes": "48x48",
+      "type": "image/png"
     }
   ],
   "shortcuts": [
     {
-      "name": "Nova cotação",
-      "short_name": "Cotação",
-      "description": "Criar uma nova cotação",
-      "url": "/quotation",
-      "icons": [
+      "name": "Novo Frete",
+      "short_name": "Novo Frete",
+      "description": "Cadastrar novo frete",
+      "url": "/freights",
+      "icons": [{ "src": "/android/android-launchericon-96-96.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Ordem de Coleta",
+      "short_name": "Coleta",
+      "description": "Gerar ordem de coleta",
+      "url": "/collection-order/new",
+      "icons": [{ "src": "/android/android-launchericon-96-96.png", "sizes": "96x96", "type": "image/png" }]
+    }
+  ],
+  "widgets": [
+    {
+      "name": "Resumo Financeiro",
+      "tag": "financeiro",
+      "description": "Mostra um resumo financeiro dos últimos fretes",
+      "screenshots": [
         {
-          "src": "/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
+          "src": "/screenshots/dashboard-relatorios.png",
+          "sizes": "750x1334",
+          "label": "Resumo Financeiro"
         }
       ]
     },
     {
-      "name": "Nova ordem de coleta",
-      "short_name": "Coleta",
-      "description": "Criar uma nova ordem de coleta",
-      "url": "/collection-order",
-      "icons": [
+      "name": "Próximas Entregas",
+      "tag": "entregas",
+      "description": "Exibe as próximas entregas agendadas",
+      "screenshots": [
         {
-          "src": "/icons/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
+          "src": "/screenshots/ordem-coleta-detalhes.png",
+          "sizes": "750x1334",
+          "label": "Próximas Entregas"
         }
       ]
     }
   ],
-  "related_applications": [],
-  "prefer_related_applications": false,
-  "orientation": "any",
-  "lang": "pt-BR",
-  "dir": "ltr",
-  "categories": ["business", "logistics", "productivity", "utilities"]
+  "background_sync": {
+    "periodic": true,
+    "min_period": 86400
+  }
 }

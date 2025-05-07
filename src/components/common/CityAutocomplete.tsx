@@ -1,18 +1,20 @@
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
+import { Input } from "@/components/ui/input";
+import { BRAZILIAN_CITIES } from "@/utils/cities-data";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCitiesByUf, City } from "@/hooks/useCitiesByUf";
 
 interface CityAutocompleteProps {
   stateAbbreviation: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (city: string) => void;
+  label?: string;
   placeholder?: string;
-  className?: string;
+  disabled?: boolean;
   autoComplete?: string;
 }
 
@@ -20,39 +22,39 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
   stateAbbreviation,
   value,
   onChange,
-  placeholder = "Selecione a cidade",
-  className,
-  autoComplete,
+  label,
+  placeholder = "Selecione a cidade...",
+  disabled,
+  autoComplete = "address-level2",
 }) => {
   const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  
-  const { cities, loading } = useCitiesByUf(stateAbbreviation);
+  const [search, setSearch] = useState("");
 
-  // Filter cities based on search term
+  const cities = useMemo(() => {
+    if (!stateAbbreviation || stateAbbreviation === 'EX') return [];
+    // Get cities from data and sort them alphabetically
+    const stateCities = BRAZILIAN_CITIES[stateAbbreviation] || [];
+    return [...stateCities].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  }, [stateAbbreviation]);
+
+  // Filtrar cidades conforme busca do usuário
   const filteredCities = useMemo(() => {
-    if (!cities || cities.length === 0) {
-      return [];
-    }
+    if (!search) return cities;
+    return cities.filter(city => city.toLowerCase().includes(search.toLowerCase()));
+  }, [cities, search]);
 
-    if (searchTerm === "") {
-      return cities;
-    }
-
-    return cities.filter((city) =>
-      city.nome.toLowerCase().includes(searchTerm.toLowerCase())
+  if (!stateAbbreviation || stateAbbreviation === "EX") {
+    // Caso seja exterior, mostrar um input normal
+    return (
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        autoComplete={autoComplete}
+      />
     );
-  }, [cities, searchTerm]);
-
-  // Reset value when state changes
-  useEffect(() => {
-    if (value && stateAbbreviation && cities.length > 0) {
-      const cityExists = cities.some(city => city.nome === value);
-      if (!cityExists) {
-        onChange("");
-      }
-    }
-  }, [stateAbbreviation, cities, value, onChange]);
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,46 +63,41 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
-          data-autocomplete={autoComplete}
+          className={cn("w-full justify-between", disabled && "opacity-50")}
+          disabled={disabled}
+          type="button"
         >
           {value || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-full" align="start">
-        <Command shouldFilter={false}>
-          <CommandInput 
-            placeholder="Buscar cidade..." 
-            value={searchTerm}
-            onValueChange={setSearchTerm}
+      <PopoverContent className="w-full min-w-[220px] max-h-[280px] p-0 z-50">
+        <Command>
+          <CommandInput
+            placeholder="Buscar cidade..."
+            value={search}
+            onValueChange={setSearch}
+            autoFocus
           />
-          <CommandEmpty>
-            {loading ? "Carregando cidades..." : "Nenhuma cidade encontrada."}
-          </CommandEmpty>
-          {filteredCities.length > 0 && (
-            <CommandGroup className="max-h-60 overflow-y-auto">
-              {filteredCities.map((city) => (
-                <CommandItem
-                  key={city.codigo_ibge || city.nome}
-                  value={city.nome}
-                  onSelect={() => {
-                    onChange(city.nome);
-                    setOpen(false);
-                    setSearchTerm("");
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === city.nome ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {city.nome}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
+          <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
+          <CommandGroup className="max-h-64 overflow-y-auto">
+            {filteredCities.map((city) => (
+              <CommandItem
+                key={city}
+                value={city}
+                onSelect={() => {
+                  onChange(city);
+                  setOpen(false);
+                }}
+                className="cursor-pointer"
+              >
+                <Check
+                  className={cn("mr-2 h-4 w-4", value === city ? "opacity-100" : "opacity-0")}
+                />
+                {city}
+              </CommandItem>
+            ))}
+          </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>

@@ -6,13 +6,8 @@ import { Button } from "@/components/ui/button";
 import { User, LogOut } from "lucide-react";
 
 export const ProfileMenuGroup = () => {
-  const authContext = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
-  // Early return if auth context is not available
-  if (!authContext) return null;
-  
-  const { user, logout } = authContext;
   
   const handleLogout = () => {
     logout();

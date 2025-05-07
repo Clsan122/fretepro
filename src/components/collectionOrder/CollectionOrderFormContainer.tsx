@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { CollectionOrder } from "@/types";
 import { useCollectionOrderForm } from "@/hooks/useCollectionOrderForm";
 import { SenderRecipientSection } from "./SenderRecipientSection";
@@ -24,18 +24,14 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   onCancel,
   orderToEdit
 }) => {
-  const authContext = useAuth();
+  const { user } = useAuth();
   const { formData, setters } = useCollectionOrderForm({ orderToEdit });
-  
-  console.log("CollectionOrderFormContainer - orderToEdit:", orderToEdit);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting form with data:", formData);
 
     if (!formData.sender || !formData.recipient || !formData.originCity || 
-        !formData.originState || !formData.destinationCity || !formData.destinationState || !authContext?.user) {
-      console.error("Dados obrigatórios não preenchidos");
+        !formData.originState || !formData.destinationCity || !formData.destinationState || !user) {
       return;
     }
 
@@ -71,12 +67,11 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       companyLogo: formData.companyLogo,
       issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
-      userId: authContext.user.id,
+      userId: user.id,
       shipper: formData.shipper,
-      shipperAddress: formData.shipperAddress,
+      shipperAddress: formData.shipperAddress
     };
 
-    console.log("Saving order:", newOrder);
     onSave(newOrder as CollectionOrder);
   };
 

@@ -22,28 +22,24 @@ export const useCitiesByUf = (uf: string) => {
     setError(null);
     
     try {
-      // Using Brasil API for better city data
+      // Using all requested providers (including wikipedia)
       const url = `https://brasilapi.com.br/api/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`;
-      console.log(`Fetching cities for UF ${uf} from: ${url}`);
-      
       const response = await fetch(url);
       
       // Check if response is ok before parsing
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Server error: ${response.status} ${response.statusText}`, errorText);
-        throw new Error(`Erro ao buscar cidades para UF ${uf} (${response.status})`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Erro ao buscar cidades para UF ${uf}`);
       }
       
       const data = await response.json();
-      console.log(`Cities data received for ${uf}:`, data);
       
       if (Array.isArray(data)) {
         // Sort alphabetically by name
         const sorted = data
           .map((item) => ({
             nome: item.nome,
-            codigo_ibge: item.codigo_ibge || "",
+            codigo_ibge: item.codigo_ibge || item.codigoIbge || undefined,
           }))
           .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
         setCities(sorted);

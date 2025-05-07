@@ -1,39 +1,68 @@
 
-import { BrowserRouter as Router } from "react-router-dom";
-import AppRoutes from "@/routes/AppRoutes";
-import { AuthProvider } from "@/context/AuthContext";
-import { Toaster } from "@/components/ui/toaster";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NetworkStatusProvider } from "@/context/NetworkStatusContext";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import * as React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { Toaster } from "./components/ui/toaster";
+import AppRoutes from "./routes/AppRoutes";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
+// Criar contexto de conectividade para compartilhar estado online/offline
+interface ConnectivityContextType {
+  isOnline: boolean;
+}
+
+export const ConnectivityContext = React.createContext<ConnectivityContextType>({
+  isOnline: navigator.onLine
+});
+
+// Criar contexto para notificações push
+interface NotificationContextType {
+  showNotificationButton: boolean;
+  setShowNotificationButton: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const NotificationContext = React.createContext<NotificationContextType>({
+  showNotificationButton: false,
+  setShowNotificationButton: () => {}
 });
 
 function App() {
+  const [isOnline, setIsOnline] = React.useState<boolean>(navigator.onLine);
+  const [showNotificationButton, setShowNotificationButton] = React.useState<boolean>(false);
+  
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Verificar suporte a notificações
+    const checkNotificationSupport = () => {
+      const isSupported = 'Notification' in window && 
+                          'serviceWorker' in navigator && 
+                          'PushManager' in window;
+      setShowNotificationButton(isSupported);
+    };
+    
+    checkNotificationSupport();
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   return (
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <NetworkStatusProvider>
-            <Router>
-              <AuthProvider>
-                <div className="min-h-screen bg-background antialiased overflow-hidden">
-                  <AppRoutes />
-                  <Toaster />
-                </div>
-              </AuthProvider>
-            </Router>
-          </NetworkStatusProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ConnectivityContext.Provider value={{ isOnline }}>
+        <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
+          <AuthProvider>
+            <AppRoutes />
+            <Toaster />
+          </AuthProvider>
+        </NotificationContext.Provider>
+      </ConnectivityContext.Provider>
+    </BrowserRouter>
   );
 }
 
