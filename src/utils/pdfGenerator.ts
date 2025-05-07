@@ -60,20 +60,18 @@ export const generateQuotationPdf = async (quotationId: string): Promise<boolean
         const sourceY = (canvas.height / imgHeight) * availableHeight * i;
         const sourceHeight = (canvas.height / imgHeight) * availableHeight;
         
-        pdf.addImage(
-          imgData, 
-          'PNG', 
-          10, 
-          10, 
-          imgWidth, 
-          availableHeight, 
-          `page-${i}`, 
-          'FAST',
-          0,
-          sourceY,
-          canvas.width,
-          sourceHeight
-        );
+        // Corrigindo a chamada para addImage que tinha muitos parâmetros
+        // Documentação: https://raw.githack.com/MrRio/jsPDF/master/docs/jsPDF.html#addImage
+        pdf.addImage({
+          imageData: imgData,
+          format: 'PNG',
+          x: 10,
+          y: 10,
+          width: imgWidth,
+          height: availableHeight,
+          alias: `page-${i}`,
+          compression: 'FAST'
+        });
       }
     } else {
       // Se a imagem cabe em uma página, adicione-a centralmente
