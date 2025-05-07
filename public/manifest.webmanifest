@@ -131,18 +131,18 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/fretevalor-logo.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/android/android-launchericon-512-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "/android/android-launchericon-192-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
@@ -173,14 +173,14 @@
       "short_name": "Novo Frete",
       "description": "Cadastrar novo frete",
       "url": "/freights",
-      "icons": [{ "src": "/android/android-launchericon-96-96.png", "sizes": "96x96", "type": "image/png" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Ordem de Coleta",
       "short_name": "Coleta",
       "description": "Gerar ordem de coleta",
       "url": "/collection-order/new",
-      "icons": [{ "src": "/android/android-launchericon-96-96.png", "sizes": "96x96", "type": "image/png" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ],
   "widgets": [
