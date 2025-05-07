@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Header from "./navigation/Header";
-import BottomNavigation from "@/components/BottomNavigation";
+import BottomNavigation from "@/components/navigation/BottomNavigation";
 import SidebarNavigation from "./navigation/SidebarNavigation";
 import { navigationItems } from "./navigation/BottomNavigation";
 
