@@ -14,7 +14,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  TooltipProviderInner,
+  TooltipProvider,
 } from "@/components/ui/tooltip"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
@@ -129,7 +129,7 @@ const SidebarProvider = React.forwardRef<
 
     return (
       <SidebarContext.Provider value={contextValue}>
-        <TooltipProviderInner>
+        <TooltipProvider>
           <div
             style={
               {
@@ -147,7 +147,7 @@ const SidebarProvider = React.forwardRef<
           >
             {children}
           </div>
-        </TooltipProviderInner>
+        </TooltipProvider>
       </SidebarContext.Provider>
     )
   }
