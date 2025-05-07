@@ -1,4 +1,3 @@
-
 /**
  * Formata um valor numérico como moeda (R$)
  */
@@ -6,7 +5,39 @@ export const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
+};
+
+/**
+ * Formata um valor numérico como moeda (R$) sem o símbolo
+ */
+export const formatCurrencyWithoutSymbol = (value: number): string => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "decimal",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
+/**
+ * Formata um percentual com até 7 casas decimais (para o campo de seguro)
+ */
+export const formatInsuranceRate = (value: number): string => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "decimal",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 7,
+  }).format(value);
+};
+
+/**
+ * Converte uma string formatada como moeda pt-BR para número
+ */
+export const parseCurrencyString = (value: string): number => {
+  if (!value) return 0;
+  return Number(value.replace(/\./g, "").replace(",", "."));
 };
 
 /**

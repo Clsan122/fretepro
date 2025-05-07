@@ -3,12 +3,16 @@ import React from "react";
 import { Freight, Client } from "@/types";
 import { format } from "date-fns";
 import { getClientById } from "@/utils/storage";
+import { formatCurrencyWithoutSymbol } from "@/utils/formatters";
 
 interface SummaryTableProps {
   freights: Freight[];
 }
 
 const SummaryTable: React.FC<SummaryTableProps> = ({ freights }) => {
+  // Calcular total de todos os fretes
+  const totalValue = freights.reduce((sum, freight) => sum + freight.totalValue, 0);
+  
   return (
     <div className="scale-down print-compact">
       <h2 className="text-base font-semibold mb-1">RESUMO DE FRETES</h2>
@@ -37,7 +41,7 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ freights }) => {
                   {freight.originCity}/{freight.originState} - {freight.destinationCity}/{freight.destinationState}
                 </td>
                 <td className="border p-1 text-right">
-                  {freight.totalValue.toFixed(2)}
+                  {formatCurrencyWithoutSymbol(freight.totalValue)}
                 </td>
               </tr>
             );
@@ -45,7 +49,7 @@ const SummaryTable: React.FC<SummaryTableProps> = ({ freights }) => {
           <tr className="font-bold">
             <td colSpan={4} className="border p-1 text-right">Total:</td>
             <td className="border p-1 text-right">
-              R$ {freights.reduce((sum, freight) => sum + freight.totalValue, 0).toFixed(2)}
+              R$ {formatCurrencyWithoutSymbol(totalValue)}
             </td>
           </tr>
         </tbody>

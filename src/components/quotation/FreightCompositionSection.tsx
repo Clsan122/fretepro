@@ -1,8 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { formatCurrency, formatInsuranceRate } from "@/utils/formatters";
+
 interface FreightCompositionSectionProps {
   freightValue: number;
   setFreightValue: (value: number) => void;
@@ -35,14 +38,6 @@ export const FreightCompositionSection: React.FC<FreightCompositionSectionProps>
   notes,
   setNotes
 }) => {
-  // Format currency values
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
-
   // Handle insurance rate change
   const handleInsuranceRateChange = (newRate: number) => {
     setInsuranceRate(newRate);
@@ -80,7 +75,7 @@ export const FreightCompositionSection: React.FC<FreightCompositionSectionProps>
                 <Input id="insuranceValue" type="number" step="0.01" value={insuranceValue.toString()} onChange={e => setInsuranceValue(Number(e.target.value))} placeholder="Valor do seguro" min="0" className="transition-all focus:ring-freight-500 focus:border-freight-500 mx-0 px-[9px]" />
               </div>
               <div className="flex w-24 items-center px-[3px] mx-[34px]">
-                <Input id="insuranceRate" type="number" step="0.01" value={insuranceRate.toString()} onChange={e => handleInsuranceRateChange(Number(e.target.value))} min="0" max="100" className="w-16 text-center transition-all focus:ring-freight-500 focus:border-freight-500 px-px mx-[8px]" />
+                <Input id="insuranceRate" type="number" step="0.000001" value={insuranceRate.toString()} onChange={e => handleInsuranceRateChange(Number(e.target.value))} min="0" max="100" className="w-16 text-center transition-all focus:ring-freight-500 focus:border-freight-500 px-px mx-[8px]" />
                 <span className="ml-1 text-xs whitespace-nowrap px-0 mx-[5px]">%</span>
               </div>
             </div>

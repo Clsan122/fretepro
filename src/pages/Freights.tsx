@@ -29,6 +29,7 @@ import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { MoreHorizontal, Plus, FileText, Edit, Trash, Truck, Receipt } from "lucide-react";
 import FreightForm from "@/components/FreightForm";
+import { formatCurrency } from "@/utils/formatters";
 
 const Freights: React.FC = () => {
   const { user } = useAuth();
@@ -159,9 +160,9 @@ const Freights: React.FC = () => {
                         <TableCell>{freight.originCity}/{freight.originState}</TableCell>
                         <TableCell>{freight.destinationCity}/{freight.destinationState}</TableCell>
                         <TableCell>{driver?.name || "Não atribuído"}</TableCell>
-                        <TableCell className="text-right">R$ {freight.totalValue.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(freight.totalValue)}</TableCell>
                         <TableCell className={`text-right ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          R$ {netProfit.toFixed(2)}
+                          {formatCurrency(netProfit)}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>

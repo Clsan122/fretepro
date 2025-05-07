@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { formatCurrency } from "@/utils/formatters";
 
 interface PricingProps {
   freightValue: number;
@@ -93,7 +94,7 @@ export const PricingSection: React.FC<PricingProps> = ({
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <div className="flex justify-between items-center">
             <span className="font-semibold">Total:</span>
-            <span className="text-xl font-bold">R$ {totalValue.toFixed(2)}</span>
+            <span className="text-xl font-bold">{formatCurrency(totalValue)}</span>
           </div>
         </div>
       </CardContent>

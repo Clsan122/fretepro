@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { formatCurrency } from "@/utils/formatters";
 
 interface ExpensesSectionProps {
   thirdPartyDriverCost: number;
@@ -128,14 +129,14 @@ export const ExpensesSection: React.FC<ExpensesSectionProps> = ({
           <div className="p-4 bg-muted rounded-lg">
             <div className="flex justify-between items-center">
               <span className="font-semibold">Total de Despesas:</span>
-              <span className="text-lg font-bold">R$ {totalExpenses.toFixed(2)}</span>
+              <span className="text-lg font-bold">{formatCurrency(totalExpenses)}</span>
             </div>
           </div>
           <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <div className="flex justify-between items-center">
               <span className="font-semibold">Lucro Líquido:</span>
               <span className={`text-lg font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                R$ {netProfit.toFixed(2)}
+                {formatCurrency(netProfit)}
               </span>
             </div>
           </div>

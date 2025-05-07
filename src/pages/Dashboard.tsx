@@ -16,6 +16,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatCurrency } from "@/utils/formatters";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -202,7 +203,7 @@ const Dashboard: React.FC = () => {
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">R$ {totalRevenue.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
                   <p className="text-xs text-muted-foreground">
                     Receita dos fretes no período
                   </p>
@@ -215,7 +216,7 @@ const Dashboard: React.FC = () => {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">R$ {totalExpenses.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalExpenses)}</div>
                   <p className="text-xs text-muted-foreground">
                     Custos associados aos fretes
                   </p>
@@ -228,7 +229,7 @@ const Dashboard: React.FC = () => {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">R$ {totalProfit.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalProfit)}</div>
                   <p className="text-xs text-muted-foreground">
                     Lucro total do período
                   </p>
@@ -248,7 +249,7 @@ const Dashboard: React.FC = () => {
                         <XAxis dataKey="date" />
                         <YAxis />
                         <Tooltip
-                          formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Valor']}
+                          formatter={(value: number) => [formatCurrency(value), 'Valor']}
                           labelFormatter={(label) => `Data: ${label}`}
                         />
                         <Bar 
@@ -276,7 +277,7 @@ const Dashboard: React.FC = () => {
                   <Truck className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">R$ {totalRevenue.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
                   <p className="text-xs text-muted-foreground">
                     Valores brutos dos fretes
                   </p>
@@ -289,7 +290,7 @@ const Dashboard: React.FC = () => {
                   <BarChart2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-red-500">R$ {totalExpenses.toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-red-500">{formatCurrency(totalExpenses)}</div>
                   <p className="text-xs text-muted-foreground">
                     Soma de todas as despesas
                   </p>
@@ -303,7 +304,7 @@ const Dashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className={`text-2xl font-bold ${totalProfit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    R$ {totalProfit.toFixed(2)}
+                    {formatCurrency(totalProfit)}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Lucro após todas as despesas
@@ -325,7 +326,7 @@ const Dashboard: React.FC = () => {
                           <XAxis dataKey="date" />
                           <YAxis />
                           <Tooltip
-                            formatter={(value: number) => [`R$ ${value.toFixed(2)}`, '']}
+                            formatter={(value: number) => [formatCurrency(value), '']}
                             labelFormatter={(label) => `Data: ${label}`}
                           />
                           <Bar dataKey="Receita Bruta" fill="#4f46e5" radius={[4, 4, 0, 0]} />
@@ -350,39 +351,39 @@ const Dashboard: React.FC = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center text-sm">
                       <span>Motorista Terceiro:</span>
-                      <span>R$ {expenseBreakdown.thirdPartyDriver.toFixed(2)}</span>
+                      <span>{formatCurrency(expenseBreakdown.thirdPartyDriver)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span>Pedágio:</span>
-                      <span>R$ {expenseBreakdown.toll.toFixed(2)}</span>
+                      <span>{formatCurrency(expenseBreakdown.toll)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span>Abastecimento:</span>
-                      <span>R$ {expenseBreakdown.fuel.toFixed(2)}</span>
+                      <span>{formatCurrency(expenseBreakdown.fuel)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span>Refeição:</span>
-                      <span>R$ {expenseBreakdown.meals.toFixed(2)}</span>
+                      <span>{formatCurrency(expenseBreakdown.meals)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span>Ajudante:</span>
-                      <span>R$ {expenseBreakdown.helpers.toFixed(2)}</span>
+                      <span>{formatCurrency(expenseBreakdown.helpers)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span>Hotel/Pousada:</span>
-                      <span>R$ {expenseBreakdown.accommodation.toFixed(2)}</span>
+                      <span>{formatCurrency(expenseBreakdown.accommodation)}</span>
                     </div>
                     
                     {expenseBreakdown.other > 0 && (
                       <div className="flex justify-between items-center text-sm">
                         <span>Outros (fretes antigos):</span>
-                        <span>R$ {expenseBreakdown.other.toFixed(2)}</span>
+                        <span>{formatCurrency(expenseBreakdown.other)}</span>
                       </div>
                     )}
                     
                     <div className="pt-2 mt-2 border-t flex justify-between items-center font-medium">
                       <span>Total:</span>
-                      <span>R$ {totalExpenses.toFixed(2)}</span>
+                      <span>{formatCurrency(totalExpenses)}</span>
                     </div>
                   </div>
                 </CardContent>

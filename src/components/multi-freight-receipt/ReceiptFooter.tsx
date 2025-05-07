@@ -1,6 +1,7 @@
 
 import React from "react";
 import { User } from "@/types";
+import { formatCurrency } from "@/utils/formatters";
 
 interface ReceiptFooterProps {
   totalAmount: number;
@@ -22,7 +23,7 @@ const ReceiptFooter: React.FC<ReceiptFooterProps> = ({
     <div className="mt-8 print-compact scale-down border-t border-gray-300 pt-3">
       <h2 className="text-base font-semibold mb-1">RECIBO</h2>
       <p className="mb-2 text-sm">
-        Recebi a importância de <strong>R$ {totalAmount.toFixed(2)}</strong> ({amountInWords} reais) referente aos fretes acima listados.
+        Recebi a importância de <strong>{formatCurrency(totalAmount)}</strong> ({amountInWords} reais) referente aos fretes acima listados.
       </p>
       
       {/* Payment and requester info */}

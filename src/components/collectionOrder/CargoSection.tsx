@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -5,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { Measurement } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrencyWithoutSymbol } from "@/utils/formatters";
+
 interface CargoProps {
   volumes: number;
   setVolumes: (value: number) => void;
@@ -31,6 +34,11 @@ export const CargoSection: React.FC<CargoProps> = ({
   handleRemoveMeasurement,
   handleMeasurementChange
 }) => {
+  // Função para formatar o valor monetário com o prefixo R$
+  const displayMerchandiseValue = merchandiseValue > 0
+    ? `R$ ${formatCurrencyWithoutSymbol(merchandiseValue)}`
+    : "";
+    
   return <Card>
       <CardHeader>
         <CardTitle>Dados da Carga</CardTitle>
@@ -55,7 +63,15 @@ export const CargoSection: React.FC<CargoProps> = ({
 
           <div className="space-y-2">
             <Label htmlFor="merchandiseValue">Valor da Mercadoria (R$)</Label>
-            <Input id="merchandiseValue" type="number" step="0.01" value={merchandiseValue.toString()} onChange={e => setMerchandiseValue(Number(e.target.value))} placeholder="Valor da mercadoria" min="0" />
+            <Input 
+              id="merchandiseValue" 
+              type="number" 
+              step="0.01" 
+              value={merchandiseValue.toString()} 
+              onChange={e => setMerchandiseValue(Number(e.target.value))} 
+              placeholder="Valor da mercadoria" 
+              min="0" 
+            />
           </div>
         </div>
 

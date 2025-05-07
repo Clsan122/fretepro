@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { QuotationData } from "@/components/quotation/types";
 import { CheckCircle, XCircle, FileText } from "lucide-react";
+import { formatCurrency } from "@/utils/formatters";
 
 interface QuotationsStats {
   total: number;
@@ -79,14 +80,6 @@ export const QuotationsSummary: React.FC = () => {
     { name: "Abertas", value: quotationStats.open, color: "#f87171" },
     { name: "Fechadas", value: quotationStats.closed, color: "#4ade80" }
   ];
-
-  // Formato de moeda
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
 
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-md border-freight-100 dark:border-freight-800">
