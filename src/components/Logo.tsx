@@ -18,6 +18,12 @@ const Logo: React.FC<LogoProps> = ({
     lg: variant === "full" ? "h-10" : "h-10 w-10",
   };
 
+  const iconSizes = {
+    sm: "h-6 w-6",
+    md: "h-8 w-8",
+    lg: "h-10 w-10"
+  };
+
   const combinedClassName = `${sizeClasses[size]} ${className}`;
 
   if (variant === "icon") {
@@ -25,7 +31,7 @@ const Logo: React.FC<LogoProps> = ({
       <img 
         src="/icons/fretevalor-logo.png"
         alt="FreteValor Logo"
-        className={`${combinedClassName} rounded-md`}
+        className={`${iconSizes[size]} rounded-md ${className}`}
       />
     );
   }
@@ -35,9 +41,9 @@ const Logo: React.FC<LogoProps> = ({
       <img 
         src="/icons/fretevalor-logo.png"
         alt="FreteValor Logo"
-        className={`${size === "sm" ? "h-6 w-6" : size === "md" ? "h-8 w-8" : "h-10 w-10"} rounded-md`}
+        className={`${iconSizes[size]} rounded-md`}
       />
-      <span className={`font-bold text-freight-700 ${size === "sm" ? "text-lg" : size === "md" ? "text-xl" : "text-2xl"}`}>
+      <span className={`font-bold text-freight-700 dark:text-freight-300 ${size === "sm" ? "text-lg" : size === "md" ? "text-xl" : "text-2xl"}`}>
         FreteValor
       </span>
     </div>
