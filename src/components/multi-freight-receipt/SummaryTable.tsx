@@ -1,8 +1,8 @@
 
 import React from "react";
-import { Freight, Client } from "@/types";
+import { Freight } from "@/types";
 import { format } from "date-fns";
-import { getClientById } from "@/utils/storage";
+import { ptBR } from "date-fns/locale";
 import { formatCurrency } from "@/utils/formatters";
 
 interface SummaryTableProps {
@@ -10,50 +10,53 @@ interface SummaryTableProps {
 }
 
 const SummaryTable: React.FC<SummaryTableProps> = ({ freights }) => {
-  // Calcular total de todos os fretes
-  const totalValue = freights.reduce((sum, freight) => sum + freight.totalValue, 0);
-  
   return (
-    <div className="scale-down print-compact">
-      <h2 className="text-base font-semibold mb-1">RESUMO DE FRETES</h2>
-      
-      <table className="w-full border-collapse print-table">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-1 text-left">Nº</th>
-            <th className="border p-1 text-left">Data</th>
-            <th className="border p-1 text-left">Cliente</th>
-            <th className="border p-1 text-left">Origem-Destino</th>
-            <th className="border p-1 text-right">Valor</th>
-          </tr>
-        </thead>
-        <tbody className="text-xs">
-          {freights.map((freight, index) => {
-            const client = getClientById(freight.clientId);
-            return (
-              <tr key={freight.id} className="print-tight">
-                <td className="border p-1">{index + 1}</td>
-                <td className="border p-1">
-                  {format(new Date(freight.createdAt), "dd/MM/yyyy")}
+    <div className="mb-4 print-compact">
+      <h2 className="text-base font-semibold mb-2">RESUMO DOS FRETES</h2>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse print-table">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 p-1 text-left text-xs">Data</th>
+              <th className="border border-gray-300 p-1 text-left text-xs">Origem</th>
+              <th className="border border-gray-300 p-1 text-left text-xs">Destino</th>
+              <th className="border border-gray-300 p-1 text-left text-xs">Tipo de Carga</th>
+              <th className="border border-gray-300 p-1 text-right text-xs">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {freights.map((freight) => (
+              <tr key={freight.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 p-1 text-xs">
+                  {format(new Date(freight.createdAt), "dd/MM/yy", { locale: ptBR })}
                 </td>
-                <td className="border p-1">{client?.name || "Cliente não encontrado"}</td>
-                <td className="border p-1">
-                  {freight.originCity}/{freight.originState} - {freight.destinationCity}/{freight.destinationState}
+                <td className="border border-gray-300 p-1 text-xs">
+                  {freight.originCity}/{freight.originState}
                 </td>
-                <td className="border p-1 text-right">
+                <td className="border border-gray-300 p-1 text-xs">
+                  {freight.destinationCity}/{freight.destinationState}
+                </td>
+                <td className="border border-gray-300 p-1 text-xs">
+                  {freight.cargoType}
+                </td>
+                <td className="border border-gray-300 p-1 text-right text-xs">
                   {formatCurrency(freight.totalValue)}
                 </td>
               </tr>
-            );
-          })}
-          <tr className="font-bold">
-            <td colSpan={4} className="border p-1 text-right">Total:</td>
-            <td className="border p-1 text-right">
-              {formatCurrency(totalValue)}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="font-semibold bg-gray-50">
+              <td colSpan={4} className="border border-gray-300 p-1 text-right text-xs">
+                Total:
+              </td>
+              <td className="border border-gray-300 p-1 text-right text-xs">
+                {formatCurrency(freights.reduce((sum, f) => sum + f.totalValue, 0))}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   );
 };

@@ -1,63 +1,81 @@
 
 import React from "react";
 import { Freight, Client } from "@/types";
-import { format } from "date-fns";
 import { getClientById } from "@/utils/storage";
 
 interface ClientDetailsSectionProps {
-  freightsByClient: Record<string, { client: Client; freights: Freight[] }>;
+  freightsByClient: Record<string, Freight[]>;
 }
 
 const ClientDetailsSection: React.FC<ClientDetailsSectionProps> = ({ freightsByClient }) => {
+  const clientIds = Object.keys(freightsByClient);
+  
+  // Se tivermos muitos clientes, vamos mostrar apenas informações essenciais
+  const manyClients = clientIds.length > 2;
+  
   return (
-    <div className="scale-down">
-      {Object.values(freightsByClient).map(({ client, freights }) => (
-        <div key={client.id} className="mb-2 print-compact">
-          <h2 className="text-sm font-semibold mb-1">Cliente: {client.name}</h2>
-          {client.cnpj && <p className="text-xs mb-1">CNPJ: {client.cnpj}</p>}
-          {client.address && <p className="text-xs mb-1 print-small-text">Endereço: {client.address} - {client.city}/{client.state}</p>}
+    <div className="mb-3 print-compact">
+      <h2 className="text-base font-semibold mb-1">DADOS DO CLIENTE</h2>
+      
+      {clientIds.length === 1 ? (
+        // Se só tem um cliente, mostrar detalhes completos
+        (() => {
+          const clientId = clientIds[0];
+          const client = getClientById(clientId);
           
-          <table className="w-full border-collapse mb-1 print-table">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-1 text-left">Data</th>
-                <th className="border p-1 text-left">Origem-Destino</th>
-                <th className="border p-1 text-left">Carga</th>
-                <th className="border p-1 text-right">Valor (R$)</th>
-              </tr>
-            </thead>
-            <tbody className="text-xs">
-              {freights.map((freight) => (
-                <tr key={freight.id} className="print-tight">
-                  <td className="border p-1">
-                    {format(new Date(freight.createdAt), "dd/MM/yyyy")}
-                  </td>
-                  <td className="border p-1">
-                    {freight.originCity}/{freight.originState} - {freight.destinationCity}/{freight.destinationState}
-                  </td>
-                  <td className="border p-1">
-                    {freight.cargoType === "general" && "Carga Geral"}
-                    {freight.cargoType === "dangerous" && "Carga Perigosa"}
-                    {freight.cargoType === "liquid" && "Líquido"}
-                    {freight.cargoType === "sackCargo" && "Sacaria"}
-                    {freight.cargoType === "drum" && "Tambores"}
-                    {freight.cargoType === "pallet" && "Paletizada"}
-                  </td>
-                  <td className="border p-1 text-right">
-                    {freight.totalValue.toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-              <tr className="font-bold">
-                <td colSpan={3} className="border p-1 text-right">Subtotal:</td>
-                <td className="border p-1 text-right">
-                  R$ {freights.reduce((sum, f) => sum + f.totalValue, 0).toFixed(2)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          if (!client) return <p className="text-sm">Cliente não encontrado</p>;
+          
+          return (
+            <div className="border border-gray-200 p-2 rounded-sm text-xs print-small-text">
+              <div className="flex flex-col sm:flex-row sm:justify-between">
+                <div>
+                  <p className="font-semibold">{client.name}</p>
+                  {client.cnpj && <p>CNPJ: {client.cnpj}</p>}
+                </div>
+                <div>
+                  {client.address && <p>{client.address}</p>}
+                  {client.city && client.state && 
+                    <p>{client.city} - {client.state}</p>
+                  }
+                </div>
+              </div>
+              {client.contactName && (
+                <p>Contato: {client.contactName} {client.phone && `- Tel: ${client.phone}`}</p>
+              )}
+            </div>
+          );
+        })()
+      ) : (
+        // Se tem múltiplos clientes, mostrar resumo
+        <div className="border border-gray-200 p-2 rounded-sm text-xs print-small-text">
+          <p className="font-semibold">Múltiplos clientes ({clientIds.length}):</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+            {clientIds.map(clientId => {
+              const client = getClientById(clientId);
+              if (!client) return null;
+              
+              // Se temos muitos clientes, mostramos apenas nome/cnpj
+              if (manyClients) {
+                return (
+                  <div key={clientId} className="print-tight">
+                    <span className="font-medium">{client.name}</span>
+                    {client.cnpj && <span className="ml-1">({client.cnpj})</span>}
+                  </div>
+                );
+              }
+              
+              // Se temos poucos, podemos mostrar mais informações
+              return (
+                <div key={clientId} className="print-tight">
+                  <p className="font-medium">{client.name}</p>
+                  {client.cnpj && <p>CNPJ: {client.cnpj}</p>}
+                  {client.city && client.state && <p>{client.city}/{client.state}</p>}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };

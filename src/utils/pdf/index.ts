@@ -10,7 +10,11 @@ export { generateCanvasFromElement, generatePdfFromCanvas, openPdfInNewWindow } 
 export { generateQuotationPdf, previewQuotationPdf } from "./quotationPdf";
 
 // Freight receipt PDF functions
-export { generateFreightReceiptPdf, generateMultiFreightReceiptPdf } from "./freightReceiptPdf";
+export { 
+  generateFreightReceiptPdf, 
+  generateMultiFreightReceiptPdf, 
+  previewFreightReceiptPdf 
+} from "./freightReceiptPdf";
 
 // Collection order PDF functions
 export { 

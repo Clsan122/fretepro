@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
-import { Printer } from "lucide-react";
+import { Printer, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Freight, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -13,6 +13,7 @@ import ReceiptFooter from "./multi-freight-receipt/ReceiptFooter";
 import PrintStyles from "./multi-freight-receipt/PrintStyles";
 import ClientDetailsSection from "./multi-freight-receipt/ClientDetailsSection";
 import { groupFreightsByClient, getDateRangeText } from "@/utils/receipt-helpers";
+import { generateMultiFreightReceiptPdf } from "@/utils/pdf";
 
 interface MultiFreightReceiptGeneratorProps {
   freights: Freight[];
@@ -46,47 +47,80 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   // Group freights by client for better organization in the receipt
   const freightsByClient = groupFreightsByClient(freights);
 
+  // Setup print function
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo-Multiple-Fretes",
-    contentRef: printRef,
-    onAfterPrint: () => {
-      console.log("Printing completed");
-    },
+    content: () => printRef.current,
   });
+  
+  // Setup PDF generation
+  const handleGeneratePdf = async () => {
+    const freightIds = freights.map(f => f.id);
+    await generateMultiFreightReceiptPdf(freightIds);
+  };
+
+  // Setup PDF preview
+  const handlePreviewPdf = async () => {
+    try {
+      const printElement = document.getElementById("multi-receipt-container");
+      if (!printElement) {
+        console.error("Elemento de recibo múltiplo não encontrado");
+        return;
+      }
+      
+      // Use window.print() para visualização
+      // Isto será substituído pela função de visualização específica quando disponível
+      window.print();
+    } catch (error) {
+      console.error("Erro ao pré-visualizar PDF:", error);
+    }
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-lg">
-      <div className="p-4 mb-4 flex justify-between items-center border-b">
+      <div className="p-4 mb-4 flex flex-wrap justify-between items-center border-b gap-2">
         <h1 className="text-xl font-bold">Recibo de Múltiplos Fretes</h1>
-        <Button onClick={handlePrint} className="gap-2">
-          <Printer className="h-4 w-4" />
-          Imprimir Recibo
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handlePrint} className="gap-2" size="sm">
+            <Printer className="h-4 w-4" />
+            Imprimir
+          </Button>
+          <Button onClick={handleGeneratePdf} variant="outline" className="gap-2" size="sm">
+            <Download className="h-4 w-4" />
+            Baixar PDF
+          </Button>
+          <Button onClick={handlePreviewPdf} variant="outline" className="gap-2" size="sm">
+            <FileText className="h-4 w-4" />
+            Visualizar
+          </Button>
+        </div>
       </div>
 
-      {/* This div will be printed */}
-      <div ref={printRef} className="p-6 bg-white print:p-0">
+      {/* Este div será impresso */}
+      <div ref={printRef} className="p-6 bg-white print:p-0" id="multi-receipt-container">
         <PrintStyles />
         
-        <ReceiptHeader 
-          dateRangeText={dateRangeText}
-          currentUser={user} 
-        />
-        
-        <ClientDetailsSection 
-          freightsByClient={freightsByClient} 
-        />
-        
-        <SummaryTable 
-          freights={freights} 
-        />
-        
-        <ReceiptFooter 
-          totalAmount={totalAmount} 
-          currentUser={user}
-          requesterName={requesterName}
-          paymentTerm={paymentTerm}
-        />
+        <div className="max-w-4xl mx-auto">
+          <ReceiptHeader 
+            dateRangeText={dateRangeText}
+            currentUser={user} 
+          />
+          
+          <ClientDetailsSection 
+            freightsByClient={freightsByClient} 
+          />
+          
+          <SummaryTable 
+            freights={freights} 
+          />
+          
+          <ReceiptFooter 
+            totalAmount={totalAmount} 
+            currentUser={user}
+            requesterName={requesterName}
+            paymentTerm={paymentTerm}
+          />
+        </div>
       </div>
     </div>
   );
