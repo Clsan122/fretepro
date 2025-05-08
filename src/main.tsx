@@ -32,17 +32,21 @@ const screenshotUrls = [
   '/screenshots/cadastro-motorista.png'
 ];
 
-// Renderizando a aplicação
+// Renderizando a aplicação - Garantindo que React seja inicializado corretamente
 const rootElement = document.getElementById("root");
-if (rootElement) {
+
+if (!rootElement) {
+  console.error("Failed to find root element!");
+} else {
+  // Usando createRoot da API moderna do React 18
   const root = createRoot(rootElement);
+  
+  // Renderizando com StrictMode para detectar problemas potenciais
   root.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
-} else {
-  console.error("Failed to find root element!");
 }
 
 // Inicializar o sistema de sincronização distribuída
