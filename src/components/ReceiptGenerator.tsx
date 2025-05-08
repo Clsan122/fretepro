@@ -28,7 +28,8 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
   // Configurar a função de impressão
   const handlePrint = useReactToPrint({
     documentTitle: `Recibo-Frete-${freight.id}`,
-    content: () => printRef.current,
+    // Fix: Use proper property name according to useReactToPrint API
+    contentRef: printRef,
   });
 
   // Manipulador para gerar PDF
@@ -92,7 +93,6 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
               {client.cnpj && <p><strong>CNPJ:</strong> {client.cnpj}</p>}
               {client.address && <p><strong>Endereço:</strong> {client.address}</p>}
               <p><strong>Cidade/UF:</strong> {client.city} - {client.state}</p>
-              {client.contactName && <p><strong>Contato:</strong> {client.contactName}</p>}
               {client.phone && <p><strong>Telefone:</strong> {client.phone}</p>}
             </div>
           ) : (

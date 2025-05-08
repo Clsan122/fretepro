@@ -50,7 +50,8 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   // Setup print function
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo-Multiple-Fretes",
-    content: () => printRef.current,
+    // Fix: Use proper property name according to useReactToPrint API
+    contentRef: printRef,
   });
   
   // Setup PDF generation

@@ -4,7 +4,7 @@ import { Freight, Client } from "@/types";
 import { getClientById } from "@/utils/storage";
 
 interface ClientDetailsSectionProps {
-  freightsByClient: Record<string, Freight[]>;
+  freightsByClient: Record<string, {client: Client, freights: Freight[]}>;
 }
 
 const ClientDetailsSection: React.FC<ClientDetailsSectionProps> = ({ freightsByClient }) => {
@@ -21,7 +21,7 @@ const ClientDetailsSection: React.FC<ClientDetailsSectionProps> = ({ freightsByC
         // Se só tem um cliente, mostrar detalhes completos
         (() => {
           const clientId = clientIds[0];
-          const client = getClientById(clientId);
+          const client = freightsByClient[clientId]?.client;
           
           if (!client) return <p className="text-sm">Cliente não encontrado</p>;
           
@@ -39,8 +39,8 @@ const ClientDetailsSection: React.FC<ClientDetailsSectionProps> = ({ freightsByC
                   }
                 </div>
               </div>
-              {client.contactName && (
-                <p>Contato: {client.contactName} {client.phone && `- Tel: ${client.phone}`}</p>
+              {client.phone && (
+                <p>Tel: {client.phone}</p>
               )}
             </div>
           );
@@ -51,7 +51,7 @@ const ClientDetailsSection: React.FC<ClientDetailsSectionProps> = ({ freightsByC
           <p className="font-semibold">Múltiplos clientes ({clientIds.length}):</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
             {clientIds.map(clientId => {
-              const client = getClientById(clientId);
+              const client = freightsByClient[clientId]?.client;
               if (!client) return null;
               
               // Se temos muitos clientes, mostramos apenas nome/cnpj

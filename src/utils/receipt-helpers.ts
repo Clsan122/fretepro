@@ -5,7 +5,7 @@ import { ptBR } from "date-fns/locale";
 import { getClientById } from "@/utils/storage";
 
 // Agrupa fretes por cliente para melhor organização
-export const groupFreightsByClient = (freights: Freight[]): Record<string, { client: Client; freights: Freight[] }> => {
+export const groupFreightsByClient = (freights: Freight[]): Record<string, {client: Client, freights: Freight[]}> => {
   return freights.reduce((acc, freight) => {
     const client = getClientById(freight.clientId);
     if (!client) return acc;
@@ -19,7 +19,7 @@ export const groupFreightsByClient = (freights: Freight[]): Record<string, { cli
     
     acc[client.id].freights.push(freight);
     return acc;
-  }, {} as Record<string, { client: Client; freights: Freight[] }>);
+  }, {} as Record<string, {client: Client, freights: Freight[]}>);
 };
 
 // Calcula o valor total dos fretes
