@@ -1,9 +1,9 @@
 
-import * as React from "react";
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "./components/ui/toaster";
-import { SonnerToaster } from "./components/ui/sonner";
+import { Toaster as SonnerToaster } from "sonner";
 import AppRoutes from "./routes/AppRoutes";
 import { TooltipProvider } from "./components/ui/tooltip";
 
