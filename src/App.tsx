@@ -3,7 +3,7 @@ import * as React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "./components/ui/toaster";
-import { SonnerToaster } from "sonner";
+import { SonnerToaster } from "./components/ui/sonner";
 import AppRoutes from "./routes/AppRoutes";
 import { TooltipProvider } from "./components/ui/tooltip";
 
