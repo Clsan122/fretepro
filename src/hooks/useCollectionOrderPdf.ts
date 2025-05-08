@@ -1,66 +1,31 @@
+
 import { useState } from "react";
 import { CollectionOrder } from "@/types";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { generateCollectionOrderPdf } from "@/utils/pdf/collectionOrderPdf";
 import { useToast } from "@/hooks/use-toast";
 
 export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
-  const generatePDF = async (): Promise<Blob> => {
-    const printElement = document.getElementById('collection-order-print');
-    
-    if (!printElement) {
-      throw new Error("Elemento de impressão não encontrado");
+  const generatePDF = async (options: { 
+    savePdf?: boolean; 
+    openInNewTab?: boolean;
+    filename?: string;
+  } = {}): Promise<Blob> => {
+    if (!order) {
+      throw new Error("Ordem não disponível para geração de PDF");
     }
     
     setIsGenerating(true);
     
     try {
-      const originalWidth = printElement.style.width;
-      printElement.style.width = '800px';
-      
-      const elementsToHide = printElement.querySelectorAll('.print-exclude');
-      elementsToHide.forEach(element => {
-        (element as HTMLElement).style.display = 'none';
-      });
-      
-      printElement.classList.add('print-mode');
-      
-      const canvas = await html2canvas(printElement, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        windowWidth: 800,
-        windowHeight: 1200,
-        allowTaint: true,
-        backgroundColor: '#FFFFFF'
-      });
-      
-      elementsToHide.forEach(element => {
-        (element as HTMLElement).style.display = '';
-      });
-      
-      printElement.classList.remove('print-mode');
-      printElement.style.width = originalWidth;
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      
-      return pdf.output('blob');
+      const pdfBlob = await generateCollectionOrderPdf(
+        'collection-order-print', 
+        order,
+        options
+      );
+      return pdfBlob;
     } finally {
       setIsGenerating(false);
     }
@@ -76,7 +41,7 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     
     try {
       const pdfBlob = await generatePDF();
-      const file = new File([pdfBlob], `ordem-coleta-${id}.pdf`, { type: 'application/pdf' });
+      const file = new File([pdfBlob], `ordem-coleta-${order.orderNumber}.pdf`, { type: 'application/pdf' });
 
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
@@ -93,7 +58,7 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
         const downloadPDF = window.URL.createObjectURL(pdfBlob);
         const link = document.createElement('a');
         link.href = downloadPDF;
-        link.download = `ordem-coleta-${id}.pdf`;
+        link.download = `ordem-coleta-${order.orderNumber}.pdf`;
         link.click();
         
         toast({
@@ -120,15 +85,10 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     });
     
     try {
-      const pdfBlob = await generatePDF();
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ordem-coleta-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      await generatePDF({
+        savePdf: true,
+        filename: `ordem-coleta-${order.orderNumber}.pdf`
+      });
       
       toast({
         title: "PDF gerado",
@@ -144,6 +104,26 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     }
   };
   
+  const handlePreview = async () => {
+    if (!order) return;
+    
+    toast({
+      title: "Gerando Pré-visualização",
+      description: "Aguarde enquanto preparamos o documento..."
+    });
+    
+    try {
+      await generatePDF({ openInNewTab: true });
+    } catch (error) {
+      console.error("Erro ao gerar pré-visualização do PDF:", error);
+      toast({
+        title: "Erro", 
+        description: "Não foi possível gerar a pré-visualização",
+        variant: "destructive"
+      });
+    }
+  };
+  
   const handlePrint = () => {
     window.print();
   };
@@ -152,6 +132,7 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     isGenerating,
     handleShare,
     handleDownload,
+    handlePreview,
     handlePrint
   };
 };

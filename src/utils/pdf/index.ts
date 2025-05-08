@@ -13,7 +13,11 @@ export { generateQuotationPdf, previewQuotationPdf } from "./quotationPdf";
 export { generateFreightReceiptPdf, generateMultiFreightReceiptPdf } from "./freightReceiptPdf";
 
 // Collection order PDF functions
-export { generateCollectionOrderPdf } from "./collectionOrderPdf";
+export { 
+  generateCollectionOrderPdf, 
+  prepareForPrintMode, 
+  restoreFromPrintMode 
+} from "./collectionOrderPdf";
 
 // Email PDF functions
 export { sendQuotationByEmail } from "./emailPdf";
