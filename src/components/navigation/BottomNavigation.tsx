@@ -39,19 +39,9 @@ export const navigationItems: NavigationItem[] = [
     icon: Calculator,
   },
   {
-    name: "Clientes",
-    path: "/clients",
-    icon: Users,
-  },
-  {
     name: "Motoristas",
     path: "/drivers",
     icon: Package,
-  },
-  {
-    name: "Perfil",
-    path: "/profile",
-    icon: User,
   },
 ];
 
@@ -60,10 +50,11 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
+  // Importante: utilizar env-safe-area-inset-bottom para garantir compatibilidade com iPhones
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden">
-      <div className="grid h-full grid-cols-5 max-w-lg mx-auto">
-        {navigationItems.slice(0, 5).map((item) => (
+    <div className="fixed bottom-0 left-0 z-50 w-full bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+      <div className="grid h-16 grid-cols-5 max-w-lg mx-auto font-medium">
+        {navigationItems.map((item) => (
           <button
             key={item.name}
             type="button"
@@ -74,12 +65,12 @@ const BottomNavigation = () => {
                 : "text-gray-500 dark:text-gray-400"
             }`}
           >
-            <item.icon className={`w-6 h-6 mb-1 ${
+            <item.icon className={`w-5 h-5 mb-1 ${
               currentPath.startsWith(item.path)
                 ? "text-freight-600 dark:text-freight-400"
                 : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
             }`} />
-            <span className="text-xs truncate">{item.name}</span>
+            <span className="text-[10px]">{item.name}</span>
           </button>
         ))}
       </div>

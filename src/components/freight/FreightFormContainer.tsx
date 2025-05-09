@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Freight } from "@/types";
-import { FileText } from "lucide-react";
+import { FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFreightForm } from "./hooks/useFreightForm";
 import { toast } from "@/hooks/use-toast";
@@ -48,6 +48,23 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
     const freightId = freightToEdit ? freightToEdit.id : '';
     const receiptWindow = window.open(`/freight/${freightId}/receipt`, '_blank');
     if (receiptWindow) receiptWindow.focus();
+  };
+  
+  const handleGenerateFreightForm = () => {
+    if (!formState.clientId || !formState.originCity || !formState.originState || !formState.destinationCity || !formState.destinationState) {
+      toast({
+        title: "Erro",
+        description: "Preencha os dados básicos antes de gerar o formulário",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // We can't use formState.id directly because it might not exist yet
+    // Instead, use the ID from freightToEdit if available
+    const freightId = freightToEdit ? freightToEdit.id : '';
+    const formWindow = window.open(`/freight-form/pdf?id=${freightId}`, '_blank');
+    if (formWindow) formWindow.focus();
   };
 
   return (
@@ -133,15 +150,26 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
       />
 
       <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleGenerateReceipt}
-          className="w-full sm:w-auto gap-2"
-        >
-          <FileText className="h-4 w-4" />
-          Gerar Recibo
-        </Button>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGenerateReceipt}
+            className="w-full sm:w-auto gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Gerar Recibo
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGenerateFreightForm}
+            className="w-full sm:w-auto gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Formulário PDF
+          </Button>
+        </div>
         
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button

@@ -2,6 +2,7 @@
 import React from "react";
 import { Freight } from "@/types";
 import FreightFormContainer from "./freight/FreightFormContainer";
+import { useNavigate } from 'react-router-dom';
 
 interface FreightFormProps {
   onSave: (freight: Freight) => void;

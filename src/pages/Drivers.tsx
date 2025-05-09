@@ -28,7 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, User, Truck, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Truck, Search } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Drivers: React.FC = () => {
@@ -81,7 +81,7 @@ const Drivers: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-4">
+      <div className="space-y-4 max-w-5xl mx-auto px-4 pb-16">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Motoristas</h1>
           
@@ -98,9 +98,9 @@ const Drivers: React.FC = () => {
             </div>
             <Button 
               onClick={() => navigate('/drivers/new')} 
-              className="bg-freight-600 hover:bg-freight-700"
+              className="gap-2 w-full sm:w-auto"
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="h-4 w-4" />
               Novo Motorista
             </Button>
           </div>

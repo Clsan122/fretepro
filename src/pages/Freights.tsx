@@ -88,9 +88,13 @@ const Freights: React.FC = () => {
     navigate(`/freight-receipt?ids=${freight.id}`);
   };
 
+  const handleGenerateForm = (freight: Freight) => {
+    navigate(`/freight-form/pdf?id=${freight.id}`);
+  };
+
   return (
     <Layout>
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto py-6 pb-20">
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold tracking-tight">Fretes</h1>
@@ -177,6 +181,10 @@ const Freights: React.FC = () => {
                               <DropdownMenuItem onClick={() => handleGenerateReceipt(freight)}>
                                 <FileText className="mr-2 h-4 w-4" />
                                 Gerar Recibo
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleGenerateForm(freight)}>
+                                <Download className="mr-2 h-4 w-4" />
+                                Formulário PDF
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
