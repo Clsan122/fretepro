@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Printer } from "lucide-react";
@@ -46,11 +45,10 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   // Group freights by client for better organization in the receipt
   const freightsByClient = groupFreightsByClient(freights);
 
-  // Fixed: Correctly using useReactToPrint with contentRef function
+  // Fixed: Use the correct way to provide the reference to print
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo-Multiple-Fretes",
-    // Provide a function that returns the element to be printed
-    contentRef: () => printRef.current,
+    content: () => printRef.current, // Changed from contentRef to content
     onAfterPrint: () => {
       console.log("Printing completed");
     },
@@ -60,7 +58,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     <div className="bg-white shadow-lg rounded-lg">
       <div className="p-4 mb-4 flex justify-between items-center border-b">
         <h1 className="text-xl font-bold">Recibo de Múltiplos Fretes</h1>
-        {/* Fixed: Wrap handlePrint in a function to correctly handle the onClick event */}
+        {/* Keep the wrapper function to handle the onClick properly */}
         <Button onClick={() => handlePrint()} className="gap-2">
           <Printer className="h-4 w-4" />
           Imprimir Recibo
