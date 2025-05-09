@@ -48,7 +48,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
 
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo-Multiple-Fretes",
-    contentRef: printRef,
+    content: () => printRef.current,
     onAfterPrint: () => {
       console.log("Printing completed");
     },
@@ -58,7 +58,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     <div className="bg-white shadow-lg rounded-lg">
       <div className="p-4 mb-4 flex justify-between items-center border-b">
         <h1 className="text-xl font-bold">Recibo de Múltiplos Fretes</h1>
-        <Button onClick={handlePrint} className="gap-2">
+        <Button onClick={() => handlePrint()} className="gap-2">
           <Printer className="h-4 w-4" />
           Imprimir Recibo
         </Button>

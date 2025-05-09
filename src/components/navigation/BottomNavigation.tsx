@@ -6,7 +6,6 @@ import {
   Truck, 
   Users, 
   FileText, 
-  User, 
   Package, 
   Calculator
 } from "lucide-react";

@@ -8,7 +8,8 @@ import Layout from "@/components/Layout";
 import FreightFormPdf from "@/components/freight/FreightFormPdf";
 import { 
   exportFreightFormPdf, 
-  previewFreightFormPdf 
+  previewFreightFormPdf,
+  generateFreightFormPdf 
 } from "@/utils/pdf/freightFormPdf";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";

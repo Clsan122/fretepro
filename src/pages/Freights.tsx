@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -27,7 +26,7 @@ import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { MoreHorizontal, Plus, FileText, Edit, Trash, Truck, Receipt } from "lucide-react";
+import { MoreHorizontal, Plus, FileText, Edit, Trash, Truck, Receipt, Download } from "lucide-react";
 import FreightForm from "@/components/FreightForm";
 import { formatCurrency } from "@/utils/formatters";
 
