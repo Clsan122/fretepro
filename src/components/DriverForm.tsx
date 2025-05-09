@@ -83,10 +83,10 @@ const DriverForm: React.FC<DriverFormProps> = ({
   };
   return <div className="w-full max-w-4xl mx-auto">
       {isStandalone && <div className="flex items-center mb-4">
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="mr-2">
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="mr-2 text-sm px-[3px]">
             <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
           </Button>
-          <h1 className="text-2xl font-bold">
+          <h1 className="font-bold px-[24px] text-base text-left">
             {driverToEdit ? "Editar Motorista" : "Cadastrar Motorista"}
           </h1>
         </div>}
