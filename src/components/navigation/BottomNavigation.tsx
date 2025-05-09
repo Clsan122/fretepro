@@ -28,6 +28,11 @@ export const navigationItems: NavigationItem[] = [
     icon: Truck,
   },
   {
+    name: "Clientes",
+    path: "/clients",
+    icon: Users,
+  },
+  {
     name: "Ordens",
     path: "/collection-orders",
     icon: FileText,
@@ -37,11 +42,6 @@ export const navigationItems: NavigationItem[] = [
     path: "/quotations",
     icon: Calculator,
   },
-  {
-    name: "Motoristas",
-    path: "/drivers",
-    icon: Package,
-  },
 ];
 
 const BottomNavigation = () => {
@@ -49,7 +49,7 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  // Importante: utilizar env-safe-area-inset-bottom para garantir compatibilidade com iPhones
+  // Adicionando env-safe-area-inset-bottom para garantir compatibilidade com iPhones e outros dispositivos
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
       <div className="grid h-16 grid-cols-5 max-w-lg mx-auto font-medium">

@@ -1,9 +1,12 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
 import Logo from "@/components/Logo";
+
 const Index = () => {
   const navigate = useNavigate();
+  
   return <div className="min-h-screen flex flex-col bg-gradient-to-b from-freight-50 to-freight-100 dark:from-freight-900 dark:to-freight-950">
       <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-sm border-b border-freight-200/20 dark:border-freight-800/20">
         <div className="container mx-auto flex items-center justify-between py-4 px-4 sm:px-6">
@@ -21,7 +24,7 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
+      <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
             <img alt="FreteValor Logo" className="h-32 w-auto mb-4 object-contain" src="/lovable-uploads/7a2e868d-b2ae-4a11-925f-49bcc1560c2a.png" />
@@ -69,9 +72,10 @@ const Index = () => {
         </div>
       </div>
       
-      <footer className="py-4 text-center text-freight-600/60 dark:text-freight-400/60 bg-white/5">
+      <footer className="py-4 text-center text-freight-600/60 dark:text-freight-400/60 bg-white/5" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
         <p>© 2024 FreteValor - Todos os direitos reservados</p>
       </footer>
     </div>;
 };
+
 export default Index;

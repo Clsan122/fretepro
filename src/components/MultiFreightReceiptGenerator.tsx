@@ -46,7 +46,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   // Group freights by client for better organization in the receipt
   const freightsByClient = groupFreightsByClient(freights);
 
-  // Fixed: Using the correct property name 'contentRef' instead of 'content'
+  // Corrigido: Usando a propriedade correta 'contentRef'
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo-Multiple-Fretes",
     contentRef: printRef,
@@ -59,7 +59,10 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
     <div className="bg-white shadow-lg rounded-lg">
       <div className="p-4 mb-4 flex justify-between items-center border-b">
         <h1 className="text-xl font-bold">Recibo de Múltiplos Fretes</h1>
-        <Button onClick={() => handlePrint()} className="gap-2">
+        <Button 
+          onClick={() => handlePrint()} 
+          className="gap-2"
+        >
           <Printer className="h-4 w-4" />
           Imprimir Recibo
         </Button>

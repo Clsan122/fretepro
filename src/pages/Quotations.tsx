@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -183,17 +182,21 @@ const Quotations: React.FC = () => {
       });
   };
 
+  const handleCreateNewQuotation = () => {
+    navigate("/quotations/new");
+  };
+
   const handleViewQuotation = (quotationId: string) => {
-    navigate(`/quotation/view/${quotationId}`);
+    navigate(`/quotations/view/${quotationId}`);
   };
 
   const handleEditQuotation = (quotationId: string) => {
-    navigate(`/quotation/edit/${quotationId}`);
+    navigate(`/quotations/edit/${quotationId}`);
   };
   
   return (
     <Layout>
-      <div className="w-full max-w-7xl mx-auto">
+      <div className="w-full max-w-7xl mx-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
         <div className="flex flex-col space-y-6">
           <div className="flex justify-between items-center">
             <div>
@@ -205,7 +208,7 @@ const Quotations: React.FC = () => {
               </p>
             </div>
             <Button
-              onClick={() => navigate("/quotation/new")}
+              onClick={handleCreateNewQuotation}
               className="bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all"
             >
               <Plus className="mr-2 h-5 w-5" /> Nova Cotação
@@ -230,7 +233,7 @@ const Quotations: React.FC = () => {
                 <div className="p-6 text-center">
                   <p className="text-muted-foreground">Nenhuma cotação encontrada</p>
                   <Button
-                    onClick={() => navigate("/quotation/new")}
+                    onClick={handleCreateNewQuotation}
                     variant="outline"
                     className="mt-4 hover:bg-freight-50 dark:hover:bg-freight-900"
                   >

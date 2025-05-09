@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -84,11 +85,15 @@ const Freights: React.FC = () => {
   };
 
   const handleGenerateReceipt = (freight: Freight) => {
-    navigate(`/freight-receipt?ids=${freight.id}`);
+    navigate(`/freight/${freight.id}/receipt`);
   };
 
   const handleGenerateForm = (freight: Freight) => {
     navigate(`/freight-form/pdf?id=${freight.id}`);
+  };
+
+  const handleMultipleReceipt = () => {
+    navigate("/multi-freight/receipt");
   };
 
   return (
@@ -101,7 +106,7 @@ const Freights: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Button
-              onClick={() => navigate("/multi-freight/receipt")}
+              onClick={handleMultipleReceipt}
               variant="outline"
               className="gap-2 w-full sm:w-auto"
             >
