@@ -34,24 +34,14 @@ export const navigationItems: NavigationItem[] = [
     icon: FileText,
   },
   {
-    name: "Cotações",
-    path: "/quotations",
-    icon: Calculator,
+    name: "Motoristas",
+    path: "/drivers",
+    icon: Users,
   },
   {
     name: "Clientes",
     path: "/clients",
-    icon: Users,
-  },
-  {
-    name: "Motoristas",
-    path: "/drivers",
     icon: Package,
-  },
-  {
-    name: "Perfil",
-    path: "/profile",
-    icon: User,
   },
 ];
 
@@ -61,9 +51,9 @@ const BottomNavigation = () => {
   const currentPath = location.pathname;
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden">
+    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden safe-bottom">
       <div className="grid h-full grid-cols-5 max-w-lg mx-auto">
-        {navigationItems.slice(0, 5).map((item) => (
+        {navigationItems.map((item) => (
           <button
             key={item.name}
             type="button"

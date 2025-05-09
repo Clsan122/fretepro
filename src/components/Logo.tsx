@@ -24,8 +24,6 @@ const Logo: React.FC<LogoProps> = ({
     lg: "h-10 w-10"
   };
 
-  const combinedClassName = `${sizeClasses[size]} ${className}`;
-
   if (variant === "icon") {
     return (
       <img 
