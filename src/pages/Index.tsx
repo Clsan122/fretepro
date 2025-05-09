@@ -1,16 +1,14 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
 import Logo from "@/components/Logo";
-
 const Index = () => {
   const navigate = useNavigate();
   return <div className="min-h-screen flex flex-col bg-gradient-to-b from-freight-50 to-freight-100 dark:from-freight-900 dark:to-freight-950">
       <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-sm border-b border-freight-200/20 dark:border-freight-800/20">
         <div className="container mx-auto flex items-center justify-between py-4 px-4 sm:px-6">
           <div className="flex items-center">
-            <img alt="FreteValor Logo" className="h-12 w-auto" src="/icons/fretevalor-logo.png" />
+            <img alt="FreteValor Logo" className="h-12 w-auto" src="/lovable-uploads/14266ac9-0e74-4b1e-983d-bba82814439c.png" />
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <Button variant="ghost" onClick={() => navigate("/login")} className="text-freight-700 hover:text-freight-800 bg-white/80 hover:bg-white dark:text-freight-300 dark:bg-white/5 dark:hover:bg-white/10 px-3 sm:px-4 mx-[4px]">
