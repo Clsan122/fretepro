@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
@@ -27,7 +26,7 @@ const Index = () => {
       <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto pb-safe">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
-            <Logo size="lg" className="h-28 sm:h-40 w-auto mb-4 object-contain" />
+            <Logo size="lg" variant="icon" className="h-28 w-28 sm:h-40 sm:w-40 mb-4" />
           </div>
           
           <h1 className="text-3xl sm:text-5xl font-bold mb-4 text-freight-800 dark:text-freight-200">FreteValor</h1>

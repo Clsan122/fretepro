@@ -6,9 +6,7 @@ import {
   Truck, 
   Users, 
   FileText, 
-  User, 
-  Package, 
-  Calculator
+  Package 
 } from "lucide-react";
 
 interface NavigationItem {
@@ -64,7 +62,7 @@ const BottomNavigation = () => {
                 : "text-gray-500 dark:text-gray-400"
             }`}
           >
-            <item.icon className={`w-6 h-6 mb-1 ${
+            <item.icon className={`w-5 h-5 mb-1 ${
               currentPath.startsWith(item.path)
                 ? "text-freight-600 dark:text-freight-400"
                 : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
