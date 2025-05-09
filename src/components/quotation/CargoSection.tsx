@@ -148,30 +148,22 @@ export const CargoSection: React.FC<CargoSectionProps> = ({
           <div className="space-y-4">
             {measurements.map(measurement => <div key={measurement.id} className="grid grid-cols-12 gap-2 items-center bg-freight-50/30 dark:bg-freight-900/30 p-3 rounded-md">
                 <div className="col-span-3 space-y-1">
-                  <Label htmlFor={`length-${measurement.id}`} className="text-sm">
-                    Comprimento (cm)
-                  </Label>
+                  <Label htmlFor={`length-${measurement.id}`} className="text-sm">C. (cm)</Label>
                   <Input id={`length-${measurement.id}`} type="number" step="0.1" value={measurement.length.toString()} onChange={e => handleMeasurementChange(measurement.id, 'length', Number(e.target.value))} min="0" className="text-sm" />
                 </div>
                 
                 <div className="col-span-3 space-y-1">
-                  <Label htmlFor={`width-${measurement.id}`} className="text-sm">
-                    Largura (cm)
-                  </Label>
+                  <Label htmlFor={`width-${measurement.id}`} className="text-sm">L. (cm)</Label>
                   <Input id={`width-${measurement.id}`} type="number" step="0.1" value={measurement.width.toString()} onChange={e => handleMeasurementChange(measurement.id, 'width', Number(e.target.value))} min="0" className="text-sm" />
                 </div>
                 
                 <div className="col-span-3 space-y-1">
-                  <Label htmlFor={`height-${measurement.id}`} className="text-sm">
-                    Altura (cm)
-                  </Label>
+                  <Label htmlFor={`height-${measurement.id}`} className="text-sm">A. (cm)</Label>
                   <Input id={`height-${measurement.id}`} type="number" step="0.1" value={measurement.height.toString()} onChange={e => handleMeasurementChange(measurement.id, 'height', Number(e.target.value))} min="0" className="text-sm" />
                 </div>
                 
-                <div className="col-span-2 space-y-1">
-                  <Label htmlFor={`quantity-${measurement.id}`} className="text-sm">
-                    Quantidade
-                  </Label>
+                <div className="col-span-2 space-y-1 my-[2px] py-[8px]">
+                  <Label htmlFor={`quantity-${measurement.id}`} className="text-sm py-0">Qnt.</Label>
                   <Input id={`quantity-${measurement.id}`} type="number" value={measurement.quantity.toString()} onChange={e => handleMeasurementChange(measurement.id, 'quantity', Number(e.target.value))} min="1" className="text-sm py-0 my-[12px] px-[7px]" />
                 </div>
                 
