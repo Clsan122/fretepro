@@ -49,10 +49,8 @@ const AppRoutes = () => {
       
       {/* Driver Routes */}
       <Route path="/drivers" element={<PrivateRoute><Drivers /></PrivateRoute>} />
-      <Route path="/drivers/new" element={<PrivateRoute><DriverRegister /></PrivateRoute>} />
-      <Route path="/drivers/edit/:id" element={<PrivateRoute><DriverEdit /></PrivateRoute>} />
-      <Route path="/driver/new" element={<Navigate to="/drivers/new" replace />} />
-      <Route path="/driver/:id" element={<Navigate to="/drivers/edit/:id" replace />} />
+      <Route path="/driver/new" element={<PrivateRoute><DriverRegister /></PrivateRoute>} />
+      <Route path="/driver/:id" element={<PrivateRoute><DriverEdit /></PrivateRoute>} />
       
       {/* Client Routes */}
       <Route path="/clients" element={<PrivateRoute><Clients /></PrivateRoute>} />

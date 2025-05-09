@@ -40,7 +40,6 @@ const PrintStyles: React.FC = () => {
         
         .print-compact {
           margin-bottom: 3px !important;
-          padding: 0 !important;
         }
         
         .scale-down {
@@ -51,19 +50,18 @@ const PrintStyles: React.FC = () => {
         .print-table {
           width: 100% !important;
           border-collapse: collapse !important;
-          font-size: 9px !important;
-          margin-bottom: 5px !important;
+          font-size: 10px !important;
         }
         
         .print-table td,
         .print-table th {
           border: 1px solid #ddd !important;
-          padding: 2px !important;
-          font-size: 8px !important;
+          padding: 3px !important;
+          font-size: 9px !important;
         }
         
         .print-small-text {
-          font-size: 8px !important;
+          font-size: 9px !important;
           line-height: 1.1 !important;
         }
         
@@ -88,36 +86,6 @@ const PrintStyles: React.FC = () => {
         
         .pdf-generation-mode {
           width: 800px !important;
-        }
-        
-        /* Reduções específicas para garantir que tudo fique em uma página */
-        h1 {
-          font-size: 16px !important;
-          margin-top: 0 !important;
-          margin-bottom: 4px !important;
-        }
-        
-        h2 {
-          font-size: 12px !important;
-          margin-top: 0 !important;
-          margin-bottom: 3px !important;
-        }
-        
-        p {
-          margin-top: 0 !important;
-          margin-bottom: 2px !important;
-        }
-        
-        .mt-8 {
-          margin-top: 0.5rem !important;
-        }
-        
-        .pt-3, .pt-4, .pt-6 {
-          padding-top: 0.25rem !important;
-        }
-        
-        .mb-3, .mb-4 {
-          margin-bottom: 0.25rem !important;
         }
       `}
     </style>

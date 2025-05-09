@@ -97,19 +97,6 @@
   }
 }
 
-/* iOS Safe Area support */
-.safe-top {
-  padding-top: env(safe-area-inset-top);
-}
-
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0.5rem);
-}
-
 .form-container {
   @apply space-y-6 p-6 bg-white rounded-lg shadow-md;
 }
