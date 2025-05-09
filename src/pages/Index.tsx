@@ -24,7 +24,7 @@ const Index = () => {
       <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
-            <img alt="FreteValor Logo" className="h-32 w-auto mb-4 object-contain" src="/icons/fretevalor-logo.png" />
+            <img alt="FreteValor Logo" className="h-32 w-auto mb-4 object-contain" src="/lovable-uploads/7a2e868d-b2ae-4a11-925f-49bcc1560c2a.png" />
           </div>
           
           <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-freight-800 dark:text-freight-200">FreteValor</h1>
