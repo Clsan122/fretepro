@@ -6,7 +6,6 @@ import {
   Truck, 
   Users, 
   FileText, 
-  Package, 
   Calculator
 } from "lucide-react";
 
@@ -18,9 +17,14 @@ interface NavigationItem {
 
 export const navigationItems: NavigationItem[] = [
   {
-    name: "Dashboard",
+    name: "Home",
     path: "/dashboard",
     icon: Home,
+  },
+  {
+    name: "Motoristas",
+    path: "/drivers",
+    icon: Users,
   },
   {
     name: "Fretes",
@@ -28,12 +32,7 @@ export const navigationItems: NavigationItem[] = [
     icon: Truck,
   },
   {
-    name: "Clientes",
-    path: "/clients",
-    icon: Users,
-  },
-  {
-    name: "Ordens",
+    name: "Coletas",
     path: "/collection-orders",
     icon: FileText,
   },
