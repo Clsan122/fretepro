@@ -4,7 +4,8 @@ interface SyncManager {
   register(tag: string): Promise<void>;
 }
 
-interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
+// Now properly export this interface
+export interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
   sync?: SyncManager;
 }
 
