@@ -1,9 +1,8 @@
-
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { initializeSyncSystem } from './utils/sync.ts';
+import { initializeSyncSystem } from './utils/sync';
 import { initializePushNotifications } from './utils/pushNotifications.ts';
 import { toast } from 'sonner';
 

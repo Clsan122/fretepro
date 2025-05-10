@@ -1,5 +1,5 @@
 
-import { TableName, SyncItem } from "./types";
+import { TableName, SyncItem, ExtendedServiceWorkerRegistration } from "./types";
 import { saveToIndexedDB, getLocalStorageData, getPendingSyncItems } from "./database";
 import { syncWithServer } from "./onlineSync";
 import { setupPeriodicSync, setupOnlineListener } from "./periodicSync";
