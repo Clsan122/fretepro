@@ -1,4 +1,6 @@
+
 import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
+import { saveForOfflineSync, deleteForOfflineSync } from "@/utils/sync";
 
 // Generic function to get items from localStorage
 const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
