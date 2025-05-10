@@ -57,10 +57,13 @@ const AppRoutes: React.FC = () => {
       <Route path="/freight-form/pdf" element={<PrivateRoute><FreightFormPdfView /></PrivateRoute>} />
       <Route path="/multi-freight/receipt" element={<PrivateRoute><MultiFreightReceipt /></PrivateRoute>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      
+      {/* Collection Order Routes - Garantindo consistência nos nomes das rotas */}
       <Route path="/collection-orders" element={<PrivateRoute><CollectionOrders /></PrivateRoute>} />
-      <Route path="/collection-orders/new" element={<PrivateRoute><CollectionOrder /></PrivateRoute>} />
-      <Route path="/collection-orders/edit/:id" element={<PrivateRoute><CollectionOrderEdit /></PrivateRoute>} />
-      <Route path="/collection-orders/view/:id" element={<PrivateRoute><CollectionOrderView /></PrivateRoute>} />
+      <Route path="/collection-order/new" element={<PrivateRoute><CollectionOrder /></PrivateRoute>} />
+      <Route path="/collection-order/edit/:id" element={<PrivateRoute><CollectionOrderEdit /></PrivateRoute>} />
+      <Route path="/collection-order/view/:id" element={<PrivateRoute><CollectionOrderView /></PrivateRoute>} />
+      
       <Route path="/quotations" element={<PrivateRoute><Quotations /></PrivateRoute>} />
       <Route path="/quotations/new" element={<PrivateRoute><QuotationForm /></PrivateRoute>} />
       <Route path="/quotations/edit/:id" element={<PrivateRoute><QuotationEdit /></PrivateRoute>} />

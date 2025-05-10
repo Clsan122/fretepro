@@ -44,7 +44,7 @@ const CollectionOrders: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {orders.map((order) => (
               <Card key={order.id} className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => navigate(`/collection-order/${order.id}`)}>
+                onClick={() => navigate(`/collection-order/view/${order.id}`)}>
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div>
