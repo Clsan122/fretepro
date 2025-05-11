@@ -6,7 +6,8 @@ import {
   Users,
   Truck, 
   FileText, 
-  Calculator
+  Calculator,
+  Settings
 } from "lucide-react";
 
 interface NavigationItem {
@@ -41,6 +42,11 @@ export const navigationItems: NavigationItem[] = [
     path: "/quotations",
     icon: Calculator,
   },
+  {
+    name: "Config",
+    path: "/profile",
+    icon: Settings,
+  }
 ];
 
 const BottomNavigation = () => {
@@ -51,7 +57,7 @@ const BottomNavigation = () => {
   // Adicionando env-safe-area-inset-bottom para garantir compatibilidade com iPhones e outros dispositivos
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
-      <div className="grid h-16 grid-cols-5 max-w-lg mx-auto font-medium">
+      <div className="grid h-16 grid-cols-6 max-w-lg mx-auto font-medium">
         {navigationItems.map((item) => (
           <button
             key={item.name}
