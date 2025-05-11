@@ -132,6 +132,10 @@ async function syncData() {
             // Marcar como sincronizado
             syncedIds.push(item.id);
           }
+        } else {
+          // Mesmo sem token, marcamos os dados como "vistos"
+          // para evitar processamento repetido
+          syncedIds.push(item.id);
         }
       } catch (error) {
         console.error('Erro sincronizando item:', error);
@@ -155,6 +159,9 @@ async function syncData() {
       });
     }
     
+    // Transferir dados para o cache para acesso entre navegadores
+    await updateBrowserCache();
+    
     return true;
   } catch (error) {
     console.error('Erro na sincronização:', error);
@@ -162,9 +169,80 @@ async function syncData() {
   }
 }
 
-export {
+// Nova função para manter dados no cache para acesso entre navegadores
+async function updateBrowserCache() {
+  try {
+    const db = await openDatabase();
+    const transaction = db.transaction('pendingSync', 'readonly');
+    const store = transaction.objectStore('pendingSync');
+    
+    // Agrupar dados por tipo
+    const dataByType = {};
+    
+    return new Promise((resolve, reject) => {
+      store.openCursor().onsuccess = async (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const item = cursor.value;
+          
+          // Ignorar itens marcados para exclusão
+          if (!item._deleted) {
+            // Inicializar array se não existir
+            if (!dataByType[item.type]) {
+              dataByType[item.type] = [];
+            }
+            
+            // Adicionar item ao array do tipo correspondente
+            dataByType[item.type].push(item.data);
+          }
+          
+          cursor.continue();
+        } else {
+          // Armazenar cada tipo de dados em seu próprio cache
+          try {
+            const cache = await caches.open('app-data-cache-v1');
+            
+            // Para cada tipo de dados, criar uma resposta e armazenar no cache
+            for (const type in dataByType) {
+              const response = new Response(JSON.stringify(dataByType[type]), {
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Cache-Control': 'max-age=86400'
+                }
+              });
+              
+              await cache.put(`/api/cached-data/${type}`, response);
+            }
+            
+            console.log('Dados armazenados no cache para acesso entre navegadores');
+            resolve();
+          } catch (error) {
+            console.error('Erro ao armazenar dados no cache:', error);
+            resolve(); // Resolver mesmo com erro para não bloquear o processo
+          }
+        }
+      };
+      
+      transaction.onerror = () => {
+        console.error('Erro ao ler dados para cache:', transaction.error);
+        resolve(); // Resolver mesmo com erro
+      };
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar cache:', error);
+  }
+}
+
+// Adicionar ouvinte para armazenar dados no cache quando a aplicação é fechada
+self.addEventListener('appgoingaway', async () => {
+  await updateBrowserCache();
+});
+
+// Exportar funções para uso global
+self.syncManager = {
   openDatabase,
   syncData,
   getPendingSyncData,
-  markAsSynced
+  markAsSynced,
+  updateBrowserCache
 };

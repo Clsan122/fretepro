@@ -8,17 +8,31 @@ import { CollectionOrder } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, FileText, Truck } from "lucide-react";
+import { toast } from "sonner";
 
 const CollectionOrders: React.FC = () => {
   const [orders, setOrders] = useState<CollectionOrder[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      const userOrders = getCollectionOrdersByUserId(user.id);
-      setOrders(userOrders);
-    }
+    const fetchOrders = async () => {
+      if (user) {
+        try {
+          setLoading(true);
+          const userOrders = await getCollectionOrdersByUserId(user.id);
+          setOrders(userOrders);
+        } catch (error) {
+          console.error("Erro ao buscar ordens de coleta:", error);
+          toast.error("Erro ao carregar ordens de coleta");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchOrders();
   }, [user]);
 
   return (
@@ -34,7 +48,12 @@ const CollectionOrders: React.FC = () => {
           </Button>
         </div>
 
-        {orders.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="w-8 h-8 border-4 border-t-freight-600 border-freight-200 rounded-full animate-spin"></div>
+            <span className="ml-2 text-freight-600">Carregando...</span>
+          </div>
+        ) : orders.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma ordem de coleta encontrada</h3>

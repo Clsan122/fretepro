@@ -2,7 +2,7 @@
 import { TableName, SyncItem, ExtendedServiceWorkerRegistration } from "./types";
 import { saveToIndexedDB, getLocalStorageData, getPendingSyncItems } from "./database";
 import { syncWithServer } from "./onlineSync";
-import { setupPeriodicSync, setupOnlineListener } from "./periodicSync";
+import { setupPeriodicSync, setupOnlineListener, checkCachedData } from "./periodicSync";
 import { supabase } from "@/integrations/supabase/client";
 
 // Salvar dados para sincronização posterior com sistema distribuído
@@ -163,6 +163,9 @@ export const deleteForOfflineSync = async (type: TableName, syncId: string): Pro
 // Função para realizar a inicialização do sistema de sincronização
 export const initializeSyncSystem = async (): Promise<void> => {
   try {
+    // Verificar dados em cache de outros navegadores
+    await checkCachedData();
+    
     // Configurar ouvinte de conexão
     setupOnlineListener();
     

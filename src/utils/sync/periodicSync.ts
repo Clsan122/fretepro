@@ -1,30 +1,33 @@
 
+import { saveLocalData } from './localData';
+import { TableName } from './types';
+
 // Configurar sincronização periódica
-export const setupPeriodicSync = async (intervalMinutes: number = 15): Promise<boolean> => {
+export const setupPeriodicSync = async (): Promise<boolean> => {
   try {
-    // Verificar suporte a sincronização periódica
-    if (!('serviceWorker' in navigator) || !('PeriodicSyncManager' in window)) {
-      return false;
-    }
-    
-    const registration = await navigator.serviceWorker.ready as any;
-    
-    // Verificar permissão
-    if (registration.periodicSync) {
-      try {
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+      const registration = await navigator.serviceWorker.ready;
+      
+      // Verificar suporte a periodic sync (poucos navegadores suportam)
+      if ('periodicSync' in registration) {
+        const periodicSync = registration.periodicSync;
+        
+        // Verificar permissão
         const status = await navigator.permissions.query({
           name: 'periodic-background-sync' as PermissionName
         });
         
         if (status.state === 'granted') {
-          // Registrar sincronização periódica
-          await registration.periodicSync.register('periodic-sync', {
-            minInterval: intervalMinutes * 60 * 1000 // converter minutos para ms
-          });
-          return true;
+          try {
+            await periodicSync.register('periodic-sync', {
+              minInterval: 24 * 60 * 60 * 1000 // 24 horas
+            });
+            console.log('Sincronização periódica configurada');
+            return true;
+          } catch (error) {
+            console.error('Erro ao registrar sincronização periódica:', error);
+          }
         }
-      } catch (error) {
-        console.error('Erro ao verificar permissão para sincronização periódica:', error);
       }
     }
     
@@ -35,13 +38,63 @@ export const setupPeriodicSync = async (intervalMinutes: number = 15): Promise<b
   }
 };
 
-// Iniciar ouvinte de conexão para sincronizar quando ficar online
+// Verificar dados em cache durante inicialização
+export const checkCachedData = async (): Promise<void> => {
+  try {
+    if ('caches' in window) {
+      const cache = await caches.open('app-data-cache-v1');
+      
+      // Lista de tipos de dados para verificar
+      const dataTypes: TableName[] = [
+        'clients',
+        'drivers', 
+        'freights', 
+        'freight_expenses',
+        'collection_orders',
+        'measurements'
+      ];
+      
+      for (const type of dataTypes) {
+        const response = await cache.match(`/api/cached-data/${type}`);
+        
+        if (response) {
+          try {
+            const data = await response.json();
+            
+            if (Array.isArray(data) && data.length > 0) {
+              console.log(`Encontrados ${data.length} itens em cache para ${type}`);
+              
+              // Salvar cada item no armazenamento local
+              for (const item of data) {
+                await saveLocalData(type, item);
+              }
+            }
+          } catch (error) {
+            console.error(`Erro ao processar dados em cache para ${type}:`, error);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao verificar dados em cache:', error);
+  }
+};
+
+// Configurar listener para sincronização quando voltar online
 export const setupOnlineListener = (): void => {
   window.addEventListener('online', async () => {
-    console.log('Conexão online detectada. Iniciando sincronização...');
+    console.log('Dispositivo online - iniciando sincronização');
     
-    // Importar aqui para evitar importação circular
-    const { syncWithServer } = await import('./onlineSync');
-    await syncWithServer();
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+      const registration = await navigator.serviceWorker.ready;
+      
+      if ('sync' in registration) {
+        try {
+          await registration.sync.register('database-sync');
+        } catch (error) {
+          console.error('Erro ao registrar sincronização:', error);
+        }
+      }
+    }
   });
 };
