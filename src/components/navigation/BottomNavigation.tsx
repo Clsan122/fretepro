@@ -3,8 +3,8 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Home, 
+  Users,
   Truck, 
-  Users, 
   FileText, 
   Calculator
 } from "lucide-react";
