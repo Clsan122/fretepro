@@ -53,7 +53,7 @@ export const CargoSection: React.FC<CargoProps> = ({
 
           <div className="space-y-2">
             <Label htmlFor="cubicMeasurement">Cubagem (m³)</Label>
-            <Input id="cubicMeasurement" type="number" step="0.001" value={cubicMeasurement.toFixed(3)} readOnly className="bg-slate-950" />
+            <Input id="cubicMeasurement" type="number" step="0.001" value={cubicMeasurement.toFixed(3)} readOnly className="bg-gray-50" />
           </div>
 
           <div className="space-y-2">
