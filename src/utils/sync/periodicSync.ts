@@ -1,6 +1,10 @@
-
 import { saveLocalData } from './localData';
 import { TableName } from './types';
+
+// Define the SyncManager interface that was missing
+interface SyncManager {
+  register(tag: string): Promise<void>;
+}
 
 interface PeriodicSyncManager {
   register(tag: string, options?: { minInterval: number }): Promise<void>;
