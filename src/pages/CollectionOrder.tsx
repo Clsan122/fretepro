@@ -11,8 +11,8 @@ const CollectionOrderPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSaveOrder = (order: CollectionOrder) => {
-    saveCollectionOrder(order);
+  const handleSaveOrder = async (order: CollectionOrder) => {
+    await saveCollectionOrder(order);
     toast({
       title: "Ordem de coleta cadastrada",
       description: "A ordem de coleta foi cadastrada com sucesso!",
@@ -27,6 +27,7 @@ const CollectionOrderPage: React.FC = () => {
   return (
     <Layout>
       <div className="p-4 md:p-6">
+        <h1 className="text-2xl font-bold mb-6">Nova Ordem de Coleta</h1>
         <CollectionOrderForm 
           onSave={handleSaveOrder} 
           onCancel={handleCancel}

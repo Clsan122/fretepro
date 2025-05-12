@@ -20,56 +20,73 @@ const CollectionOrderView: React.FC = () => {
   const [order, setOrder] = useState<CollectionOrder | null>(null);
   const [client, setClient] = useState<Client | null>(null);
   const [issuer, setIssuer] = useState(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
   const { isGenerating, handleShare, handleDownload, handlePrint } = useCollectionOrderPdf(order, id);
 
   useEffect(() => {
-    if (id) {
-      const collectionOrder = getCollectionOrderById(id);
-      if (collectionOrder) {
-        setOrder(collectionOrder);
+    async function fetchOrder() {
+      if (id) {
+        try {
+          const collectionOrder = await getCollectionOrderById(id);
+          if (collectionOrder) {
+            setOrder(collectionOrder);
 
-        // Try to find issuer (user or client) by ID
-        if (collectionOrder.issuerId) {
-          // Procure por um client
-          const clients = JSON.parse(localStorage.getItem("clients") || "[]");
-          const matchingClient = clients.find((c: Client) => c.id === collectionOrder.issuerId);
-          if (matchingClient) {
-            setIssuer(matchingClient);
+            // Try to find issuer (user or client) by ID
+            if (collectionOrder.issuerId) {
+              // Procure por um client
+              const clients = JSON.parse(localStorage.getItem("clients") || "[]");
+              const matchingClient = clients.find((c: Client) => c.id === collectionOrder.issuerId);
+              if (matchingClient) {
+                setIssuer(matchingClient);
+              } else {
+                // É o usuário dono da ordem
+                const users = JSON.parse(localStorage.getItem("users") || "[]");
+                const emissionUser = users.find((u: any) => u.id === collectionOrder.issuerId);
+                setIssuer(emissionUser || null);
+              }
+            }
+
+            // Try to find client by matching recipient name with client name
+            if (collectionOrder.recipient) {
+              const clients = JSON.parse(localStorage.getItem("clients") || "[]");
+              const matchingClient = clients.find((c: Client) => 
+                c.name.toLowerCase() === collectionOrder.recipient.toLowerCase()
+              );
+              if (matchingClient) {
+                setClient(matchingClient);
+              }
+            }
           } else {
-            // É o usuário dono da ordem
-            const users = JSON.parse(localStorage.getItem("users") || "[]");
-            const emissionUser = users.find((u: any) => u.id === collectionOrder.issuerId);
-            setIssuer(emissionUser || null);
+            toast({
+              title: "Erro",
+              description: "Ordem de coleta não encontrada",
+              variant: "destructive"
+            });
+            navigate("/collection-orders");
           }
+        } catch (error) {
+          console.error("Erro ao buscar ordem de coleta:", error);
+          toast({
+            title: "Erro",
+            description: "Erro ao buscar ordem de coleta",
+            variant: "destructive"
+          });
+          navigate("/collection-orders");
+        } finally {
+          setLoading(false);
         }
-
-        // Try to find client by matching recipient name with client name
-        if (collectionOrder.recipient) {
-          const clients = JSON.parse(localStorage.getItem("clients") || "[]");
-          const matchingClient = clients.find((c: Client) => 
-            c.name.toLowerCase() === collectionOrder.recipient.toLowerCase()
-          );
-          if (matchingClient) {
-            setClient(matchingClient);
-          }
-        }
-      } else {
-        toast({
-          title: "Erro",
-          description: "Ordem de coleta não encontrada",
-          variant: "destructive"
-        });
-        navigate("/collection-orders");
       }
     }
+    
+    fetchOrder();
   }, [id, navigate, toast]);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (id) {
-      deleteCollectionOrder(id);
+      await deleteCollectionOrder(id);
       toast({
         title: "Ordem de coleta excluída",
         description: "A ordem de coleta foi excluída com sucesso!"
@@ -127,7 +144,7 @@ const CollectionOrderView: React.FC = () => {
     navigate("/freights");
   };
 
-  if (!order) {
+  if (loading) {
     return (
       <Layout>
         <div className="p-4 md:p-6">
@@ -141,6 +158,26 @@ const CollectionOrderView: React.FC = () => {
               <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
             </Button>
             <h1 className="text-2xl font-bold">Carregando...</h1>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!order) {
+    return (
+      <Layout>
+        <div className="p-4 md:p-6">
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/collection-orders")}
+              className="mr-2"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
+            </Button>
+            <h1 className="text-2xl font-bold">Ordem não encontrada</h1>
           </div>
         </div>
       </Layout>

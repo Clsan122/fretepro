@@ -10,23 +10,40 @@ import { getCollectionOrderById, saveCollectionOrder } from "@/utils/storage";
 const CollectionOrderEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<CollectionOrder | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (id) {
-      const collectionOrder = getCollectionOrderById(id);
-      if (collectionOrder) {
-        setOrder(collectionOrder);
-      } else {
-        toast({
-          title: "Erro",
-          description: "Ordem de coleta não encontrada",
-          variant: "destructive"
-        });
-        navigate("/collection-orders");
+    async function fetchOrder() {
+      if (id) {
+        try {
+          const collectionOrder = await getCollectionOrderById(id);
+          if (collectionOrder) {
+            setOrder(collectionOrder);
+          } else {
+            toast({
+              title: "Erro",
+              description: "Ordem de coleta não encontrada",
+              variant: "destructive"
+            });
+            navigate("/collection-orders");
+          }
+        } catch (error) {
+          console.error("Erro ao buscar ordem de coleta:", error);
+          toast({
+            title: "Erro",
+            description: "Erro ao buscar ordem de coleta",
+            variant: "destructive"
+          });
+          navigate("/collection-orders");
+        } finally {
+          setLoading(false);
+        }
       }
     }
+    
+    fetchOrder();
   }, [id, navigate, toast]);
 
   const handleSaveOrder = (updatedOrder: CollectionOrder) => {
@@ -42,11 +59,21 @@ const CollectionOrderEdit: React.FC = () => {
     navigate(`/collection-order/${id}`);
   };
 
-  if (!order) {
+  if (loading) {
     return (
       <Layout>
         <div className="p-4 md:p-6">
           <h1 className="text-2xl font-bold">Carregando...</h1>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!order) {
+    return (
+      <Layout>
+        <div className="p-4 md:p-6">
+          <h1 className="text-2xl font-bold">Ordem não encontrada</h1>
         </div>
       </Layout>
     );

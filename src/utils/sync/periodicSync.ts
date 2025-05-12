@@ -2,14 +2,23 @@
 import { saveLocalData } from './localData';
 import { TableName } from './types';
 
+interface PeriodicSyncManager {
+  register(tag: string, options?: { minInterval: number }): Promise<void>;
+}
+
+interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
+  periodicSync?: PeriodicSyncManager;
+  sync?: SyncManager;
+}
+
 // Configurar sincronização periódica
 export const setupPeriodicSync = async (): Promise<boolean> => {
   try {
     if ('serviceWorker' in navigator && 'SyncManager' in window) {
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.ready as ExtendedServiceWorkerRegistration;
       
       // Verificar suporte a periodic sync (poucos navegadores suportam)
-      if ('periodicSync' in registration) {
+      if (registration.periodicSync) {
         const periodicSync = registration.periodicSync;
         
         // Verificar permissão
@@ -86,9 +95,9 @@ export const setupOnlineListener = (): void => {
     console.log('Dispositivo online - iniciando sincronização');
     
     if ('serviceWorker' in navigator && 'SyncManager' in window) {
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.ready as ExtendedServiceWorkerRegistration;
       
-      if ('sync' in registration) {
+      if (registration.sync) {
         try {
           await registration.sync.register('database-sync');
         } catch (error) {

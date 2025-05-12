@@ -1,4 +1,3 @@
-
 export interface CollectionOrder {
   id: string;
   orderNumber: string; // Added this field for auto-numbering
@@ -32,6 +31,10 @@ export interface CollectionOrder {
   userId: string;
   shipper?: string;
   shipperAddress?: string;
+  syncId?: string;
+  syncVersion?: number;
+  _deleted?: boolean;
+  _synced?: boolean;
 }
 
 export interface Driver {
