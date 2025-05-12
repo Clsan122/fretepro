@@ -94,16 +94,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         )}
         
-        <div className="flex flex-col min-h-screen w-full md:ml-64 pb-16 md:pb-0">
+        <div className="flex flex-col min-h-screen w-full md:ml-64">
           <Header 
             toggleSidebar={toggleSidebar} 
             theme={theme}
             toggleTheme={toggleTheme}
           />
           
-          <main className="flex-1 p-4 sm:p-6 lg:p-8" style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-16 md:pb-0 safe-area-inset">
             {children}
           </main>
+          
+          {/* Espaço vazio para garantir que o conteúdo não fique embaixo da navigation bar em dispositivos móveis */}
+          <div className="h-16 md:h-0"></div>
         </div>
         
         <BottomNavigation />

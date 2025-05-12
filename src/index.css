@@ -94,7 +94,27 @@
 
   body {
     @apply bg-background text-foreground font-inter;
+    /* Aplicar safe-area no corpo principal do documento */
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
   }
+
+  /* Prevenir scrolling horizontal em dispositivos móveis */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+}
+
+/* Classe para garantir que os elementos respeitem as safe areas */
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
 }
 
 .form-container {
@@ -120,5 +140,31 @@
   
   .input-group-3 {
     @apply grid-cols-3;
+  }
+}
+
+/* Classes para dispositivos específicos */
+@supports (padding: max(0px)) {
+  .has-notch {
+    padding-left: max(env(safe-area-inset-left), 16px);
+    padding-right: max(env(safe-area-inset-right), 16px);
+    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+  }
+}
+
+/* Especificamente para iPhones com notch */
+@media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3),
+       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2),
+       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3),
+       screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3),
+       screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) {
+  .iphone-notch-friendly {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .content-inset {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }

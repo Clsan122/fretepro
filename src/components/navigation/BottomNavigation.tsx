@@ -54,9 +54,15 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  // Adicionando env-safe-area-inset-bottom para garantir compatibilidade com iPhones e outros dispositivos
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+    <div 
+      className="fixed bottom-0 left-0 z-50 w-full bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden"
+      style={{ 
+        paddingBottom: 'env(safe-area-inset-bottom, 0)',
+        paddingLeft: 'env(safe-area-inset-left, 0)',
+        paddingRight: 'env(safe-area-inset-right, 0)'
+      }}
+    >
       <div className="grid h-16 grid-cols-6 max-w-lg mx-auto font-medium">
         {navigationItems.map((item) => (
           <button

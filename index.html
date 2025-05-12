@@ -3,7 +3,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <title>FreteValor - Gerenciamento de Fretes</title>
     <meta name="description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
     <meta name="author" content="FreteValor" />
@@ -11,6 +11,8 @@
     <link rel="icon" href="/src/assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icons/fretevalor-logo.png" />
     <meta name="theme-color" content="#1E40AF" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- PWA Manifesto e ícones para Android/iOS/Windows -->
     <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
@@ -68,6 +70,20 @@
         script.type = 'text/javascript';
         document.body.appendChild(script);
       }
+      
+      // Adicionar classe para dispositivos com notch
+      document.addEventListener('DOMContentLoaded', function() {
+        // Verificar se é um dispositivo iOS com notch (iPhone X ou mais recente)
+        const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (iOS) {
+          document.body.classList.add('ios-device');
+          
+          // Verificar se tem notch
+          if (window.screen.height >= 812 || window.screen.width >= 812) {
+            document.body.classList.add('has-notch', 'iphone-notch-friendly');
+          }
+        }
+      });
     </script>
   </body>
 </html>

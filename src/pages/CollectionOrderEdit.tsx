@@ -62,7 +62,7 @@ const CollectionOrderEdit: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 safe-area-inset">
           <h1 className="text-2xl font-bold">Carregando...</h1>
         </div>
       </Layout>
@@ -72,7 +72,7 @@ const CollectionOrderEdit: React.FC = () => {
   if (!order) {
     return (
       <Layout>
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 safe-area-inset">
           <h1 className="text-2xl font-bold">Ordem não encontrada</h1>
         </div>
       </Layout>
@@ -81,7 +81,7 @@ const CollectionOrderEdit: React.FC = () => {
 
   return (
     <Layout>
-      <div className="p-4 md:p-6">
+      <div className="p-4 md:p-6 safe-area-inset">
         <h1 className="text-2xl font-bold mb-6">Editar Ordem de Coleta</h1>
         <CollectionOrderForm 
           onSave={handleSaveOrder} 

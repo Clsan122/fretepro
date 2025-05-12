@@ -21,7 +21,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, theme, toggleTheme }) =>
   };
 
   return (
-    <header className="sticky top-0 z-50 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+    <header 
+      className="sticky top-0 z-50 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm"
+      style={{ 
+        paddingTop: 'env(safe-area-inset-top, 0)',
+        paddingLeft: 'env(safe-area-inset-left, 0)',
+        paddingRight: 'env(safe-area-inset-right, 0)'
+      }}
+    >
       <div className="h-full max-w-screen-2xl mx-auto px-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button 

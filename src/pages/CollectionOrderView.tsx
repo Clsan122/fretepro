@@ -147,7 +147,7 @@ const CollectionOrderView: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 safe-area-inset">
           <div className="flex items-center">
             <Button
               variant="outline"
@@ -167,7 +167,7 @@ const CollectionOrderView: React.FC = () => {
   if (!order) {
     return (
       <Layout>
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 safe-area-inset">
           <div className="flex items-center">
             <Button
               variant="outline"
@@ -192,7 +192,7 @@ const CollectionOrderView: React.FC = () => {
 
   return (
     <Layout>
-      <div className="p-4 md:p-6 print-container">
+      <div className="p-4 md:p-6 safe-area-inset print-container">
         <ActionButtons
           id={id}
           onDelete={handleDelete}
