@@ -7,7 +7,7 @@ import {
   Truck, 
   FileText, 
   Calculator,
-  Settings
+  UserRound
 } from "lucide-react";
 
 interface NavigationItem {
@@ -25,7 +25,7 @@ export const navigationItems: NavigationItem[] = [
   {
     name: "Motoristas",
     path: "/drivers",
-    icon: Users,
+    icon: Truck,
   },
   {
     name: "Fretes",
@@ -43,9 +43,9 @@ export const navigationItems: NavigationItem[] = [
     icon: Calculator,
   },
   {
-    name: "Config",
-    path: "/profile",
-    icon: Settings,
+    name: "Clientes",
+    path: "/clients",
+    icon: UserRound,
   }
 ];
 
