@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
@@ -64,10 +65,29 @@ function preloadScreenshots() {
   }
 }
 
+// Carregar o sistema de widgets quando aplicável
+function loadWidgets() {
+  if ('serviceWorker' in navigator && 'widgets' in window) {
+    // Carregar script de widgets
+    const widgetScript = document.createElement('script');
+    widgetScript.src = '/sw/widgets.js';
+    widgetScript.onload = () => {
+      // Inicializar widgets quando o script carregar
+      if (window.widgetManager && window.widgetManager.init) {
+        window.widgetManager.init().then(success => {
+          console.log('Sistema de widgets inicializado:', success ? 'com sucesso' : 'com falhas');
+        });
+      }
+    };
+    document.body.appendChild(widgetScript);
+  }
+}
+
 // Forçar pré-carregamento de imagens críticas
 window.addEventListener('load', () => {
   setTimeout(() => {
     preloadScreenshots();
+    loadWidgets();
   }, 2000); // Atrasar o pré-carregamento para não competir com recursos críticos
 });
 
@@ -185,6 +205,23 @@ if ('serviceWorker' in navigator) {
             toast.success('App preparado para uso offline');
           }
         }
+
+        if (event.data && event.data.type === 'WIDGET_UPDATE_REQUEST') {
+          console.log('Solicitação de atualização de widget recebida:', event.data.widgetId);
+          
+          // Se temos o sistema de widgets carregado
+          if (window.widgetManager) {
+            window.widgetManager.updateWidgetData(event.data.widgetId)
+              .then(data => window.widgetManager.renderWidget(event.data.widgetId, data))
+              .then(content => {
+                navigator.serviceWorker.controller?.postMessage({
+                  type: 'WIDGET_UPDATED',
+                  widget: content
+                });
+              })
+              .catch(err => console.error('Erro ao atualizar widget:', err));
+          }
+        }
       });
       
       // Verificar status de conectividade e notificar o Service Worker
@@ -238,3 +275,15 @@ window.addEventListener('beforeunload', () => {
     });
   }
 });
+
+// Declarar interfaces globais para TypeScript
+declare global {
+  interface Window {
+    widgetManager?: {
+      init: () => Promise<boolean>;
+      renderWidget: (widgetId: string, data: any) => Promise<any>;
+      updateWidgetData: (widgetId: string) => Promise<any>;
+      registerWidgets: () => Promise<boolean>;
+    }
+  }
+}

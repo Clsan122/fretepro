@@ -9,6 +9,7 @@ importScripts('/sw/sync-manager.js');
 importScripts('/sw/notification-manager.js');
 importScripts('/sw/message-handler.js');
 importScripts('/sw/share-handler.js');
+importScripts('/sw/message-handler-widget.js'); // Novo módulo para widgets
 
 // Nome do cache principal
 const CACHE = "fretevalor-main-cache";
@@ -47,7 +48,13 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
   
-  // Enviar para o handler de mensagens
+  // Enviar para o handler de mensagens de widgets
+  if (self.widgetMessageHandler && self.widgetMessageHandler.handleWidgetRequest) {
+    const handled = self.widgetMessageHandler.handleWidgetRequest(event);
+    if (handled) return;
+  }
+  
+  // Enviar para o handler padrão de mensagens
   if (self.messageHandler && self.messageHandler.handleClientMessage) {
     self.messageHandler.handleClientMessage(event);
   }
@@ -85,6 +92,11 @@ if (workbox && workbox.navigationPreload) {
 
 // Manipulador de fetch para interceptar e processar solicitações
 self.addEventListener('fetch', (event) => {
+  // Verificar se a URL é válida antes de processar a requisição
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
   // Para requisições de navegação (HTML)
   if (event.request.mode === 'navigate') {
     event.respondWith(
