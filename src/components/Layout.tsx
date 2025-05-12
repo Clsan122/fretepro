@@ -7,6 +7,7 @@ import Header from "./navigation/Header";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import SidebarNavigation from "./navigation/SidebarNavigation";
 import { navigationItems } from "./navigation/BottomNavigation";
+import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -82,6 +83,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </li>
               ))}
             </ul>
+            
+            {/* Adiciona o ProfileMenuGroup na versão desktop */}
+            <div className="mt-auto pt-4">
+              <ProfileMenuGroup />
+            </div>
           </div>
         </aside>
 
