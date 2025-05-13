@@ -3,8 +3,9 @@
 
 interface WidgetDefinition {
   name: string;
-  tag: string;
+  tag?: string;
   description: string;
+  template?: string;
   screenshots?: WidgetScreenshot[];
   updateInterval?: number;
   defaults?: Record<string, any>;
@@ -33,7 +34,7 @@ interface WidgetManager {
   renderWidget(widgetId: string, data: any): Promise<WidgetContent>;
   updateWidgetData(widgetId: string): Promise<any>;
   registerWidgets(): Promise<boolean>;
-  WIDGET_DEFINITIONS: Record<string, WidgetDefinition>;
+  WIDGET_DEFINITIONS?: Record<string, WidgetDefinition>;
 }
 
 // Estender o objeto window

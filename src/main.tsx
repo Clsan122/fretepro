@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
@@ -276,14 +275,4 @@ window.addEventListener('beforeunload', () => {
   }
 });
 
-// Declarar interfaces globais para TypeScript
-declare global {
-  interface Window {
-    widgetManager?: {
-      init: () => Promise<boolean>;
-      renderWidget: (widgetId: string, data: any) => Promise<any>;
-      updateWidgetData: (widgetId: string) => Promise<any>;
-      registerWidgets: () => Promise<boolean>;
-    }
-  }
-}
+// Remover a declaração global duplicada que está causando o conflito
