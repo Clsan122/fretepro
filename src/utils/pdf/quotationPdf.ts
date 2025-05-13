@@ -22,7 +22,6 @@ export const generateQuotationPdf = async (quotationId: string): Promise<boolean
       author: 'Sistema de Gestão de Fretes',
       keywords: 'cotação, frete, transporte, logística',
       creator: 'FreteValor App',
-      pageFormat: 'a4',
       handleMultiplePages: false // Configuração para assegurar uma única página
     });
     
@@ -48,7 +47,6 @@ export const previewQuotationPdf = async (quotationData: any): Promise<boolean> 
       title: `Pré-visualização da Cotação`,
       subject: 'Cotação de serviços de transporte',
       creator: 'FreteValor App',
-      pageFormat: 'a4',
       handleMultiplePages: false // Configuração para assegurar uma única página
     });
     
@@ -77,7 +75,6 @@ export const shareQuotationPdf = async (quotationId: string): Promise<Blob> => {
       title: `Cotação de Frete - ${quotationId}`,
       subject: 'Cotação de serviços de transporte',
       creator: 'FreteValor App',
-      pageFormat: 'a4',
       handleMultiplePages: false // Configuração para assegurar uma única página
     });
     
