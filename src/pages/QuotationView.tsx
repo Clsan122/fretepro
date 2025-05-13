@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
 import { QuotationData } from "@/components/quotation/types";
-import { generateQuotationPdf } from "@/utils/pdf/quotationPdf";
-import { Share2, Download, Printer, Send, Edit, ArrowLeft } from "lucide-react";
+import { generateQuotationPdf, previewQuotationPdf, shareQuotationPdf } from "@/utils/pdf/quotationPdf";
+import { Share2, Download, Printer, Send, Edit, ArrowLeft, Eye } from "lucide-react";
 
 const QuotationView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +19,7 @@ const QuotationView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [sharing, setSharing] = useState(false);
   
   useEffect(() => {
     if (id) {
@@ -68,7 +69,7 @@ const QuotationView: React.FC = () => {
         if (success) {
           toast({
             title: "PDF gerado",
-            description: "O PDF da cotação foi gerado com sucesso"
+            description: "O PDF da cotação foi baixado com sucesso"
           });
         } else {
           toast({
@@ -87,6 +88,78 @@ const QuotationView: React.FC = () => {
       } finally {
         setGeneratingPdf(false);
       }
+    }
+  };
+
+  const handlePreviewPdf = async () => {
+    try {
+      toast({
+        title: "Gerando Pré-visualização",
+        description: "Aguarde enquanto preparamos o documento..."
+      });
+      
+      await previewQuotationPdf(quotation);
+    } catch (error) {
+      console.error("Error previewing PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao gerar a pré-visualização",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSharePdf = async () => {
+    if (!id || !quotation) return;
+    
+    setSharing(true);
+    toast({
+      title: "Preparando para compartilhar",
+      description: "Aguarde enquanto preparamos o documento..."
+    });
+    
+    try {
+      const pdfBlob = await shareQuotationPdf(id);
+      
+      // Tentar usar a Web Share API para compartilhar o arquivo
+      const file = new File([pdfBlob], `cotacao-frete-${id}.pdf`, { type: 'application/pdf' });
+      
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Cotação de Frete - ${quotation.originCity} para ${quotation.destinationCity}`,
+          text: `Cotação de frete de ${quotation.originCity}/${quotation.originState} para ${quotation.destinationCity}/${quotation.destinationState}`,
+        });
+        
+        toast({
+          title: "Compartilhado",
+          description: "A cotação foi compartilhada com sucesso"
+        });
+      } else {
+        // Fallback para download se Web Share API não estiver disponível
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cotacao-frete-${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Download concluído",
+          description: "O PDF foi baixado pois o compartilhamento não é suportado"
+        });
+      }
+    } catch (error) {
+      console.error("Error sharing PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível compartilhar o documento",
+        variant: "destructive"
+      });
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -147,6 +220,14 @@ const QuotationView: React.FC = () => {
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
+                onClick={handlePreviewPdf}
+                className="flex items-center"
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Visualizar PDF
+              </Button>
+              <Button
+                variant="outline"
                 onClick={handlePrint}
                 className="flex items-center"
               >
@@ -161,6 +242,15 @@ const QuotationView: React.FC = () => {
               >
                 <Download className="mr-2 h-4 w-4" />
                 {generatingPdf ? "Gerando..." : "Baixar PDF"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleSharePdf}
+                disabled={sharing}
+                className="flex items-center"
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                {sharing ? "Compartilhando..." : "Compartilhar"}
               </Button>
               <Button
                 variant="outline"

@@ -2,6 +2,7 @@
 import React from "react";
 import { QuotationData } from "./types";
 import { formatCurrency } from "@/utils/formatters";
+import { PrintPreviewStyles } from "./PrintPreviewStyles";
 
 interface QuotationPdfDocumentProps {
   quotation: QuotationData;
@@ -10,6 +11,8 @@ interface QuotationPdfDocumentProps {
 export const QuotationPdfDocument: React.FC<QuotationPdfDocumentProps> = ({ quotation }) => {
   return (
     <div id="quotation-pdf" className="bg-white p-8 max-w-3xl mx-auto font-sans">
+      <PrintPreviewStyles />
+      
       {/* Cabeçalho com logo e informações da empresa */}
       <div className="flex justify-between items-start mb-8 border-b pb-4">
         <div>

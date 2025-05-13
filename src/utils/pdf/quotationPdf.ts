@@ -10,11 +10,12 @@ export const generateQuotationPdf = async (quotationId: string): Promise<boolean
     // Generate canvas from the quotation element
     const canvas = await generateCanvasFromElement('quotation-pdf', {
       setWidth: '800px',
-      restoreWidth: true
+      restoreWidth: true,
+      scale: 2
     });
     
     // Generate PDF with quotation-specific metadata
-    generatePdfFromCanvas(canvas, {
+    const pdf = generatePdfFromCanvas(canvas, {
       filename: `cotacao-frete-${quotationId}.pdf`,
       title: `Cotação de Frete - ${quotationId}`,
       subject: 'Cotação de serviços de transporte',
@@ -34,20 +35,10 @@ export const generateQuotationPdf = async (quotationId: string): Promise<boolean
 // Function to preview quotation PDF
 export const previewQuotationPdf = async (quotationData: any): Promise<boolean> => {
   try {
-    // Create a temporary container for the preview
-    const tempContainer = document.createElement('div');
-    tempContainer.id = 'quotation-pdf-preview';
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px';
-    document.body.appendChild(tempContainer);
-    
-    // Generate canvas from the temporary element
-    const canvas = await generateCanvasFromElement('quotation-pdf-preview', {
+    // Generate canvas from the existing document element
+    const canvas = await generateCanvasFromElement('quotation-pdf', {
       scale: 2
     });
-    
-    // Clean up the temporary container
-    document.body.removeChild(tempContainer);
     
     // Generate PDF and open in new window
     const pdf = generatePdfFromCanvas(canvas, {
@@ -63,5 +54,31 @@ export const previewQuotationPdf = async (quotationData: any): Promise<boolean> 
   } catch (error) {
     console.error("Erro ao gerar pré-visualização do PDF da cotação:", error);
     return false;
+  }
+};
+
+// Function to share quotation PDF
+export const shareQuotationPdf = async (quotationId: string): Promise<Blob> => {
+  try {
+    // Generate canvas from the quotation element
+    const canvas = await generateCanvasFromElement('quotation-pdf', {
+      scale: 2
+    });
+    
+    // Generate PDF without saving
+    const pdf = generatePdfFromCanvas(canvas, {
+      title: `Cotação de Frete - ${quotationId}`,
+      subject: 'Cotação de serviços de transporte',
+      creator: 'FreteValor App'
+    });
+    
+    // Convert PDF to blob for sharing
+    return new Promise<Blob>((resolve) => {
+      const blob = pdf.output('blob');
+      resolve(blob);
+    });
+  } catch (error) {
+    console.error("Erro ao gerar blob do PDF da cotação:", error);
+    throw error;
   }
 };
