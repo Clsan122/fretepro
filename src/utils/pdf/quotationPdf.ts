@@ -22,7 +22,8 @@ export const generateQuotationPdf = async (quotationId: string): Promise<boolean
       author: 'Sistema de Gestão de Fretes',
       keywords: 'cotação, frete, transporte, logística',
       creator: 'FreteValor App',
-      handleMultiplePages: true
+      pageFormat: 'a4',
+      handleMultiplePages: false // Configuração para assegurar uma única página
     });
     
     return true;
@@ -37,14 +38,18 @@ export const previewQuotationPdf = async (quotationData: any): Promise<boolean> 
   try {
     // Generate canvas from the existing document element
     const canvas = await generateCanvasFromElement('quotation-pdf', {
-      scale: 2
+      scale: 2,
+      setWidth: '800px',
+      restoreWidth: true
     });
     
     // Generate PDF and open in new window
     const pdf = generatePdfFromCanvas(canvas, {
       title: `Pré-visualização da Cotação`,
       subject: 'Cotação de serviços de transporte',
-      creator: 'FreteValor App'
+      creator: 'FreteValor App',
+      pageFormat: 'a4',
+      handleMultiplePages: false // Configuração para assegurar uma única página
     });
     
     // Open the generated PDF in a new window
@@ -62,14 +67,18 @@ export const shareQuotationPdf = async (quotationId: string): Promise<Blob> => {
   try {
     // Generate canvas from the quotation element
     const canvas = await generateCanvasFromElement('quotation-pdf', {
-      scale: 2
+      scale: 2,
+      setWidth: '800px',
+      restoreWidth: true
     });
     
     // Generate PDF without saving
     const pdf = generatePdfFromCanvas(canvas, {
       title: `Cotação de Frete - ${quotationId}`,
       subject: 'Cotação de serviços de transporte',
-      creator: 'FreteValor App'
+      creator: 'FreteValor App',
+      pageFormat: 'a4',
+      handleMultiplePages: false // Configuração para assegurar uma única página
     });
     
     // Convert PDF to blob for sharing

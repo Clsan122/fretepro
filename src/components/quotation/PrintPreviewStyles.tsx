@@ -60,6 +60,54 @@ export const PrintPreviewStyles: React.FC = () => {
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
+
+        /* Otimização para impressão em uma única página */
+        .grid {
+          display: flex !important;
+          flex-wrap: wrap !important;
+        }
+        
+        .text-sm {
+          font-size: 10px !important;
+        }
+        
+        .text-xs {
+          font-size: 9px !important;
+        }
+        
+        .my-4, .my-6, .mb-6, .mb-8 {
+          margin-top: 8px !important;
+          margin-bottom: 8px !important;
+        }
+        
+        .p-8, .p-6, .p-4 {
+          padding: 10px !important;
+        }
+        
+        .print-compact td, .print-compact th {
+          padding: 2px 4px !important;
+        }
+        
+        table td, table th {
+          padding: 2px 4px !important;
+        }
+        
+        .print-tight-margins {
+          margin-top: 5px !important;
+          margin-bottom: 5px !important;
+        }
+        
+        .card-content {
+          padding: 6px !important;
+        }
+
+        body > *:not(.print-container) {
+          display: none !important;
+        }
+        
+        #root > div > div:not(.print-container) {
+          display: none !important;
+        }
       `}
     </style>
   );
