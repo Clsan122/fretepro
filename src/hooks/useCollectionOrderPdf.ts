@@ -55,16 +55,8 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
           description: "Documento compartilhado com sucesso!"
         });
       } else {
-        const downloadPDF = window.URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = downloadPDF;
-        link.download = `ordem-coleta-${order.orderNumber}.pdf`;
-        link.click();
-        
-        toast({
-          title: "PDF gerado",
-          description: "O PDF foi baixado automaticamente pois seu navegador não suporta compartilhamento direto."
-        });
+        // Caso não tenha suporte a compartilhamento, fazer download diretamente
+        await handleDownload();
       }
     } catch (error) {
       console.error("Erro ao compartilhar:", error);
@@ -114,6 +106,11 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     
     try {
       await generatePDF({ openInNewTab: true });
+      
+      toast({
+        title: "Pré-visualização gerada",
+        description: "O documento foi aberto em uma nova aba"
+      });
     } catch (error) {
       console.error("Erro ao gerar pré-visualização do PDF:", error);
       toast({

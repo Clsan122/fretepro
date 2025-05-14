@@ -12,6 +12,7 @@ import { LocationDetailsSection } from "./sections/LocationDetailsSection";
 import { v4 as uuidv4 } from "uuid";
 import { generateOrderNumber } from "@/utils/orderNumber";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -24,6 +25,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   onCancel,
   orderToEdit
 }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { formData, setters } = useCollectionOrderForm({ orderToEdit });
 
@@ -73,6 +75,8 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     };
 
     onSave(newOrder as CollectionOrder);
+    // Redirecionar para a lista de ordens de coleta após salvar
+    navigate('/collection-orders');
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

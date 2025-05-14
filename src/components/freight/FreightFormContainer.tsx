@@ -5,6 +5,7 @@ import { FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFreightForm } from "./hooks/useFreightForm";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 // Import form sections
 import { ClientSelectionSection } from "./ClientSelectionSection";
@@ -26,12 +27,21 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
   onCancel,
   freightToEdit
 }) => {
+  const navigate = useNavigate();
   const {
     formState,
     setters,
     handleImageUpload,
     handleSubmit
-  } = useFreightForm({ onSave, freightToEdit });
+  } = useFreightForm({ 
+    onSave: (freight) => {
+      // Chamar o callback onSave e redirecionar para a lista
+      onSave(freight);
+      // Redirecionar para a lista de fretes após salvar
+      navigate('/freights');
+    }, 
+    freightToEdit 
+  });
 
   const handleGenerateReceipt = () => {
     if (!formState.clientId || !formState.originCity || !formState.originState || !formState.destinationCity || !formState.destinationState) {

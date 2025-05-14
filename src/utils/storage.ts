@@ -1,3 +1,4 @@
+
 import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
 import { saveForOfflineSync, deleteForOfflineSync } from "@/utils/sync";
 import { 
@@ -117,8 +118,34 @@ export const getClientById = (id: string): Client | undefined => {
   return clients.find(client => client.id === id);
 };
 
+// Nova função para verificar se um cliente com este CNPJ já existe
+export const getClientByCnpj = (cnpj: string, userId: string): Client | undefined => {
+  if (!cnpj) return undefined;
+  
+  const clients = getLocalStorageItem<Client[]>('clients', []);
+  return clients.find(client => 
+    client.cnpj === cnpj && client.userId === userId
+  );
+};
+
 export const saveClient = (client: Client): void => {
   const clients = getLocalStorageItem<Client[]>('clients', []);
+  
+  // Verificar se já existe um cliente com este CNPJ para o mesmo usuário
+  const existingByCnpj = client.cnpj ? 
+    clients.find(c => c.cnpj === client.cnpj && c.userId === client.userId && c.id !== client.id) : 
+    undefined;
+  
+  if (existingByCnpj) {
+    // Se já existe, atualizar o cliente existente em vez de criar um novo
+    const updatedClients = clients.map(c => 
+      c.id === existingByCnpj.id ? { ...c, ...client, id: existingByCnpj.id } : c
+    );
+    setLocalStorageItem('clients', updatedClients);
+    return;
+  }
+  
+  // Caso não exista duplicidade, prosseguir normalmente
   const existingIndex = clients.findIndex(c => c.id === client.id);
   
   if (existingIndex >= 0) {
@@ -132,6 +159,22 @@ export const saveClient = (client: Client): void => {
 
 export const addClient = (client: Client): void => {
   const clients = getLocalStorageItem<Client[]>('clients', []);
+  
+  // Verificar se já existe um cliente com este CNPJ para o mesmo usuário
+  const existingByCnpj = client.cnpj ? 
+    clients.find(c => c.cnpj === client.cnpj && c.userId === client.userId) : 
+    undefined;
+  
+  if (existingByCnpj) {
+    // Se já existe, atualizar o cliente existente em vez de criar um novo
+    const updatedClients = clients.map(c => 
+      c.id === existingByCnpj.id ? { ...c, ...client, id: existingByCnpj.id } : c
+    );
+    setLocalStorageItem('clients', updatedClients);
+    return;
+  }
+  
+  // Caso não exista duplicidade, prosseguir normalmente
   clients.push(client);
   setLocalStorageItem('clients', clients);
 };
