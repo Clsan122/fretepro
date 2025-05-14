@@ -54,7 +54,7 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
         
         <div className="border p-3 rounded-md bg-gray-50 print:p-2">
           <h2 className="font-semibold text-freight-700 border-b pb-1 mb-2">Prestador de Serviço</h2>
-          <p className="text-sm"><span className="font-medium">Nome:</span> {sender?.name || sender?.companyName || "N/A"}</p>
+          <p className="text-sm"><span className="font-medium">Nome:</span> {sender?.companyName || sender?.name || "N/A"}</p>
           {sender?.cnpj && <p className="text-sm"><span className="font-medium">CNPJ:</span> {sender.cnpj}</p>}
           {sender?.address && <p className="text-sm"><span className="font-medium">Endereço:</span> {sender.address}</p>}
           {(sender?.city && sender?.state) && 

@@ -64,10 +64,10 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, u
       {user && (
         <div className="mb-4">
           <h2 className="text-xl font-semibold">Informações da Empresa</h2>
-          <p><strong>Nome da Empresa:</strong> {user.companyName}</p>
+          <p><strong>Nome da Empresa:</strong> {user.companyName || user.name}</p>
           {user.cnpj && <p><strong>CNPJ:</strong> {user.cnpj}</p>}
           {user.address && <p><strong>Endereço:</strong> {user.address}</p>}
-          <p><strong>Cidade:</strong> {user.city} - {user.state}</p>
+          <p><strong>Cidade:</strong> {user.city || ""} - {user.state || ""}</p>
         </div>
       )}
       

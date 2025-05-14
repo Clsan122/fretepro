@@ -10,12 +10,12 @@ export const IssuerHeaderDetails: React.FC<IssuerHeaderDetailsProps> = ({ issuer
   if (!issuer) return null;
   
   // Determine if it's a User or Client using type narrowing
-  const isUser = 'companyName' in issuer || 'companyLogo' in issuer;
+  const isUser = 'email' in issuer;
   const isClient = 'logo' in issuer;
   
   // Determine which logo to use and which name to display
-  const logoSrc = isUser ? issuer.companyLogo : isClient ? issuer.logo : undefined;
-  const displayName = isUser ? issuer.companyName || issuer.name : issuer.name;
+  const logoSrc = isUser ? (issuer as User).companyLogo : isClient ? (issuer as Client).logo : undefined;
+  const displayName = isUser ? (issuer as User).companyName || (issuer as User).name : (issuer as Client).name;
   
   return (
     <div className="flex flex-col items-center mb-2 print:mb-1">
@@ -29,7 +29,7 @@ export const IssuerHeaderDetails: React.FC<IssuerHeaderDetailsProps> = ({ issuer
       )}
       <div className="text-xs text-center space-y-0.5">
         <span className="block font-medium">{displayName}</span>
-        {issuer.cnpj && <span className="block">CNPJ: {issuer.cnpj}</span>}
+        {(issuer as any).cnpj && <span className="block">CNPJ: {(issuer as any).cnpj}</span>}
         {issuer.address && <span className="block">{issuer.address}</span>}
         {(issuer.city && issuer.state) && (
           <span className="block print-small-text">{issuer.city}/{issuer.state}</span>

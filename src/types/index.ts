@@ -1,3 +1,4 @@
+
 export interface CollectionOrder {
   id: string;
   orderNumber: string; // Added this field for auto-numbering
@@ -96,6 +97,9 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   password?: string; // Add password as an optional property for registration
+  companyName?: string; // Add back the company fields
+  companyLogo?: string;
+  cnpj?: string;
 }
 
 export interface Freight {

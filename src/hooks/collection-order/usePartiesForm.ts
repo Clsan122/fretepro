@@ -44,10 +44,10 @@ export const usePartiesForm = (initialData?: {
       setSelectedSenderId(user.id);
       setSender(user.name || '');
       setSenderAddress(user.address || '');
-      setSenderCnpj('');
+      setSenderCnpj(user.cnpj || '');
       setSenderCity(user.city || '');
       setSenderState(user.state || '');
-      setSenderLogo('');
+      setSenderLogo(user.companyLogo || '');
     } else {
       setSelectedSenderId('none');
       setSender('');

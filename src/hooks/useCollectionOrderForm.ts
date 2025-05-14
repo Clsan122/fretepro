@@ -40,7 +40,7 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
 
       // Set default sender as user's company if creating new order
       if (!orderToEdit && partiesForm.selectedSenderType === 'my-company') {
-        partiesForm.setSender(user.companyName || '');
+        partiesForm.setSender(user.name || '');
         partiesForm.setSenderAddress(user.address || '');
         partiesForm.setSenderCnpj(user.cnpj || '');
         partiesForm.setSenderCity(user.city || '');
