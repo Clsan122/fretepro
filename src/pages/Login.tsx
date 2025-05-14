@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,15 +15,22 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
 
-  // Redirecionamento automático se já estiver autenticado
+  // Redirect if already authenticated, but with a safeguard against loops
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
+    if (user && isAuthenticated) {
+      // Get the redirect path from location state or default to dashboard
+      const from = location.state?.from?.pathname || "/dashboard";
+      
+      // Only redirect if we're actually on the login page (prevent loops)
+      if (location.pathname === "/login") {
+        navigate(from, { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate, location]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,18 +44,15 @@ const Login = () => {
           title: "Login realizado com sucesso",
           description: "Bem-vindo de volta!",
         });
-
-        // Garantir que o redirecionamento aconteça após o toast
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 500);
+        
+        // Redirect will happen via the useEffect above
       } else {
         throw new Error("Falha na autenticação");
       }
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
-        description: error.message,
+        description: error.message || "Credenciais inválidas",
         variant: "destructive",
       });
     } finally {
