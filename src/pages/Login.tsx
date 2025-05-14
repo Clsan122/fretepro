@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -91,7 +90,7 @@ const Login = () => {
             
             <div className="flex items-center space-x-4">
               <div className="bg-white/20 p-3 rounded-full">
-                <BoxPackage className="h-6 w-6" />
+                <Package className="h-6 w-6" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Recibos de Frete</h3>
