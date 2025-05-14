@@ -1,111 +1,115 @@
-
-import { User } from "@/types";
-import { updateUser } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { updateUser } from "@/utils/storage";
 
-export const useProfileActions = (
-  setUser: React.Dispatch<React.SetStateAction<User | null>>
-) => {
+export const useProfileActions = (setUser: (user: any) => void) => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleUpdateProfile = (updatedUser: User) => {
+  const handleUpdateProfile = async (updatedUser: any) => {
     try {
-      setIsSubmitting(true);
+      // Update the user in storage
+      updateUser(updatedUser);
       
-      // Garantir que dados da empresa sejam preservados
-      const companyData = {
-        companyName: updatedUser.companyName || "",
-        cnpj: updatedUser.cnpj || "",
-        companyLogo: updatedUser.companyLogo || "", 
-      };
+      // Update the current user
+      setUser(updatedUser);
       
-      // Garantir que dados pessoais sejam preservados
-      const personalData = {
-        name: updatedUser.name,
-        email: updatedUser.email,
-        cpf: updatedUser.cpf || "",
-        phone: updatedUser.phone || "",
-        avatar: updatedUser.avatar || "",
-      };
-      
-      // Garantir que dados de endereço sejam preservados
-      const addressData = {
-        address: updatedUser.address || "",
-        city: updatedUser.city || "",
-        state: updatedUser.state || "",
-        zipCode: updatedUser.zipCode || "",
-      };
-      
-      // Garantir que outros dados sejam preservados
-      const otherData = {
-        pixKey: updatedUser.pixKey || "",
-        bankInfo: updatedUser.bankInfo || "",
-      };
-      
-      const newUserData = {
-        ...updatedUser,
-        ...personalData,
-        ...addressData,
-        ...companyData,
-        ...otherData,
-      };
-
-      // Atualiza o usuário no storage e no estado
-      updateUser(newUserData);
-      setUser(newUserData);
+      // If using Supabase, update the profile
+      if (supabase) {
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: updatedUser.id,
+            full_name: updatedUser.name,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
+            city: updatedUser.city,
+            state: updatedUser.state,
+            zip_code: updatedUser.zipCode,
+            cpf: updatedUser.cpf,
+            pix_key: updatedUser.pixKey,
+            avatar_url: updatedUser.avatar
+          });
+          
+        if (error) {
+          console.error("Error updating profile in Supabase:", error);
+          toast({
+            title: "Erro ao atualizar perfil",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
       
       toast({
         title: "Perfil atualizado",
-        description: "Suas informações foram atualizadas com sucesso",
+        description: "Suas informações foram atualizadas com sucesso."
       });
-    } catch (error) {
-      console.error("Erro ao atualizar perfil:", error);
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
       toast({
         title: "Erro ao atualizar perfil",
-        description: "Ocorreu um erro ao atualizar suas informações",
-        variant: "destructive",
+        description: error.message || "Ocorreu um erro ao atualizar suas informações.",
+        variant: "destructive"
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  const handleChangePassword = (
-    currentPassword: string,
-    newPassword: string,
-    confirmPassword: string
-  ) => {
+  const handleChangePassword = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Erro ao alterar senha",
+        description: "Todos os campos são obrigatórios.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Erro",
-        description: "As senhas não conferem",
-        variant: "destructive",
+        title: "Erro ao alterar senha",
+        description: "A nova senha e a confirmação não coincidem.",
+        variant: "destructive"
       });
       return;
     }
 
-    if (newPassword.length < 6) {
+    try {
+      // If using Supabase, update password
+      if (supabase) {
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword
+        });
+
+        if (error) {
+          console.error("Error updating password in Supabase:", error);
+          toast({
+            title: "Erro ao alterar senha",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       toast({
-        title: "Erro",
-        description: "A senha deve ter no mínimo 6 caracteres",
-        variant: "destructive",
+        title: "Senha alterada",
+        description: "Sua senha foi alterada com sucesso."
       });
-      return;
-    }
 
-    // Em um ambiente real, aqui você faria uma chamada para sua API
-    // para validar a senha atual e atualizar para a nova senha
-    toast({
-      title: "Senha atualizada",
-      description: "Sua senha foi atualizada com sucesso",
-    });
+      // Clear password fields
+    } catch (error: any) {
+      console.error("Error changing password:", error);
+      toast({
+        title: "Erro ao alterar senha",
+        description: error.message || "Ocorreu um erro ao alterar sua senha.",
+        variant: "destructive"
+      });
+    }
   };
 
   return {
     handleUpdateProfile,
-    handleChangePassword,
-    isSubmitting,
+    handleChangePassword
   };
 };

@@ -1,4 +1,3 @@
-
 import { User, Client, Driver, Freight, CollectionOrder } from "@/types";
 import { saveForOfflineSync, deleteForOfflineSync } from "@/utils/sync";
 import { 
@@ -58,8 +57,6 @@ export const setCurrentUser = (user: User): void => {
             city: user.city,
             state: user.state,
             zipCode: user.zipCode,
-            companyName: user.companyName,
-            cnpj: user.cnpj,
             pixKey: user.pixKey,
             bankInfo: user.bankInfo
           }

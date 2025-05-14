@@ -34,20 +34,20 @@ export const usePartiesForm = (initialData?: {
     user ? user.id : 'none'
   );
   const [selectedSenderType, setSelectedSenderType] = useState<'my-company' | 'client'>(
-    'my-company'
+    'client'
   );
-  const [senderLogo, setSenderLogo] = useState(user?.companyLogo || '');
+  const [senderLogo, setSenderLogo] = useState('');
 
   const handleSenderTypeChange = (type: 'my-company' | 'client') => {
     setSelectedSenderType(type);
     if (type === 'my-company' && user) {
       setSelectedSenderId(user.id);
-      setSender(user.companyName || '');
+      setSender(user.name || '');
       setSenderAddress(user.address || '');
-      setSenderCnpj(user.cnpj || '');
+      setSenderCnpj('');
       setSenderCity(user.city || '');
       setSenderState(user.state || '');
-      setSenderLogo(user.companyLogo || '');
+      setSenderLogo('');
     } else {
       setSelectedSenderId('none');
       setSender('');

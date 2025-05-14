@@ -90,9 +90,6 @@ export interface User {
   city?: string;
   state?: string;
   zipCode?: string;
-  companyName?: string;
-  cnpj?: string;
-  companyLogo?: string;
   pixKey?: string;
   bankInfo: string;
   role?: 'user' | 'admin';
