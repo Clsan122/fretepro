@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AtSign, Lock, Eye, EyeOff, Truck, BoxPackage, FileText, Route } from "lucide-react";
+import { AtSign, Lock, Eye, EyeOff, Truck, Package, FileText, Route } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 
