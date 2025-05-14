@@ -246,8 +246,8 @@ const QuotationEdit: React.FC = () => {
         description: "Cotação atualizada com sucesso"
       });
       
-      // Navigate to quotation view
-      navigate(`/quotation/view/${id}`);
+      // Navigate to quotation list instead of view page
+      navigate("/quotations");
     } catch (error) {
       console.error("Error updating quotation:", error);
       toast({
@@ -359,7 +359,7 @@ const QuotationEdit: React.FC = () => {
             <Button
               variant="outline"
               className="w-full md:w-auto"
-              onClick={() => navigate(`/quotation/view/${id}`)}
+              onClick={() => navigate("/quotations")}
             >
               Cancelar
             </Button>
