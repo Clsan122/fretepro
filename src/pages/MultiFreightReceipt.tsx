@@ -1,83 +1,101 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 import { getFreightById } from "@/utils/storage";
 import { Freight } from "@/types";
-import Layout from "@/components/Layout";
 import MultiFreightReceiptGenerator from "@/components/MultiFreightReceiptGenerator";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const MultiFreightReceipt: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
   const [freights, setFreights] = useState<Freight[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const idsParam = searchParams.get("ids");
-    if (!idsParam) {
+    if (!user) return;
+    
+    const ids = searchParams.get('ids');
+    if (!ids) {
       toast({
-        title: "Erro",
-        description: "Nenhum frete selecionado para o recibo.",
-        variant: "destructive",
+        title: "Seleção não encontrada",
+        description: "Nenhum frete selecionado para gerar o recibo múltiplo.",
+        variant: "destructive"
       });
-      setLoading(false);
+      // Redirect back to selection page
+      navigate('/freight/selection');
       return;
     }
-
-    const ids = idsParam.split(",");
-    const freightsList = ids
-      .map(id => getFreightById(id))
-      .filter(freight => freight !== null) as Freight[];
-
-    if (freightsList.length === 0) {
+    
+    const freightIds = ids.split(',');
+    const loadedFreights: Freight[] = [];
+    
+    freightIds.forEach(id => {
+      const freight = getFreightById(id);
+      if (freight && freight.userId === user.id) {
+        loadedFreights.push(freight);
+      }
+    });
+    
+    if (loadedFreights.length === 0) {
       toast({
-        title: "Erro",
-        description: "Nenhum frete válido encontrado para os IDs fornecidos.",
-        variant: "destructive",
+        title: "Nenhum frete encontrado",
+        description: "Os fretes selecionados não foram encontrados.",
+        variant: "destructive"
       });
+      navigate('/freight/selection');
+      return;
     }
-
-    setFreights(freightsList);
+    
+    // Group by client for better presentation
+    const sortedFreights = loadedFreights.sort((a, b) => {
+      // First group by client
+      if (a.clientId !== b.clientId) {
+        return a.clientId.localeCompare(b.clientId);
+      }
+      // Then sort by date if same client
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    
+    setFreights(sortedFreights);
     setLoading(false);
-  }, [searchParams, toast]);
+  }, [searchParams, user, navigate, toast]);
 
   return (
     <Layout>
-      <div className="container mx-auto py-4 px-2 md:px-4 w-full max-w-7xl overflow-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl md:text-2xl font-bold">Recibo de Múltiplos Fretes</h1>
-          
-          <Button
-            onClick={() => navigate("/freight-selection")}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar
-          </Button>
+      <div className="container mx-auto py-6 pb-20">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate('/freight/selection')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-2xl font-bold tracking-tight">Recibo Múltiplo</h1>
+          </div>
         </div>
-        
+
         {loading ? (
-          <div className="text-center p-8 bg-gray-50 rounded-lg">
+          <div className="flex justify-center py-8">
             <p>Carregando fretes...</p>
           </div>
         ) : freights.length > 0 ? (
-          <div className="w-full">
+          <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden">
             <MultiFreightReceiptGenerator freights={freights} />
           </div>
         ) : (
-          <div className="text-center p-8 bg-gray-50 rounded-lg">
-            <p>Nenhum frete válido encontrado para o recibo.</p>
-            <Button 
-              onClick={() => navigate("/freight-selection")}
-              variant="outline"
-              className="mt-4"
-            >
+          <div className="text-center py-8">
+            <p className="mb-4">Nenhum frete selecionado para gerar o recibo múltiplo.</p>
+            <Button onClick={() => navigate('/freight/selection')}>
               Selecionar Fretes
             </Button>
           </div>

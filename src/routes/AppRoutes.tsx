@@ -20,6 +20,7 @@ import DriverRegister from "@/pages/DriverRegister";
 import DriverEdit from "@/pages/DriverEdit";
 import Clients from "@/pages/Clients";
 import Freights from "@/pages/Freights";
+import FreightSelection from "@/pages/FreightSelection";
 import CollectionOrders from "@/pages/CollectionOrders";
 import CollectionOrder from "@/pages/CollectionOrder";
 import CollectionOrderView from "@/pages/CollectionOrderView";
@@ -30,7 +31,6 @@ import Quotations from "@/pages/Quotations";
 import QuotationForm from "@/pages/QuotationForm";
 import QuotationView from "@/pages/QuotationView";
 import QuotationEdit from "@/pages/QuotationEdit";
-import FreightSelection from "@/pages/FreightSelection";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -63,10 +63,13 @@ const AppRoutes: React.FC = () => {
       <Route path="/collection-order/edit/:id" element={<PrivateRoute><CollectionOrderEdit /></PrivateRoute>} />
       <Route path="/collection-order/view/:id" element={<PrivateRoute><CollectionOrderView /></PrivateRoute>} />
       
+      {/* Quotations Routes */}
       <Route path="/quotations" element={<PrivateRoute><Quotations /></PrivateRoute>} />
       <Route path="/quotations/new" element={<PrivateRoute><QuotationForm /></PrivateRoute>} />
-      <Route path="/quotations/edit/:id" element={<PrivateRoute><QuotationEdit /></PrivateRoute>} />
-      <Route path="/quotations/view/:id" element={<PrivateRoute><QuotationView /></PrivateRoute>} />
+      <Route path="/quotation/edit/:id" element={<PrivateRoute><QuotationEdit /></PrivateRoute>} />
+      <Route path="/quotation/view/:id" element={<PrivateRoute><QuotationView /></PrivateRoute>} />
+      <Route path="/quotations/edit/:id" element={<PrivateRoute><Navigate to={"/quotation/edit/:id"} replace /></PrivateRoute>} />
+      <Route path="/quotations/view/:id" element={<PrivateRoute><Navigate to={"/quotation/view/:id"} replace /></PrivateRoute>} />
 
       {/* 404 and Redirect */}
       <Route path="/404" element={<NotFound />} />

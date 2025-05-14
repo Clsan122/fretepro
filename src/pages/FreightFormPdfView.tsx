@@ -7,13 +7,12 @@ import { Freight, Client, Driver } from "@/types";
 import Layout from "@/components/Layout";
 import FreightFormPdf from "@/components/freight/FreightFormPdf";
 import { 
-  exportFreightFormPdf, 
-  previewFreightFormPdf,
+  exportFreightFormPdf,
   generateFreightFormPdf 
 } from "@/utils/pdf/freightFormPdf";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Printer, Share2, Eye } from "lucide-react";
+import { ArrowLeft, Download, Share2 } from "lucide-react";
 
 const FreightFormPdfView: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -64,26 +63,6 @@ const FreightFormPdfView: React.FC = () => {
     setLoading(false);
   }, [searchParams, user, toast]);
 
-  const handlePreview = async () => {
-    if (!freight || !user) return;
-    
-    toast({
-      title: "Gerando pré-visualização",
-      description: "Aguarde enquanto preparamos o documento...",
-    });
-    
-    try {
-      await previewFreightFormPdf('freight-form-print', freight, user);
-    } catch (error) {
-      console.error('Erro ao gerar pré-visualização:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível gerar a pré-visualização do documento.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleDownload = async () => {
     if (!freight || !user) return;
     
@@ -106,10 +85,6 @@ const FreightFormPdfView: React.FC = () => {
         variant: "destructive",
       });
     }
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   const handleShare = async () => {
@@ -176,24 +151,6 @@ const FreightFormPdfView: React.FC = () => {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            <Button
-              onClick={handlePreview}
-              variant="outline"
-              size="sm"
-              className="gap-1"
-            >
-              <Eye className="h-4 w-4" />
-              <span className="hidden sm:inline">Pré-visualizar</span>
-            </Button>
-            <Button
-              onClick={handlePrint}
-              variant="outline"
-              size="sm"
-              className="gap-1"
-            >
-              <Printer className="h-4 w-4" />
-              <span className="hidden sm:inline">Imprimir</span>
-            </Button>
             <Button
               onClick={handleDownload}
               variant="outline"

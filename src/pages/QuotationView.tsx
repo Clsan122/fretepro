@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
 import { QuotationData } from "@/components/quotation/types";
-import { generateQuotationPdf, previewQuotationPdf, shareQuotationPdf } from "@/utils/pdf/quotationPdf";
-import { Share2, Download, Printer, Send, Edit, ArrowLeft, Eye } from "lucide-react";
+import { generateQuotationPdf, shareQuotationPdf } from "@/utils/pdf/quotationPdf";
+import { Share2, Edit, ArrowLeft, Send } from "lucide-react";
 
 const QuotationView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,7 +18,7 @@ const QuotationView: React.FC = () => {
   const [quotation, setQuotation] = useState<QuotationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [sharing, setSharing] = useState(false);
   
   useEffect(() => {
@@ -53,61 +53,6 @@ const QuotationView: React.FC = () => {
       }
     }
   }, [id, navigate, toast]);
-
-  const handleGeneratePdf = async () => {
-    if (id) {
-      setGeneratingPdf(true);
-      
-      toast({
-        title: "Gerando PDF",
-        description: "Aguarde enquanto preparamos o documento..."
-      });
-      
-      try {
-        const success = await generateQuotationPdf(id);
-        
-        if (success) {
-          toast({
-            title: "PDF gerado",
-            description: "O PDF da cotação foi baixado com sucesso"
-          });
-        } else {
-          toast({
-            title: "Erro",
-            description: "Não foi possível gerar o PDF",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
-        console.error("Error generating PDF:", error);
-        toast({
-          title: "Erro",
-          description: "Ocorreu um erro ao gerar o PDF",
-          variant: "destructive"
-        });
-      } finally {
-        setGeneratingPdf(false);
-      }
-    }
-  };
-
-  const handlePreviewPdf = async () => {
-    try {
-      toast({
-        title: "Gerando Pré-visualização",
-        description: "Aguarde enquanto preparamos o documento..."
-      });
-      
-      await previewQuotationPdf(quotation);
-    } catch (error) {
-      console.error("Error previewing PDF:", error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao gerar a pré-visualização",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleSharePdf = async () => {
     if (!id || !quotation) return;
@@ -163,24 +108,48 @@ const QuotationView: React.FC = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleSendQuotation = () => {
+  const handleSendQuotation = async () => {
+    if (!id || !quotation) return;
+    
     setSending(true);
-    // Simulação de envio - em uma versão real aqui seria feita a integração com email
-    setTimeout(() => {
+    setGenerating(true);
+    
+    try {
       toast({
-        title: "Cotação enviada",
-        description: "A cotação foi enviada com sucesso para o cliente."
+        title: "Gerando PDF",
+        description: "Aguarde enquanto preparamos o documento..."
       });
+      
+      // Generate blank PDF for sending
+      const success = await generateQuotationPdf(id);
+      
+      if (success) {
+        toast({
+          title: "Cotação enviada",
+          description: "A cotação foi enviada com sucesso para o cliente."
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível gerar o PDF da cotação.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error sending quotation:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao enviar a cotação",
+        variant: "destructive"
+      });
+    } finally {
       setSending(false);
-    }, 1500);
+      setGenerating(false);
+    }
   };
 
   const handleEdit = () => {
-    navigate(`/quotation/edit/${id}`);
+    navigate(`/quotations/edit/${id}`);
   };
 
   if (loading) {
@@ -220,31 +189,6 @@ const QuotationView: React.FC = () => {
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
-                onClick={handlePreviewPdf}
-                className="flex items-center"
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                Visualizar PDF
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handlePrint}
-                className="flex items-center"
-              >
-                <Printer className="mr-2 h-4 w-4" />
-                Imprimir
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleGeneratePdf}
-                disabled={generatingPdf}
-                className="flex items-center"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                {generatingPdf ? "Gerando..." : "Baixar PDF"}
-              </Button>
-              <Button
-                variant="outline"
                 onClick={handleSharePdf}
                 disabled={sharing}
                 className="flex items-center"
@@ -263,10 +207,10 @@ const QuotationView: React.FC = () => {
               <Button
                 onClick={handleSendQuotation}
                 className="flex items-center bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900"
-                disabled={sending}
+                disabled={sending || generating}
               >
                 <Send className="mr-2 h-4 w-4" />
-                {sending ? "Enviando..." : "Enviar Cotação"}
+                {sending ? "Enviando..." : generating ? "Gerando PDF..." : "Enviar Cotação"}
               </Button>
             </div>
           </div>
