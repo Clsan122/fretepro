@@ -1,4 +1,3 @@
-
 /**
  * Core PDF generation utilities shared across document types
  */
@@ -66,6 +65,7 @@ export const generatePdfFromCanvas = (
     keywords?: string;
     creator?: string;
     handleMultiplePages?: boolean;
+    compress?: boolean; // Add this option to the type definition
   } = {}
 ): jsPDF => {
   const imgData = canvas.toDataURL('image/png');
@@ -73,7 +73,7 @@ export const generatePdfFromCanvas = (
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
-    compress: true,
+    compress: options.compress || true,
   });
   
   const pageWidth = pdf.internal.pageSize.getWidth();
