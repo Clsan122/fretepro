@@ -182,14 +182,7 @@ export const QuotationsSummary: React.FC = () => {
               </ResponsiveContainer>
             ) : (
               <div className="text-center text-muted-foreground">
-                <p>Nenhuma cotação encontrada</p>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/quotations/new")}
-                  className="mt-4"
-                >
-                  Criar Primeira Cotação
-                </Button>
+                <p>Não há dados de cotações para exibir</p>
               </div>
             )}
           </div>
