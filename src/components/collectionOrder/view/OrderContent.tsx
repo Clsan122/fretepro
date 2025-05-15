@@ -17,12 +17,17 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
           <img 
             src={order.companyLogo} 
             alt="Logo da Transportadora"
-            className="max-h-16 print:max-h-14 object-contain mb-2"
+            className="max-h-20 print:max-h-16 object-contain mb-3 print:mb-2"
           />
         )}
-        <h2 className="text-xl font-bold text-freight-700 print:text-black">
-          ORDEM DE COLETA Nº {order.orderNumber}
-        </h2>
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-freight-700 print:text-black mb-1">
+            ORDEM DE COLETA
+          </h2>
+          <p className="text-lg font-semibold text-freight-700 print:text-black">
+            Nº {order.orderNumber}
+          </p>
+        </div>
       </div>
 
       {/* Dados da empresa transportadora */}

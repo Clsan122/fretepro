@@ -30,12 +30,12 @@ export const usePartiesForm = (initialData?: {
   const [receiver, setReceiver] = useState(initialData?.receiver || "");
   const [receiverAddress, setReceiverAddress] = useState(initialData?.receiverAddress || "");
 
-  // Alterado o valor padrão de 'my-company' para 'client'
+  // Alterado o valor padrão para 'my-company' para que o solicitante seja a transportadora
   const [selectedSenderType, setSelectedSenderType] = useState<'my-company' | 'client'>(
-    'client'
+    'my-company'
   );
   
-  const [selectedSenderId, setSelectedSenderId] = useState<string>('none');
+  const [selectedSenderId, setSelectedSenderId] = useState<string>(user ? user.id : 'none');
   const [senderLogo, setSenderLogo] = useState('');
 
   const handleSenderTypeChange = (type: 'my-company' | 'client') => {

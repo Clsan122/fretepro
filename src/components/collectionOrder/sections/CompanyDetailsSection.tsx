@@ -1,6 +1,5 @@
 
 import React from "react";
-import { CompanyLogoSection } from "../CompanyLogoSection";
 
 interface CompanyDetailsSectionProps {
   companyLogo: string;
@@ -11,19 +10,12 @@ interface CompanyDetailsSectionProps {
 }
 
 export const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({
-  companyLogo,
   selectedIssuerId,
-  onLogoUpload,
-  onLogoRemove,
   onIssuerChange,
 }) => {
+  // Este componente foi simplificado, removendo as opções de logotipo manual
+  // O logotipo agora é obtido automaticamente do cliente selecionado
   return (
-    <CompanyLogoSection
-      companyLogo={companyLogo}
-      handleLogoUpload={onLogoUpload}
-      handleRemoveLogo={onLogoRemove}
-      selectedIssuerId={selectedIssuerId}
-      onIssuerChange={onIssuerChange}
-    />
+    <></>
   );
 };

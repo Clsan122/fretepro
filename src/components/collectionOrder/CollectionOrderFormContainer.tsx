@@ -44,6 +44,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
 
     const selectedDriver = formData.drivers.find(d => d.id === formData.driverId);
 
+    // Usar o logo do cliente selecionado se o tipo for 'client'
+    const logoToUse = formData.selectedSenderType === 'client' ? formData.senderLogo : formData.companyLogo;
+
     const newOrder = {
       id: orderToEdit ? orderToEdit.id : uuidv4(),
       orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
@@ -71,7 +74,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       driverName: selectedDriver?.name,
       driverCpf: selectedDriver?.cpf,
       licensePlate: selectedDriver?.licensePlate,
-      companyLogo: formData.companyLogo,
+      companyLogo: logoToUse, // Usar o logo escolhido com base no tipo
       issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
@@ -118,6 +121,8 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         receiver={formData.receiver}
         receiverAddress={formData.receiverAddress}
         selectedSenderId={formData.selectedSenderId}
+        selectedSenderType={formData.selectedSenderType}
+        handleSenderTypeChange={setters.handleSenderTypeChange}
         handleSenderClientChange={setters.handleSenderClientChange}
         clients={formData.clients}
         setSender={setters.setSender}
