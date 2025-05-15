@@ -110,41 +110,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event, newSession) => {
         if (!isMounted) return;
         
         console.log("Auth state changed:", event);
-        setSession(session);
         
-        // Handle the session update safely
-        if (session?.user) {
+        if (newSession) {
+          setSession(newSession);
+          
           // Use setTimeout to prevent potential deadlocks
           setTimeout(() => {
             if (isMounted) {
-              updateUserState(session.user);
+              updateUserState(newSession.user);
             }
           }, 0);
         } else {
+          setSession(null);
           setUser(null);
         }
         
-        // Consider auth checked after any auth event
+        // Only set loading to false after handling the auth event
         setLoading(false);
         setAuthChecked(true);
       }
     );
 
     // Then check for an existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
       if (!isMounted) return;
       
-      console.log("Initial session check:", session ? "Session found" : "No session");
-      setSession(session);
+      console.log("Initial session check:", existingSession ? "Session found" : "No session");
       
-      if (session?.user) {
-        await updateUserState(session.user);
+      if (existingSession) {
+        setSession(existingSession);
+        
+        // Use setTimeout here too, for consistency
+        setTimeout(() => {
+          if (isMounted) {
+            updateUserState(existingSession.user);
+          }
+        }, 0);
       }
       
+      // Setting loading to false after checking for an existing session
       setLoading(false);
       setAuthChecked(true);
     }).catch(err => {
@@ -167,7 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       
       console.log("Attempting login for:", email);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
         console.error("Login error:", error.message);
@@ -176,6 +184,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
       
+      // Set session immediately to avoid delays
+      setSession(data.session);
+      
       // Auth state change listener will handle updating the user state
       return true;
     } catch (err: any) {
@@ -183,6 +194,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(err.message || 'Erro ao fazer login');
       setLoading(false);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -213,6 +226,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(err.message || 'Erro ao criar conta');
       setLoading(false);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -220,7 +235,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       await supabase.auth.signOut();
-      // Auth state change listener will handle updating the user state
+      // Explicitly clear user and session states
+      setUser(null);
+      setSession(null);
     } catch (err: any) {
       setError(err.message || 'Erro ao fazer logout');
     } finally {

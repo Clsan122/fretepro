@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "@/components/auth/PrivateRoute";
@@ -34,7 +35,7 @@ import QuotationEdit from "@/pages/QuotationEdit";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Public Routes - Redirecionar raiz para login */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
@@ -56,7 +57,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/multi-freight/receipt" element={<PrivateRoute><MultiFreightReceipt /></PrivateRoute>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       
-      {/* Collection Order Routes - Garantindo consistência nos nomes das rotas */}
+      {/* Collection Order Routes */}
       <Route path="/collection-orders" element={<PrivateRoute><CollectionOrders /></PrivateRoute>} />
       <Route path="/collection-order/new" element={<PrivateRoute><CollectionOrder /></PrivateRoute>} />
       <Route path="/collection-order/edit/:id" element={<PrivateRoute><CollectionOrderEdit /></PrivateRoute>} />

@@ -11,7 +11,12 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   
-  // Show loading state while authentication is being checked
+  // Adicionar log para depuração
+  React.useEffect(() => {
+    console.log("PrivateRoute - Auth state:", { isAuthenticated: !!user, loading, path: location.pathname });
+  }, [user, loading, location]);
+  
+  // Mostrar loading state enquanto a autenticação está sendo verificada
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -20,12 +25,13 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     );
   }
   
-  // Redirect to login if not authenticated
+  // Redirecionar para login se não estiver autenticado
   if (!user) {
+    // Salvar a localização atual para redirecionar de volta após o login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // If authenticated, render children
+  // Se estiver autenticado, renderizar os componentes filhos
   return <>{children}</>;
 };
 

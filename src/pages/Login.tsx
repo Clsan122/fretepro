@@ -18,10 +18,11 @@ const Login = () => {
   const { toast } = useToast();
   const { login, isAuthenticated, user } = useAuth();
 
-  // Redirect if already authenticated
+  // Verificar autenticação e redirecionar se já estiver autenticado
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Redirect to dashboard immediately when authenticated
+      console.log("Usuário autenticado, redirecionando para o dashboard");
+      // Usar o destino anterior ou direcionar para o dashboard
       const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
     }
@@ -40,7 +41,8 @@ const Login = () => {
           description: "Bem-vindo de volta!",
         });
         
-        // Redirect will happen via the useEffect above
+        // Redirecionar diretamente para o dashboard após o login bem-sucedido
+        // sem esperar pela verificação do useEffect
         navigate('/dashboard', { replace: true });
       } else {
         throw new Error("Falha na autenticação");
