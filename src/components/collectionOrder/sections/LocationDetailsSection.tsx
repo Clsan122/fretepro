@@ -68,9 +68,9 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
                   <FormLabel>Cidade de Origem</FormLabel>
                   <FormControl>
                     <CitySelectAutocomplete 
+                      uf={originState}
                       value={originCity}
-                      onCityChange={handleOriginCityChange}
-                      onStateChange={handleOriginStateChange}
+                      onChange={handleOriginCityChange}
                       placeholder="Digite a cidade de origem"
                     />
                   </FormControl>
@@ -111,9 +111,9 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
                   <FormLabel>Cidade de Destino</FormLabel>
                   <FormControl>
                     <CitySelectAutocomplete 
+                      uf={destinationState}
                       value={destinationCity}
-                      onCityChange={handleDestinationCityChange}
-                      onStateChange={handleDestinationStateChange}
+                      onChange={handleDestinationCityChange}
                       placeholder="Digite a cidade de destino"
                     />
                   </FormControl>
