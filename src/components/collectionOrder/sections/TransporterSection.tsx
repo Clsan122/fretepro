@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -67,7 +68,7 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
       <RadioGroup value={selectedSenderType} onValueChange={value => handleSenderTypeChange(value as 'my-company' | 'client')} className="flex gap-4 mb-2">
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="my-company" id="my-company" />
-          
+          <Label htmlFor="my-company">FreteValor</Label>
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="client" id="client" />

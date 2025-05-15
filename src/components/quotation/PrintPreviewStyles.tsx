@@ -7,13 +7,13 @@ export const PrintPreviewStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 3mm;
-          scale: 0.85;
+          margin: 10mm;
+          scale: 1;
         }
         
         body {
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 6px !important;
+          font-size: 12px !important;
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
@@ -22,21 +22,19 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         #quotation-pdf {
-          width: 210mm !important;
-          height: 297mm !important;
+          width: 100% !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 1mm !important;
+          padding: 5mm !important;
           margin: 0 auto !important;
           border: none !important;
           page-break-inside: avoid !important;
           color: black !important;
           background-color: white !important;
-          overflow: hidden !important;
         }
         
         .print-container {
-          max-width: 800px !important;
+          max-width: 210mm !important;
           margin: 0 auto !important;
           padding: 0 !important;
           color: black !important;
@@ -60,38 +58,37 @@ export const PrintPreviewStyles: React.FC = () => {
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           page-break-inside: avoid !important;
-          max-height: 20px !important;
         }
         
         /* Otimização para impressão em uma única página */
         .grid {
           display: flex !important;
           flex-wrap: wrap !important;
-          gap: 1px !important;
+          gap: 5px !important;
         }
         
         .text-sm {
-          font-size: 5px !important;
+          font-size: 10px !important;
         }
         
         .text-xs {
-          font-size: 4px !important;
+          font-size: 9px !important;
         }
         
-        /* Espaçamentos reduzidos para melhor aproveitamento do espaço */
+        /* Espaçamentos adequados para melhor aproveitamento do espaço */
         .my-4, .my-6, .mb-6, .mb-8, .mb-4, .mb-3 {
-          margin-top: 0.5px !important;
-          margin-bottom: 0.5px !important;
+          margin-top: 3mm !important;
+          margin-bottom: 3mm !important;
         }
         
         .p-8, .p-6, .p-4 {
-          padding: 1px !important;
+          padding: 3mm !important;
         }
         
-        /* Tabelas mais compactas */
+        /* Tabelas mais adequadas para tamanho A4 */
         .print-compact td, .print-compact th {
-          padding: 0 !important;
-          font-size: 5px !important;
+          padding: 2mm !important;
+          font-size: 11px !important;
         }
         
         /* Ajuste para todas as tabelas */
@@ -102,17 +99,17 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         table td, table th {
-          padding: 0 !important;
-          font-size: 5px !important;
+          padding: 2mm !important;
+          font-size: 11px !important;
         }
         
         .print-tight-margins {
-          margin-top: 0.5px !important;
-          margin-bottom: 0.5px !important;
+          margin-top: 3mm !important;
+          margin-bottom: 3mm !important;
         }
         
         .card-content {
-          padding: 1px !important;
+          padding: 3mm !important;
         }
 
         /* Esconder elementos não importantes para impressão */
@@ -128,7 +125,7 @@ export const PrintPreviewStyles: React.FC = () => {
         .print-flex {
           display: flex !important;
           flex-wrap: wrap !important;
-          gap: 0.5px !important;
+          gap: 2mm !important;
         }
         
         .print-col {
@@ -141,54 +138,29 @@ export const PrintPreviewStyles: React.FC = () => {
           page-break-inside: avoid !important;
         }
         
-        /* Redução extrema de espaçamento */
-        h1, h2, h3, p {
-          margin: 0 !important;
-          padding: 0 !important;
-          line-height: 1.1 !important;
-        }
-        
-        .border-b {
-          border-bottom-width: 0.5px !important;
-        }
-        
         /* Altura mínima para linhas de tabela */
         tr {
           height: auto !important;
-          min-height: 5px !important;
-        }
-        
-        /* Remover arredondamento para otimizar espaço */
-        .rounded-lg, .rounded {
-          border-radius: 0 !important;
+          min-height: 6mm !important;
         }
         
         /* WhatsApp otimização */
         .mb-1, .mb-2, .mb-3 {
-          margin-bottom: 0.5px !important;
+          margin-bottom: 2mm !important;
         }
         
         .mt-1, .mt-2, .mt-3 {
-          margin-top: 0.5px !important;
+          margin-top: 2mm !important;
         }
         
         .py-1, .py-2, .py-3 {
-          padding-top: 0 !important;
-          padding-bottom: 0 !important;
+          padding-top: 1mm !important;
+          padding-bottom: 1mm !important;
         }
         
         .px-1, .px-2, .px-3 {
-          padding-left: 0.5px !important;
-          padding-right: 0.5px !important;
-        }
-        
-        /* Tamanho do papel A4 forçado */
-        @media print {
-          html, body {
-            width: 210mm !important;
-            height: 297mm !important;
-            overflow: hidden !important;
-          }
+          padding-left: 2mm !important;
+          padding-right: 2mm !important;
         }
       `}
     </style>

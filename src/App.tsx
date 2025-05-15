@@ -48,6 +48,9 @@ function App() {
     
     checkNotificationSupport();
     
+    // Atualizar título da aplicação
+    document.title = "FreteValor - Gerenciamento de Fretes";
+    
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);

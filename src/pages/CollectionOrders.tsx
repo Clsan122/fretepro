@@ -75,7 +75,8 @@ const CollectionOrders: React.FC = () => {
     try {
       setDeletingOrderId(orderId);
       await deleteCollectionOrder(orderId);
-      setOrders(orders.filter(order => order.id !== orderId));
+      // Imediatamente atualizar a lista local removendo a ordem excluída
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
       toast.success("Ordem de coleta excluída com sucesso");
     } catch (error) {
       console.error("Erro ao excluir ordem de coleta:", error);

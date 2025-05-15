@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +29,10 @@ const QuotationViewActions: React.FC<QuotationViewActionsProps> = ({
           Voltar
         </Button>
         <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={handleEdit} className="flex items-center">
+            <Edit className="mr-2 h-4 w-4" />
+            Editar
+          </Button>
           <Button variant="outline" onClick={handleSharePdf} disabled={sharing} className="flex items-center">
             <Share2 className="mr-2 h-4 w-4" />
             {sharing ? "Compartilhando..." : "Compartilhar"}
