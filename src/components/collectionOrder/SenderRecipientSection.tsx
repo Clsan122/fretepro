@@ -1,16 +1,15 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CNPJLookupField } from "./CNPJLookupField";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Client } from "@/types";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
 import { ClientListDialog } from "@/components/client/ClientListDialog";
 import { useAuth } from "@/context/AuthContext";
 import { getClientsByUserId } from "@/utils/storage";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { TransporterSection } from "./sections/TransporterSection";
+import { ShipperSection } from "./sections/ShipperSection";
+import { RecipientSection } from "./sections/RecipientSection";
+import { ReceiverSection } from "./sections/ReceiverSection";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -104,42 +103,6 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
     loadClients();
     setReceiverDialogOpen(true);
   };
-  
-  const handleSelectSender = (client: Client) => {
-    setSender(client.name);
-    setSenderAddress(client.address || '');
-    setSenderCnpj(client.cnpj || '');
-    setSenderCity(client.city || '');
-    setSenderState(client.state || '');
-    setSenderDialogOpen(false);
-    if (handleSenderClientChange) {
-      handleSenderClientChange(client.id);
-    }
-  };
-  
-  const handleSelectRecipient = (client: Client) => {
-    setRecipient(client.name);
-    setRecipientAddress(client.address || '');
-    setRecipientDialogOpen(false);
-  };
-  
-  const handleSelectShipper = (client: Client) => {
-    setShipper(client.name);
-    setShipperAddress(client.address || '');
-    setShipperDialogOpen(false);
-  };
-  
-  const handleSelectReceiver = (client: Client) => {
-    setReceiver(client.name);
-    setReceiverAddress(client.address || '');
-    setReceiverDialogOpen(false);
-  };
-  
-  const createHighlightedLabel = (text: string) => (
-    <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
-      {text}
-    </Label>
-  );
 
   return (
     <Card>
@@ -148,223 +111,51 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 grid gap-6">
         {/* SEÇÃO DE TRANSPORTADORA */}
-        <div className="space-y-4">
-          {createHighlightedLabel("TRANSPORTADORA")}
-          
-          {/* Opção de escolha entre transportadora ou cliente */}
-          <RadioGroup 
-            value={selectedSenderType} 
-            onValueChange={(value) => handleSenderTypeChange(value as 'my-company' | 'client')}
-            className="flex gap-4 mb-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="my-company" id="my-company" />
-              <Label htmlFor="my-company">Minha Transportadora</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="client" id="client" />
-              <Label htmlFor="client">Cliente</Label>
-            </div>
-          </RadioGroup>
-          
-          {selectedSenderType === 'client' && (
-            <CNPJLookupField 
-              label="CNPJ da Transportadora" 
-              onDataFetched={data => {
-                setSender(data.name);
-                setSenderAddress(data.address);
-                if (data.cnpj) {
-                  setSenderCnpj(data.cnpj);
-                }
-                setSenderCity(data.city);
-                setSenderState(data.state);
-              }} 
-            />
-          )}
-          
-          <div>
-            <Label>Nome da Transportadora</Label>
-            <div className="flex gap-2">
-              <Input 
-                value={sender} 
-                onChange={e => setSender(e.target.value)} 
-                placeholder="Digite o nome da transportadora" 
-                readOnly={selectedSenderType === 'my-company'}
-              />
-              {selectedSenderType === 'client' && (
-                <Button type="button" variant="outline" size="icon" onClick={() => {
-                  if (user) {
-                    const userClients = getClientsByUserId(user.id);
-                    setClientsList(userClients);
-                  }
-                  setSenderDialogOpen(true);
-                }}>
-                  <Search className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          
-          <div>
-            <Label>CNPJ da Transportadora</Label>
-            <Input 
-              value={senderCnpj} 
-              onChange={e => setSenderCnpj(e.target.value)} 
-              placeholder="Digite o CNPJ da transportadora" 
-              readOnly={selectedSenderType === 'my-company'}
-            />
-          </div>
-          
-          <div>
-            <Label>Endereço da Transportadora</Label>
-            <Input 
-              value={senderAddress} 
-              onChange={e => setSenderAddress(e.target.value)} 
-              placeholder="Digite o endereço da transportadora"
-              readOnly={selectedSenderType === 'my-company'} 
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label>Cidade</Label>
-              <Input 
-                value={senderCity} 
-                onChange={e => setSenderCity(e.target.value)} 
-                placeholder="Cidade" 
-                readOnly={selectedSenderType === 'my-company'}
-              />
-            </div>
-            <div>
-              <Label>Estado</Label>
-              <Input 
-                value={senderState} 
-                onChange={e => setSenderState(e.target.value)} 
-                placeholder="UF" maxLength={2}
-                readOnly={selectedSenderType === 'my-company'} 
-              />
-            </div>
-          </div>
-        </div>
+        <TransporterSection 
+          sender={sender}
+          setSender={setSender}
+          senderAddress={senderAddress}
+          setSenderAddress={setSenderAddress}
+          senderCnpj={senderCnpj}
+          setSenderCnpj={setSenderCnpj}
+          senderCity={senderCity}
+          setSenderCity={setSenderCity}
+          senderState={senderState}
+          setSenderState={setSenderState}
+          selectedSenderType={selectedSenderType}
+          handleSenderTypeChange={handleSenderTypeChange}
+          handleSenderClientChange={handleSenderClientChange}
+          onOpenClientDialog={handleOpenSenderDialog}
+        />
 
         <Separator className="my-2" />
 
         {/* SEÇÃO DE REMETENTE */}
-        <div className="space-y-4">
-          {createHighlightedLabel("REMETENTE")}
-          <CNPJLookupField 
-            label="CNPJ do Remetente" 
-            onDataFetched={data => {
-              setShipper(data.name);
-              setShipperAddress(data.address);
-            }} 
-          />
-          <div>
-            <Label>Nome do Remetente</Label>
-            <div className="flex gap-2">
-              <Input 
-                value={shipper} 
-                onChange={e => setShipper(e.target.value)} 
-                placeholder="Digite o nome do remetente" 
-              />
-              <Button type="button" variant="outline" size="icon" onClick={() => {
-                if (user) {
-                  const userClients = getClientsByUserId(user.id);
-                  setClientsList(userClients);
-                }
-                setShipperDialogOpen(true);
-              }}>
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div>
-            <Label>Endereço do Remetente</Label>
-            <Input 
-              value={shipperAddress} 
-              onChange={e => setShipperAddress(e.target.value)} 
-              placeholder="Digite o endereço do remetente" 
-            />
-          </div>
-        </div>
+        <ShipperSection 
+          shipper={shipper}
+          setShipper={setShipper}
+          shipperAddress={shipperAddress}
+          setShipperAddress={setShipperAddress}
+          onOpenClientDialog={handleOpenShipperDialog}
+        />
 
         {/* SEÇÃO DE DESTINATÁRIO */}
-        <div className="space-y-4">
-          {createHighlightedLabel("DESTINATÁRIO")}
-          <CNPJLookupField 
-            label="CNPJ do Destinatário" 
-            onDataFetched={data => {
-              setRecipient(data.name);
-              setRecipientAddress(data.address);
-            }} 
-          />
-          <div>
-            <Label>Nome do Destinatário</Label>
-            <div className="flex gap-2">
-              <Input 
-                value={recipient} 
-                onChange={e => setRecipient(e.target.value)} 
-                placeholder="Digite o nome do destinatário" 
-              />
-              <Button type="button" variant="outline" size="icon" onClick={() => {
-                if (user) {
-                  const userClients = getClientsByUserId(user.id);
-                  setClientsList(userClients);
-                }
-                setRecipientDialogOpen(true);
-              }}>
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div>
-            <Label>Endereço do Destinatário</Label>
-            <Input 
-              value={recipientAddress} 
-              onChange={e => setRecipientAddress(e.target.value)} 
-              placeholder="Digite o endereço do destinatário" 
-            />
-          </div>
-        </div>
+        <RecipientSection 
+          recipient={recipient}
+          setRecipient={setRecipient}
+          recipientAddress={recipientAddress}
+          setRecipientAddress={setRecipientAddress}
+          onOpenClientDialog={handleOpenRecipientDialog}
+        />
 
         {/* SEÇÃO DE RECEBEDOR */}
-        <div className="space-y-4">
-          {createHighlightedLabel("RECEBEDOR")}
-          <CNPJLookupField 
-            label="CNPJ do Recebedor" 
-            onDataFetched={data => {
-              setReceiver(data.name);
-              setReceiverAddress(data.address);
-            }} 
-          />
-          <div>
-            <Label>Nome do Recebedor</Label>
-            <div className="flex gap-2">
-              <Input 
-                value={receiver} 
-                onChange={e => setReceiver(e.target.value)} 
-                placeholder="Digite o nome do recebedor" 
-              />
-              <Button type="button" variant="outline" size="icon" onClick={() => {
-                if (user) {
-                  const userClients = getClientsByUserId(user.id);
-                  setClientsList(userClients);
-                }
-                setReceiverDialogOpen(true);
-              }}>
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div>
-            <Label>Endereço do Recebedor</Label>
-            <Input 
-              value={receiverAddress} 
-              onChange={e => setReceiverAddress(e.target.value)} 
-              placeholder="Digite o endereço do recebedor" 
-            />
-          </div>
-        </div>
+        <ReceiverSection 
+          receiver={receiver}
+          setReceiver={setReceiver}
+          receiverAddress={receiverAddress}
+          setReceiverAddress={setReceiverAddress}
+          onOpenClientDialog={handleOpenReceiverDialog}
+        />
 
         {/* Diálogos de seleção de cliente */}
         <ClientListDialog clients={clientsList} isOpen={senderDialogOpen} onClose={() => setSenderDialogOpen(false)} onSelectClient={(client) => {
