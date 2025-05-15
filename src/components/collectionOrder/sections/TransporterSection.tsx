@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import { getClientsByUserId } from "@/utils/storage";
 import { UseFormReturn } from "react-hook-form";
 import { CollectionOrderFormValues } from "../schema";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { ClientAutocompleteInput } from "@/components/common/ClientAutocompleteInput";
+
 interface TransporterSectionProps {
   sender: string;
   setSender: (value: string) => void;
@@ -29,6 +31,7 @@ interface TransporterSectionProps {
   onOpenClientDialog: () => void;
   form: UseFormReturn<CollectionOrderFormValues>;
 }
+
 export const TransporterSection: React.FC<TransporterSectionProps> = ({
   sender,
   setSender,
@@ -46,21 +49,51 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
   onOpenClientDialog,
   form
 }) => {
+  const { user } = useAuth();
+  const [clients, setClients] = useState<Client[]>([]);
+  
+  useEffect(() => {
+    if (user) {
+      const userClients = getClientsByUserId(user.id);
+      setClients(userClients);
+    }
+  }, [user]);
+  
   const createHighlightedLabel = (text: string) => <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
       {text}
     </Label>;
+  
   const handleSenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSender(e.target.value);
     form.setValue("sender", e.target.value, {
       shouldValidate: true
     });
   };
+  
   const handleSenderAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSenderAddress(e.target.value);
     form.setValue("senderAddress", e.target.value, {
       shouldValidate: true
     });
   };
+  
+  const handleClientSelect = (clientId: string) => {
+    const selectedClient = clients.find(client => client.id === clientId);
+    if (selectedClient) {
+      setSender(selectedClient.name);
+      setSenderAddress(selectedClient.address || "");
+      setSenderCnpj(selectedClient.cnpj || "");
+      setSenderCity(selectedClient.city || "");
+      setSenderState(selectedClient.state || "");
+      form.setValue("sender", selectedClient.name, {
+        shouldValidate: true
+      });
+      form.setValue("senderAddress", selectedClient.address || "", {
+        shouldValidate: true
+      });
+    }
+  };
+
   return <div className="space-y-4">
       {createHighlightedLabel("TRANSPORTADORA")}
       
@@ -75,6 +108,17 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
           <Label htmlFor="client">Cliente</Label>
         </div>
       </RadioGroup>
+      
+      {selectedSenderType === 'client' && (
+        <div className="mb-4">
+          <Label className="mb-1 block">Selecionar Cliente</Label>
+          <ClientAutocompleteInput
+            clients={clients}
+            onChange={handleClientSelect}
+            placeholder="Buscar cliente..."
+          />
+        </div>
+      )}
       
       {selectedSenderType === 'client' && <CNPJLookupField label="CNPJ da Transportadora" onDataFetched={data => {
       setSender(data.name);

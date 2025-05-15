@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -134,6 +133,7 @@ const QuotationForm: React.FC = () => {
     }
   }, [merchandiseValue, insuranceRate]);
   
+  // Função para calcular o valor total do frete
   useEffect(() => {
     // Calculate total value
     const total = freightValue + tollValue + insuranceValue + otherCosts;
@@ -633,6 +633,87 @@ const QuotationForm: React.FC = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+                  </div>
+                  
+                  {/* Dimensões - Novo campo */}
+                  <div className="border-t pt-4 border-freight-100 dark:border-freight-800">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-lg font-medium text-freight-700 dark:text-freight-300">
+                          Dimensões (cm)
+                        </Label>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleAddMeasurement}
+                        >
+                          Adicionar Dimensão
+                        </Button>
+                      </div>
+                      
+                      {measurements.map((measurement, index) => (
+                        <div key={measurement.id} className="grid grid-cols-5 gap-2 items-end border p-2 rounded-md">
+                          <div className="space-y-1">
+                            <Label htmlFor={`length-${measurement.id}`}>Comprimento</Label>
+                            <Input
+                              id={`length-${measurement.id}`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={measurement.length || ''}
+                              onChange={(e) => handleMeasurementChange(measurement.id, 'length', Number(e.target.value))}
+                              className="w-full"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor={`width-${measurement.id}`}>Largura</Label>
+                            <Input
+                              id={`width-${measurement.id}`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={measurement.width || ''}
+                              onChange={(e) => handleMeasurementChange(measurement.id, 'width', Number(e.target.value))}
+                              className="w-full"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor={`height-${measurement.id}`}>Altura</Label>
+                            <Input
+                              id={`height-${measurement.id}`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={measurement.height || ''}
+                              onChange={(e) => handleMeasurementChange(measurement.id, 'height', Number(e.target.value))}
+                              className="w-full"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor={`quantity-${measurement.id}`}>Quantidade</Label>
+                            <Input
+                              id={`quantity-${measurement.id}`}
+                              type="number"
+                              min="1"
+                              value={measurement.quantity || 1}
+                              onChange={(e) => handleMeasurementChange(measurement.id, 'quantity', Number(e.target.value))}
+                              className="w-full"
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleRemoveMeasurement(measurement.id)}
+                            disabled={measurements.length <= 1}
+                            className="self-end"
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </CardContent>

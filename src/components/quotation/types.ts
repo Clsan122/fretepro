@@ -9,7 +9,7 @@ export interface QuotationMeasurement {
 
 export interface QuotationData {
   id: string;
-  orderNumber?: string;
+  orderNumber: string;
   creatorId: string;
   creatorName: string;
   creatorLogo?: string;
@@ -29,8 +29,8 @@ export interface QuotationData {
   insuranceRate: number;
   otherCosts: number;
   totalValue: number;
-  notes?: string;
+  notes: string;
   createdAt: string;
   userId: string;
-  status: "open" | "closed";
+  status: 'open' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'cancelled';
 }

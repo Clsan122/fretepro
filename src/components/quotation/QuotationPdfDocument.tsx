@@ -8,6 +8,23 @@ interface QuotationPdfDocumentProps {
   quotation: QuotationData;
 }
 
+// Função auxiliar para traduzir o tipo de veículo
+const getVehicleTypeInPortuguese = (vehicleType: string): string => {
+  const vehicleTypes: Record<string, string> = {
+    "van": "Van de Carga",
+    "utility": "Utilitário Pequeno",
+    "truck_small": "Caminhão 3/4",
+    "truck_medium": "Caminhão Toco",
+    "truck_large": "Caminhão Truck",
+    "truck_extra": "Caminhão Bitruck",
+    "trailer": "Carreta Simples",
+    "trailer_extended": "Carreta Estendida",
+    "trailer_refrigerated": "Carreta Refrigerada"
+  };
+  
+  return vehicleTypes[vehicleType] || vehicleType;
+};
+
 export const QuotationPdfDocument: React.FC<QuotationPdfDocumentProps> = ({ quotation }) => {
   return (
     <div id="quotation-pdf" className="bg-white p-4 max-w-3xl mx-auto font-sans">
@@ -69,7 +86,7 @@ export const QuotationPdfDocument: React.FC<QuotationPdfDocumentProps> = ({ quot
                    quotation.cargoType}
                 </td>
                 <td className="py-2 px-3 font-medium text-freight-700">Veículo:</td>
-                <td className="py-2 px-3 text-freight-800">{quotation.vehicleType || "A definir"}</td>
+                <td className="py-2 px-3 text-freight-800">{getVehicleTypeInPortuguese(quotation.vehicleType) || "A definir"}</td>
               </tr>
               <tr>
                 <td className="py-2 px-3 font-medium text-freight-700">Valor da Mercadoria:</td>
@@ -77,6 +94,21 @@ export const QuotationPdfDocument: React.FC<QuotationPdfDocumentProps> = ({ quot
                   {formatCurrency(quotation.merchandiseValue)}
                 </td>
               </tr>
+              {quotation.measurements && quotation.measurements.length > 0 && (
+                <tr className="border-t border-freight-200">
+                  <td className="py-2 px-3 font-medium text-freight-700">Dimensões:</td>
+                  <td className="py-2 px-3 text-freight-800" colSpan={3}>
+                    <div className="space-y-1">
+                      {quotation.measurements.map((measurement, index) => (
+                        <div key={measurement.id} className="text-xs">
+                          {index + 1}. {measurement.length} x {measurement.width} x {measurement.height} cm
+                          {measurement.quantity > 1 ? ` (${measurement.quantity} volumes)` : ''}
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
