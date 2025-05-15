@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -6,8 +7,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CargoSection } from "@/components/quotation/CargoSection";
-import { LocationSection } from "@/components/quotation/LocationSection";
 import { FreightCompositionSection } from "@/components/quotation/FreightCompositionSection";
 import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
@@ -19,6 +18,68 @@ import { getClientsByUserId } from "@/utils/storage";
 import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
 import { generateQuotationNumber } from "@/utils/quotationNumber";
 import { generateQuotationPdf } from "@/utils/pdfGenerator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+
+const BRAZILIAN_STATES = [
+  { value: "AC", label: "Acre" },
+  { value: "AL", label: "Alagoas" },
+  { value: "AP", label: "Amapá" },
+  { value: "AM", label: "Amazonas" },
+  { value: "BA", label: "Bahia" },
+  { value: "CE", label: "Ceará" },
+  { value: "DF", label: "Distrito Federal" },
+  { value: "ES", label: "Espírito Santo" },
+  { value: "GO", label: "Goiás" },
+  { value: "MA", label: "Maranhão" },
+  { value: "MT", label: "Mato Grosso" },
+  { value: "MS", label: "Mato Grosso do Sul" },
+  { value: "MG", label: "Minas Gerais" },
+  { value: "PA", label: "Pará" },
+  { value: "PB", label: "Paraíba" },
+  { value: "PR", label: "Paraná" },
+  { value: "PE", label: "Pernambuco" },
+  { value: "PI", label: "Piauí" },
+  { value: "RJ", label: "Rio de Janeiro" },
+  { value: "RN", label: "Rio Grande do Norte" },
+  { value: "RS", label: "Rio Grande do Sul" },
+  { value: "RO", label: "Rondônia" },
+  { value: "RR", label: "Roraima" },
+  { value: "SC", label: "Santa Catarina" },
+  { value: "SP", label: "São Paulo" },
+  { value: "SE", label: "Sergipe" },
+  { value: "TO", label: "Tocantins" },
+];
+
+const CARGO_TYPES = [
+  { value: "general", label: "Carga Geral" },
+  { value: "sacks", label: "Sacaria" },
+  { value: "boxes", label: "Caixas" },
+  { value: "units", label: "Unidades" },
+  { value: "bulk", label: "Granel" },
+  { value: "dangerous", label: "Carga Perigosa" },
+  { value: "refrigerated", label: "Refrigerada" },
+];
+
+const VEHICLE_TYPES = [
+  { value: "van", label: "Van de Carga" },
+  { value: "utility", label: "Utilitário Pequeno" },
+  { value: "truck_small", label: "Caminhão 3/4" },
+  { value: "truck_medium", label: "Caminhão Toco" },
+  { value: "truck_large", label: "Caminhão Truck" },
+  { value: "truck_extra", label: "Caminhão Bitruck" },
+  { value: "trailer", label: "Carreta Simples" },
+  { value: "trailer_extended", label: "Carreta Estendida" },
+  { value: "trailer_refrigerated", label: "Carreta Refrigerada" },
+];
 
 const QuotationForm: React.FC = () => {
   const { user } = useAuth();
@@ -63,6 +124,7 @@ const QuotationForm: React.FC = () => {
   const [quotationForPdf, setQuotationForPdf] = useState<QuotationData | null>(null);
   const [tempOrderNumber, setTempOrderNumber] = useState<string>("");
   const [generatingPdf, setGeneratingPdf] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("all");
   
   useEffect(() => {
     // Calculate insurance value based on merchandise value and rate
@@ -334,67 +396,276 @@ const QuotationForm: React.FC = () => {
                 Nova Cotação de Frete
               </CardTitle>
               <CardDescription className="text-center md:text-left">
-                Preencha os campos abaixo para gerar uma nova cotação
+                Preencha os dados abaixo para gerar uma cotação completa
               </CardDescription>
             </CardHeader>
           </Card>
           
-          {/* Company Details Section */}
-          <CompanyDetailsSection
-            companyLogo={companyLogo}
-            handleLogoUpload={handleLogoUpload}
-            creatorId={creatorId}
-            onCreatorChange={handleCreatorChange}
-            clients={clients}
-          />
-          
-          {/* Location Section */}
-          <LocationSection 
-            originCity={originCity}
-            originState={originState}
-            destinationCity={destinationCity}
-            destinationState={destinationState}
-            onOriginCityChange={setOriginCity}
-            onOriginStateChange={setOriginState}
-            onDestinationCityChange={setDestinationCity}
-            onDestinationStateChange={setDestinationState}
-          />
-          
-          {/* Cargo Section */}
-          <CargoSection 
-            volumes={volumes}
-            setVolumes={setVolumes}
-            weight={weight}
-            setWeight={setWeight}
-            merchandiseValue={merchandiseValue}
-            setMerchandiseValue={setMerchandiseValue}
-            cargoType={cargoType}
-            setCargoType={setCargoType}
-            vehicleType={vehicleType}
-            setVehicleType={setVehicleType}
-            measurements={measurements}
-            handleAddMeasurement={handleAddMeasurement}
-            handleRemoveMeasurement={handleRemoveMeasurement}
-            handleMeasurementChange={handleMeasurementChange}
-          />
-          
-          {/* Freight Composition Section */}
-          <FreightCompositionSection 
-            freightValue={freightValue}
-            setFreightValue={setFreightValue}
-            tollValue={tollValue}
-            setTollValue={setTollValue}
-            insuranceValue={insuranceValue}
-            setInsuranceValue={setInsuranceValue}
-            insuranceRate={insuranceRate}
-            setInsuranceRate={setInsuranceRate}
-            merchandiseValue={merchandiseValue}
-            otherCosts={otherCosts}
-            setOtherCosts={setOtherCosts}
-            totalValue={totalValue}
-            notes={notes}
-            setNotes={setNotes}
-          />
+          <Tabs defaultValue="all" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-2 mb-4">
+              <TabsTrigger value="all">Visão Completa</TabsTrigger>
+              <TabsTrigger value="edit">Modo Edição</TabsTrigger>
+            </TabsList>
+            
+            {/* Visão Completa - Todos os campos em uma página */}
+            <TabsContent value="all" className="space-y-6">
+              {/* Company Details Section */}
+              <CompanyDetailsSection
+                companyLogo={companyLogo}
+                handleLogoUpload={handleLogoUpload}
+                creatorId={creatorId}
+                onCreatorChange={handleCreatorChange}
+                clients={clients}
+              />
+              
+              {/* Resumo Completo */}
+              <FreightCompositionSection 
+                freightValue={freightValue}
+                setFreightValue={setFreightValue}
+                tollValue={tollValue}
+                setTollValue={setTollValue}
+                insuranceValue={insuranceValue}
+                setInsuranceValue={setInsuranceValue}
+                insuranceRate={insuranceRate}
+                setInsuranceRate={setInsuranceRate}
+                merchandiseValue={merchandiseValue}
+                otherCosts={otherCosts}
+                setOtherCosts={setOtherCosts}
+                totalValue={totalValue}
+                notes={notes}
+                setNotes={setNotes}
+                // Campos adicionais
+                originCity={originCity}
+                originState={originState}
+                destinationCity={destinationCity}
+                destinationState={destinationState}
+                volumes={volumes}
+                weight={weight}
+                vehicleType={vehicleType}
+                cargoType={cargoType}
+              />
+            </TabsContent>
+            
+            {/* Modo de Edição - Campos editáveis */}
+            <TabsContent value="edit" className="space-y-6">
+              {/* Company Details Section */}
+              <CompanyDetailsSection
+                companyLogo={companyLogo}
+                handleLogoUpload={handleLogoUpload}
+                creatorId={creatorId}
+                onCreatorChange={handleCreatorChange}
+                clients={clients}
+              />
+              
+              {/* Location Section - Editar origem e destino */}
+              <Card className="overflow-hidden transition-all duration-300 hover:shadow-md border-freight-100 dark:border-freight-800">
+                <CardHeader className="bg-freight-50/50 dark:bg-freight-900/50">
+                  <CardTitle className="text-freight-700 dark:text-freight-300">
+                    Origem e Destino
+                  </CardTitle>
+                  <CardDescription>
+                    Informe as cidades e estados de origem e destino da carga
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Origin */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-freight-700 dark:text-freight-300">Origem</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="originState">Estado</Label>
+                        <Select value={originState} onValueChange={(value) => {
+                          setOriginState(value);
+                          // Limpar cidade quando mudar o estado
+                          setOriginCity("");
+                        }}>
+                          <SelectTrigger id="originState" className="w-full">
+                            <SelectValue placeholder="Selecione o estado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="EX" className="cursor-pointer">Exterior</SelectItem>
+                            {BRAZILIAN_STATES.map((state) => (
+                              <SelectItem key={state.value} value={state.value} className="cursor-pointer">
+                                {state.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="originCity">Cidade</Label>
+                        <Input
+                          id="originCity"
+                          value={originCity}
+                          onChange={(e) => setOriginCity(e.target.value)}
+                          placeholder="Digite a cidade de origem"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Destination */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-freight-700 dark:text-freight-300">Destino</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="destinationState">Estado</Label>
+                        <Select value={destinationState} onValueChange={(value) => {
+                          setDestinationState(value);
+                          // Limpar cidade quando mudar o estado
+                          setDestinationCity("");
+                        }}>
+                          <SelectTrigger id="destinationState" className="w-full">
+                            <SelectValue placeholder="Selecione o estado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="EX" className="cursor-pointer">Exterior</SelectItem>
+                            {BRAZILIAN_STATES.map((state) => (
+                              <SelectItem key={state.value} value={state.value} className="cursor-pointer">
+                                {state.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="destinationCity">Cidade</Label>
+                        <Input
+                          id="destinationCity"
+                          value={destinationCity}
+                          onChange={(e) => setDestinationCity(e.target.value)}
+                          placeholder="Digite a cidade de destino"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Cargo Section - Editar dados da carga */}
+              <Card className="overflow-hidden transition-all duration-300 hover:shadow-md border-freight-100 dark:border-freight-800">
+                <CardHeader className="bg-freight-50/50 dark:bg-freight-900/50">
+                  <CardTitle className="text-freight-700 dark:text-freight-300">
+                    Dados do Material
+                  </CardTitle>
+                  <CardDescription>
+                    Informe as características da carga a ser transportada
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-6">
+                  {/* Basic cargo details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="volumes">Quantidade de Volumes</Label>
+                      <Input 
+                        id="volumes" 
+                        type="number" 
+                        value={volumes.toString()} 
+                        onChange={e => setVolumes(Number(e.target.value))} 
+                        placeholder="Quantidade de volumes" 
+                        min="0"
+                        className="transition-all focus:ring-freight-500 focus:border-freight-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Peso (kg)</Label>
+                      <Input 
+                        id="weight" 
+                        type="number" 
+                        step="0.01" 
+                        value={weight.toString()} 
+                        onChange={e => setWeight(Number(e.target.value))} 
+                        placeholder="Peso total em kg" 
+                        min="0"
+                        className="transition-all focus:ring-freight-500 focus:border-freight-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cargoType">Tipo de Carga</Label>
+                      <Select value={cargoType} onValueChange={setCargoType}>
+                        <SelectTrigger id="cargoType" className="w-full">
+                          <SelectValue placeholder="Selecione o tipo de carga" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CARGO_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value} className="cursor-pointer">
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="merchandiseValue">Valor da Mercadoria (R$)</Label>
+                      <Input 
+                        id="merchandiseValue" 
+                        type="number" 
+                        step="0.01" 
+                        value={merchandiseValue.toString()} 
+                        onChange={e => setMerchandiseValue(Number(e.target.value))} 
+                        placeholder="Valor da mercadoria" 
+                        min="0"
+                        className="transition-all focus:ring-freight-500 focus:border-freight-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Vehicle Type */}
+                  <div className="border-t pt-4 border-freight-100 dark:border-freight-800">
+                    <div className="space-y-2">
+                      <Label htmlFor="vehicleType" className="text-lg font-medium text-freight-700 dark:text-freight-300">
+                        Tipo de Veículo
+                      </Label>
+                      <Select value={vehicleType} onValueChange={setVehicleType}>
+                        <SelectTrigger id="vehicleType" className="w-full">
+                          <SelectValue placeholder="Selecione o tipo de veículo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {VEHICLE_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value} className="cursor-pointer">
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Freight Composition Section */}
+              <FreightCompositionSection 
+                freightValue={freightValue}
+                setFreightValue={setFreightValue}
+                tollValue={tollValue}
+                setTollValue={setTollValue}
+                insuranceValue={insuranceValue}
+                setInsuranceValue={setInsuranceValue}
+                insuranceRate={insuranceRate}
+                setInsuranceRate={setInsuranceRate}
+                merchandiseValue={merchandiseValue}
+                otherCosts={otherCosts}
+                setOtherCosts={setOtherCosts}
+                totalValue={totalValue}
+                notes={notes}
+                setNotes={setNotes}
+                // Campos adicionais
+                originCity={originCity}
+                originState={originState}
+                destinationCity={destinationCity}
+                destinationState={destinationState}
+                volumes={volumes}
+                weight={weight}
+                vehicleType={vehicleType}
+                cargoType={cargoType}
+              />
+            </TabsContent>
+          </Tabs>
           
           {/* Action Buttons */}
           <QuotationActionsButtons 
