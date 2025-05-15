@@ -35,6 +35,16 @@ export const generateCanvasFromElement = async (
     logging: false,
     backgroundColor: '#FFFFFF',
     allowTaint: true,
+    onclone: (document, element) => {
+      // Ensure all images are loaded before rendering
+      element.querySelectorAll('img').forEach(img => {
+        if (!img.complete) {
+          img.onload = () => {};
+          img.src = img.src;
+        }
+      });
+      return element;
+    }
   });
   
   // Restore original width if needed
@@ -63,19 +73,20 @@ export const generatePdfFromCanvas = (
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
+    compress: true,
   });
   
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   
   // Calculate image dimensions to fit the page
-  const imgWidth = pageWidth - 20; // 10mm margin on each side
+  const imgWidth = pageWidth - 10; // 5mm margin on each side
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
   
   // Handle multipage documents if needed
-  if (options.handleMultiplePages && imgHeight > pageHeight - 20) {
-    let positionY = 10;
-    const availableHeight = pageHeight - 20;
+  if (options.handleMultiplePages && imgHeight > pageHeight - 10) {
+    let positionY = 5;
+    const availableHeight = pageHeight - 10;
     const totalPages = Math.ceil(imgHeight / availableHeight);
     
     for (let i = 0; i < totalPages; i++) {
@@ -90,8 +101,8 @@ export const generatePdfFromCanvas = (
       pdf.addImage({
         imageData: imgData,
         format: 'PNG',
-        x: 10,
-        y: 10,
+        x: 5,
+        y: 5,
         width: imgWidth,
         height: availableHeight,
         alias: `page-${i}`,
@@ -100,7 +111,7 @@ export const generatePdfFromCanvas = (
     }
   } else {
     // Single page document
-    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+    pdf.addImage(imgData, 'PNG', 5, 5, imgWidth, imgHeight);
   }
   
   // Add metadata if provided

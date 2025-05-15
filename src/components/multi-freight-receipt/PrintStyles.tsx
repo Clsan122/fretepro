@@ -7,8 +7,8 @@ const PrintStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 10mm;
-          scale: 0.95;
+          margin: 5mm;
+          scale: 0.90;
         }
         
         body {
@@ -18,7 +18,7 @@ const PrintStyles: React.FC = () => {
           background-color: white !important;
           color: black !important;
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 10px !important;
+          font-size: 8px !important;
         }
         
         .print-container {
@@ -42,7 +42,7 @@ const PrintStyles: React.FC = () => {
         }
         
         .print-compact {
-          margin-bottom: 2px !important;
+          margin-bottom: 1px !important;
         }
         
         .scale-down {
@@ -53,27 +53,27 @@ const PrintStyles: React.FC = () => {
         .print-table {
           width: 100% !important;
           border-collapse: collapse !important;
-          font-size: 9px !important;
+          font-size: 7px !important;
           table-layout: fixed !important;
         }
         
         .print-table td,
         .print-table th {
           border: 1px solid #ddd !important;
-          padding: 2px !important;
-          font-size: 8px !important;
+          padding: 1px !important;
+          font-size: 6px !important;
           overflow: hidden !important;
           text-overflow: ellipsis !important;
           white-space: nowrap !important;
         }
         
         .print-small-text {
-          font-size: 8px !important;
-          line-height: 1.1 !important;
+          font-size: 6px !important;
+          line-height: 1 !important;
         }
         
         .print-tight {
-          padding: 2px !important;
+          padding: 1px !important;
         }
 
         img {
@@ -83,6 +83,7 @@ const PrintStyles: React.FC = () => {
           display: block !important;
           max-width: 100% !important;
           page-break-inside: avoid !important;
+          max-height: 30px !important;
         }
 
         /* Override dark mode for printing */
@@ -138,22 +139,38 @@ const PrintStyles: React.FC = () => {
         /* Melhorias no layout geral */
         .card, .border {
           border: 1px solid #ddd !important;
-          margin-bottom: 3px !important;
+          margin-bottom: 1px !important;
         }
         
         .p-6, .p-4, .p-3 {
-          padding: 3px !important;
+          padding: 1px !important;
         }
         
         /* Reduzir espaçamento entre linhas */
         p, h1, h2, h3, h4, h5, h6 {
-          margin-top: 2px !important;
-          margin-bottom: 2px !important;
+          margin: 0 !important;
+          margin-bottom: 1px !important;
+          padding: 0 !important;
+          line-height: 1.1 !important;
         }
         
         /* Garantir que elementos não quebrem entre páginas */
         .avoid-break {
           page-break-inside: avoid !important;
+        }
+        
+        /* Remover arredondamento para otimizar espaço */
+        .rounded-lg, .rounded {
+          border-radius: 0 !important;
+        }
+        
+        /* Força tamanho A4 */
+        @media print {
+          html, body {
+            width: 210mm !important;
+            height: 297mm !important;
+            overflow: hidden !important;
+          }
         }
       `}
     </style>

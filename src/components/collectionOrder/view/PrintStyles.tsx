@@ -7,13 +7,13 @@ export const PrintStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 10mm;
-          scale: 0.95;
+          margin: 5mm;
+          scale: 0.90;
         }
         
         body {
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 10px !important;
+          font-size: 8px !important;
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
@@ -30,11 +30,11 @@ export const PrintStyles: React.FC = () => {
         }
         
         .card-compact .card-header {
-          padding: 4px !important;
+          padding: 2px !important;
         }
         
         .card-compact .card-content {
-          padding: 4px !important;
+          padding: 2px !important;
         }
         
         .print-no-margin {
@@ -42,15 +42,15 @@ export const PrintStyles: React.FC = () => {
         }
         
         .print-small-text {
-          font-size: 9px !important;
+          font-size: 7px !important;
         }
         
         .print-smaller-text {
-          font-size: 8px !important;
+          font-size: 6px !important;
         }
         
         .print-compact-grid {
-          gap: 2px !important;
+          gap: 1px !important;
         }
         
         .print-hidden {
@@ -80,12 +80,12 @@ export const PrintStyles: React.FC = () => {
           width: 210mm !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 5mm !important;
+          padding: 2mm !important;
           margin: 0 auto !important;
           border: none !important;
           page-break-inside: avoid !important;
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 10px !important;
+          font-size: 8px !important;
           background-color: white !important;
           color: black !important;
         }
@@ -147,7 +147,7 @@ export const PrintStyles: React.FC = () => {
         table {
           width: 100% !important;
           border-collapse: collapse !important;
-          font-size: 9px !important;
+          font-size: 7px !important;
           background-color: white !important;
           color: black !important;
           table-layout: fixed !important;
@@ -155,8 +155,8 @@ export const PrintStyles: React.FC = () => {
         
         table td, table th {
           border: 1px solid #ddd !important;
-          padding: 2px !important;
-          font-size: 8px !important;
+          padding: 1px !important;
+          font-size: 6px !important;
           background-color: white !important;
           color: black !important;
           overflow: hidden !important;
@@ -171,10 +171,11 @@ export const PrintStyles: React.FC = () => {
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           page-break-inside: avoid !important;
+          max-height: 30px !important;
         }
         
         .divider {
-          margin: 2px 0 !important;
+          margin: 1px 0 !important;
           border-color: #ddd !important;
         }
         
@@ -189,21 +190,42 @@ export const PrintStyles: React.FC = () => {
         .print-grid {
           display: grid !important;
           grid-template-columns: 1fr 1fr !important;
-          gap: 2px !important;
+          gap: 1px !important;
         }
         
         .print-section {
           page-break-inside: avoid !important;
-          margin-bottom: 3px !important;
+          margin-bottom: 1px !important;
         }
         
         /* Reduzir espaçamentos gerais */
         .p-6, .p-4, .p-3 {
-          padding: 2px !important;
+          padding: 1px !important;
         }
         
         .m-6, .m-4, .m-3, .my-6, .my-4, .my-3, .mb-6, .mb-4, .mb-3 {
-          margin: 2px !important;
+          margin: 1px !important;
+        }
+        
+        /* Remover arredondamento para otimizar espaço */
+        .rounded-lg, .rounded {
+          border-radius: 0 !important;
+        }
+        
+        /* Otimização de linha */
+        h1, h2, h3, p {
+          margin: 0 !important;
+          padding: 0 !important;
+          line-height: 1.1 !important;
+        }
+        
+        /* Força tamanho A4 */
+        @media print {
+          html, body {
+            width: 210mm !important;
+            height: 297mm !important;
+            overflow: hidden !important;
+          }
         }
       `}
     </style>
