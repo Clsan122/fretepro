@@ -63,7 +63,7 @@ export const RecipientSection: React.FC<RecipientSectionProps> = ({
           name="recipient"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="required">Nome do Destinatário</FormLabel>
+              <FormLabel>Nome do Destinatário</FormLabel>
               <div className="flex gap-2">
                 <FormControl>
                   <Input
@@ -89,7 +89,7 @@ export const RecipientSection: React.FC<RecipientSectionProps> = ({
           name="recipientAddress"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="required">Endereço do Destinatário</FormLabel>
+              <FormLabel>Endereço do Destinatário</FormLabel>
               <FormControl>
                 <Input
                   {...field}

@@ -58,31 +58,51 @@ export const ReceiverSection: React.FC<ReceiverSectionProps> = ({
           }} 
         />
         
-        <div>
-          <Label>Nome do Recebedor</Label>
-          <div className="flex gap-2">
-            <Input 
-              value={receiver} 
-              onChange={handleReceiverChange}
-              placeholder="Digite o nome do recebedor" 
-              className="bg-white"
-            />
-            <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}
-              className="hover:bg-freight-50 transition-colors">
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <FormField
+          control={form.control}
+          name="receiver"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nome do Recebedor</FormLabel>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Input 
+                    {...field}
+                    value={receiver} 
+                    onChange={handleReceiverChange}
+                    placeholder="Digite o nome do recebedor" 
+                    className="bg-white"
+                  />
+                </FormControl>
+                <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}
+                  className="hover:bg-freight-50 transition-colors">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
-        <div>
-          <Label>Endereço do Recebedor</Label>
-          <Input 
-            value={receiverAddress} 
-            onChange={handleReceiverAddressChange}
-            placeholder="Digite o endereço do recebedor" 
-            className="bg-white"
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="receiverAddress"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Endereço do Recebedor</FormLabel>
+              <FormControl>
+                <Input 
+                  {...field}
+                  value={receiverAddress} 
+                  onChange={handleReceiverAddressChange}
+                  placeholder="Digite o endereço do recebedor" 
+                  className="bg-white"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );

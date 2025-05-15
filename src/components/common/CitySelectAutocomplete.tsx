@@ -16,6 +16,7 @@ interface CitySelectAutocompleteProps {
   disabled?: boolean;
   label?: string;
   id?: string;
+  className?: string; // Adicionando a propriedade className para resolver o erro
 }
 
 export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
@@ -26,6 +27,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
   disabled,
   label,
   id,
+  className,
 }) => {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
@@ -48,6 +50,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder="Informe a cidade ou país"
         disabled={disabled}
+        className={className}
       />
     );
   }
@@ -59,7 +62,7 @@ export const CitySelectAutocomplete: React.FC<CitySelectAutocompleteProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", disabled && "opacity-50")}
+          className={cn("w-full justify-between", disabled && "opacity-50", className)}
           disabled={disabled}
         >
           {value || placeholder}

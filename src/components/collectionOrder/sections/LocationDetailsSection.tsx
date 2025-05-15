@@ -69,7 +69,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
               name="originCity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="required">Cidade de Origem</FormLabel>
+                  <FormLabel>Cidade de Origem</FormLabel>
                   <FormControl>
                     <CitySelectAutocomplete 
                       uf={originState}
@@ -88,7 +88,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
               name="originState"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="required">Estado de Origem</FormLabel>
+                  <FormLabel>Estado de Origem</FormLabel>
                   <FormControl>
                     <Input 
                       {...field}
@@ -114,7 +114,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
               name="destinationCity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="required">Cidade de Destino</FormLabel>
+                  <FormLabel>Cidade de Destino</FormLabel>
                   <FormControl>
                     <CitySelectAutocomplete 
                       uf={destinationState}
@@ -133,7 +133,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
               name="destinationState"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel variant="required">Estado de Destino</FormLabel>
+                  <FormLabel>Estado de Destino</FormLabel>
                   <FormControl>
                     <Input 
                       {...field}

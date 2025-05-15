@@ -63,7 +63,7 @@ export const ShipperSection: React.FC<ShipperSectionProps> = ({
           name="shipper"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="required">Nome do Remetente</FormLabel>
+              <FormLabel>Nome do Remetente</FormLabel>
               <div className="flex gap-2">
                 <FormControl>
                   <Input
@@ -89,7 +89,7 @@ export const ShipperSection: React.FC<ShipperSectionProps> = ({
           name="shipperAddress"
           render={({ field }) => (
             <FormItem>
-              <FormLabel variant="required">Endereço do Remetente</FormLabel>
+              <FormLabel>Endereço do Remetente</FormLabel>
               <FormControl>
                 <Input
                   {...field}
