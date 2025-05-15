@@ -10,9 +10,9 @@ import { transformUser, fetchUserProfile } from './utils';
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [authInitialized, setAuthInitialized] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(true);
 
   // Update user state with combined Supabase user and profile data
   const updateUserState = async (supabaseUser: SupabaseUser | null) => {
@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Flag to track component mounting state
     let isMounted = true;
     
-    // Set up auth state listener FIRST
+    // Set up auth state listener for future auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         if (!isMounted) return;
@@ -49,53 +49,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Update session state immediately
           setSession(newSession);
           
-          // Important: Avoid deadlocks by deferring profile fetch
-          setTimeout(() => {
-            if (isMounted) {
-              updateUserState(newSession.user);
-              if (!authInitialized) {
-                setAuthInitialized(true);
-              }
-              setLoading(false);
-            }
-          }, 0);
+          // Update user state
+          await updateUserState(newSession.user);
+          setLoading(false);
         } else {
           setSession(null);
           setUser(null);
-          if (!authInitialized) {
-            setAuthInitialized(true);
-          }
           setLoading(false);
         }
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      if (!isMounted) return;
-      
-      console.log("Initial session check:", existingSession ? "Session found" : "No session");
-      
-      if (existingSession) {
-        // Update session state immediately
-        setSession(existingSession);
-        
-        // Important: Avoid deadlocks by deferring profile fetch
-        setTimeout(() => {
-          if (isMounted) {
-            updateUserState(existingSession.user);
-          }
-        }, 0);
-      }
-      
-      // Always set authInitialized and loading after the initial session check
-      setTimeout(() => {
-        if (isMounted) {
-          setAuthInitialized(true);
-          setLoading(false);
-        }
-      }, 100);
-    });
+    // Não verifica mais automaticamente por uma sessão existente
+    // Isso fará com que o login só aconteça quando o botão for clicado
 
     return () => {
       isMounted = false;
@@ -183,7 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value = {
     user,
     session,
-    loading: loading && !authInitialized,
+    loading: loading,
     error,
     login,
     signup,

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,27 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { login, isAuthenticated, user, loading } = useAuth();
-
-  // Simplificar a lógica de redirecionamento
-  useEffect(() => {
-    // Se a autenticação ainda está carregando, não fazer nada
-    if (loading) {
-      console.log("Login component: Auth still loading");
-      return;
-    }
-
-    // Verificar se o usuário está autenticado e redirecionar para o destino apropriado
-    if (isAuthenticated && user) {
-      console.log("Login component: User is authenticated, redirecting");
-      
-      // Usar o destino anterior ou direcionar para o dashboard
-      const from = location.state?.from || "/dashboard";
-      navigate(from, { replace: true });
-    } else {
-      console.log("Login component: Not authenticated or still loading");
-    }
-  }, [isAuthenticated, user, navigate, location, loading]);
+  const { login, loading } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +38,9 @@ const Login = () => {
           description: "Bem-vindo de volta!",
         });
         
-        // Note: No redirection here - let the useEffect handle it
+        // Redirecionar após login bem-sucedido
+        const from = location.state?.from || "/dashboard";
+        navigate(from, { replace: true });
       } else {
         throw new Error("Falha na autenticação");
       }
