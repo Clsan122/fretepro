@@ -120,7 +120,7 @@ const QuotationView: React.FC = () => {
         description: "Aguarde enquanto preparamos o documento..."
       });
       
-      // Generate blank PDF for sending
+      // Gerar o PDF da cotação
       const success = await generateQuotationPdf(id);
       
       if (success) {

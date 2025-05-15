@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -10,18 +11,16 @@ import { FileText, Plus, FileDown, Trash2, Eye, Edit, CheckCircle, XCircle, Lock
 import { Badge } from "@/components/ui/badge";
 import { QuotationData } from "@/components/quotation/types";
 import { formatCurrency, formatDate } from "@/utils/formatters";
-import { generateQuotationPdf } from "@/utils/pdfGenerator";
+import { generateQuotationPdf } from "@/utils/pdf/quotationPdf";
 import { generateQuotationNumber } from "@/utils/quotationNumber";
+
 const Quotations: React.FC = () => {
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [quotations, setQuotations] = useState<QuotationData[]>([]);
   const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
     if (user) {
       try {
@@ -58,6 +57,7 @@ const Quotations: React.FC = () => {
       }
     }
   }, [user, toast]);
+  
   const handleDelete = (id: string) => {
     try {
       // Filter out the quotation to be deleted
@@ -83,6 +83,7 @@ const Quotations: React.FC = () => {
       });
     }
   };
+  
   const handleToggleStatus = (id: string) => {
     try {
       // Get the quotation to update
@@ -121,6 +122,7 @@ const Quotations: React.FC = () => {
       });
     }
   };
+  
   const handleGeneratePdf = (quotation: QuotationData) => {
     generateQuotationPdf(quotation.id).then(success => {
       if (success) {
@@ -144,19 +146,24 @@ const Quotations: React.FC = () => {
       });
     });
   };
+  
   const handleCreateNewQuotation = () => {
     navigate("/quotations/new");
   };
+  
   const handleViewQuotation = (quotationId: string) => {
     navigate(`/quotations/view/${quotationId}`);
   };
+  
   const handleEditQuotation = (quotationId: string) => {
     navigate(`/quotations/edit/${quotationId}`);
   };
-  return <Layout>
+  
+  return (
+    <Layout>
       <div className="w-full max-w-7xl mx-auto" style={{
-      paddingBottom: 'env(safe-area-inset-bottom, 0)'
-    }}>
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}>
         <div className="flex flex-col space-y-6">
           <div className="flex justify-between items-center">
             <div>
@@ -167,7 +174,7 @@ const Quotations: React.FC = () => {
                 Gerencie suas cotações de frete
               </p>
             </div>
-            <Button onClick={handleCreateNewQuotation} className="bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all text-sm text-center py-0 px-px my-0 mx-[11px]">
+            <Button onClick={handleCreateNewQuotation} className="bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all">
               <Plus className="mr-2 h-5 w-5" /> Nova Cotação
             </Button>
           </div>
@@ -182,14 +189,19 @@ const Quotations: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {loading ? <div className="p-6 text-center">
+              {loading ? (
+                <div className="p-6 text-center">
                   <p>Carregando cotações...</p>
-                </div> : quotations.length === 0 ? <div className="p-6 text-center">
+                </div>
+              ) : quotations.length === 0 ? (
+                <div className="p-6 text-center">
                   <p className="text-muted-foreground">Nenhuma cotação encontrada</p>
                   <Button onClick={handleCreateNewQuotation} variant="outline" className="mt-4 hover:bg-freight-50 dark:hover:bg-freight-900">
                     <Plus className="mr-2 h-4 w-4" /> Criar Primeira Cotação
                   </Button>
-                </div> : <div className="overflow-x-auto">
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -204,7 +216,8 @@ const Quotations: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {quotations.map(quotation => <TableRow key={quotation.id} className="hover:bg-freight-50/70 dark:hover:bg-freight-900/30 transition-colors">
+                      {quotations.map(quotation => (
+                        <TableRow key={quotation.id} className="hover:bg-freight-50/70 dark:hover:bg-freight-900/30 transition-colors">
                           <TableCell className="font-medium">{quotation.orderNumber || '-'}</TableCell>
                           <TableCell>{quotation.creatorName}</TableCell>
                           <TableCell>{`${quotation.originCity}/${quotation.originState}`}</TableCell>
@@ -236,14 +249,18 @@ const Quotations: React.FC = () => {
                               </Button>
                             </div>
                           </TableCell>
-                        </TableRow>)}
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
-                </div>}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
-    </Layout>;
+    </Layout>
+  );
 };
+
 export default Quotations;
