@@ -7,13 +7,13 @@ export const PrintPreviewStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 10mm;
-          scale: 0.95;
+          margin: 8mm;
+          scale: 0.9;
         }
         
         body {
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 12px !important;
+          font-size: 10px !important;
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
@@ -25,7 +25,7 @@ export const PrintPreviewStyles: React.FC = () => {
           width: 210mm !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 6mm !important;
+          padding: 4mm !important;
           margin: 0 auto !important;
           border: none !important;
           page-break-inside: avoid !important;
@@ -60,46 +60,6 @@ export const PrintPreviewStyles: React.FC = () => {
           page-break-inside: avoid !important;
         }
         
-        /* Override dark mode for printing */
-        .dark {
-          background-color: white !important;
-          color: black !important;
-        }
-        
-        .dark * {
-          background-color: white !important;
-          color: black !important;
-          border-color: #ddd !important;
-        }
-        
-        .dark .bg-gray-800,
-        .dark .bg-gray-900,
-        .dark .bg-gray-700,
-        .dark .bg-slate-800,
-        .dark .bg-slate-900,
-        .dark .bg-slate-700 {
-          background-color: white !important;
-        }
-        
-        .dark .text-white,
-        .dark .text-gray-100,
-        .dark .text-gray-200 {
-          color: black !important;
-        }
-        
-        /* Force table content to be visible in dark mode */
-        table {
-          background-color: white !important;
-          color: black !important;
-        }
-        
-        table td, 
-        table th {
-          background-color: white !important;
-          color: black !important;
-          border-color: #ddd !important;
-        }
-        
         /* Otimização para impressão em uma única página */
         .grid {
           display: flex !important;
@@ -107,37 +67,37 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         .text-sm {
-          font-size: 10px !important;
-        }
-        
-        .text-xs {
           font-size: 9px !important;
         }
         
-        .my-4, .my-6, .mb-6, .mb-8 {
-          margin-top: 8px !important;
-          margin-bottom: 8px !important;
+        .text-xs {
+          font-size: 8px !important;
+        }
+        
+        .my-4, .my-6, .mb-6, .mb-8, .mb-4, .mb-3 {
+          margin-top: 4px !important;
+          margin-bottom: 4px !important;
         }
         
         .p-8, .p-6, .p-4 {
-          padding: 10px !important;
+          padding: 8px !important;
         }
         
         .print-compact td, .print-compact th {
-          padding: 2px 4px !important;
+          padding: 1px 3px !important;
         }
         
         table td, table th {
-          padding: 2px 4px !important;
+          padding: 1px 3px !important;
         }
         
         .print-tight-margins {
-          margin-top: 5px !important;
-          margin-bottom: 5px !important;
+          margin-top: 3px !important;
+          margin-bottom: 3px !important;
         }
         
         .card-content {
-          padding: 6px !important;
+          padding: 4px !important;
         }
 
         body > *:not(.print-container) {

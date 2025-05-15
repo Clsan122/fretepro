@@ -42,13 +42,13 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
         }
         
         try {
-          // Generate canvas
+          // Generate canvas with optimized settings
           const canvas = await html2canvas(element, {
             scale: 2,
             useCORS: true,
             allowTaint: true,
             backgroundColor: "#ffffff",
-            logging: true, // Enable logging for debug
+            logging: false, // Disable logging
             onclone: (document, element) => {
               // Ensure all images are loaded before rendering
               element.querySelectorAll('img').forEach(img => {
@@ -77,13 +77,13 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
             console.error("Error getting quotation data for PDF metadata:", error);
           }
           
-          // Generate PDF
+          // Generate PDF with optimized settings
           const pdf = generatePdfFromCanvas(canvas, {
             filename: `cotacao-frete-${id}.pdf`,
             title: quotationTitle,
             subject: quotationSubject,
             author: "FreteValor",
-            creator: "FreteValor - Sistema de Gerenciamento de Fretes",
+            creator: "FreteValor",
           });
           
           // Trigger download
@@ -115,7 +115,7 @@ export const previewQuotationPdf = async (quotation: QuotationData | null): Prom
     const element = document.getElementById("quotation-pdf");
     if (!element) return false;
     
-    // Generate canvas
+    // Generate canvas with optimized settings
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
@@ -123,12 +123,12 @@ export const previewQuotationPdf = async (quotation: QuotationData | null): Prom
       backgroundColor: "#ffffff"
     });
     
-    // Generate PDF
+    // Generate PDF with optimized metadata
     const pdf = generatePdfFromCanvas(canvas, {
       title: `Cotação de Frete - ${quotation.originCity} para ${quotation.destinationCity}`,
       subject: `Cotação de frete de ${quotation.originCity}/${quotation.originState} para ${quotation.destinationCity}/${quotation.destinationState}`,
       author: quotation.creatorName || "FreteValor",
-      creator: "FreteValor - Sistema de Gerenciamento de Fretes",
+      creator: "FreteValor",
     });
     
     // Open in new window
@@ -152,7 +152,7 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
           return;
         }
         
-        // Generate canvas
+        // Generate canvas with optimized settings
         const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
@@ -186,12 +186,12 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
           console.error("Error getting quotation data for PDF metadata:", error);
         }
         
-        // Generate PDF
+        // Generate PDF with optimized settings
         const pdf = generatePdfFromCanvas(canvas, {
           title: quotationTitle,
           subject: quotationSubject,
           author: "FreteValor",
-          creator: "FreteValor - Sistema de Gerenciamento de Fretes",
+          creator: "FreteValor",
         });
         
         // Return the PDF as a blob
