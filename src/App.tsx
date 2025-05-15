@@ -5,7 +5,7 @@ import { AuthProvider } from "./context/auth";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import AppRoutes from "./routes/AppRoutes";
-import { TooltipProvider } from "./components/ui/tooltip";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 // Criar contexto de conectividade para compartilhar estado online/offline
 interface ConnectivityContextType {
@@ -55,8 +55,8 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <TooltipProvider>
+    <TooltipProvider>
+      <BrowserRouter>
         <ConnectivityContext.Provider value={{ isOnline }}>
           <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
             <AuthProvider>
@@ -66,8 +66,8 @@ function App() {
             </AuthProvider>
           </NotificationContext.Provider>
         </ConnectivityContext.Provider>
-      </TooltipProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </TooltipProvider>
   );
 }
 
