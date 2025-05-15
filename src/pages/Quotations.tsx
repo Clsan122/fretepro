@@ -7,7 +7,7 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, Plus, FileDown, Trash2, Eye, Edit, CheckCircle, XCircle, Lock, Unlock } from "lucide-react";
+import { FileText, Plus, FileDown, Trash2, Eye, Edit, CheckCircle, XCircle, Unlock, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { QuotationData } from "@/components/quotation/types";
 import { formatCurrency, formatDate } from "@/utils/formatters";
@@ -232,19 +232,19 @@ const Quotations: React.FC = () => {
                           <TableCell>{formatDate(quotation.createdAt)}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800" onClick={() => handleViewQuotation(quotation.id)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800" onClick={() => handleViewQuotation(quotation.id)} title="Visualizar cotação">
                                 <Eye className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800" onClick={() => handleEditQuotation(quotation.id)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800" onClick={() => handleEditQuotation(quotation.id)} title="Editar cotação">
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800" onClick={() => handleGeneratePdf(quotation)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-freight-700 hover:bg-freight-100 dark:text-freight-300 dark:hover:bg-freight-800" onClick={() => handleGeneratePdf(quotation)} title="Baixar PDF">
                                 <FileDown className="h-4 w-4" />
                               </Button>
                               <Button variant="ghost" size="icon" className={`h-8 w-8 ${quotation.status === "closed" ? "text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/30" : "text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/30"}`} onClick={() => handleToggleStatus(quotation.id)} title={quotation.status === "closed" ? "Reabrir cotação" : "Fechar cotação"}>
-                                {quotation.status === "closed" ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                                {quotation.status === "closed" ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(quotation.id)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(quotation.id)} title="Excluir cotação">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>

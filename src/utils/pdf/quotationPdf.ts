@@ -24,74 +24,82 @@ export const restoreQuotationFromPdf = () => {
 export const generateQuotationPdf = async (id: string): Promise<boolean> => {
   try {
     // Garantir que o elemento está visível no DOM
-    setTimeout(async () => {
-      const element = document.getElementById("quotation-pdf");
-      if (!element) {
-        console.error("Quotation PDF element not found");
-        return false;
-      }
-      
-      // Prepare for PDF generation
-      const prepared = prepareQuotationForPdf(id);
-      if (!prepared) {
-        console.error("Failed to prepare quotation for PDF generation");
-        return false;
-      }
-      
-      // Generate canvas
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: true, // Enable logging for debug
-        onclone: (document, element) => {
-          // Ensure all images are loaded before rendering
-          element.querySelectorAll('img').forEach(img => {
-            if (!img.complete) {
-              img.onload = () => {};
-              img.src = img.src;
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        const element = document.getElementById("quotation-pdf");
+        if (!element) {
+          console.error("Quotation PDF element not found");
+          resolve(false);
+          return;
+        }
+        
+        // Prepare for PDF generation
+        const prepared = prepareQuotationForPdf(id);
+        if (!prepared) {
+          console.error("Failed to prepare quotation for PDF generation");
+          resolve(false);
+          return;
+        }
+        
+        try {
+          // Generate canvas
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#ffffff",
+            logging: true, // Enable logging for debug
+            onclone: (document, element) => {
+              // Ensure all images are loaded before rendering
+              element.querySelectorAll('img').forEach(img => {
+                if (!img.complete) {
+                  img.onload = () => {};
+                  img.src = img.src;
+                }
+              });
+              return element;
             }
           });
-          return element;
+          
+          // Get quotation data for metadata
+          let quotationTitle = "Cotação de Frete";
+          let quotationSubject = "Cotação de Serviço de Transporte";
+          
+          try {
+            const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
+            const quotation = storedQuotations.find((q: any) => q.id === id);
+            
+            if (quotation) {
+              quotationTitle = `Cotação de Frete - ${quotation.originCity} para ${quotation.destinationCity}`;
+              quotationSubject = `Cotação de frete de ${quotation.originCity}/${quotation.originState} para ${quotation.destinationCity}/${quotation.destinationState}`;
+            }
+          } catch (error) {
+            console.error("Error getting quotation data for PDF metadata:", error);
+          }
+          
+          // Generate PDF
+          const pdf = generatePdfFromCanvas(canvas, {
+            filename: `cotacao-frete-${id}.pdf`,
+            title: quotationTitle,
+            subject: quotationSubject,
+            author: "FreteValor",
+            creator: "FreteValor - Sistema de Gerenciamento de Fretes",
+          });
+          
+          // Trigger download
+          pdf.save(`cotacao-frete-${id}.pdf`);
+          
+          // Restore element
+          restoreQuotationFromPdf();
+          
+          resolve(true);
+        } catch (error) {
+          console.error("Error in PDF generation:", error);
+          restoreQuotationFromPdf();
+          resolve(false);
         }
-      });
-      
-      // Get quotation data for metadata
-      let quotationTitle = "Cotação de Frete";
-      let quotationSubject = "Cotação de Serviço de Transporte";
-      
-      try {
-        const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
-        const quotation = storedQuotations.find((q: any) => q.id === id);
-        
-        if (quotation) {
-          quotationTitle = `Cotação de Frete - ${quotation.originCity} para ${quotation.destinationCity}`;
-          quotationSubject = `Cotação de frete de ${quotation.originCity}/${quotation.originState} para ${quotation.destinationCity}/${quotation.destinationState}`;
-        }
-      } catch (error) {
-        console.error("Error getting quotation data for PDF metadata:", error);
-      }
-      
-      // Generate PDF
-      const pdf = generatePdfFromCanvas(canvas, {
-        filename: `cotacao-frete-${id}.pdf`,
-        title: quotationTitle,
-        subject: quotationSubject,
-        author: "FreteValor",
-        creator: "FreteValor - Sistema de Gerenciamento de Fretes",
-      });
-      
-      // Trigger download
-      pdf.save(`cotacao-frete-${id}.pdf`);
-      
-      // Restore element
-      restoreQuotationFromPdf();
-      
-      return true;
-    }, 500); // Pequeno delay para garantir que o DOM está pronto
-    
-    return true;
+      }, 500); // Pequeno delay para garantir que o DOM está pronto
+    });
   } catch (error) {
     console.error("Error generating quotation PDF:", error);
     restoreQuotationFromPdf();
