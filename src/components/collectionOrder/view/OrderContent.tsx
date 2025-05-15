@@ -11,38 +11,50 @@ interface OrderContentProps {
 export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
   return (
     <div className="space-y-3 print:space-y-2">
-      {/* Logo e Nome da Transportadora */}
-      {order.companyLogo && (
-        <div className="flex flex-col items-center mb-4 print:mb-2">
+      {/* Logo e Número da Ordem de Coleta */}
+      <div className="flex flex-col items-center mb-4 print:mb-2">
+        {order.companyLogo && (
           <img 
             src={order.companyLogo} 
             alt="Logo da Transportadora"
-            className="max-h-16 object-contain mb-2"
+            className="max-h-16 print:max-h-14 object-contain mb-2"
           />
-          {order.sender && (
-            <p className="text-center font-semibold">{order.sender}</p>
-          )}
-          {order.senderCnpj && (
-            <p className="text-center text-xs">CNPJ: {order.senderCnpj}</p>
-          )}
-        </div>
-      )}
+        )}
+        <h2 className="text-xl font-bold text-freight-700 print:text-black">
+          ORDEM DE COLETA Nº {order.orderNumber}
+        </h2>
+      </div>
 
-      {/* Sender and Recipient */}
-      <Card className="border print:border-0 print:shadow-none">
-        <CardContent className="p-3 print:p-2 grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <p className="font-semibold text-xs">Remetente:</p>
-            <p className="text-xs">{order.sender}</p>
+      {/* Dados da empresa transportadora */}
+      {order.sender && (
+        <Card className="border print:border-0 print:shadow-none">
+          <CardContent className="p-3 print:p-2 text-center text-sm">
+            <p className="font-semibold">{order.sender}</p>
+            {order.senderCnpj && <p className="text-xs">CNPJ: {order.senderCnpj}</p>}
             {order.senderAddress && <p className="text-xs mt-1">{order.senderAddress}</p>}
             {(order.senderCity && order.senderState) && (
               <p className="text-xs">{order.senderCity} - {order.senderState}</p>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Informações de Remetente e Destinatário */}
+      <Card className="border print:border-0 print:shadow-none">
+        <CardContent className="p-3 print:p-2 grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2 text-sm">
+          <div className="space-y-1 border-b md:border-b-0 md:border-r pb-3 md:pb-0 md:pr-3 print:pb-0 print:pr-3 print:border-r print:border-b-0">
+            <p className="font-semibold text-xs text-freight-700 print:text-black">REMETENTE:</p>
+            <p className="text-xs">{order.sender}</p>
+            {order.senderAddress && <p className="text-xs">{order.senderAddress}</p>}
+            {(order.senderCity && order.senderState) && (
+              <p className="text-xs">{order.senderCity} - {order.senderState}</p>
+            )}
           </div>
-          <div>
-            <p className="font-semibold text-xs">Destinatário:</p>
+          
+          <div className="space-y-1">
+            <p className="font-semibold text-xs text-freight-700 print:text-black">DESTINATÁRIO:</p>
             <p className="text-xs">{order.recipient}</p>
-            {order.recipientAddress && <p className="text-xs mt-1">{order.recipientAddress}</p>}
+            {order.recipientAddress && <p className="text-xs">{order.recipientAddress}</p>}
           </div>
         </CardContent>
       </Card>
@@ -50,19 +62,19 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       {/* Shipper and Receiver */}
       {(order.shipper || order.receiver) && (
         <Card className="border print:border-0 print:shadow-none">
-          <CardContent className="p-3 print:p-2 grid grid-cols-2 gap-2 text-sm">
+          <CardContent className="p-3 print:p-2 grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2 text-sm">
             {order.shipper && (
-              <div>
-                <p className="font-semibold text-xs">Expedidor:</p>
+              <div className="space-y-1">
+                <p className="font-semibold text-xs text-freight-700 print:text-black">EXPEDIDOR:</p>
                 <p className="text-xs">{order.shipper}</p>
-                {order.shipperAddress && <p className="text-xs mt-1">{order.shipperAddress}</p>}
+                {order.shipperAddress && <p className="text-xs">{order.shipperAddress}</p>}
               </div>
             )}
             {order.receiver && (
-              <div>
-                <p className="font-semibold text-xs">Recebedor:</p>
+              <div className="space-y-1">
+                <p className="font-semibold text-xs text-freight-700 print:text-black">RECEBEDOR:</p>
                 <p className="text-xs">{order.receiver}</p>
-                {order.receiverAddress && <p className="text-xs mt-1">{order.receiverAddress}</p>}
+                {order.receiverAddress && <p className="text-xs">{order.receiverAddress}</p>}
               </div>
             )}
           </CardContent>
@@ -72,13 +84,13 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       {/* Locations */}
       <Card className="border print:border-0 print:shadow-none">
         <CardContent className="p-3 print:p-2 space-y-2 text-sm">
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <p className="font-semibold text-xs">Origem:</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2">
+            <div className="space-y-1">
+              <p className="font-semibold text-xs text-freight-700 print:text-black">ORIGEM:</p>
               <p className="text-xs">{order.originCity} - {order.originState}</p>
             </div>
-            <div>
-              <p className="font-semibold text-xs">Destino:</p>
+            <div className="space-y-1">
+              <p className="font-semibold text-xs text-freight-700 print:text-black">DESTINO:</p>
               <p className="text-xs">{order.destinationCity} - {order.destinationState}</p>
             </div>
           </div>
@@ -89,20 +101,20 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       {order.driverName && (
         <Card className="border print:border-0 print:shadow-none">
           <CardContent className="p-3 print:p-2 text-sm">
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <p className="font-semibold text-xs">Motorista:</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:gap-2">
+              <div className="space-y-1">
+                <p className="font-semibold text-xs text-freight-700 print:text-black">MOTORISTA:</p>
                 <p className="text-xs">{order.driverName}</p>
               </div>
               {order.driverCpf && (
-                <div>
-                  <p className="font-semibold text-xs">CPF:</p>
+                <div className="space-y-1">
+                  <p className="font-semibold text-xs text-freight-700 print:text-black">CPF:</p>
                   <p className="text-xs">{order.driverCpf}</p>
                 </div>
               )}
               {order.licensePlate && (
-                <div>
-                  <p className="font-semibold text-xs">Placa:</p>
+                <div className="space-y-1">
+                  <p className="font-semibold text-xs text-freight-700 print:text-black">PLACA:</p>
                   <p className="text-xs">{order.licensePlate}</p>
                 </div>
               )}
@@ -114,20 +126,21 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       {/* Cargo Details */}
       <Card className="border print:border-0 print:shadow-none">
         <CardContent className="p-3 print:p-2 text-sm">
-          <div className="grid grid-cols-4 gap-2">
-            <div>
+          <p className="font-semibold text-xs text-freight-700 pb-2 print:text-black">DETALHES DA CARGA:</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:gap-2">
+            <div className="space-y-1">
               <p className="font-semibold text-xs">Volumes:</p>
               <p className="text-xs">{order.volumes}</p>
             </div>
-            <div>
+            <div className="space-y-1">
               <p className="font-semibold text-xs">Peso:</p>
               <p className="text-xs">{order.weight} kg</p>
             </div>
-            <div>
+            <div className="space-y-1">
               <p className="font-semibold text-xs">Cubagem:</p>
               <p className="text-xs">{order.cubicMeasurement.toFixed(3)} m³</p>
             </div>
-            <div>
+            <div className="space-y-1">
               <p className="font-semibold text-xs">Valor:</p>
               <p className="text-xs">
                 {order.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -148,7 +161,7 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       {order.measurements.length > 0 && (
         <Card className="border print:border-0 print:shadow-none">
           <CardContent className="p-3 print:p-2 text-sm">
-            <p className="font-semibold text-xs mb-2">Medidas:</p>
+            <p className="font-semibold text-xs text-freight-700 mb-2 print:text-black">MEDIDAS:</p>
             <div className="grid grid-cols-4 gap-1 text-xs font-medium">
               <div>C (cm)</div>
               <div>L (cm)</div>
@@ -172,20 +185,20 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       {order.observations && (
         <Card className="border print:border-0 print:shadow-none">
           <CardContent className="p-3 print:p-2 text-sm">
-            <p className="font-semibold text-xs">Observações:</p>
+            <p className="font-semibold text-xs text-freight-700 print:text-black">OBSERVAÇÕES:</p>
             <p className="text-xs whitespace-pre-wrap">{order.observations}</p>
           </CardContent>
         </Card>
       )}
 
       {/* Signatures */}
-      <div className="mt-4 pt-2 border-t border-gray-200 grid grid-cols-2 gap-4 text-xs print:mt-2 print:pt-1">
+      <div className="mt-8 pt-4 border-t border-gray-200 grid grid-cols-2 gap-8 text-xs print:mt-4 print:pt-2">
         <div>
-          <p className="font-semibold mb-8 print:mb-4">Expedidor:</p>
+          <p className="font-semibold text-freight-700 mb-12 print:mb-8 print:text-black">EXPEDIDOR:</p>
           <div className="border-t border-gray-500 w-full"></div>
         </div>
         <div>
-          <p className="font-semibold mb-8 print:mb-4">Motorista:</p>
+          <p className="font-semibold text-freight-700 mb-12 print:mb-8 print:text-black">MOTORISTA:</p>
           <div className="border-t border-gray-500 w-full"></div>
         </div>
       </div>
