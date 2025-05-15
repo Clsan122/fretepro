@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
 import { QuotationData } from "@/components/quotation/types";
-import { generateQuotationPdf, shareQuotationPdf } from "@/utils/pdf/quotationPdf";
+import { generateQuotationPdf, shareQuotationPdf } from "@/utils/pdf";
 import { Share2, Edit, ArrowLeft, Send } from "lucide-react";
 
 const QuotationView: React.FC = () => {
