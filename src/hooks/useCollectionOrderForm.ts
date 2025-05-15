@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -40,7 +41,7 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       // Remover o preenchimento automático dos dados do remetente com a empresa do usuário
       // para editcon, definimos apenas o ID do emissor
       if (!orderToEdit) {
-        partiesForm.setSenderType('client'); // Alterado para 'client' em vez de 'my-company'
+        partiesForm.handlers.handleSenderTypeChange('client'); // Corrigido para usar handlers.handleSenderTypeChange em vez de setSenderType
       }
     }
   }, [user, orderToEdit]);
