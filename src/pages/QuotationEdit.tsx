@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -340,7 +341,7 @@ const QuotationEdit: React.FC = () => {
             handleMeasurementChange={handleMeasurementChange}
           />
           
-          {/* Freight Composition Section */}
+          {/* Freight Composition Section - Updated to pass all required props */}
           <FreightCompositionSection 
             freightValue={freightValue}
             setFreightValue={setFreightValue}
@@ -356,6 +357,15 @@ const QuotationEdit: React.FC = () => {
             totalValue={totalValue}
             notes={notes}
             setNotes={setNotes}
+            // Adding the missing required properties
+            originCity={originCity}
+            originState={originState}
+            destinationCity={destinationCity}
+            destinationState={destinationState}
+            volumes={volumes}
+            weight={weight}
+            vehicleType={vehicleType}
+            cargoType={cargoType}
           />
           
           {/* Action Buttons */}
