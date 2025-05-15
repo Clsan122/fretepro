@@ -88,75 +88,75 @@ export const QuotationsSummary: React.FC = () => {
 
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-md border-freight-100 dark:border-freight-800">
-      <CardHeader className="bg-freight-50/50 dark:bg-freight-900/50">
+      <CardHeader className="bg-freight-50/50 dark:bg-freight-900/50 p-3 sm:p-6">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-freight-700 dark:text-freight-300 flex items-center">
-            <FileText className="mr-2 h-5 w-5" /> Cotações
+          <CardTitle className="text-freight-700 dark:text-freight-300 flex items-center text-base sm:text-lg">
+            <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> Cotações
           </CardTitle>
           <Button 
             size="sm" 
             variant="ghost" 
-            className="h-8 w-8 p-0" 
+            className="h-7 w-7 sm:h-8 sm:w-8 p-0" 
             onClick={() => navigate('/quotations')}
           >
-            <ArrowUpRight className="h-4 w-4" />
+            <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="sr-only">Ver todas</span>
           </Button>
         </div>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
           Análise das suas cotações de frete
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
-                <div className="font-medium text-green-800 dark:text-green-300 flex items-center">
-                  <CheckCircle className="mr-2 h-4 w-4" /> Fechadas
+      <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="bg-green-50 dark:bg-green-900/30 p-2 sm:p-4 rounded-lg">
+                <div className="font-medium text-green-800 dark:text-green-300 flex items-center text-xs sm:text-sm">
+                  <CheckCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Fechadas
                 </div>
-                <div className="mt-2 text-2xl font-bold text-green-800 dark:text-green-300">
+                <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">
                   {quotationStats.closed}
                 </div>
-                <div className="mt-1 text-sm text-green-700 dark:text-green-400">
+                <div className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-green-700 dark:text-green-400">
                   {formatCurrency(quotationStats.closedValue)}
                 </div>
               </div>
               
-              <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
-                <div className="font-medium text-red-800 dark:text-red-300 flex items-center">
-                  <XCircle className="mr-2 h-4 w-4" /> Abertas
+              <div className="bg-red-50 dark:bg-red-900/30 p-2 sm:p-4 rounded-lg">
+                <div className="font-medium text-red-800 dark:text-red-300 flex items-center text-xs sm:text-sm">
+                  <XCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Abertas
                 </div>
-                <div className="mt-2 text-2xl font-bold text-red-800 dark:text-red-300">
+                <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-red-800 dark:text-red-300">
                   {quotationStats.open}
                 </div>
-                <div className="mt-1 text-sm text-red-700 dark:text-red-400">
+                <div className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-red-700 dark:text-red-400">
                   {formatCurrency(quotationStats.openValue)}
                 </div>
               </div>
             </div>
             
-            <div className="bg-freight-50/50 dark:bg-freight-900/50 p-4 rounded-lg">
-              <div className="font-medium text-freight-800 dark:text-freight-300">
+            <div className="bg-freight-50/50 dark:bg-freight-900/50 p-2 sm:p-4 rounded-lg">
+              <div className="font-medium text-freight-800 dark:text-freight-300 text-xs sm:text-sm">
                 Taxa de Fechamento
               </div>
-              <div className="mt-2 text-2xl font-bold text-freight-800 dark:text-freight-300">
+              <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold text-freight-800 dark:text-freight-300">
                 {closedPercentage}%
               </div>
-              <div className="mt-1 text-sm text-freight-700 dark:text-freight-400">
+              <div className="mt-0.5 sm:mt-1 text-xs text-freight-700 dark:text-freight-400">
                 {quotationStats.closed} de {quotationStats.total} cotações
               </div>
             </div>
             
             <Button 
-              className="w-full bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900"
+              className="w-full bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 text-xs sm:text-sm py-1.5 sm:py-2"
               onClick={() => navigate("/quotations")}
             >
               Ver Todas as Cotações
             </Button>
           </div>
           
-          <div className="h-[300px] flex items-center justify-center">
+          <div className="h-[200px] sm:h-[300px] flex items-center justify-center">
             {quotationStats.total > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -164,8 +164,8 @@ export const QuotationsSummary: React.FC = () => {
                     data={statusData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
+                    innerRadius={quotationStats.total > 5 ? 50 : 30}
+                    outerRadius={quotationStats.total > 5 ? 70 : 50}
                     paddingAngle={5}
                     dataKey="value"
                     label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
@@ -181,7 +181,7 @@ export const QuotationsSummary: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-center text-muted-foreground">
+              <div className="text-center text-muted-foreground text-sm">
                 <p>Não há dados de cotações para exibir</p>
               </div>
             )}

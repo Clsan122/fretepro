@@ -63,7 +63,7 @@ const BottomNavigation = () => {
         paddingRight: 'env(safe-area-inset-right, 0)'
       }}
     >
-      <div className="grid h-16 grid-cols-6 max-w-lg mx-auto font-medium">
+      <div className="grid h-14 sm:h-16 grid-cols-6 max-w-lg mx-auto font-medium">
         {navigationItems.map((item) => (
           <button
             key={item.name}
@@ -75,12 +75,12 @@ const BottomNavigation = () => {
                 : "text-gray-500 dark:text-gray-400"
             }`}
           >
-            <item.icon className={`w-5 h-5 mb-1 ${
+            <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 mb-0.5 sm:mb-1 ${
               currentPath.startsWith(item.path)
                 ? "text-freight-600 dark:text-freight-400"
                 : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
             }`} />
-            <span className="text-[10px]">{item.name}</span>
+            <span className="text-[9px] sm:text-[10px] leading-tight">{item.name}</span>
           </button>
         ))}
       </div>

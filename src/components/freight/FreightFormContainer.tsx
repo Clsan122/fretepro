@@ -78,7 +78,7 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-1 sm:p-2">
+    <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 p-1 sm:p-2">
       <ClientSelectionSection 
         clientId={formState.clientId} 
         clients={formState.clients} 
@@ -165,32 +165,35 @@ const FreightFormContainer: React.FC<FreightFormContainerProps> = ({
             type="button"
             variant="outline"
             onClick={handleGenerateReceipt}
-            className="w-full sm:w-auto gap-2"
+            className="w-full sm:w-auto text-xs sm:text-sm gap-1 sm:gap-2 py-1.5 sm:py-2 px-2 sm:px-3"
           >
-            <FileText className="h-4 w-4" />
+            <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
             Gerar Recibo
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={handleGenerateFreightForm}
-            className="w-full sm:w-auto gap-2"
+            className="w-full sm:w-auto text-xs sm:text-sm gap-1 sm:gap-2 py-1.5 sm:py-2 px-2 sm:px-3"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-3 w-3 sm:h-4 sm:w-4" />
             Formulário PDF
           </Button>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto mt-3 sm:mt-0">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto text-xs sm:text-sm py-1.5 sm:py-2"
           >
             Cancelar
           </Button>
-          <Button type="submit" className="w-full sm:w-auto">
+          <Button 
+            type="submit" 
+            className="w-full sm:w-auto text-xs sm:text-sm py-1.5 sm:py-2"
+          >
             {freightToEdit ? "Atualizar" : "Cadastrar"}
           </Button>
         </div>

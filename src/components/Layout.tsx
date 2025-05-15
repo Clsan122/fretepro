@@ -64,6 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
+        {/* Sidebar para desktop */}
         <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
           <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
             <div className="mb-6 px-2">
@@ -91,6 +92,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </aside>
 
+        {/* Sidebar para mobile - visível apenas quando aberta */}
         {isMobile && (
           <SidebarNavigation
             isMobile={isMobile}
@@ -100,6 +102,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         )}
         
+        {/* Conteúdo principal */}
         <div className="flex flex-col min-h-screen w-full md:ml-64">
           <Header 
             toggleSidebar={toggleSidebar} 
@@ -107,11 +110,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             toggleTheme={toggleTheme}
           />
           
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-16 md:pb-0 safe-area-inset">
+          <main className="flex-1 p-3 sm:p-6 lg:p-8 pb-16 md:pb-6 overflow-x-hidden">
             {children}
           </main>
           
-          {/* Espaço vazio para garantir que o conteúdo não fique embaixo da navigation bar em dispositivos móveis */}
+          {/* Espaço para evitar que o conteúdo fique sob a barra de navegação em dispositivos móveis */}
           <div className="h-16 md:h-0"></div>
         </div>
         
