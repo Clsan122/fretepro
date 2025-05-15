@@ -15,6 +15,7 @@ export const PrintStyles: React.FC = () => {
           font-family: Arial, Helvetica, sans-serif !important;
           font-size: 11px !important;
           background-color: white !important;
+          color: black !important;
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           print-color-adjust: exact !important;
@@ -24,6 +25,8 @@ export const PrintStyles: React.FC = () => {
           max-width: 800px !important;
           margin: 0 auto !important;
           padding: 0 !important;
+          background-color: white !important;
+          color: black !important;
         }
         
         .card-compact .card-header {
@@ -83,6 +86,43 @@ export const PrintStyles: React.FC = () => {
           page-break-inside: avoid !important;
           font-family: Arial, Helvetica, sans-serif !important;
           font-size: 11px !important;
+          background-color: white !important;
+          color: black !important;
+        }
+        
+        /* Override dark mode for printing */
+        .dark {
+          background-color: white !important;
+          color: black !important;
+        }
+        
+        .dark * {
+          background-color: white !important;
+          color: black !important;
+          border-color: #ddd !important;
+        }
+        
+        .dark .bg-gray-800,
+        .dark .bg-gray-900,
+        .dark .bg-gray-700,
+        .dark .bg-slate-800,
+        .dark .bg-slate-900,
+        .dark .bg-slate-700 {
+          background-color: white !important;
+        }
+        
+        .dark .text-white,
+        .dark .text-gray-100,
+        .dark .text-gray-200 {
+          color: black !important;
+        }
+        
+        /* Cards in dark mode should be white for printing */
+        .dark .card, 
+        .dark [class*="bg-gray-"], 
+        .dark [class*="bg-slate-"] {
+          background-color: white !important;
+          color: black !important;
         }
         
         .layout-main {
@@ -108,12 +148,16 @@ export const PrintStyles: React.FC = () => {
           width: 100% !important;
           border-collapse: collapse !important;
           font-size: 10px !important;
+          background-color: white !important;
+          color: black !important;
         }
         
         table td, table th {
           border: 1px solid #ddd !important;
           padding: 2px 3px !important;
           font-size: 9px !important;
+          background-color: white !important;
+          color: black !important;
         }
         
         img {

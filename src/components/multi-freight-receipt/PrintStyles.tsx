@@ -16,6 +16,7 @@ const PrintStyles: React.FC = () => {
           print-color-adjust: exact !important;
           color-adjust: exact !important;
           background-color: white !important;
+          color: black !important; /* Ensure text is always black for printing */
         }
         
         .print-container {
@@ -78,6 +79,40 @@ const PrintStyles: React.FC = () => {
           page-break-inside: avoid !important;
         }
 
+        /* Override dark mode for printing */
+        .dark {
+          background-color: white !important;
+          color: black !important;
+        }
+        
+        .dark * {
+          background-color: white !important;
+          color: black !important;
+          border-color: #ddd !important;
+        }
+        
+        .dark .card,
+        .dark .border,
+        .dark .bg-muted,
+        .dark .bg-card {
+          background-color: white !important;
+          color: black !important; 
+        }
+
+        .dark .text-white,
+        .dark .text-foreground {
+          color: black !important;
+        }
+        
+        /* Force light backgrounds */
+        .bg-background, .bg-card, .bg-muted, .bg-popover, .bg-accent {
+          background-color: white !important;
+        }
+        
+        .text-foreground, .text-muted-foreground, .text-accent-foreground {
+          color: black !important;
+        }
+        
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
