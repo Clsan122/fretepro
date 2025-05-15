@@ -32,7 +32,7 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
             useCORS: true,
             allowTaint: true,
             backgroundColor: "#ffffff",
-            logging: false, // Disable logging
+            logging: false,
             onclone: (document, element) => {
               // Ensure all images are loaded before rendering
               element.querySelectorAll('img').forEach(img => {
@@ -55,6 +55,7 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
             subject: quotationSubject,
             author: "FreteValor",
             creator: "FreteValor",
+            compress: true
           });
           
           // Trigger download
@@ -100,6 +101,7 @@ export const previewQuotationPdf = async (quotation: QuotationData | null): Prom
       subject: `Cotação de frete de ${quotation.originCity}/${quotation.originState} para ${quotation.destinationCity}/${quotation.destinationState}`,
       author: quotation.creatorName || "FreteValor",
       creator: "FreteValor",
+      compress: true
     });
     
     // Open in new window

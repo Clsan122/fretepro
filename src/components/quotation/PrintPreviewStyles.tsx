@@ -7,40 +7,34 @@ export const PrintPreviewStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 3mm;
-          scale: 0.85;
+          margin: 10mm;
         }
         
         body {
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 6px !important;
+          font-size: 11px !important;
+          line-height: 1.2 !important;
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
-          color-adjust: exact !important;
           print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
         
         #quotation-pdf {
-          width: 210mm !important;
-          height: 297mm !important;
+          width: 100% !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 1mm !important;
-          margin: 0 auto !important;
+          padding: 0 !important;
+          margin: 0 !important;
           border: none !important;
           page-break-inside: avoid !important;
-          color: black !important;
-          background-color: white !important;
-          overflow: hidden !important;
         }
         
         .print-container {
-          max-width: 800px !important;
-          margin: 0 auto !important;
+          max-width: 100% !important;
+          margin: 0 !important;
           padding: 0 !important;
-          color: black !important;
-          background-color: white !important;
         }
         
         header, nav, footer, .sidebar, .bottom-navigation, button, 
@@ -48,53 +42,31 @@ export const PrintPreviewStyles: React.FC = () => {
           display: none !important;
         }
         
-        .print-no-shadow {
-          box-shadow: none !important;
-          border: none !important;
-        }
-        
         img {
           max-width: 100% !important;
-          display: block !important;
-          print-color-adjust: exact !important;
-          -webkit-print-color-adjust: exact !important;
-          color-adjust: exact !important;
-          page-break-inside: avoid !important;
-          max-height: 20px !important;
+          max-height: 30px !important;
         }
         
-        /* Otimização para impressão em uma única página */
-        .grid {
-          display: flex !important;
-          flex-wrap: wrap !important;
-          gap: 1px !important;
+        /* Espaçamentos reduzidos */
+        .p-8, .p-6, .p-4, .p-2 {
+          padding: 2mm !important;
         }
         
-        .text-sm {
-          font-size: 5px !important;
+        .m-8, .m-6, .m-4, .m-2,
+        .mt-8, .mt-6, .mt-4, .mt-2,
+        .mb-8, .mb-6, .mb-4, .mb-2 {
+          margin: 1mm !important;
         }
         
-        .text-xs {
-          font-size: 4px !important;
+        .mb-1, .my-1, .m-1 {
+          margin-bottom: 1mm !important;
         }
         
-        /* Espaçamentos reduzidos para melhor aproveitamento do espaço */
-        .my-4, .my-6, .mb-6, .mb-8, .mb-4, .mb-3 {
-          margin-top: 0.5px !important;
-          margin-bottom: 0.5px !important;
+        .mt-1, .my-1 {
+          margin-top: 1mm !important;
         }
         
-        .p-8, .p-6, .p-4 {
-          padding: 1px !important;
-        }
-        
-        /* Tabelas mais compactas */
-        .print-compact td, .print-compact th {
-          padding: 0 !important;
-          font-size: 5px !important;
-        }
-        
-        /* Ajuste para todas as tabelas */
+        /* Tabelas mais legíveis */
         table {
           width: 100% !important;
           table-layout: fixed !important;
@@ -102,93 +74,76 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         table td, table th {
-          padding: 0 !important;
-          font-size: 5px !important;
+          padding: 1mm 2mm !important;
+          font-size: 10px !important;
         }
         
-        .print-tight-margins {
-          margin-top: 0.5px !important;
-          margin-bottom: 0.5px !important;
+        th {
+          font-weight: bold !important;
+          background-color: #f5f5f5 !important;
         }
         
-        .card-content {
-          padding: 1px !important;
-        }
-
-        /* Esconder elementos não importantes para impressão */
-        body > *:not(.print-container) {
-          display: none !important;
+        /* Textos */
+        h1 {
+          font-size: 16px !important;
+          margin-bottom: 2mm !important;
         }
         
-        #root > div > div:not(.print-container) {
-          display: none !important;
+        h2 {
+          font-size: 14px !important;
+          margin-bottom: 1mm !important;
         }
         
-        /* Otimizações adicionais para layout de impressão */
-        .print-flex {
-          display: flex !important;
-          flex-wrap: wrap !important;
-          gap: 0.5px !important;
+        h3 {
+          font-size: 12px !important;
+          margin-bottom: 1mm !important;
         }
         
-        .print-col {
-          flex: 1 1 auto !important;
-          min-width: 45% !important;
+        p, td, th, div {
+          font-size: 10px !important;
+        }
+        
+        .text-sm {
+          font-size: 10px !important;
+        }
+        
+        .text-xs {
+          font-size: 9px !important;
+        }
+        
+        /* Bordas e fundos */
+        .border, .border-b, .border-t {
+          border-width: 0.5px !important;
+          border-color: #cccccc !important;
+        }
+        
+        .bg-freight-50 {
+          background-color: #f8f9fc !important;
+        }
+        
+        .bg-freight-100 {
+          background-color: #f1f3f9 !important;
+        }
+        
+        .bg-freight-700 {
+          background-color: #4a5568 !important;
+          color: white !important;
         }
         
         /* Evitar quebra de página dentro de seções importantes */
-        .no-break {
+        .mb-2, .mb-4, .mb-6 {
+          page-break-after: avoid !important;
+        }
+        
+        table, tr, td, th, thead, tbody {
           page-break-inside: avoid !important;
         }
         
-        /* Redução extrema de espaçamento */
-        h1, h2, h3, p {
-          margin: 0 !important;
-          padding: 0 !important;
-          line-height: 1.1 !important;
-        }
-        
-        .border-b {
-          border-bottom-width: 0.5px !important;
-        }
-        
-        /* Altura mínima para linhas de tabela */
-        tr {
-          height: auto !important;
-          min-height: 5px !important;
-        }
-        
-        /* Remover arredondamento para otimizar espaço */
-        .rounded-lg, .rounded {
-          border-radius: 0 !important;
-        }
-        
-        /* WhatsApp otimização */
-        .mb-1, .mb-2, .mb-3 {
-          margin-bottom: 0.5px !important;
-        }
-        
-        .mt-1, .mt-2, .mt-3 {
-          margin-top: 0.5px !important;
-        }
-        
-        .py-1, .py-2, .py-3 {
-          padding-top: 0 !important;
-          padding-bottom: 0 !important;
-        }
-        
-        .px-1, .px-2, .px-3 {
-          padding-left: 0.5px !important;
-          padding-right: 0.5px !important;
-        }
-        
-        /* Tamanho do papel A4 forçado */
-        @media print {
-          html, body {
-            width: 210mm !important;
-            height: 297mm !important;
-            overflow: hidden !important;
-          }
+        /* Garantir que todas as cores apareçam na impressão */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
       `}
     </style>
