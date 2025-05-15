@@ -20,11 +20,12 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     );
   }
   
-  // Prevent redirect loops by checking if we're not already on the login page
+  // Redirect to login if not authenticated
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
+  // If authenticated, render children
   return <>{children}</>;
 };
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,16 +18,12 @@ const Login = () => {
   const { toast } = useToast();
   const { login, isAuthenticated, user } = useAuth();
 
-  // Redirect if already authenticated, but with a safeguard against loops
+  // Redirect if already authenticated
   useEffect(() => {
-    if (user && isAuthenticated) {
-      // Get the redirect path from location state or default to dashboard
+    if (isAuthenticated && user) {
+      // Redirect to dashboard immediately when authenticated
       const from = location.state?.from?.pathname || "/dashboard";
-      
-      // Only redirect if we're actually on the login page (prevent loops)
-      if (location.pathname === "/login") {
-        navigate(from, { replace: true });
-      }
+      navigate(from, { replace: true });
     }
   }, [isAuthenticated, user, navigate, location]);
 
@@ -46,6 +41,7 @@ const Login = () => {
         });
         
         // Redirect will happen via the useEffect above
+        navigate('/dashboard', { replace: true });
       } else {
         throw new Error("Falha na autenticação");
       }
