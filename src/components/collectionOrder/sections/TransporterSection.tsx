@@ -9,6 +9,9 @@ import { CNPJLookupField } from "../CNPJLookupField";
 import { Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { getClientsByUserId } from "@/utils/storage";
+import { UseFormReturn } from "react-hook-form";
+import { CollectionOrderFormValues } from "../schema";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 interface TransporterSectionProps {
   sender: string;
@@ -25,6 +28,7 @@ interface TransporterSectionProps {
   handleSenderTypeChange: (type: 'my-company' | 'client') => void;
   handleSenderClientChange: (clientId: string) => void;
   onOpenClientDialog: () => void;
+  form: UseFormReturn<CollectionOrderFormValues>;
 }
 
 export const TransporterSection: React.FC<TransporterSectionProps> = ({
@@ -41,13 +45,24 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
   selectedSenderType,
   handleSenderTypeChange,
   handleSenderClientChange,
-  onOpenClientDialog
+  onOpenClientDialog,
+  form
 }) => {
   const createHighlightedLabel = (text: string) => (
     <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
       {text}
     </Label>
   );
+
+  const handleSenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSender(e.target.value);
+    form.setValue("sender", e.target.value, { shouldValidate: true });
+  };
+
+  const handleSenderAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSenderAddress(e.target.value);
+    form.setValue("senderAddress", e.target.value, { shouldValidate: true });
+  };
 
   return (
     <div className="space-y-4">
@@ -75,6 +90,9 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
           onDataFetched={data => {
             setSender(data.name);
             setSenderAddress(data.address);
+            form.setValue("sender", data.name, { shouldValidate: true });
+            form.setValue("senderAddress", data.address, { shouldValidate: true });
+            
             if (data.cnpj) {
               setSenderCnpj(data.cnpj);
             }
@@ -84,22 +102,32 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
         />
       )}
       
-      <div>
-        <Label>Nome da Transportadora</Label>
-        <div className="flex gap-2">
-          <Input 
-            value={sender} 
-            onChange={e => setSender(e.target.value)} 
-            placeholder="Digite o nome da transportadora" 
-            readOnly={selectedSenderType === 'my-company'}
-          />
-          {selectedSenderType === 'client' && (
-            <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}>
-              <Search className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
+      <FormField
+        control={form.control}
+        name="sender"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome da Transportadora</FormLabel>
+            <div className="flex gap-2">
+              <FormControl>
+                <Input
+                  {...field}
+                  value={sender}
+                  onChange={handleSenderChange}
+                  placeholder="Digite o nome da transportadora"
+                  readOnly={selectedSenderType === 'my-company'}
+                />
+              </FormControl>
+              {selectedSenderType === 'client' && (
+                <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}>
+                  <Search className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       
       <div>
         <Label>CNPJ da Transportadora</Label>
@@ -111,15 +139,25 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
         />
       </div>
       
-      <div>
-        <Label>Endereço da Transportadora</Label>
-        <Input 
-          value={senderAddress} 
-          onChange={e => setSenderAddress(e.target.value)} 
-          placeholder="Digite o endereço da transportadora"
-          readOnly={selectedSenderType === 'my-company'} 
-        />
-      </div>
+      <FormField
+        control={form.control}
+        name="senderAddress"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Endereço da Transportadora</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                value={senderAddress}
+                onChange={handleSenderAddressChange}
+                placeholder="Digite o endereço da transportadora"
+                readOnly={selectedSenderType === 'my-company'}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       
       <div className="grid grid-cols-2 gap-2">
         <div>

@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { CNPJLookupField } from "../CNPJLookupField";
+import { UseFormReturn } from "react-hook-form";
+import { CollectionOrderFormValues } from "../schema";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 interface RecipientSectionProps {
   recipient: string;
@@ -12,6 +15,7 @@ interface RecipientSectionProps {
   recipientAddress: string;
   setRecipientAddress: (value: string) => void;
   onOpenClientDialog: () => void;
+  form: UseFormReturn<CollectionOrderFormValues>;
 }
 
 export const RecipientSection: React.FC<RecipientSectionProps> = ({
@@ -19,13 +23,24 @@ export const RecipientSection: React.FC<RecipientSectionProps> = ({
   setRecipient,
   recipientAddress,
   setRecipientAddress,
-  onOpenClientDialog
+  onOpenClientDialog,
+  form
 }) => {
   const createHighlightedLabel = (text: string) => (
     <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
       {text}
     </Label>
   );
+
+  const handleRecipientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRecipient(e.target.value);
+    form.setValue("recipient", e.target.value, { shouldValidate: true });
+  };
+
+  const handleRecipientAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRecipientAddress(e.target.value);
+    form.setValue("recipientAddress", e.target.value, { shouldValidate: true });
+  };
 
   return (
     <div className="space-y-4">
@@ -35,29 +50,53 @@ export const RecipientSection: React.FC<RecipientSectionProps> = ({
         onDataFetched={data => {
           setRecipient(data.name);
           setRecipientAddress(data.address);
+          form.setValue("recipient", data.name, { shouldValidate: true });
+          form.setValue("recipientAddress", data.address, { shouldValidate: true });
         }} 
       />
-      <div>
-        <Label>Nome do Destinatário</Label>
-        <div className="flex gap-2">
-          <Input 
-            value={recipient} 
-            onChange={e => setRecipient(e.target.value)} 
-            placeholder="Digite o nome do destinatário" 
-          />
-          <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}>
-            <Search className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      <div>
-        <Label>Endereço do Destinatário</Label>
-        <Input 
-          value={recipientAddress} 
-          onChange={e => setRecipientAddress(e.target.value)} 
-          placeholder="Digite o endereço do destinatário" 
-        />
-      </div>
+      
+      <FormField
+        control={form.control}
+        name="recipient"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome do Destinatário</FormLabel>
+            <div className="flex gap-2">
+              <FormControl>
+                <Input
+                  {...field}
+                  value={recipient}
+                  onChange={handleRecipientChange}
+                  placeholder="Digite o nome do destinatário"
+                />
+              </FormControl>
+              <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}>
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
+        name="recipientAddress"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Endereço do Destinatário</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                value={recipientAddress}
+                onChange={handleRecipientAddressChange}
+                placeholder="Digite o endereço do destinatário"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 };

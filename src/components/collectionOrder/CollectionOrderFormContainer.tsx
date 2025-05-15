@@ -13,6 +13,11 @@ import { v4 as uuidv4 } from "uuid";
 import { generateOrderNumber } from "@/utils/orderNumber";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { collectionOrderSchema, CollectionOrderFormValues } from "./schema";
+import { Form } from "@/components/ui/form";
+import { toast } from "sonner";
 
 interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
@@ -34,15 +39,42 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     initialData 
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Configurar o formulário com validação
+  const form = useForm<CollectionOrderFormValues>({
+    resolver: zodResolver(collectionOrderSchema),
+    defaultValues: {
+      sender: formData.sender,
+      senderAddress: formData.senderAddress,
+      senderCnpj: formData.senderCnpj || "",
+      senderCity: formData.senderCity || "",
+      senderState: formData.senderState || "",
+      recipient: formData.recipient,
+      recipientAddress: formData.recipientAddress,
+      shipper: formData.shipper,
+      shipperAddress: formData.shipperAddress,
+      receiver: formData.receiver || "",
+      receiverAddress: formData.receiverAddress || "",
+      originCity: formData.originCity,
+      originState: formData.originState,
+      destinationCity: formData.destinationCity,
+      destinationState: formData.destinationState,
+      volumes: formData.volumes || 0,
+      weight: formData.weight || 0,
+      merchandiseValue: formData.merchandiseValue || 0,
+      invoiceNumber: formData.invoiceNumber || "",
+      observations: formData.observations || "",
+      driverId: formData.driverId || ""
+    }
+  });
 
-    if (!formData.sender || !formData.recipient || !formData.originCity || 
-        !formData.originState || !formData.destinationCity || !formData.destinationState || !user) {
+  const handleSubmit = form.handleSubmit((data) => {
+    if (!user) {
+      toast.error("Usuário não autenticado");
       return;
     }
 
-    const selectedDriver = formData.drivers.find(d => d.id === formData.driverId);
+    // Encontrar o motorista selecionado
+    const selectedDriver = formData.drivers.find(d => d.id === data.driverId);
 
     // Usar o logo do cliente selecionado se o tipo for 'client'
     const logoToUse = formData.selectedSenderType === 'client' ? formData.senderLogo : formData.companyLogo;
@@ -54,27 +86,27 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     const newOrder = {
       id: id,
       orderNumber: orderNumber,
-      sender: formData.sender,
-      senderAddress: formData.senderAddress,
-      senderCnpj: formData.senderCnpj,
-      senderCity: formData.senderCity,
-      senderState: formData.senderState,
-      recipient: formData.recipient,
-      recipientAddress: formData.recipientAddress,
-      originCity: formData.originCity,
-      originState: formData.originState,
-      destinationCity: formData.destinationCity,
-      destinationState: formData.destinationState,
-      receiver: formData.receiver,
-      receiverAddress: formData.receiverAddress,
-      volumes: formData.volumes,
-      weight: formData.weight,
+      sender: data.sender,
+      senderAddress: data.senderAddress,
+      senderCnpj: data.senderCnpj || undefined,
+      senderCity: data.senderCity || undefined,
+      senderState: data.senderState || undefined,
+      recipient: data.recipient,
+      recipientAddress: data.recipientAddress,
+      originCity: data.originCity,
+      originState: data.originState,
+      destinationCity: data.destinationCity,
+      destinationState: data.destinationState,
+      receiver: data.receiver,
+      receiverAddress: data.receiverAddress,
+      volumes: data.volumes,
+      weight: data.weight,
       measurements: formData.measurements,
       cubicMeasurement: formData.cubicMeasurement,
-      merchandiseValue: formData.merchandiseValue,
-      invoiceNumber: formData.invoiceNumber,
-      observations: formData.observations,
-      driverId: formData.driverId !== "none" ? formData.driverId : undefined,
+      merchandiseValue: data.merchandiseValue,
+      invoiceNumber: data.invoiceNumber,
+      observations: data.observations,
+      driverId: data.driverId !== "none" ? data.driverId : undefined,
       driverName: selectedDriver?.name,
       driverCpf: selectedDriver?.cpf,
       licensePlate: selectedDriver?.licensePlate,
@@ -82,14 +114,14 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
-      shipper: formData.shipper,
-      shipperAddress: formData.shipperAddress
+      shipper: data.shipper,
+      shipperAddress: data.shipperAddress
     };
 
     console.log('Salvando ordem:', newOrder);
 
     onSave(newOrder as CollectionOrder);
-  };
+  });
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -103,95 +135,102 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
-      <div className="text-center mb-4">
-        <h2 className="text-xl font-bold">
-          {orderToEdit ? `Editando Ordem de Coleta: ${orderToEdit.orderNumber}` : 'Nova Ordem de Coleta'}
-        </h2>
-      </div>
+    <Form {...form}>
+      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
+        <div className="text-center mb-4">
+          <h2 className="text-xl font-bold">
+            {orderToEdit ? `Editando Ordem de Coleta: ${orderToEdit.orderNumber}` : 'Nova Ordem de Coleta'}
+          </h2>
+        </div>
 
-      <CompanyDetailsSection
-        companyLogo={formData.companyLogo}
-        selectedIssuerId={formData.selectedIssuerId}
-        onLogoUpload={handleLogoUpload}
-        onLogoRemove={() => setters.setCompanyLogo("")}
-        onIssuerChange={setters.setSelectedIssuerId}
-      />
+        <CompanyDetailsSection
+          companyLogo={formData.companyLogo}
+          selectedIssuerId={formData.selectedIssuerId}
+          onLogoUpload={handleLogoUpload}
+          onLogoRemove={() => setters.setCompanyLogo("")}
+          onIssuerChange={setters.setSelectedIssuerId}
+        />
 
-      <SenderRecipientSection
-        sender={formData.sender}
-        senderAddress={formData.senderAddress}
-        senderCnpj={formData.senderCnpj}
-        senderCity={formData.senderCity}
-        senderState={formData.senderState}
-        recipient={formData.recipient}
-        recipientAddress={formData.recipientAddress}
-        shipper={formData.shipper}
-        shipperAddress={formData.shipperAddress}
-        receiver={formData.receiver}
-        receiverAddress={formData.receiverAddress}
-        selectedSenderId={formData.selectedSenderId}
-        selectedSenderType={formData.selectedSenderType}
-        handleSenderTypeChange={setters.handleSenderTypeChange}
-        handleSenderClientChange={setters.handleSenderClientChange}
-        clients={formData.clients}
-        setSender={setters.setSender}
-        setSenderAddress={setters.setSenderAddress}
-        setSenderCnpj={setters.setSenderCnpj}
-        setSenderCity={setters.setSenderCity}
-        setSenderState={setters.setSenderState}
-        setRecipient={setters.setRecipient}
-        setRecipientAddress={setters.setRecipientAddress}
-        setShipper={setters.setShipper}
-        setShipperAddress={setters.setShipperAddress}
-        setReceiver={setters.setReceiver}
-        setReceiverAddress={setters.setReceiverAddress}
-      />
+        <SenderRecipientSection
+          sender={formData.sender}
+          senderAddress={formData.senderAddress}
+          senderCnpj={formData.senderCnpj}
+          senderCity={formData.senderCity}
+          senderState={formData.senderState}
+          recipient={formData.recipient}
+          recipientAddress={formData.recipientAddress}
+          shipper={formData.shipper}
+          shipperAddress={formData.shipperAddress}
+          receiver={formData.receiver}
+          receiverAddress={formData.receiverAddress}
+          selectedSenderId={formData.selectedSenderId}
+          selectedSenderType={formData.selectedSenderType}
+          handleSenderTypeChange={setters.handleSenderTypeChange}
+          handleSenderClientChange={setters.handleSenderClientChange}
+          clients={formData.clients}
+          setSender={setters.setSender}
+          setSenderAddress={setters.setSenderAddress}
+          setSenderCnpj={setters.setSenderCnpj}
+          setSenderCity={setters.setSenderCity}
+          setSenderState={setters.setSenderState}
+          setRecipient={setters.setRecipient}
+          setRecipientAddress={setters.setRecipientAddress}
+          setShipper={setters.setShipper}
+          setShipperAddress={setters.setShipperAddress}
+          setReceiver={setters.setReceiver}
+          setReceiverAddress={setters.setReceiverAddress}
+          form={form}
+        />
 
-      <LocationDetailsSection
-        originCity={formData.originCity}
-        originState={formData.originState}
-        destinationCity={formData.destinationCity}
-        destinationState={formData.destinationState}
-        onOriginCityChange={setters.setOriginCity}
-        onOriginStateChange={setters.setOriginState}
-        onDestinationCityChange={setters.setDestinationCity}
-        onDestinationStateChange={setters.setDestinationState}
-      />
+        <LocationDetailsSection
+          originCity={formData.originCity}
+          originState={formData.originState}
+          destinationCity={formData.destinationCity}
+          destinationState={formData.destinationState}
+          onOriginCityChange={setters.setOriginCity}
+          onOriginStateChange={setters.setOriginState}
+          onDestinationCityChange={setters.setDestinationCity}
+          onDestinationStateChange={setters.setDestinationState}
+          form={form}
+        />
 
-      <CargoDetailsSection
-        volumes={formData.volumes}
-        weight={formData.weight}
-        merchandiseValue={formData.merchandiseValue}
-        cubicMeasurement={formData.cubicMeasurement}
-        measurements={formData.measurements}
-        onVolumesChange={setters.setVolumes}
-        onWeightChange={setters.setWeight}
-        onMerchandiseValueChange={setters.setMerchandiseValue}
-        onMeasurementChange={setters.handleMeasurementChange}
-        onAddMeasurement={setters.handleAddMeasurement}
-        onRemoveMeasurement={setters.handleRemoveMeasurement}
-      />
+        <CargoDetailsSection
+          volumes={formData.volumes}
+          weight={formData.weight}
+          merchandiseValue={formData.merchandiseValue}
+          cubicMeasurement={formData.cubicMeasurement}
+          measurements={formData.measurements}
+          onVolumesChange={setters.setVolumes}
+          onWeightChange={setters.setWeight}
+          onMerchandiseValueChange={setters.setMerchandiseValue}
+          onMeasurementChange={setters.handleMeasurementChange}
+          onAddMeasurement={setters.handleAddMeasurement}
+          onRemoveMeasurement={setters.handleRemoveMeasurement}
+          form={form}
+        />
 
-      <InvoiceNotesSection
-        invoiceNumber={formData.invoiceNumber}
-        setInvoiceNumber={setters.setInvoiceNumber}
-        observations={formData.observations}
-        setObservations={setters.setObservations}
-      />
+        <InvoiceNotesSection
+          invoiceNumber={formData.invoiceNumber}
+          setInvoiceNumber={setters.setInvoiceNumber}
+          observations={formData.observations}
+          setObservations={setters.setObservations}
+          form={form}
+        />
 
-      <DriverSection
-        driverId={formData.driverId}
-        drivers={formData.drivers}
-        setDriverId={setters.setDriverId}
-      />
+        <DriverSection
+          driverId={formData.driverId}
+          drivers={formData.drivers}
+          setDriverId={setters.setDriverId}
+          form={form}
+        />
 
-      <FormActions
-        onCancel={onCancel}
-        isEditing={Boolean(orderToEdit)}
-        submitLabel={orderToEdit ? "Atualizar Ordem" : "Cadastrar Ordem"}
-      />
-    </form>
+        <FormActions
+          onCancel={onCancel}
+          isEditing={Boolean(orderToEdit)}
+          submitLabel={orderToEdit ? "Atualizar Ordem" : "Cadastrar Ordem"}
+        />
+      </form>
+    </Form>
   );
 };
 
