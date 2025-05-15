@@ -60,8 +60,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    // Não verifica mais automaticamente por uma sessão existente
-    // Isso fará com que o login só aconteça quando o botão for clicado
+    // Verificar se existe uma sessão salva apenas se o usuário optou por "permanecer logado"
+    if (localStorage.getItem("keepLoggedIn") === "true") {
+      // Verificar se existe uma sessão salva
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session && isMounted) {
+          setSession(session);
+          await updateUserState(session.user);
+        }
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
 
     return () => {
       isMounted = false;
@@ -69,7 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, keepLoggedIn: boolean = false) => {
     try {
       setError(null);
       setLoading(true);
@@ -83,6 +94,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
         return false;
       }
+      
+      // Salvar a preferência de "permanecer logado"
+      localStorage.setItem("keepLoggedIn", keepLoggedIn ? "true" : "false");
       
       console.log("Login successful, session established");
       return true;
@@ -128,6 +142,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("Logging out user");
       setLoading(true);
       await supabase.auth.signOut();
+      
+      // Limpar a preferência de "permanecer logado"
+      localStorage.removeItem("keepLoggedIn");
       
       // Explicitly clear user and session states
       setUser(null);

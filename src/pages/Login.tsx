@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,19 +8,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AtSign, Lock, Eye, EyeOff, Truck, Package, FileText, Route } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/auth";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { login, loading } = useAuth();
+  const { login, loading, isAuthenticated } = useAuth();
+
+  // Redirecionar se já estiver autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação básica de e-mail
+    if (!validateEmail(email)) {
+      toast({
+        title: "E-mail inválido",
+        description: "Por favor, insira um e-mail válido",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Evitar múltiplos cliques
     if (isLoggingIn) return;
@@ -29,7 +48,7 @@ const Login = () => {
 
     try {
       console.log("Login component: Attempting login with", email);
-      const success = await login(email, password);
+      const success = await login(email, password, keepLoggedIn);
 
       if (success) {
         console.log("Login component: Login successful");
@@ -39,8 +58,7 @@ const Login = () => {
         });
         
         // Redirecionar após login bem-sucedido
-        const from = location.state?.from || "/dashboard";
-        navigate(from, { replace: true });
+        navigate("/dashboard", { replace: true });
       } else {
         throw new Error("Falha na autenticação");
       }
@@ -54,6 +72,11 @@ const Login = () => {
     } finally {
       setIsLoggingIn(false);
     }
+  };
+
+  // Função para validar o formato do e-mail
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   return (
@@ -183,6 +206,20 @@ const Login = () => {
                       )}
                     </button>
                   </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="keep-logged-in" 
+                    checked={keepLoggedIn}
+                    onCheckedChange={(checked) => setKeepLoggedIn(checked === true)}
+                  />
+                  <Label 
+                    htmlFor="keep-logged-in" 
+                    className="text-sm text-freight-700 dark:text-freight-300 cursor-pointer"
+                  >
+                    Permanecer logado
+                  </Label>
                 </div>
                 
                 <Button 
