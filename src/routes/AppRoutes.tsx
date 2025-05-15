@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "@/components/auth/PrivateRoute";
@@ -68,6 +67,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/quotations/new" element={<PrivateRoute><QuotationForm /></PrivateRoute>} />
       <Route path="/quotation/edit/:id" element={<PrivateRoute><QuotationEdit /></PrivateRoute>} />
       <Route path="/quotation/view/:id" element={<PrivateRoute><QuotationView /></PrivateRoute>} />
+      {/* Keep these redirects for backward compatibility */}
       <Route path="/quotations/edit/:id" element={<PrivateRoute><Navigate to={"/quotation/edit/:id"} replace /></PrivateRoute>} />
       <Route path="/quotations/view/:id" element={<PrivateRoute><Navigate to={"/quotation/view/:id"} replace /></PrivateRoute>} />
 

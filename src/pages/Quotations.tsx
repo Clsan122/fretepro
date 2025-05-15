@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -26,8 +25,11 @@ const Quotations: React.FC = () => {
       try {
         // Load quotations from localStorage
         const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
+        console.log("All stored quotations:", storedQuotations);
+        
         // Filter quotations for current user
         const userQuotations = storedQuotations.filter((quotation: any) => quotation.userId === user.id);
+        console.log("User quotations:", userQuotations);
 
         // Ensure all quotations have a valid status property and order number
         const updatedQuotations = userQuotations.map((quotation: any) => {
@@ -152,11 +154,11 @@ const Quotations: React.FC = () => {
   };
   
   const handleViewQuotation = (quotationId: string) => {
-    navigate(`/quotations/view/${quotationId}`);
+    navigate(`/quotation/view/${quotationId}`);
   };
   
   const handleEditQuotation = (quotationId: string) => {
-    navigate(`/quotations/edit/${quotationId}`);
+    navigate(`/quotation/edit/${quotationId}`);
   };
   
   return (

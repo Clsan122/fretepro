@@ -26,10 +26,15 @@ const QuotationView: React.FC = () => {
       try {
         // Load quotations from localStorage
         const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
-        // Find the quotation with the given id
+        console.log("All quotations:", storedQuotations);
+        
+        // Find the quotation with the given id - don't filter by user ID here
         const foundQuotation = storedQuotations.find(
           (q: any) => q.id === id
         );
+        
+        console.log("Looking for quotation with ID:", id);
+        console.log("Found quotation:", foundQuotation);
         
         if (foundQuotation) {
           setQuotation(foundQuotation);

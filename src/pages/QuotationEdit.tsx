@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -82,11 +81,16 @@ const QuotationEdit: React.FC = () => {
   }, [user]);
   
   useEffect(() => {
-    if (id && user) {
+    if (id) {
       setLoadingQuotation(true);
       try {
         const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
-        const quotationToEdit = storedQuotations.find((q: any) => q.id === id && q.userId === user.id);
+        console.log("All quotations:", storedQuotations);
+        console.log("Looking for quotation with ID:", id);
+        
+        // Find the quotation without filtering by user ID
+        const quotationToEdit = storedQuotations.find((q: any) => q.id === id);
+        console.log("Found quotation:", quotationToEdit);
         
         if (quotationToEdit) {
           // Preencher o formulário com os dados da cotação
@@ -134,7 +138,7 @@ const QuotationEdit: React.FC = () => {
         setLoadingQuotation(false);
       }
     }
-  }, [id, user, navigate, toast]);
+  }, [id, navigate, toast, user]);
   
   const handleMeasurementChange = (id: string, field: keyof QuotationMeasurement, value: number) => {
     setMeasurements(
@@ -187,7 +191,7 @@ const QuotationEdit: React.FC = () => {
   };
   
   const handleSave = async () => {
-    if (!user || !id) return;
+    if (!id) return;
     
     if (!originCity || !originState || !destinationCity || !destinationState) {
       toast({
@@ -229,11 +233,11 @@ const QuotationEdit: React.FC = () => {
         totalValue,
         notes,
         createdAt,
-        userId: user.id,
+        userId: user?.id || "",
         status
       };
       
-      // Find and update the quotation
+      // Find and update the quotation, without filtering by userId
       const updatedQuotations = existingQuotations.map((q: any) => 
         q.id === id ? updatedQuotation : q
       );
@@ -246,7 +250,7 @@ const QuotationEdit: React.FC = () => {
         description: "Cotação atualizada com sucesso"
       });
       
-      // Navigate to quotation list instead of view page
+      // Navigate to quotation list
       navigate("/quotations");
     } catch (error) {
       console.error("Error updating quotation:", error);
