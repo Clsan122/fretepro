@@ -14,12 +14,17 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
           return;
         }
         
-        // Generate canvas with optimized settings
+        // Temporary apply WhatsApp optimization styles
+        const originalStyle = element.getAttribute("style") || "";
+        element.setAttribute("style", `${originalStyle}; transform: scale(0.95); max-width: 100%; width: 210mm; padding: 1mm;`);
+        
+        // Generate canvas with optimized settings for WhatsApp sharing
         const canvas = await html2canvas(element, {
-          scale: 2,
+          scale: 2, // Higher DPI for better quality
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#ffffff",
+          logging: false,
           onclone: (document, element) => {
             // Ensure all images are loaded before rendering
             element.querySelectorAll('img').forEach(img => {
@@ -32,15 +37,20 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
           }
         });
         
+        // Restore original styles
+        element.setAttribute("style", originalStyle);
+        
         // Get quotation metadata
         const { title: quotationTitle, subject: quotationSubject } = getQuotationMetadata(id);
         
-        // Generate PDF with optimized settings
+        // Generate PDF with optimized settings for WhatsApp
         const pdf = generatePdfFromCanvas(canvas, {
           title: quotationTitle,
           subject: quotationSubject,
           author: "FreteValor",
           creator: "FreteValor",
+          // Make WhatsApp-friendly PDF (smaller file size)
+          compress: true
         });
         
         // Return the PDF as a blob

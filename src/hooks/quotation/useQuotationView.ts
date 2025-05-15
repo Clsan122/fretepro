@@ -58,15 +58,18 @@ export const useQuotationView = (id: string | undefined) => {
     
     setSharing(true);
     toast({
-      title: "Preparando para compartilhar",
-      description: "Aguarde enquanto preparamos o documento..."
+      title: "Preparando PDF para WhatsApp",
+      description: "Aguarde enquanto otimizamos o documento..."
     });
     
     try {
       const pdfBlob = await shareQuotationPdf(id);
       
-      // Tentar usar a Web Share API para compartilhar o arquivo
-      const file = new File([pdfBlob], `cotacao-frete-${id}.pdf`, { type: 'application/pdf' });
+      // Verificar se o dispositivo tem WhatsApp instalado
+      const file = new File([pdfBlob], `cotacao-frete-${id}.pdf`, { 
+        type: 'application/pdf',
+        lastModified: new Date().getTime()
+      });
       
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
@@ -92,7 +95,7 @@ export const useQuotationView = (id: string | undefined) => {
         
         toast({
           title: "Download concluído",
-          description: "O PDF foi baixado pois o compartilhamento não é suportado"
+          description: "O PDF foi baixado pois o compartilhamento direto não é suportado"
         });
       }
     } catch (error) {

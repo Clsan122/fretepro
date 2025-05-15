@@ -7,13 +7,13 @@ export const PrintPreviewStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 5mm;
-          scale: 0.90;
+          margin: 3mm;
+          scale: 0.85;
         }
         
         body {
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 8px !important;
+          font-size: 6px !important;
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
@@ -23,14 +23,16 @@ export const PrintPreviewStyles: React.FC = () => {
         
         #quotation-pdf {
           width: 210mm !important;
+          height: 297mm !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 2mm !important;
+          padding: 1mm !important;
           margin: 0 auto !important;
           border: none !important;
           page-break-inside: avoid !important;
           color: black !important;
           background-color: white !important;
+          overflow: hidden !important;
         }
         
         .print-container {
@@ -58,38 +60,38 @@ export const PrintPreviewStyles: React.FC = () => {
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           page-break-inside: avoid !important;
-          max-height: 30px !important;
+          max-height: 20px !important;
         }
         
         /* Otimização para impressão em uma única página */
         .grid {
           display: flex !important;
           flex-wrap: wrap !important;
-          gap: 2px !important;
+          gap: 1px !important;
         }
         
         .text-sm {
-          font-size: 7px !important;
+          font-size: 5px !important;
         }
         
         .text-xs {
-          font-size: 6px !important;
+          font-size: 4px !important;
         }
         
         /* Espaçamentos reduzidos para melhor aproveitamento do espaço */
         .my-4, .my-6, .mb-6, .mb-8, .mb-4, .mb-3 {
-          margin-top: 1px !important;
-          margin-bottom: 1px !important;
+          margin-top: 0.5px !important;
+          margin-bottom: 0.5px !important;
         }
         
         .p-8, .p-6, .p-4 {
-          padding: 3px !important;
+          padding: 1px !important;
         }
         
         /* Tabelas mais compactas */
         .print-compact td, .print-compact th {
-          padding: 0px 1px !important;
-          font-size: 7px !important;
+          padding: 0 !important;
+          font-size: 5px !important;
         }
         
         /* Ajuste para todas as tabelas */
@@ -100,17 +102,17 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         table td, table th {
-          padding: 0px 1px !important;
-          font-size: 7px !important;
+          padding: 0 !important;
+          font-size: 5px !important;
         }
         
         .print-tight-margins {
-          margin-top: 1px !important;
-          margin-bottom: 1px !important;
+          margin-top: 0.5px !important;
+          margin-bottom: 0.5px !important;
         }
         
         .card-content {
-          padding: 2px !important;
+          padding: 1px !important;
         }
 
         /* Esconder elementos não importantes para impressão */
@@ -126,7 +128,7 @@ export const PrintPreviewStyles: React.FC = () => {
         .print-flex {
           display: flex !important;
           flex-wrap: wrap !important;
-          gap: 1px !important;
+          gap: 0.5px !important;
         }
         
         .print-col {
@@ -143,22 +145,41 @@ export const PrintPreviewStyles: React.FC = () => {
         h1, h2, h3, p {
           margin: 0 !important;
           padding: 0 !important;
-          line-height: 1.2 !important;
+          line-height: 1.1 !important;
         }
         
         .border-b {
-          border-bottom-width: 1px !important;
+          border-bottom-width: 0.5px !important;
         }
         
         /* Altura mínima para linhas de tabela */
         tr {
           height: auto !important;
-          min-height: 8px !important;
+          min-height: 5px !important;
         }
         
         /* Remover arredondamento para otimizar espaço */
         .rounded-lg, .rounded {
           border-radius: 0 !important;
+        }
+        
+        /* WhatsApp otimização */
+        .mb-1, .mb-2, .mb-3 {
+          margin-bottom: 0.5px !important;
+        }
+        
+        .mt-1, .mt-2, .mt-3 {
+          margin-top: 0.5px !important;
+        }
+        
+        .py-1, .py-2, .py-3 {
+          padding-top: 0 !important;
+          padding-bottom: 0 !important;
+        }
+        
+        .px-1, .px-2, .px-3 {
+          padding-left: 0.5px !important;
+          padding-right: 0.5px !important;
         }
         
         /* Tamanho do papel A4 forçado */
