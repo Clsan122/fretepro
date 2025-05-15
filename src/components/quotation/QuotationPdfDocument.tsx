@@ -80,34 +80,6 @@ export const QuotationPdfDocument: React.FC<QuotationPdfDocumentProps> = ({ quot
             </tbody>
           </table>
         </div>
-
-        {quotation.measurements && quotation.measurements.length > 0 && (
-          <div className="mt-1">
-            <h3 className="text-xs font-medium mb-0.5 text-freight-700">Dimensões:</h3>
-            <div className="overflow-auto">
-              <table className="w-full text-xs border-collapse">
-                <thead>
-                  <tr className="bg-freight-100">
-                    <th className="py-0.5 px-1 text-left" style={{ width: "25%" }}>Comp. (cm)</th>
-                    <th className="py-0.5 px-1 text-left" style={{ width: "25%" }}>Larg. (cm)</th>
-                    <th className="py-0.5 px-1 text-left" style={{ width: "25%" }}>Alt. (cm)</th>
-                    <th className="py-0.5 px-1 text-left" style={{ width: "25%" }}>Qtd</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {quotation.measurements.map((m, idx) => (
-                    <tr key={m.id || idx} className={idx % 2 === 0 ? "bg-white" : "bg-freight-50"}>
-                      <td className="py-0.5 px-1">{m.length}</td>
-                      <td className="py-0.5 px-1">{m.width}</td>
-                      <td className="py-0.5 px-1">{m.height}</td>
-                      <td className="py-0.5 px-1">{m.quantity}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </div>
       
       {/* Composição do Frete */}
