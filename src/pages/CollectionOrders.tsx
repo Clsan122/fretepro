@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { getCollectionOrdersByUserId } from "@/utils/storage";
+import { getCollectionOrdersByUserId, deleteCollectionOrder } from "@/utils/storage";
 import { CollectionOrder } from "@/types";
 import { Button } from "@/components/ui/button";
 import { 
@@ -20,13 +20,27 @@ import {
   Pencil, 
   Download, 
   Truck, 
-  FileText 
+  FileText,
+  Trash2,
+  AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const CollectionOrders: React.FC = () => {
   const [orders, setOrders] = useState<CollectionOrder[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -55,6 +69,20 @@ const CollectionOrders: React.FC = () => {
 
   const handleEdit = (orderId: string) => {
     navigate(`/collection-order/edit/${orderId}`);
+  };
+
+  const handleDelete = async (orderId: string) => {
+    try {
+      setDeletingOrderId(orderId);
+      await deleteCollectionOrder(orderId);
+      setOrders(orders.filter(order => order.id !== orderId));
+      toast.success("Ordem de coleta excluída com sucesso");
+    } catch (error) {
+      console.error("Erro ao excluir ordem de coleta:", error);
+      toast.error("Erro ao excluir ordem de coleta");
+    } finally {
+      setDeletingOrderId(null);
+    }
   };
 
   const handleGenerateFreight = (orderId: string) => {
@@ -132,6 +160,39 @@ const CollectionOrders: React.FC = () => {
                         >
                           <Truck className="h-4 w-4" />
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              title="Excluir"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="flex items-center gap-2">
+                                <AlertTriangle className="h-5 w-5 text-destructive" />
+                                Excluir Ordem de Coleta
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir esta ordem de coleta? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDelete(order.id)} 
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                disabled={deletingOrderId === order.id}
+                              >
+                                {deletingOrderId === order.id ? 'Excluindo...' : 'Excluir'}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

@@ -86,12 +86,22 @@ const CollectionOrderView: React.FC = () => {
 
   const handleDelete = async () => {
     if (id) {
-      await deleteCollectionOrder(id);
-      toast({
-        title: "Ordem de coleta excluída",
-        description: "A ordem de coleta foi excluída com sucesso!"
-      });
-      navigate("/collection-orders");
+      try {
+        await deleteCollectionOrder(id);
+        toast({
+          title: "Ordem de coleta excluída",
+          description: "A ordem de coleta foi excluída com sucesso!"
+        });
+        navigate("/collection-orders");
+      } catch (error) {
+        console.error("Erro ao excluir ordem de coleta:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir a ordem de coleta",
+          variant: "destructive"
+        });
+        throw error; // Propagar o erro para que o botão possa ser reativado
+      }
     }
   };
 

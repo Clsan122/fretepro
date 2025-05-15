@@ -23,7 +23,7 @@ import {
 
 interface ActionButtonsProps {
   id?: string;
-  onDelete: () => void;
+  onDelete: () => Promise<void>;
   onShare: () => void;
   onDownload?: () => void;
   onPrint?: () => void;
@@ -39,6 +39,18 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onGenerateFreight,
 }) => {
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDelete();
+      // Navegação vai ser feita pelo componente pai após confirmação da exclusão
+    } catch (error) {
+      console.error("Erro ao excluir ordem de coleta:", error);
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="flex flex-wrap items-center justify-between mb-4 print:hidden">
@@ -103,8 +115,9 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             <Button
               variant="destructive"
               size="sm"
+              disabled={isDeleting}
             >
-              <Trash2 className="h-4 w-4 mr-1" /> Excluir
+              <Trash2 className="h-4 w-4 mr-1" /> {isDeleting ? 'Excluindo...' : 'Excluir'}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -116,8 +129,8 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={onDelete}>
-                Excluir
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? 'Excluindo...' : 'Excluir'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
