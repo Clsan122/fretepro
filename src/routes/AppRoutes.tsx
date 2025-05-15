@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "@/components/auth/PrivateRoute";
@@ -34,8 +35,8 @@ import QuotationEdit from "@/pages/QuotationEdit";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public Routes - Redirecionar raiz para login se não estiver autenticado */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      {/* Public Routes - Redirecionar raiz para login */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
