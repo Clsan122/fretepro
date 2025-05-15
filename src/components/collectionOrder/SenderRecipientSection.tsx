@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CNPJLookupField } from "./CNPJLookupField";
@@ -11,6 +10,7 @@ import { ClientListDialog } from "@/components/client/ClientListDialog";
 import { useAuth } from "@/context/AuthContext";
 import { getClientsByUserId } from "@/utils/storage";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
 
 interface SenderRecipientSectionProps {
   sender: string;
@@ -144,11 +144,12 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   return (
     <Card>
       <CardHeader className="p-4 sm:p-6">
-        <CardTitle>Informações de Remetente e Destinatário</CardTitle>
+        <CardTitle>Informações de Transportadora, Remetente e Destinatário</CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 grid gap-6">
+        {/* SEÇÃO DE TRANSPORTADORA */}
         <div className="space-y-4">
-          {createHighlightedLabel("TRANSPORTADORA / REMETENTE")}
+          {createHighlightedLabel("TRANSPORTADORA")}
           
           {/* Opção de escolha entre transportadora ou cliente */}
           <RadioGroup 
@@ -168,7 +169,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           
           {selectedSenderType === 'client' && (
             <CNPJLookupField 
-              label="CNPJ do Remetente" 
+              label="CNPJ da Transportadora" 
               onDataFetched={data => {
                 setSender(data.name);
                 setSenderAddress(data.address);
@@ -182,16 +183,22 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           )}
           
           <div>
-            <Label>Nome do {selectedSenderType === 'my-company' ? 'Transportadora' : 'Remetente'}</Label>
+            <Label>Nome da Transportadora</Label>
             <div className="flex gap-2">
               <Input 
                 value={sender} 
                 onChange={e => setSender(e.target.value)} 
-                placeholder={`Digite o nome ${selectedSenderType === 'my-company' ? 'da transportadora' : 'do remetente'}`} 
+                placeholder="Digite o nome da transportadora" 
                 readOnly={selectedSenderType === 'my-company'}
               />
               {selectedSenderType === 'client' && (
-                <Button type="button" variant="outline" size="icon" onClick={handleOpenSenderDialog}>
+                <Button type="button" variant="outline" size="icon" onClick={() => {
+                  if (user) {
+                    const userClients = getClientsByUserId(user.id);
+                    setClientsList(userClients);
+                  }
+                  setSenderDialogOpen(true);
+                }}>
                   <Search className="h-4 w-4" />
                 </Button>
               )}
@@ -199,21 +206,21 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           </div>
           
           <div>
-            <Label>CNPJ {selectedSenderType === 'my-company' ? 'da Transportadora' : 'do Remetente'}</Label>
+            <Label>CNPJ da Transportadora</Label>
             <Input 
               value={senderCnpj} 
               onChange={e => setSenderCnpj(e.target.value)} 
-              placeholder={`Digite o CNPJ ${selectedSenderType === 'my-company' ? 'da transportadora' : 'do remetente'}`} 
+              placeholder="Digite o CNPJ da transportadora" 
               readOnly={selectedSenderType === 'my-company'}
             />
           </div>
           
           <div>
-            <Label>Endereço {selectedSenderType === 'my-company' ? 'da Transportadora' : 'do Remetente'}</Label>
+            <Label>Endereço da Transportadora</Label>
             <Input 
               value={senderAddress} 
               onChange={e => setSenderAddress(e.target.value)} 
-              placeholder={`Digite o endereço ${selectedSenderType === 'my-company' ? 'da transportadora' : 'do remetente'}`}
+              placeholder="Digite o endereço da transportadora"
               readOnly={selectedSenderType === 'my-company'} 
             />
           </div>
@@ -240,6 +247,48 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           </div>
         </div>
 
+        <Separator className="my-2" />
+
+        {/* SEÇÃO DE REMETENTE */}
+        <div className="space-y-4">
+          {createHighlightedLabel("REMETENTE")}
+          <CNPJLookupField 
+            label="CNPJ do Remetente" 
+            onDataFetched={data => {
+              setShipper(data.name);
+              setShipperAddress(data.address);
+            }} 
+          />
+          <div>
+            <Label>Nome do Remetente</Label>
+            <div className="flex gap-2">
+              <Input 
+                value={shipper} 
+                onChange={e => setShipper(e.target.value)} 
+                placeholder="Digite o nome do remetente" 
+              />
+              <Button type="button" variant="outline" size="icon" onClick={() => {
+                if (user) {
+                  const userClients = getClientsByUserId(user.id);
+                  setClientsList(userClients);
+                }
+                setShipperDialogOpen(true);
+              }}>
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div>
+            <Label>Endereço do Remetente</Label>
+            <Input 
+              value={shipperAddress} 
+              onChange={e => setShipperAddress(e.target.value)} 
+              placeholder="Digite o endereço do remetente" 
+            />
+          </div>
+        </div>
+
+        {/* SEÇÃO DE DESTINATÁRIO */}
         <div className="space-y-4">
           {createHighlightedLabel("DESTINATÁRIO")}
           <CNPJLookupField 
@@ -257,7 +306,13 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
                 onChange={e => setRecipient(e.target.value)} 
                 placeholder="Digite o nome do destinatário" 
               />
-              <Button type="button" variant="outline" size="icon" onClick={handleOpenRecipientDialog}>
+              <Button type="button" variant="outline" size="icon" onClick={() => {
+                if (user) {
+                  const userClients = getClientsByUserId(user.id);
+                  setClientsList(userClients);
+                }
+                setRecipientDialogOpen(true);
+              }}>
                 <Search className="h-4 w-4" />
               </Button>
             </div>
@@ -272,38 +327,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           </div>
         </div>
 
-        <div className="space-y-4">
-          {createHighlightedLabel("EXPEDIDOR")}
-          <CNPJLookupField 
-            label="CNPJ do Expedidor" 
-            onDataFetched={data => {
-              setShipper(data.name);
-              setShipperAddress(data.address);
-            }} 
-          />
-          <div>
-            <Label>Nome do Expedidor</Label>
-            <div className="flex gap-2">
-              <Input 
-                value={shipper} 
-                onChange={e => setShipper(e.target.value)} 
-                placeholder="Digite o nome do expedidor" 
-              />
-              <Button type="button" variant="outline" size="icon" onClick={handleOpenShipperDialog}>
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div>
-            <Label>Endereço do Expedidor</Label>
-            <Input 
-              value={shipperAddress} 
-              onChange={e => setShipperAddress(e.target.value)} 
-              placeholder="Digite o endereço do expedidor" 
-            />
-          </div>
-        </div>
-
+        {/* SEÇÃO DE RECEBEDOR */}
         <div className="space-y-4">
           {createHighlightedLabel("RECEBEDOR")}
           <CNPJLookupField 
@@ -321,7 +345,13 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
                 onChange={e => setReceiver(e.target.value)} 
                 placeholder="Digite o nome do recebedor" 
               />
-              <Button type="button" variant="outline" size="icon" onClick={handleOpenReceiverDialog}>
+              <Button type="button" variant="outline" size="icon" onClick={() => {
+                if (user) {
+                  const userClients = getClientsByUserId(user.id);
+                  setClientsList(userClients);
+                }
+                setReceiverDialogOpen(true);
+              }}>
                 <Search className="h-4 w-4" />
               </Button>
             </div>
@@ -336,13 +366,36 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           </div>
         </div>
 
-        <ClientListDialog clients={clientsList} isOpen={senderDialogOpen} onClose={() => setSenderDialogOpen(false)} onSelectClient={handleSelectSender} />
+        {/* Diálogos de seleção de cliente */}
+        <ClientListDialog clients={clientsList} isOpen={senderDialogOpen} onClose={() => setSenderDialogOpen(false)} onSelectClient={(client) => {
+          setSender(client.name);
+          setSenderAddress(client.address || '');
+          setSenderCnpj(client.cnpj || '');
+          setSenderCity(client.city || '');
+          setSenderState(client.state || '');
+          setSenderDialogOpen(false);
+          if (handleSenderClientChange) {
+            handleSenderClientChange(client.id);
+          }
+        }} />
         
-        <ClientListDialog clients={clientsList} isOpen={recipientDialogOpen} onClose={() => setRecipientDialogOpen(false)} onSelectClient={handleSelectRecipient} />
+        <ClientListDialog clients={clientsList} isOpen={recipientDialogOpen} onClose={() => setRecipientDialogOpen(false)} onSelectClient={(client) => {
+          setRecipient(client.name);
+          setRecipientAddress(client.address || '');
+          setRecipientDialogOpen(false);
+        }} />
         
-        <ClientListDialog clients={clientsList} isOpen={shipperDialogOpen} onClose={() => setShipperDialogOpen(false)} onSelectClient={handleSelectShipper} />
+        <ClientListDialog clients={clientsList} isOpen={shipperDialogOpen} onClose={() => setShipperDialogOpen(false)} onSelectClient={(client) => {
+          setShipper(client.name);
+          setShipperAddress(client.address || '');
+          setShipperDialogOpen(false);
+        }} />
         
-        <ClientListDialog clients={clientsList} isOpen={receiverDialogOpen} onClose={() => setReceiverDialogOpen(false)} onSelectClient={handleSelectReceiver} />
+        <ClientListDialog clients={clientsList} isOpen={receiverDialogOpen} onClose={() => setReceiverDialogOpen(false)} onSelectClient={(client) => {
+          setReceiver(client.name);
+          setReceiverAddress(client.address || '');
+          setReceiverDialogOpen(false);
+        }} />
       </CardContent>
     </Card>
   );

@@ -30,16 +30,19 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
         </div>
       </div>
 
-      {/* Dados da empresa transportadora */}
+      {/* Dados da Transportadora - Seção Separada */}
       {order.sender && (
         <Card className="border print:border-0 print:shadow-none">
-          <CardContent className="p-3 print:p-2 text-center text-sm">
-            <p className="font-semibold">{order.sender}</p>
-            {order.senderCnpj && <p className="text-xs">CNPJ: {order.senderCnpj}</p>}
-            {order.senderAddress && <p className="text-xs mt-1">{order.senderAddress}</p>}
-            {(order.senderCity && order.senderState) && (
-              <p className="text-xs">{order.senderCity} - {order.senderState}</p>
-            )}
+          <CardContent className="p-3 print:p-2">
+            <h3 className="font-semibold text-sm text-freight-700 print:text-black mb-2">DADOS DA TRANSPORTADORA:</h3>
+            <div className="text-center text-sm">
+              <p className="font-semibold">{order.sender}</p>
+              {order.senderCnpj && <p className="text-xs">CNPJ: {order.senderCnpj}</p>}
+              {order.senderAddress && <p className="text-xs mt-1">{order.senderAddress}</p>}
+              {(order.senderCity && order.senderState) && (
+                <p className="text-xs">{order.senderCity} - {order.senderState}</p>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -49,11 +52,9 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
         <CardContent className="p-3 print:p-2 grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2 text-sm">
           <div className="space-y-1 border-b md:border-b-0 md:border-r pb-3 md:pb-0 md:pr-3 print:pb-0 print:pr-3 print:border-r print:border-b-0">
             <p className="font-semibold text-xs text-freight-700 print:text-black">REMETENTE:</p>
-            <p className="text-xs">{order.sender}</p>
-            {order.senderAddress && <p className="text-xs">{order.senderAddress}</p>}
-            {(order.senderCity && order.senderState) && (
-              <p className="text-xs">{order.senderCity} - {order.senderState}</p>
-            )}
+            <p className="text-xs">{order.shipper || order.sender}</p>
+            {order.shipperAddress && <p className="text-xs">{order.shipperAddress}</p>}
+            {(!order.shipperAddress && order.senderAddress) && <p className="text-xs">{order.senderAddress}</p>}
           </div>
           
           <div className="space-y-1">
@@ -64,17 +65,10 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
         </CardContent>
       </Card>
 
-      {/* Shipper and Receiver */}
-      {(order.shipper || order.receiver) && (
+      {/* Expedidor e Recebedor - Se existirem dados diferentes dos já exibidos */}
+      {(order.receiver) && (
         <Card className="border print:border-0 print:shadow-none">
           <CardContent className="p-3 print:p-2 grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2 text-sm">
-            {order.shipper && (
-              <div className="space-y-1">
-                <p className="font-semibold text-xs text-freight-700 print:text-black">EXPEDIDOR:</p>
-                <p className="text-xs">{order.shipper}</p>
-                {order.shipperAddress && <p className="text-xs">{order.shipperAddress}</p>}
-              </div>
-            )}
             {order.receiver && (
               <div className="space-y-1">
                 <p className="font-semibold text-xs text-freight-700 print:text-black">RECEBEDOR:</p>
