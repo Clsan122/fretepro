@@ -29,3 +29,9 @@ export function generateOrderNumber(): string {
   
   return `${year}${(highestNumber + 1).toString().padStart(4, '0')}`;
 }
+
+// Add a helper function to check if an order already exists
+export function orderExists(orderNumber: string): boolean {
+  const orders = JSON.parse(localStorage.getItem('collectionOrders') || '[]');
+  return orders.some((order: any) => order.orderNumber === orderNumber);
+}

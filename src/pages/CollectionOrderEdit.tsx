@@ -38,11 +38,16 @@ const CollectionOrderEdit: React.FC = () => {
   }, [id, navigate]);
 
   const handleSaveOrder = (updatedOrder: CollectionOrder) => {
+    if (!id) {
+      toast.error("ID da ordem não encontrado");
+      return;
+    }
+    
     // Preservamos o ID e o número da ordem original
     const orderToSave = {
       ...updatedOrder,
-      id: id || updatedOrder.id, // Mantenha o ID original
-      orderNumber: order?.orderNumber || updatedOrder.orderNumber // Mantenha o número original da ordem
+      id: id, // Garantir que usamos o ID original
+      orderNumber: order?.orderNumber || updatedOrder.orderNumber // Garantir que usamos o número original da ordem
     };
     
     // Salvar mantendo o mesmo ID para não duplicar

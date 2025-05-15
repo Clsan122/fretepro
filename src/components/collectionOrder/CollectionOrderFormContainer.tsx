@@ -47,9 +47,13 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     // Usar o logo do cliente selecionado se o tipo for 'client'
     const logoToUse = formData.selectedSenderType === 'client' ? formData.senderLogo : formData.companyLogo;
 
+    // Manter o ID e orderNumber originais se estivermos editando
+    const id = orderToEdit ? orderToEdit.id : uuidv4();
+    const orderNumber = orderToEdit ? orderToEdit.orderNumber : generateOrderNumber();
+
     const newOrder = {
-      id: orderToEdit ? orderToEdit.id : uuidv4(),
-      orderNumber: orderToEdit ? orderToEdit.orderNumber : generateOrderNumber(),
+      id: id,
+      orderNumber: orderNumber,
       sender: formData.sender,
       senderAddress: formData.senderAddress,
       senderCnpj: formData.senderCnpj,
@@ -82,9 +86,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       shipperAddress: formData.shipperAddress
     };
 
+    console.log('Salvando ordem:', newOrder);
+
     onSave(newOrder as CollectionOrder);
-    // Redirecionar para a lista de ordens de coleta após salvar
-    navigate('/collection-orders');
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,6 +104,12 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 print:space-y-2 font-sans print:text-xs">
+      <div className="text-center mb-4">
+        <h2 className="text-xl font-bold">
+          {orderToEdit ? `Editando Ordem de Coleta: ${orderToEdit.orderNumber}` : 'Nova Ordem de Coleta'}
+        </h2>
+      </div>
+
       <CompanyDetailsSection
         companyLogo={formData.companyLogo}
         selectedIssuerId={formData.selectedIssuerId}

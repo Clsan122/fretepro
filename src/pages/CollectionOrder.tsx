@@ -33,12 +33,24 @@ const CollectionOrderPage: React.FC = () => {
   }, [toast]);
 
   const handleSaveOrder = async (order: CollectionOrder) => {
-    await saveCollectionOrder(order);
-    toast({
-      title: "Ordem de coleta cadastrada",
-      description: "A ordem de coleta foi cadastrada com sucesso!"
-    });
-    navigate("/collection-orders");
+    try {
+      // Verificar se já existe uma ordem com este ID (caso de edição)
+      // Se for edição, mantemos o ID original
+      await saveCollectionOrder(order);
+      
+      toast({
+        title: "Ordem de coleta cadastrada",
+        description: "A ordem de coleta foi cadastrada com sucesso!"
+      });
+      navigate("/collection-orders");
+    } catch (error) {
+      console.error("Erro ao salvar ordem de coleta:", error);
+      toast({
+        title: "Erro",
+        description: "Houve um problema ao salvar a ordem de coleta",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleCancel = () => {

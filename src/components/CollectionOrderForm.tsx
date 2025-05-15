@@ -16,9 +16,8 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   orderToEdit,
   initialData 
 }) => {
-  // Pré-configurar os dados iniciais para separar corretamente transportadora e remetente
-  // Se já existirem dados, preservar; caso contrário, usar defaults
-  const preparedInitialData = {
+  // Garantir que os dados de edição tenham prioridade sobre os dados iniciais
+  const preparedInitialData = orderToEdit || {
     ...initialData,
     // Garantir que o remetente seja diferente da transportadora se não foi definido
     shipper: initialData?.shipper || '',
@@ -30,7 +29,7 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       onSave={onSave}
       onCancel={onCancel}
       orderToEdit={orderToEdit}
-      initialData={preparedInitialData}
+      initialData={initialData}
     />
   );
 };
