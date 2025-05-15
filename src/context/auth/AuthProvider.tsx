@@ -23,7 +23,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const profileData = await fetchUserProfile(supabaseUser.id);
-      setUser(transformUser(supabaseUser, profileData));
+      const transformedUser = transformUser(supabaseUser, profileData);
+      setUser(transformedUser);
+      console.log("User state updated:", transformedUser ? "User loaded" : "No user");
     } catch (err) {
       console.error("Error updating user state:", err);
       setUser(null);
@@ -31,46 +33,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    // Set up a flag to track component mounting state
+    console.log("AuthProvider initialized");
+    
+    // Flag to track component mounting state
     let isMounted = true;
     
-    // Set up auth state listener first
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
+      async (event, newSession) => {
         if (!isMounted) return;
         
         console.log("Auth state changed:", event);
         
         if (newSession) {
+          // Update session state immediately
           setSession(newSession);
           
-          // Use setTimeout to prevent potential deadlocks
+          // Important: Avoid deadlocks by deferring profile fetch
           setTimeout(() => {
             if (isMounted) {
               updateUserState(newSession.user);
+              setLoading(false);
+              setAuthChecked(true);
             }
           }, 0);
         } else {
           setSession(null);
           setUser(null);
+          setLoading(false);
+          setAuthChecked(true);
         }
-        
-        // Only set loading to false after handling the auth event
-        setLoading(false);
-        setAuthChecked(true);
       }
     );
 
-    // Then check for an existing session
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
       if (!isMounted) return;
       
       console.log("Initial session check:", existingSession ? "Session found" : "No session");
       
       if (existingSession) {
+        // Update session state immediately
         setSession(existingSession);
         
-        // Use setTimeout here too, for consistency
+        // Important: Avoid deadlocks by deferring profile fetch
         setTimeout(() => {
           if (isMounted) {
             updateUserState(existingSession.user);
@@ -78,15 +84,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }, 0);
       }
       
-      // Setting loading to false after checking for an existing session
+      // Always set loading to false after the initial session check
       setLoading(false);
       setAuthChecked(true);
-    }).catch(err => {
-      console.error("Error getting session:", err);
-      if (isMounted) {
-        setLoading(false);
-        setAuthChecked(true);
-      }
     });
 
     return () => {
@@ -106,19 +106,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         console.error("Login error:", error.message);
         setError(error.message);
-        setLoading(false);
         return false;
       }
       
-      // Set session immediately to avoid delays
-      setSession(data.session);
-      
-      // Auth state change listener will handle updating the user state
+      console.log("Login successful, session established");
       return true;
     } catch (err: any) {
       console.error("Login exception:", err);
       setError(err.message || 'Erro ao fazer login');
-      setLoading(false);
       return false;
     } finally {
       setLoading(false);
@@ -142,15 +137,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (error) {
         setError(error.message);
-        setLoading(false);
         return false;
       }
       
-      // Auth state change listener will handle updating the user state
       return true;
     } catch (err: any) {
       setError(err.message || 'Erro ao criar conta');
-      setLoading(false);
       return false;
     } finally {
       setLoading(false);
@@ -159,12 +151,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
+      console.log("Logging out user");
       setLoading(true);
       await supabase.auth.signOut();
+      
       // Explicitly clear user and session states
       setUser(null);
       setSession(null);
+      console.log("Logout successful");
     } catch (err: any) {
+      console.error("Logout error:", err);
       setError(err.message || 'Erro ao fazer logout');
     } finally {
       setLoading(false);

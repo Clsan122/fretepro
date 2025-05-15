@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -10,11 +10,22 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const [authChecked, setAuthChecked] = React.useState(false);
   
   // Adicionar log para depuração
   React.useEffect(() => {
-    console.log("PrivateRoute - Auth state:", { isAuthenticated: !!user, loading, path: location.pathname });
-  }, [user, loading, location]);
+    console.log("PrivateRoute - Auth state:", { 
+      isAuthenticated: !!user, 
+      loading, 
+      path: location.pathname,
+      authChecked 
+    });
+    
+    // Set authChecked after auth check completes
+    if (!loading && !authChecked) {
+      setAuthChecked(true);
+    }
+  }, [user, loading, location, authChecked]);
   
   // Mostrar loading state enquanto a autenticação está sendo verificada
   if (loading) {
@@ -27,11 +38,13 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   
   // Redirecionar para login se não estiver autenticado
   if (!user) {
+    console.log("PrivateRoute - Not authenticated, redirecting to login");
     // Salvar a localização atual para redirecionar de volta após o login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   // Se estiver autenticado, renderizar os componentes filhos
+  console.log("PrivateRoute - Authenticated, rendering children");
   return <>{children}</>;
 };
 

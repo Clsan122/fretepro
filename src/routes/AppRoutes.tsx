@@ -35,8 +35,8 @@ import QuotationEdit from "@/pages/QuotationEdit";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public Routes - Redirecionar raiz para login */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      {/* Public Routes - Redirecionar raiz para login se não estiver autenticado */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

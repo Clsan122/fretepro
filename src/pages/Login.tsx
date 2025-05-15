@@ -6,13 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AtSign, Lock, Eye, EyeOff, Truck, Package, FileText, Route } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [redirected, setRedirected] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -20,34 +21,44 @@ const Login = () => {
 
   // Verificar autenticação e redirecionar se já estiver autenticado
   useEffect(() => {
+    // Prevent redirect loop
+    if (redirected) return;
+
     if (isAuthenticated && user) {
-      console.log("Usuário autenticado, redirecionando para o dashboard");
+      console.log("Login component: User is authenticated, redirecting to dashboard");
       // Usar o destino anterior ou direcionar para o dashboard
       const from = location.state?.from?.pathname || "/dashboard";
+      setRedirected(true);
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, user, navigate, location]);
+  }, [isAuthenticated, user, navigate, location, redirected]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     setLoading(true);
 
     try {
+      console.log("Login component: Attempting login");
       const success = await login(email, password);
 
       if (success) {
+        console.log("Login component: Login successful");
         toast({
           title: "Login realizado com sucesso",
           description: "Bem-vindo de volta!",
         });
         
-        // Redirecionar diretamente para o dashboard após o login bem-sucedido
-        // sem esperar pela verificação do useEffect
+        // Mark as redirected to prevent useEffect from causing a loop
+        setRedirected(true);
+        // Navigate directly here instead of relying on the useEffect
         navigate('/dashboard', { replace: true });
       } else {
         throw new Error("Falha na autenticação");
       }
     } catch (error: any) {
+      console.error("Login component: Login failed", error);
       toast({
         title: "Erro ao fazer login",
         description: error.message || "Credenciais inválidas",
