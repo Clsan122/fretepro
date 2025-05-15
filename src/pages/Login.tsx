@@ -19,14 +19,16 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { login, loading, isAuthenticated } = useAuth();
+  const { login, loading, isAuthenticated, user } = useAuth();
 
-  // Redirecionar se já estiver autenticado
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
+    console.log("Login component: Authentication state changed", { isAuthenticated, user });
+    if (isAuthenticated && user) {
+      console.log("Login component: User is authenticated, redirecting to dashboard");
+      navigate("/dashboard", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,8 +59,7 @@ const Login = () => {
           description: "Bem-vindo de volta!",
         });
         
-        // Redirecionar após login bem-sucedido
-        navigate("/dashboard", { replace: true });
+        // Redirect will happen via the useEffect above when isAuthenticated becomes true
       } else {
         throw new Error("Falha na autenticação");
       }

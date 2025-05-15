@@ -51,12 +51,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           // Update user state
           await updateUserState(newSession.user);
-          setLoading(false);
         } else {
           setSession(null);
           setUser(null);
-          setLoading(false);
         }
+        setLoading(false);
       }
     );
 
@@ -98,7 +97,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Salvar a preferência de "permanecer logado"
       localStorage.setItem("keepLoggedIn", keepLoggedIn ? "true" : "false");
       
-      console.log("Login successful, session established");
+      console.log("Login successful, session established", data.session);
+      
+      // Explicitly update session and user state for immediate effect
+      setSession(data.session);
+      await updateUserState(data.session.user);
+      
+      setLoading(false);
       return true;
     } catch (err: any) {
       console.error("Login exception:", err);
@@ -166,7 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value = {
     user,
     session,
-    loading: loading,
+    loading,
     error,
     login,
     signup,
