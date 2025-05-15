@@ -26,13 +26,23 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
         options
       );
       return pdfBlob;
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      throw error;
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleShare = async () => {
-    if (!order) return;
+    if (!order) {
+      toast({
+        title: "Erro",
+        description: "Ordem não disponível para compartilhamento",
+        variant: "destructive"
+      });
+      return;
+    }
     
     toast({
       title: "Gerando PDF",
@@ -41,8 +51,10 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     
     try {
       const pdfBlob = await generatePDF();
-      const file = new File([pdfBlob], `ordem-coleta-${order.orderNumber}.pdf`, { type: 'application/pdf' });
+      const filename = `ordem-coleta-${order.orderNumber || 'nova'}.pdf`;
+      const file = new File([pdfBlob], filename, { type: 'application/pdf' });
 
+      // Verifica se a API Web Share está disponível e se podemos compartilhar arquivos
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -69,7 +81,14 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
   };
   
   const handleDownload = async () => {
-    if (!order) return;
+    if (!order) {
+      toast({
+        title: "Erro",
+        description: "Ordem não disponível para download",
+        variant: "destructive"
+      });
+      return;
+    }
     
     toast({
       title: "Gerando PDF",
@@ -77,9 +96,10 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     });
     
     try {
+      const filename = `ordem-coleta-${order.orderNumber || 'nova'}.pdf`;
       await generatePDF({
         savePdf: true,
-        filename: `ordem-coleta-${order.orderNumber}.pdf`
+        filename
       });
       
       toast({
@@ -97,7 +117,14 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
   };
   
   const handlePreview = async () => {
-    if (!order) return;
+    if (!order) {
+      toast({
+        title: "Erro",
+        description: "Ordem não disponível para visualização",
+        variant: "destructive"
+      });
+      return;
+    }
     
     toast({
       title: "Gerando Pré-visualização",
@@ -122,7 +149,15 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
   };
   
   const handlePrint = () => {
-    window.print();
+    if (window && window.print) {
+      window.print();
+    } else {
+      toast({
+        title: "Erro",
+        description: "Função de impressão não disponível",
+        variant: "destructive"
+      });
+    }
   };
 
   return {

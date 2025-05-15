@@ -2,7 +2,7 @@
 import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Upload, Image } from "lucide-react";
+import { Upload, X, Image as ImageIcon } from "lucide-react";
 
 interface LogoUploadProps {
   logo: string;
@@ -41,13 +41,13 @@ export const LogoUpload: React.FC<LogoUploadProps> = ({ logo, setLogo }) => {
               className="absolute top-0 right-0 h-6 w-6 bg-white rounded-full"
               onClick={() => setLogo("")}
             >
+              <X className="h-3 w-3" />
               <span className="sr-only">Remover</span>
-              ×
             </Button>
           </div>
         ) : (
           <div className="h-16 w-32 border-2 border-dashed rounded flex items-center justify-center">
-            <Image className="h-6 w-6 text-gray-400" />
+            <ImageIcon className="h-6 w-6 text-gray-400" />
           </div>
         )}
         <Button 
