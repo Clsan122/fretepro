@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import CollectionOrderForm from "@/components/CollectionOrderForm";
 import { useNavigate, useParams } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { CollectionOrder } from "@/types";
 import { getCollectionOrderById, saveCollectionOrder } from "@/utils/storage";
 
@@ -12,7 +12,6 @@ const CollectionOrderEdit: React.FC = () => {
   const [order, setOrder] = useState<CollectionOrder | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     async function fetchOrder() {
@@ -22,20 +21,12 @@ const CollectionOrderEdit: React.FC = () => {
           if (collectionOrder) {
             setOrder(collectionOrder);
           } else {
-            toast({
-              title: "Erro",
-              description: "Ordem de coleta não encontrada",
-              variant: "destructive"
-            });
+            toast.error("Ordem de coleta não encontrada");
             navigate("/collection-orders");
           }
         } catch (error) {
           console.error("Erro ao buscar ordem de coleta:", error);
-          toast({
-            title: "Erro",
-            description: "Erro ao buscar ordem de coleta",
-            variant: "destructive"
-          });
+          toast.error("Erro ao buscar ordem de coleta");
           navigate("/collection-orders");
         } finally {
           setLoading(false);
@@ -44,26 +35,35 @@ const CollectionOrderEdit: React.FC = () => {
     }
     
     fetchOrder();
-  }, [id, navigate, toast]);
+  }, [id, navigate]);
 
   const handleSaveOrder = (updatedOrder: CollectionOrder) => {
-    saveCollectionOrder(updatedOrder);
-    toast({
-      title: "Ordem de coleta atualizada",
-      description: "A ordem de coleta foi atualizada com sucesso!",
-    });
-    navigate(`/collection-order/${updatedOrder.id}`);
+    // Preservamos o ID e o número da ordem original
+    const orderToSave = {
+      ...updatedOrder,
+      id: id || updatedOrder.id, // Mantenha o ID original
+      orderNumber: order?.orderNumber || updatedOrder.orderNumber // Mantenha o número original da ordem
+    };
+    
+    // Salvar mantendo o mesmo ID para não duplicar
+    saveCollectionOrder(orderToSave);
+    
+    toast.success("Ordem de coleta atualizada com sucesso!");
+    navigate("/collection-orders");
   };
 
   const handleCancel = () => {
-    navigate(`/collection-order/${id}`);
+    navigate("/collection-orders");
   };
 
   if (loading) {
     return (
       <Layout>
         <div className="p-4 md:p-6 safe-area-inset">
-          <h1 className="text-2xl font-bold">Carregando...</h1>
+          <div className="flex justify-center items-center py-12">
+            <div className="w-8 h-8 border-4 border-t-freight-600 border-freight-200 rounded-full animate-spin"></div>
+            <span className="ml-2 text-freight-600">Carregando...</span>
+          </div>
         </div>
       </Layout>
     );

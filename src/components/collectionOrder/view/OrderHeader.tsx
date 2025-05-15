@@ -41,7 +41,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
 
   return (
     <div className="mb-3 print:mb-2">
-      {/* Logo e informações do emissor */}
+      {/* Logo do cliente se não houver logo do emissor */}
       {clientLogo && !issuerHasLogo() && (
         <div className="flex justify-center mb-2">
           <img
@@ -52,6 +52,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
         </div>
       )}
       
+      {/* Detalhes do emissor (sem o campo solicitante duplicado) */}
       {issuer && <IssuerHeaderDetails issuer={issuer} />}
       
       <div className="text-center">

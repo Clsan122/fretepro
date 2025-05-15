@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { CollectionOrder, Driver, Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -38,16 +37,13 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       const userClients = getClientsByUserId(user.id);
       setClients(userClients);
 
-      // Set default sender as user's company if creating new order
-      if (!orderToEdit && partiesForm.selectedSenderType === 'my-company') {
-        partiesForm.setSender(user.name || '');
-        partiesForm.setSenderAddress(user.address || '');
-        partiesForm.setSenderCnpj(user.cnpj || '');
-        partiesForm.setSenderCity(user.city || '');
-        partiesForm.setSenderState(user.state || '');
+      // Remover o preenchimento automático dos dados do remetente com a empresa do usuário
+      // para editcon, definimos apenas o ID do emissor
+      if (!orderToEdit) {
+        partiesForm.setSenderType('client'); // Alterado para 'client' em vez de 'my-company'
       }
     }
-  }, [user, partiesForm.selectedSenderType, orderToEdit]);
+  }, [user, orderToEdit]);
 
   return {
     formData: {
