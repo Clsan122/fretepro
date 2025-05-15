@@ -10,25 +10,19 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const [redirectAttempted, setRedirectAttempted] = React.useState(false);
   
-  // Adicionar log para depuração
+  // Adicionar logs claros para melhor depuração
   React.useEffect(() => {
     console.log("PrivateRoute - Auth state:", { 
       isAuthenticated: !!user, 
       loading, 
-      path: location.pathname,
-      redirectAttempted 
+      path: location.pathname
     });
-    
-    // Atualizar o status de redirecionamento após verificação de autenticação
-    if (!loading && !redirectAttempted) {
-      setRedirectAttempted(true);
-    }
-  }, [user, loading, location, redirectAttempted]);
+  }, [user, loading, location]);
   
   // Mostrar loading state enquanto a autenticação está sendo verificada
   if (loading) {
+    console.log("PrivateRoute - Still loading auth state, showing loading spinner");
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-freight-600"></div>
@@ -40,7 +34,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   if (!user) {
     console.log("PrivateRoute - Not authenticated, redirecting to login");
     // Salvar a localização atual para redirecionar de volta após o login
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
   
   // Se estiver autenticado, renderizar os componentes filhos

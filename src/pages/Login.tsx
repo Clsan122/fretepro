@@ -12,37 +12,42 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { login, isAuthenticated, user } = useAuth();
-  
-  // Flag para evitar redirecionamentos em excesso
-  const [hasRedirected, setHasRedirected] = useState(false);
+  const { login, isAuthenticated, user, loading } = useAuth();
 
-  // Verificar autenticação e redirecionar se já estiver autenticado
+  // Simplificar a lógica de redirecionamento
   useEffect(() => {
-    // Se já redirecionou ou está carregando, não fazer nada
-    if (hasRedirected || loading) return;
-
-    if (isAuthenticated && user) {
-      console.log("Login component: User is authenticated, redirecting to dashboard");
-      // Usar o destino anterior ou direcionar para o dashboard
-      const from = location.state?.from?.pathname || "/dashboard";
-      setHasRedirected(true);
-      navigate(from, { replace: true });
+    // Se a autenticação ainda está carregando, não fazer nada
+    if (loading) {
+      console.log("Login component: Auth still loading");
+      return;
     }
-  }, [isAuthenticated, user, navigate, location, hasRedirected, loading]);
+
+    // Verificar se o usuário está autenticado e redirecionar para o destino apropriado
+    if (isAuthenticated && user) {
+      console.log("Login component: User is authenticated, redirecting");
+      
+      // Usar o destino anterior ou direcionar para o dashboard
+      const from = location.state?.from || "/dashboard";
+      navigate(from, { replace: true });
+    } else {
+      console.log("Login component: Not authenticated or still loading");
+    }
+  }, [isAuthenticated, user, navigate, location, loading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return;
+    
+    // Evitar múltiplos cliques
+    if (isLoggingIn) return;
 
-    setLoading(true);
+    setIsLoggingIn(true);
 
     try {
-      console.log("Login component: Attempting login");
+      console.log("Login component: Attempting login with", email);
       const success = await login(email, password);
 
       if (success) {
@@ -52,10 +57,7 @@ const Login = () => {
           description: "Bem-vindo de volta!",
         });
         
-        // Marcar que já redirecionou para evitar loop
-        setHasRedirected(true);
-        // Navigate directly here instead of relying on the useEffect
-        navigate('/dashboard', { replace: true });
+        // Note: No redirection here - let the useEffect handle it
       } else {
         throw new Error("Falha na autenticação");
       }
@@ -67,7 +69,7 @@ const Login = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoggingIn(false);
     }
   };
 
@@ -203,9 +205,9 @@ const Login = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-freight-600 hover:bg-freight-700 text-white"
-                  disabled={loading}
+                  disabled={isLoggingIn}
                 >
-                  {loading ? "Entrando..." : "Entrar"}
+                  {isLoggingIn ? "Entrando..." : "Entrar"}
                 </Button>
 
                 <div className="text-center text-sm text-freight-600 dark:text-freight-400">

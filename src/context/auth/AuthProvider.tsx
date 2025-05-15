@@ -12,7 +12,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   // Update user state with combined Supabase user and profile data
   const updateUserState = async (supabaseUser: SupabaseUser | null) => {
@@ -53,15 +53,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setTimeout(() => {
             if (isMounted) {
               updateUserState(newSession.user);
+              if (!authInitialized) {
+                setAuthInitialized(true);
+              }
               setLoading(false);
-              setAuthChecked(true);
             }
           }, 0);
         } else {
           setSession(null);
           setUser(null);
+          if (!authInitialized) {
+            setAuthInitialized(true);
+          }
           setLoading(false);
-          setAuthChecked(true);
         }
       }
     );
@@ -84,9 +88,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }, 0);
       }
       
-      // Always set loading to false after the initial session check
-      setLoading(false);
-      setAuthChecked(true);
+      // Always set authInitialized and loading after the initial session check
+      setTimeout(() => {
+        if (isMounted) {
+          setAuthInitialized(true);
+          setLoading(false);
+        }
+      }, 100);
     });
 
     return () => {
@@ -106,6 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         console.error("Login error:", error.message);
         setError(error.message);
+        setLoading(false);
         return false;
       }
       
@@ -114,9 +123,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (err: any) {
       console.error("Login exception:", err);
       setError(err.message || 'Erro ao fazer login');
-      return false;
-    } finally {
       setLoading(false);
+      return false;
     }
   };
 
@@ -137,15 +145,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (error) {
         setError(error.message);
+        setLoading(false);
         return false;
       }
       
       return true;
     } catch (err: any) {
       setError(err.message || 'Erro ao criar conta');
-      return false;
-    } finally {
       setLoading(false);
+      return false;
     }
   };
 
@@ -175,7 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value = {
     user,
     session,
-    loading: loading && !authChecked,
+    loading: loading && !authInitialized,
     error,
     login,
     signup,
