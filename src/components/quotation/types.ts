@@ -32,5 +32,5 @@ export interface QuotationData {
   notes: string;
   createdAt: string;
   userId: string;
-  status: 'open' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'cancelled';
+  status: 'open' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'cancelled' | 'closed';
 }
