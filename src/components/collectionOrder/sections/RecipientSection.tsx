@@ -27,9 +27,11 @@ export const RecipientSection: React.FC<RecipientSectionProps> = ({
   form
 }) => {
   const createHighlightedLabel = (text: string) => (
-    <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
-      {text}
-    </Label>
+    <div className="pb-2 mb-3 border-b border-freight-100">
+      <Label className="text-lg font-bold text-freight-700">
+        {text}
+      </Label>
+    </div>
   );
 
   const handleRecipientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,60 +45,65 @@ export const RecipientSection: React.FC<RecipientSectionProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 bg-white p-4 rounded-lg border border-freight-100">
       {createHighlightedLabel("DESTINATÁRIO")}
-      <CNPJLookupField 
-        label="CNPJ do Destinatário" 
-        onDataFetched={data => {
-          setRecipient(data.name);
-          setRecipientAddress(data.address);
-          form.setValue("recipient", data.name, { shouldValidate: true });
-          form.setValue("recipientAddress", data.address, { shouldValidate: true });
-        }} 
-      />
-      
-      <FormField
-        control={form.control}
-        name="recipient"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Nome do Destinatário</FormLabel>
-            <div className="flex gap-2">
+      <div className="space-y-4">
+        <CNPJLookupField 
+          label="CNPJ do Destinatário" 
+          onDataFetched={data => {
+            setRecipient(data.name);
+            setRecipientAddress(data.address);
+            form.setValue("recipient", data.name, { shouldValidate: true });
+            form.setValue("recipientAddress", data.address, { shouldValidate: true });
+          }} 
+        />
+        
+        <FormField
+          control={form.control}
+          name="recipient"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel variant="required">Nome do Destinatário</FormLabel>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={recipient}
+                    onChange={handleRecipientChange}
+                    placeholder="Digite o nome do destinatário"
+                    className="bg-white"
+                  />
+                </FormControl>
+                <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}
+                  className="hover:bg-freight-50 transition-colors">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="recipientAddress"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel variant="required">Endereço do Destinatário</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  value={recipient}
-                  onChange={handleRecipientChange}
-                  placeholder="Digite o nome do destinatário"
+                  value={recipientAddress}
+                  onChange={handleRecipientAddressChange}
+                  placeholder="Digite o endereço do destinatário"
+                  className="bg-white"
                 />
               </FormControl>
-              <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}>
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      
-      <FormField
-        control={form.control}
-        name="recipientAddress"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Endereço do Destinatário</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                value={recipientAddress}
-                onChange={handleRecipientAddressChange}
-                placeholder="Digite o endereço do destinatário"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 };

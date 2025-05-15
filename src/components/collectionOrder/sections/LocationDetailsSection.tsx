@@ -7,6 +7,7 @@ import { CitySelectAutocomplete } from "@/components/common/CitySelectAutocomple
 import { UseFormReturn } from "react-hook-form";
 import { CollectionOrderFormValues } from "../schema";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { MapPin } from "lucide-react";
 
 interface LocationDetailsSectionProps {
   originCity: string;
@@ -52,26 +53,30 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader className="p-4 sm:p-6">
-        <CardTitle>Locais de Origem e Destino</CardTitle>
+    <Card className="border border-freight-100 overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-freight-50 to-white p-4">
+        <CardTitle className="flex items-center gap-2">
+          <MapPin size={20} className="text-freight-600" />
+          Locais de Origem e Destino
+        </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 sm:p-6 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <CardContent className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Origem</h3>
+          <h3 className="font-semibold text-lg text-freight-700 border-b pb-2 border-freight-100">Origem</h3>
           <div className="grid grid-cols-1 gap-4">
             <FormField
               control={form.control}
               name="originCity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cidade de Origem</FormLabel>
+                  <FormLabel variant="required">Cidade de Origem</FormLabel>
                   <FormControl>
                     <CitySelectAutocomplete 
                       uf={originState}
                       value={originCity}
                       onChange={handleOriginCityChange}
                       placeholder="Digite a cidade de origem"
+                      className="bg-white"
                     />
                   </FormControl>
                   <FormMessage />
@@ -83,7 +88,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
               name="originState"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Estado de Origem</FormLabel>
+                  <FormLabel variant="required">Estado de Origem</FormLabel>
                   <FormControl>
                     <Input 
                       {...field}
@@ -91,6 +96,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
                       onChange={(e) => handleOriginStateChange(e.target.value)}
                       placeholder="UF" 
                       maxLength={2}
+                      className="uppercase"
                     />
                   </FormControl>
                   <FormMessage />
@@ -101,20 +107,21 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
         </div>
         
         <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Destino</h3>
+          <h3 className="font-semibold text-lg text-freight-700 border-b pb-2 border-freight-100">Destino</h3>
           <div className="grid grid-cols-1 gap-4">
             <FormField
               control={form.control}
               name="destinationCity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cidade de Destino</FormLabel>
+                  <FormLabel variant="required">Cidade de Destino</FormLabel>
                   <FormControl>
                     <CitySelectAutocomplete 
                       uf={destinationState}
                       value={destinationCity}
                       onChange={handleDestinationCityChange}
                       placeholder="Digite a cidade de destino"
+                      className="bg-white"
                     />
                   </FormControl>
                   <FormMessage />
@@ -126,7 +133,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
               name="destinationState"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Estado de Destino</FormLabel>
+                  <FormLabel variant="required">Estado de Destino</FormLabel>
                   <FormControl>
                     <Input 
                       {...field}
@@ -134,6 +141,7 @@ export const LocationDetailsSection: React.FC<LocationDetailsSectionProps> = ({
                       onChange={(e) => handleDestinationStateChange(e.target.value)}
                       placeholder="UF" 
                       maxLength={2}
+                      className="uppercase"
                     />
                   </FormControl>
                   <FormMessage />

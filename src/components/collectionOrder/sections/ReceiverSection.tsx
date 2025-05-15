@@ -27,9 +27,11 @@ export const ReceiverSection: React.FC<ReceiverSectionProps> = ({
   form
 }) => {
   const createHighlightedLabel = (text: string) => (
-    <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
-      {text}
-    </Label>
+    <div className="pb-2 mb-3 border-b border-freight-100">
+      <Label className="text-lg font-bold text-freight-700">
+        {text}
+      </Label>
+    </div>
   );
 
   const handleReceiverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,39 +45,44 @@ export const ReceiverSection: React.FC<ReceiverSectionProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 bg-white p-4 rounded-lg border border-freight-100">
       {createHighlightedLabel("RECEBEDOR")}
-      <CNPJLookupField 
-        label="CNPJ do Recebedor" 
-        onDataFetched={data => {
-          setReceiver(data.name);
-          setReceiverAddress(data.address);
-          form.setValue("receiver", data.name, { shouldValidate: true });
-          form.setValue("receiverAddress", data.address, { shouldValidate: true });
-        }} 
-      />
-      
-      <div>
-        <Label>Nome do Recebedor</Label>
-        <div className="flex gap-2">
-          <Input 
-            value={receiver} 
-            onChange={handleReceiverChange}
-            placeholder="Digite o nome do recebedor" 
-          />
-          <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}>
-            <Search className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      
-      <div>
-        <Label>Endereço do Recebedor</Label>
-        <Input 
-          value={receiverAddress} 
-          onChange={handleReceiverAddressChange}
-          placeholder="Digite o endereço do recebedor" 
+      <div className="space-y-4">
+        <CNPJLookupField 
+          label="CNPJ do Recebedor" 
+          onDataFetched={data => {
+            setReceiver(data.name);
+            setReceiverAddress(data.address);
+            form.setValue("receiver", data.name, { shouldValidate: true });
+            form.setValue("receiverAddress", data.address, { shouldValidate: true });
+          }} 
         />
+        
+        <div>
+          <Label>Nome do Recebedor</Label>
+          <div className="flex gap-2">
+            <Input 
+              value={receiver} 
+              onChange={handleReceiverChange}
+              placeholder="Digite o nome do recebedor" 
+              className="bg-white"
+            />
+            <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}
+              className="hover:bg-freight-50 transition-colors">
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        
+        <div>
+          <Label>Endereço do Recebedor</Label>
+          <Input 
+            value={receiverAddress} 
+            onChange={handleReceiverAddressChange}
+            placeholder="Digite o endereço do recebedor" 
+            className="bg-white"
+          />
+        </div>
       </div>
     </div>
   );

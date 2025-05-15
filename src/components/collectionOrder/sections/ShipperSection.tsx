@@ -27,9 +27,11 @@ export const ShipperSection: React.FC<ShipperSectionProps> = ({
   form
 }) => {
   const createHighlightedLabel = (text: string) => (
-    <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
-      {text}
-    </Label>
+    <div className="pb-2 mb-3 border-b border-freight-100">
+      <Label className="text-lg font-bold text-freight-700">
+        {text}
+      </Label>
+    </div>
   );
 
   const handleShipperChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,60 +45,65 @@ export const ShipperSection: React.FC<ShipperSectionProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 bg-white p-4 rounded-lg border border-freight-100">
       {createHighlightedLabel("REMETENTE")}
-      <CNPJLookupField 
-        label="CNPJ do Remetente" 
-        onDataFetched={data => {
-          setShipper(data.name);
-          setShipperAddress(data.address);
-          form.setValue("shipper", data.name, { shouldValidate: true });
-          form.setValue("shipperAddress", data.address, { shouldValidate: true });
-        }} 
-      />
-      
-      <FormField
-        control={form.control}
-        name="shipper"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Nome do Remetente</FormLabel>
-            <div className="flex gap-2">
+      <div className="space-y-4">
+        <CNPJLookupField 
+          label="CNPJ do Remetente" 
+          onDataFetched={data => {
+            setShipper(data.name);
+            setShipperAddress(data.address);
+            form.setValue("shipper", data.name, { shouldValidate: true });
+            form.setValue("shipperAddress", data.address, { shouldValidate: true });
+          }} 
+        />
+        
+        <FormField
+          control={form.control}
+          name="shipper"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel variant="required">Nome do Remetente</FormLabel>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={shipper}
+                    onChange={handleShipperChange}
+                    placeholder="Digite o nome do remetente"
+                    className="bg-white"
+                  />
+                </FormControl>
+                <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}
+                  className="hover:bg-freight-50 transition-colors">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="shipperAddress"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel variant="required">Endereço do Remetente</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  value={shipper}
-                  onChange={handleShipperChange}
-                  placeholder="Digite o nome do remetente"
+                  value={shipperAddress}
+                  onChange={handleShipperAddressChange}
+                  placeholder="Digite o endereço do remetente"
+                  className="bg-white"
                 />
               </FormControl>
-              <Button type="button" variant="outline" size="icon" onClick={onOpenClientDialog}>
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      
-      <FormField
-        control={form.control}
-        name="shipperAddress"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Endereço do Remetente</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                value={shipperAddress}
-                onChange={handleShipperAddressChange}
-                placeholder="Digite o endereço do remetente"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 };
