@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -58,8 +57,6 @@ const Login = () => {
           title: "Login realizado com sucesso",
           description: "Bem-vindo de volta!",
         });
-        
-        // Redirect will happen via the useEffect above when isAuthenticated becomes true
       } else {
         throw new Error("Falha na autenticação");
       }

@@ -1,7 +1,7 @@
 
 import React from "react";
 import Layout from "@/components/Layout";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Lock } from "lucide-react";
 import AccountInfoCard from "@/components/profile/AccountInfoCard";
@@ -9,11 +9,14 @@ import PersonalInfoCard from "@/components/profile/PersonalInfoCard";
 import PasswordCard from "@/components/profile/PasswordCard";
 import { useProfileForm } from "@/components/profile/hooks/useProfileForm";
 import { useProfileActions } from "@/components/profile/hooks/useProfileActions";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
   const { formData, setters } = useProfileForm(user);
   const { handleUpdateProfile, handleChangePassword } = useProfileActions(setUser);
+  const { toast } = useToast();
 
   if (!user) {
     return (
@@ -28,6 +31,48 @@ const Profile: React.FC = () => {
       </Layout>
     );
   }
+
+  // Handler para upload de avatar usando Supabase Storage
+  const handleAvatarUpload = async (file: File) => {
+    try {
+      const fileName = `avatar-${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      
+      // Tentar usar o bucket 'avatars' ou 'profiles' se existir
+      const bucketName = 'avatars';
+      
+      const { data, error } = await supabase.storage
+        .from(bucketName)
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Obter a URL pública do avatar
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(fileName);
+      
+      // Atualizar o estado do avatar
+      setters.setAvatar(publicUrl);
+      
+      toast({
+        title: "Avatar atualizado",
+        description: "Sua foto de perfil foi atualizada com sucesso."
+      });
+      
+    } catch (error: any) {
+      console.error("Erro ao fazer upload do avatar:", error);
+      toast({
+        title: "Erro ao atualizar avatar",
+        description: error.message || "Ocorreu um erro ao atualizar sua foto de perfil.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <Layout>
@@ -77,6 +122,7 @@ const Profile: React.FC = () => {
                     pixKey: formData.pixKey,
                   });
                 }}
+                handleAvatarUpload={handleAvatarUpload}
               />
             </div>
           </TabsContent>

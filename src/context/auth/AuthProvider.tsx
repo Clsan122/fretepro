@@ -10,9 +10,9 @@ import { transformUser, fetchUserProfile } from './utils';
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [authInitialized, setAuthInitialized] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   // Update user state with combined Supabase user and profile data
   const updateUserState = async (supabaseUser: SupabaseUser | null) => {
@@ -56,6 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
         }
         setLoading(false);
+        setAuthInitialized(true);
       }
     );
 
@@ -68,9 +69,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await updateUserState(session.user);
         }
         setLoading(false);
+        setAuthInitialized(true);
       });
     } else {
       setLoading(false);
+      setAuthInitialized(true);
     }
 
     return () => {
@@ -139,6 +142,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(err.message || 'Erro ao criar conta');
       setLoading(false);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -165,6 +170,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Allow updating user data from profile page
   const updateUserData = (updatedUser: User) => {
+    console.log("Updating user data:", updatedUser);
     setUser(updatedUser);
   };
 
