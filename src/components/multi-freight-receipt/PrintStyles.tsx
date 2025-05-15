@@ -16,7 +16,9 @@ const PrintStyles: React.FC = () => {
           print-color-adjust: exact !important;
           color-adjust: exact !important;
           background-color: white !important;
-          color: black !important; /* Ensure text is always black for printing */
+          color: black !important;
+          font-family: Arial, Helvetica, sans-serif !important;
+          font-size: 10px !important;
         }
         
         .print-container {
@@ -40,29 +42,33 @@ const PrintStyles: React.FC = () => {
         }
         
         .print-compact {
-          margin-bottom: 3px !important;
+          margin-bottom: 2px !important;
         }
         
         .scale-down {
           transform-origin: top left;
-          transform: scale(0.9);
+          transform: scale(0.95);
         }
         
         .print-table {
           width: 100% !important;
           border-collapse: collapse !important;
-          font-size: 10px !important;
+          font-size: 9px !important;
+          table-layout: fixed !important;
         }
         
         .print-table td,
         .print-table th {
           border: 1px solid #ddd !important;
-          padding: 3px !important;
-          font-size: 9px !important;
+          padding: 2px !important;
+          font-size: 8px !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
         }
         
         .print-small-text {
-          font-size: 9px !important;
+          font-size: 8px !important;
           line-height: 1.1 !important;
         }
         
@@ -121,6 +127,33 @@ const PrintStyles: React.FC = () => {
         
         .pdf-generation-mode {
           width: 800px !important;
+        }
+        
+        /* Melhorias no layout da tabela */
+        table thead th {
+          font-weight: bold !important;
+          background-color: #f5f5f5 !important;
+        }
+        
+        /* Melhorias no layout geral */
+        .card, .border {
+          border: 1px solid #ddd !important;
+          margin-bottom: 3px !important;
+        }
+        
+        .p-6, .p-4, .p-3 {
+          padding: 3px !important;
+        }
+        
+        /* Reduzir espaçamento entre linhas */
+        p, h1, h2, h3, h4, h5, h6 {
+          margin-top: 2px !important;
+          margin-bottom: 2px !important;
+        }
+        
+        /* Garantir que elementos não quebrem entre páginas */
+        .avoid-break {
+          page-break-inside: avoid !important;
         }
       `}
     </style>

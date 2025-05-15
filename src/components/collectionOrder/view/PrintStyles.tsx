@@ -13,7 +13,7 @@ export const PrintStyles: React.FC = () => {
         
         body {
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 11px !important;
+          font-size: 10px !important;
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
@@ -30,11 +30,11 @@ export const PrintStyles: React.FC = () => {
         }
         
         .card-compact .card-header {
-          padding: 6px !important;
+          padding: 4px !important;
         }
         
         .card-compact .card-content {
-          padding: 6px !important;
+          padding: 4px !important;
         }
         
         .print-no-margin {
@@ -42,11 +42,11 @@ export const PrintStyles: React.FC = () => {
         }
         
         .print-small-text {
-          font-size: 10px !important;
+          font-size: 9px !important;
         }
         
         .print-smaller-text {
-          font-size: 9px !important;
+          font-size: 8px !important;
         }
         
         .print-compact-grid {
@@ -80,12 +80,12 @@ export const PrintStyles: React.FC = () => {
           width: 210mm !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 6mm !important;
+          padding: 5mm !important;
           margin: 0 auto !important;
           border: none !important;
           page-break-inside: avoid !important;
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 11px !important;
+          font-size: 10px !important;
           background-color: white !important;
           color: black !important;
         }
@@ -147,17 +147,21 @@ export const PrintStyles: React.FC = () => {
         table {
           width: 100% !important;
           border-collapse: collapse !important;
-          font-size: 10px !important;
+          font-size: 9px !important;
           background-color: white !important;
           color: black !important;
+          table-layout: fixed !important;
         }
         
         table td, table th {
           border: 1px solid #ddd !important;
-          padding: 2px 3px !important;
-          font-size: 9px !important;
+          padding: 2px !important;
+          font-size: 8px !important;
           background-color: white !important;
           color: black !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
         }
         
         img {
@@ -179,6 +183,27 @@ export const PrintStyles: React.FC = () => {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           color-adjust: exact !important;
+        }
+        
+        /* Novas classes para melhorar a organização na impressão */
+        .print-grid {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr !important;
+          gap: 2px !important;
+        }
+        
+        .print-section {
+          page-break-inside: avoid !important;
+          margin-bottom: 3px !important;
+        }
+        
+        /* Reduzir espaçamentos gerais */
+        .p-6, .p-4, .p-3 {
+          padding: 2px !important;
+        }
+        
+        .m-6, .m-4, .m-3, .my-6, .my-4, .my-3, .mb-6, .mb-4, .mb-3 {
+          margin: 2px !important;
         }
       `}
     </style>

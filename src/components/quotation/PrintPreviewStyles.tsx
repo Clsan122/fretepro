@@ -7,8 +7,8 @@ export const PrintPreviewStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 8mm;
-          scale: 0.9;
+          margin: 10mm;
+          scale: 0.95;
         }
         
         body {
@@ -25,7 +25,7 @@ export const PrintPreviewStyles: React.FC = () => {
           width: 210mm !important;
           max-width: 100% !important;
           box-shadow: none !important;
-          padding: 4mm !important;
+          padding: 5mm !important;
           margin: 0 auto !important;
           border: none !important;
           page-break-inside: avoid !important;
@@ -64,6 +64,7 @@ export const PrintPreviewStyles: React.FC = () => {
         .grid {
           display: flex !important;
           flex-wrap: wrap !important;
+          gap: 4px !important;
         }
         
         .text-sm {
@@ -74,38 +75,66 @@ export const PrintPreviewStyles: React.FC = () => {
           font-size: 8px !important;
         }
         
+        /* Espaçamentos reduzidos para melhor aproveitamento do espaço */
         .my-4, .my-6, .mb-6, .mb-8, .mb-4, .mb-3 {
-          margin-top: 4px !important;
-          margin-bottom: 4px !important;
-        }
-        
-        .p-8, .p-6, .p-4 {
-          padding: 8px !important;
-        }
-        
-        .print-compact td, .print-compact th {
-          padding: 1px 3px !important;
-        }
-        
-        table td, table th {
-          padding: 1px 3px !important;
-        }
-        
-        .print-tight-margins {
           margin-top: 3px !important;
           margin-bottom: 3px !important;
         }
         
+        .p-8, .p-6, .p-4 {
+          padding: 6px !important;
+        }
+        
+        /* Tabelas mais compactas */
+        .print-compact td, .print-compact th {
+          padding: 1px 2px !important;
+          font-size: 8px !important;
+        }
+        
+        /* Ajuste para todas as tabelas */
+        table {
+          width: 100% !important;
+          table-layout: fixed !important;
+        }
+        
+        table td, table th {
+          padding: 1px 2px !important;
+          font-size: 8px !important;
+        }
+        
+        .print-tight-margins {
+          margin-top: 2px !important;
+          margin-bottom: 2px !important;
+        }
+        
         .card-content {
-          padding: 4px !important;
+          padding: 3px !important;
         }
 
+        /* Esconder elementos não importantes para impressão */
         body > *:not(.print-container) {
           display: none !important;
         }
         
         #root > div > div:not(.print-container) {
           display: none !important;
+        }
+        
+        /* Otimizações adicionais para layout de impressão */
+        .print-flex {
+          display: flex !important;
+          flex-wrap: wrap !important;
+          gap: 2px !important;
+        }
+        
+        .print-col {
+          flex: 1 1 auto !important;
+          min-width: 45% !important;
+        }
+        
+        /* Evitar quebra de página dentro de seções importantes */
+        .no-break {
+          page-break-inside: avoid !important;
         }
       `}
     </style>
