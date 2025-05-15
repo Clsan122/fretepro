@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { format, startOfMonth, endOfMonth, parseISO, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Package, Users, DollarSign, TrendingUp, BarChart2, Truck } from "lucide-react";
+import { CalendarIcon, Package, Users, DollarSign, TrendingUp, BarChart2, Truck, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency } from "@/utils/formatters";
+import { QuotationsSummary } from "@/components/dashboard/QuotationsSummary";
+import { ClosedQuotationsReport } from "@/components/dashboard/ClosedQuotationsReport";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -180,6 +182,7 @@ const Dashboard: React.FC = () => {
           <TabsList className="mb-4">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="profit">Relatório de Lucro</TabsTrigger>
+            <TabsTrigger value="quotations">Cotações Fechadas</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -237,36 +240,40 @@ const Dashboard: React.FC = () => {
               </Card>
             </div>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Receita por Dia</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  {revenueChartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={revenueChartData}>
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip
-                          formatter={(value: number) => [formatCurrency(value), 'Valor']}
-                          labelFormatter={(label) => `Data: ${label}`}
-                        />
-                        <Bar 
-                          dataKey="valor" 
-                          fill="#0077c8" 
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-muted-foreground">Nenhum dado disponível para o período selecionado</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Receita por Dia</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    {revenueChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={revenueChartData}>
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip
+                            formatter={(value: number) => [formatCurrency(value), 'Valor']}
+                            labelFormatter={(label) => `Data: ${label}`}
+                          />
+                          <Bar 
+                            dataKey="valor" 
+                            fill="#0077c8" 
+                            radius={[4, 4, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-muted-foreground">Nenhum dado disponível para o período selecionado</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <QuotationsSummary />
+            </div>
           </TabsContent>
 
           <TabsContent value="profit" className="space-y-4">
@@ -389,6 +396,10 @@ const Dashboard: React.FC = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="quotations" className="space-y-4">
+            <ClosedQuotationsReport month={selectedMonth} />
           </TabsContent>
         </Tabs>
       </div>

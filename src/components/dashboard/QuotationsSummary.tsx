@@ -12,8 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { QuotationData } from "@/components/quotation/types";
-import { CheckCircle, XCircle, FileText } from "lucide-react";
+import { CheckCircle, XCircle, FileText, ArrowUpRight } from "lucide-react";
 import { formatCurrency } from "@/utils/formatters";
+import { startOfMonth, endOfMonth, parseISO, isWithinInterval } from "date-fns";
 
 interface QuotationsStats {
   total: number;
@@ -47,7 +48,7 @@ export const QuotationsSummary: React.FC = () => {
           (quotation: QuotationData) => quotation.userId === user.id
         );
 
-        // Calcular estatísticas
+        // Calcular estatísticas gerais para todas as cotações
         const stats: QuotationsStats = userQuotations.reduce((acc: QuotationsStats, quotation) => {
           const isOpen = quotation.status === "open";
           
@@ -81,12 +82,27 @@ export const QuotationsSummary: React.FC = () => {
     { name: "Fechadas", value: quotationStats.closed, color: "#4ade80" }
   ];
 
+  const closedPercentage = quotationStats.total > 0 
+    ? Math.round((quotationStats.closed / quotationStats.total) * 100)
+    : 0;
+
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-md border-freight-100 dark:border-freight-800">
       <CardHeader className="bg-freight-50/50 dark:bg-freight-900/50">
-        <CardTitle className="text-freight-700 dark:text-freight-300 flex items-center">
-          <FileText className="mr-2 h-5 w-5" /> Resumo de Cotações
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-freight-700 dark:text-freight-300 flex items-center">
+            <FileText className="mr-2 h-5 w-5" /> Cotações
+          </CardTitle>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-8 w-8 p-0" 
+            onClick={() => navigate('/quotations')}
+          >
+            <ArrowUpRight className="h-4 w-4" />
+            <span className="sr-only">Ver todas</span>
+          </Button>
+        </div>
         <CardDescription>
           Análise das suas cotações de frete
         </CardDescription>
@@ -122,13 +138,13 @@ export const QuotationsSummary: React.FC = () => {
             
             <div className="bg-freight-50/50 dark:bg-freight-900/50 p-4 rounded-lg">
               <div className="font-medium text-freight-800 dark:text-freight-300">
-                Total de Cotações
+                Taxa de Fechamento
               </div>
               <div className="mt-2 text-2xl font-bold text-freight-800 dark:text-freight-300">
-                {quotationStats.total}
+                {closedPercentage}%
               </div>
               <div className="mt-1 text-sm text-freight-700 dark:text-freight-400">
-                {formatCurrency(quotationStats.totalValue)}
+                {quotationStats.closed} de {quotationStats.total} cotações
               </div>
             </div>
             
@@ -169,7 +185,7 @@ export const QuotationsSummary: React.FC = () => {
                 <p>Nenhuma cotação encontrada</p>
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/quotation/new")}
+                  onClick={() => navigate("/quotations/new")}
                   className="mt-4"
                 >
                   Criar Primeira Cotação
