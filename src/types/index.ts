@@ -1,4 +1,3 @@
-
 export interface CollectionOrder {
   id: string;
   orderNumber: string; // Added this field for auto-numbering
@@ -164,4 +163,13 @@ export interface FreightExpense {
   value: number;
   date: string;
   category: string;
+}
+
+// Adicionar o tipo QuotationMeasurement
+export interface QuotationMeasurement {
+  id: string;
+  length: number;
+  width: number;
+  height: number;
+  quantity: number;
 }

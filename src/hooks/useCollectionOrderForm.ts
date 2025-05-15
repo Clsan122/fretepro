@@ -10,24 +10,31 @@ import { useLocationForm } from "./collection-order/useLocationForm";
 
 interface UseCollectionOrderFormProps {
   orderToEdit?: CollectionOrder;
+  initialData?: Partial<CollectionOrder>;
 }
 
-export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormProps) => {
+export const useCollectionOrderForm = ({ orderToEdit, initialData }: UseCollectionOrderFormProps) => {
   const { user } = useAuth();
+  
+  // Combinar dados do orderToEdit e initialData, com preferência para orderToEdit
+  const combinedData = {
+    ...initialData,
+    ...(orderToEdit || {})
+  };
   
   // Load external data
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [companyLogo, setCompanyLogo] = useState<string>(orderToEdit?.companyLogo || "");
+  const [companyLogo, setCompanyLogo] = useState<string>(combinedData?.companyLogo || "");
   const [selectedIssuerId, setSelectedIssuerId] = useState<string>(
-    orderToEdit?.issuerId || (user ? user.id : "")
+    combinedData?.issuerId || (user ? user.id : "")
   );
 
-  // Initialize sub-forms
-  const cargoForm = useCargoForm(orderToEdit);
-  const partiesForm = usePartiesForm(orderToEdit);
-  const additionalInfoForm = useAdditionalInfoForm(orderToEdit);
-  const locationForm = useLocationForm(orderToEdit);
+  // Initialize sub-forms with combined data
+  const cargoForm = useCargoForm(combinedData);
+  const partiesForm = usePartiesForm(combinedData);
+  const additionalInfoForm = useAdditionalInfoForm(combinedData);
+  const locationForm = useLocationForm(combinedData);
 
   // Load drivers and clients on mount
   useEffect(() => {
@@ -38,10 +45,9 @@ export const useCollectionOrderForm = ({ orderToEdit }: UseCollectionOrderFormPr
       const userClients = getClientsByUserId(user.id);
       setClients(userClients);
 
-      // Remover o preenchimento automático dos dados do remetente com a empresa do usuário
-      // para editcon, definimos apenas o ID do emissor
+      // Configurar o tipo de remetente se não estiver em modo de edição
       if (!orderToEdit) {
-        partiesForm.handlers.handleSenderTypeChange('client'); // Corrigido para usar handlers.handleSenderTypeChange em vez de setSenderType
+        partiesForm.handlers.handleSenderTypeChange('client');
       }
     }
   }, [user, orderToEdit]);

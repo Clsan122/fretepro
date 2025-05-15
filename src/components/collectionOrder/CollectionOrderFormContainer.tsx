@@ -18,16 +18,21 @@ interface CollectionOrderFormContainerProps {
   onSave: (order: CollectionOrder) => void;
   onCancel: () => void;
   orderToEdit?: CollectionOrder;
+  initialData?: Partial<CollectionOrder>;
 }
 
 const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> = ({
   onSave,
   onCancel,
-  orderToEdit
+  orderToEdit,
+  initialData
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { formData, setters } = useCollectionOrderForm({ orderToEdit });
+  const { formData, setters } = useCollectionOrderForm({ 
+    orderToEdit, 
+    initialData 
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

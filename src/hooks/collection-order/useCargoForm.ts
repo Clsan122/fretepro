@@ -1,61 +1,68 @@
 
-import { useState, useEffect } from "react";
-import { Measurement } from "@/types";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+
+interface Measurement {
+  id: string;
+  length: number;
+  width: number;
+  height: number;
+  quantity: number;
+}
 
 export const useCargoForm = (initialData?: {
   volumes?: number;
   weight?: number;
   measurements?: Measurement[];
-  merchandiseValue?: number;
   cubicMeasurement?: number;
+  merchandiseValue?: number;
 }) => {
   const [volumes, setVolumes] = useState<number>(initialData?.volumes || 0);
   const [weight, setWeight] = useState<number>(initialData?.weight || 0);
+  const [merchandiseValue, setMerchandiseValue] = useState<number>(initialData?.merchandiseValue || 0);
+  
+  // Inicializar com pelo menos uma medida
+  const defaultMeasurement: Measurement = { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 };
   const [measurements, setMeasurements] = useState<Measurement[]>(
-    initialData?.measurements || [
-      { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 }
-    ]
+    initialData?.measurements && initialData.measurements.length > 0
+      ? initialData.measurements
+      : [defaultMeasurement]
   );
-  const [cubicMeasurement, setCubicMeasurement] = useState<number>(
-    initialData?.cubicMeasurement || 0
-  );
-  const [merchandiseValue, setMerchandiseValue] = useState<number>(
-    initialData?.merchandiseValue || 0
-  );
+  
+  const [cubicMeasurement, setCubicMeasurement] = useState<number>(initialData?.cubicMeasurement || 0);
 
-  // Update cubic measurement when measurements change
-  useEffect(() => {
-    const totalCubic = measurements.reduce((sum, item) => {
-      const itemCubic = (item.length * item.width * item.height * item.quantity) / 1000000;
-      return sum + itemCubic;
+  const calculateCubicMeasurement = (measurements: Measurement[]): number => {
+    return measurements.reduce((total, m) => {
+      return total + (m.length * m.width * m.height * m.quantity) / 1000000;
     }, 0);
-    
-    setCubicMeasurement(totalCubic);
-  }, [measurements]);
+  };
+
+  // Calcular cubagem ao inicializar
+  useState(() => {
+    if (initialData?.measurements) {
+      const calculated = calculateCubicMeasurement(initialData.measurements);
+      setCubicMeasurement(calculated);
+    }
+  });
 
   const handleMeasurementChange = (id: string, field: keyof Measurement, value: number) => {
-    setMeasurements(
-      measurements.map(measurement =>
-        measurement.id === id ? { ...measurement, [field]: value } : measurement
-      )
+    const updatedMeasurements = measurements.map(m => 
+      m.id === id ? { ...m, [field]: value } : m
     );
+    
+    setMeasurements(updatedMeasurements);
+    setCubicMeasurement(calculateCubicMeasurement(updatedMeasurements));
   };
 
   const handleAddMeasurement = () => {
-    const newMeasurement: Measurement = {
-      id: uuidv4(),
-      length: 0,
-      width: 0,
-      height: 0,
-      quantity: 1
-    };
-    setMeasurements([...measurements, newMeasurement]);
+    setMeasurements([...measurements, { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 }]);
   };
 
   const handleRemoveMeasurement = (id: string) => {
     if (measurements.length > 1) {
-      setMeasurements(measurements.filter(measurement => measurement.id !== id));
+      const updatedMeasurements = measurements.filter(m => m.id !== id);
+      setMeasurements(updatedMeasurements);
+      setCubicMeasurement(calculateCubicMeasurement(updatedMeasurements));
     }
   };
 
@@ -71,7 +78,7 @@ export const useCargoForm = (initialData?: {
     handlers: {
       handleMeasurementChange,
       handleAddMeasurement,
-      handleRemoveMeasurement
+      handleRemoveMeasurement,
     }
   };
 };

@@ -5,18 +5,19 @@ import { useAuth } from "@/context/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CargoSection } from "@/components/quotation/CargoSection";
 import { LocationSection } from "@/components/quotation/LocationSection";
 import { FreightCompositionSection } from "@/components/quotation/FreightCompositionSection";
 import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
 import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
-import { Loader2, Save, FileDown, FileText, Printer } from "lucide-react";
+import { QuotationActionsButtons } from "@/components/quotation/QuotationActionsButtons";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Printer, FileDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { getClientsByUserId } from "@/utils/storage";
 import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
 import { generateQuotationNumber } from "@/utils/quotationNumber";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { generateQuotationPdf } from "@/utils/pdfGenerator";
 
 const QuotationForm: React.FC = () => {
@@ -299,6 +300,30 @@ const QuotationForm: React.FC = () => {
     }
   };
   
+  // Criar objeto com todos os dados da cotação para passar ao componente de botões
+  const quotationData = {
+    creatorId,
+    creatorName,
+    creatorLogo: companyLogo,
+    originCity,
+    originState,
+    destinationCity,
+    destinationState,
+    volumes,
+    weight,
+    measurements,
+    cargoType,
+    merchandiseValue,
+    vehicleType,
+    freightValue,
+    tollValue,
+    insuranceValue,
+    insuranceRate,
+    otherCosts,
+    totalValue,
+    notes
+  };
+  
   return (
     <Layout>
       <div className="w-full max-w-7xl mx-auto">
@@ -372,37 +397,12 @@ const QuotationForm: React.FC = () => {
           />
           
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4 justify-end pt-4 pb-20 md:pb-4">
-            <Button
-              variant="outline"
-              className="w-full md:w-auto"
-              onClick={() => navigate("/quotations")}
-            >
-              Cancelar
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full md:w-auto"
-              onClick={handleGeneratePdf}
-            >
-              <FileText className="mr-2 h-5 w-5" />
-              Visualizar PDF
-            </Button>
-            
-            <Button
-              className="w-full md:w-auto bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all"
-              onClick={handleSave}
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-5 w-5" />
-              )}
-              Salvar Cotação
-            </Button>
-          </div>
+          <QuotationActionsButtons 
+            loading={loading}
+            handleSave={handleSave}
+            handleGeneratePdf={handleGeneratePdf}
+            quotationData={quotationData}
+          />
         </div>
       </div>
 
