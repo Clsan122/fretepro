@@ -1,7 +1,7 @@
-
 import { toast } from "sonner";
 
 let isPushEnabled = false;
+let initializationInProgress = false;
 
 // Convertendo string base64 para Uint8Array (necessário para VAPID keys)
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
@@ -32,19 +32,26 @@ function sendSubscriptionToServer(subscription: PushSubscription) {
 
 // Função para inicializar o estado de notificações
 export async function initializePushNotifications() {
-  // Verificar se notificações são suportadas
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    console.warn('Notificações push não são suportadas neste navegador.');
-    return false;
+  // Evitar múltiplas inicializações simultâneas
+  if (initializationInProgress) {
+    return isPushEnabled;
   }
-
-  // Verificar permissão de notificação atual
-  if (Notification.permission === 'denied') {
-    console.warn('O usuário bloqueou notificações.');
-    return false;
-  }
-
+  
+  initializationInProgress = true;
+  
   try {
+    // Verificar se notificações são suportadas
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.warn('Notificações push não são suportadas neste navegador.');
+      return false;
+    }
+
+    // Verificar permissão de notificação atual
+    if (Notification.permission === 'denied') {
+      console.warn('O usuário bloqueou notificações.');
+      return false;
+    }
+
     // Precisamos do registro do service worker para verificar uma inscrição
     const registration = await navigator.serviceWorker.ready;
     
@@ -62,6 +69,8 @@ export async function initializePushNotifications() {
   } catch (err) {
     console.error('Erro durante inicialização das notificações push:', err);
     return false;
+  } finally {
+    initializationInProgress = false;
   }
 }
 

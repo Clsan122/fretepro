@@ -13,25 +13,27 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [redirected, setRedirected] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { login, isAuthenticated, user } = useAuth();
+  
+  // Flag para evitar redirecionamentos em excesso
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   // Verificar autenticação e redirecionar se já estiver autenticado
   useEffect(() => {
-    // Prevent redirect loop
-    if (redirected) return;
+    // Se já redirecionou ou está carregando, não fazer nada
+    if (hasRedirected || loading) return;
 
     if (isAuthenticated && user) {
       console.log("Login component: User is authenticated, redirecting to dashboard");
       // Usar o destino anterior ou direcionar para o dashboard
       const from = location.state?.from?.pathname || "/dashboard";
-      setRedirected(true);
+      setHasRedirected(true);
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, user, navigate, location, redirected]);
+  }, [isAuthenticated, user, navigate, location, hasRedirected, loading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,8 +52,8 @@ const Login = () => {
           description: "Bem-vindo de volta!",
         });
         
-        // Mark as redirected to prevent useEffect from causing a loop
-        setRedirected(true);
+        // Marcar que já redirecionou para evitar loop
+        setHasRedirected(true);
         // Navigate directly here instead of relying on the useEffect
         navigate('/dashboard', { replace: true });
       } else {

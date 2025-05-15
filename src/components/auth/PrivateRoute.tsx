@@ -10,7 +10,7 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const [authChecked, setAuthChecked] = React.useState(false);
+  const [redirectAttempted, setRedirectAttempted] = React.useState(false);
   
   // Adicionar log para depuração
   React.useEffect(() => {
@@ -18,14 +18,14 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
       isAuthenticated: !!user, 
       loading, 
       path: location.pathname,
-      authChecked 
+      redirectAttempted 
     });
     
-    // Set authChecked after auth check completes
-    if (!loading && !authChecked) {
-      setAuthChecked(true);
+    // Atualizar o status de redirecionamento após verificação de autenticação
+    if (!loading && !redirectAttempted) {
+      setRedirectAttempted(true);
     }
-  }, [user, loading, location, authChecked]);
+  }, [user, loading, location, redirectAttempted]);
   
   // Mostrar loading state enquanto a autenticação está sendo verificada
   if (loading) {

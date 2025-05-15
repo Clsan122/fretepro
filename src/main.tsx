@@ -1,10 +1,10 @@
+
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { initializeSyncSystem } from './utils/sync';
 import { initializePushNotifications } from './utils/pushNotifications.ts';
-import { toast } from 'sonner';
 
 // Interface para estender o tipo ServiceWorkerRegistration com a propriedade sync
 interface SyncManager {
@@ -168,23 +168,11 @@ if ('serviceWorker' in navigator) {
           installingWorker.onstatechange = () => {
             if (installingWorker.state === 'installed') {
               if (navigator.serviceWorker.controller) {
-                // Service Worker atualizado, notificar usuário
+                // Service Worker atualizado, notificar usuário sem toast
                 console.log('Nova versão disponível! Recarregue a página para atualizar.');
-                toast.info(
-                  'Nova versão disponível', 
-                  { 
-                    description: 'Clique para atualizar e obter as novidades',
-                    action: {
-                      label: 'Atualizar',
-                      onClick: () => window.location.reload()
-                    },
-                    duration: 10000
-                  }
-                );
               } else {
                 // Primeiro Service Worker instalado
                 console.log('Aplicativo pronto para uso offline.');
-                toast.success('Aplicativo pronto para uso offline');
               }
             }
           };
@@ -195,14 +183,11 @@ if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'SYNC_COMPLETED') {
           console.log('Sincronização concluída:', event.data.timestamp);
-          toast.success('Sincronização concluída');
         }
         
+        // Removido toast para "Cache de screenshots concluído"
         if (event.data && event.data.type === 'CACHE_COMPLETE') {
           console.log('Cache de screenshots concluído:', event.data.success);
-          if (event.data.success) {
-            toast.success('App preparado para uso offline');
-          }
         }
 
         if (event.data && event.data.type === 'WIDGET_UPDATE_REQUEST') {
@@ -226,7 +211,6 @@ if ('serviceWorker' in navigator) {
       // Verificar status de conectividade e notificar o Service Worker
       window.addEventListener('online', () => {
         console.log('Conexão de rede restaurada');
-        toast.success('Conexão de rede restaurada');
         
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
@@ -244,7 +228,6 @@ if ('serviceWorker' in navigator) {
       
       window.addEventListener('offline', () => {
         console.log('Conexão de rede perdida');
-        toast.error('Conexão de rede perdida. O app continuará funcionando no modo offline.');
         
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
@@ -263,7 +246,6 @@ if ('serviceWorker' in navigator) {
 // Adicionar listener específico para recarregar SW
 window.addEventListener('appinstalled', (evt) => {
   console.log('Aplicativo foi instalado!');
-  toast.success('FreteValor instalado com sucesso!');
 });
 
 // Notificar o Service Worker quando o usuário fecha a app
@@ -274,5 +256,3 @@ window.addEventListener('beforeunload', () => {
     });
   }
 });
-
-// Remover a declaração global duplicada que está causando o conflito

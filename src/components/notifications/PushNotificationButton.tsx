@@ -14,6 +14,7 @@ export function PushNotificationButton() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // Verificar status apenas uma vez na montagem do componente
     async function checkStatus() {
       try {
         await initializePushNotifications();
@@ -31,7 +32,7 @@ export function PushNotificationButton() {
   const handleToggle = async () => {
     setIsLoading(true);
     try {
-      const result = await togglePushNotifications();
+      await togglePushNotifications();
       setIsEnabled(isPushNotificationEnabled());
     } catch (error) {
       console.error("Erro ao alternar notificações:", error);
