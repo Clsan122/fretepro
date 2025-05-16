@@ -8,7 +8,7 @@ export const PrintPreviewStyles: React.FC = () => {
         @page {
           size: A4;
           margin: 10mm;
-          scale: 1;
+          scale: 0.95;
         }
         
         body {
@@ -31,10 +31,11 @@ export const PrintPreviewStyles: React.FC = () => {
           page-break-inside: avoid !important;
           color: black !important;
           background-color: white !important;
+          overflow: hidden !important;
         }
         
         .print-container {
-          max-width: 210mm !important;
+          max-width: 100% !important;
           margin: 0 auto !important;
           padding: 0 !important;
           color: black !important;
@@ -58,6 +59,7 @@ export const PrintPreviewStyles: React.FC = () => {
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           page-break-inside: avoid !important;
+          max-height: 40px !important;
         }
         
         /* Otimização para impressão em uma única página */
@@ -65,6 +67,62 @@ export const PrintPreviewStyles: React.FC = () => {
           display: flex !important;
           flex-wrap: wrap !important;
           gap: 5px !important;
+        }
+        
+        /* Otimizações para telas pequenas/mobile */
+        @media screen and (max-width: 640px) {
+          body {
+            font-size: 10px !important;
+          }
+          
+          #quotation-pdf {
+            padding: 2mm !important;
+          }
+          
+          img {
+            max-height: 30px !important;
+          }
+          
+          .text-lg, .text-xl, .text-2xl {
+            font-size: 14px !important;
+          }
+          
+          .text-base {
+            font-size: 12px !important;
+          }
+          
+          .text-sm {
+            font-size: 10px !important;
+          }
+          
+          .text-xs {
+            font-size: 8px !important;
+          }
+          
+          .grid {
+            display: block !important;
+          }
+          
+          .grid-cols-2 {
+            display: block !important;
+          }
+          
+          .grid > div {
+            margin-bottom: 5px !important;
+            width: 100% !important;
+          }
+          
+          table {
+            width: 100% !important;
+            table-layout: fixed !important;
+            font-size: 8px !important;
+          }
+          
+          table td, table th {
+            padding: 2px !important;
+            word-break: break-word !important;
+            white-space: normal !important;
+          }
         }
         
         .text-sm {
@@ -101,6 +159,7 @@ export const PrintPreviewStyles: React.FC = () => {
         table td, table th {
           padding: 2mm !important;
           font-size: 11px !important;
+          overflow-wrap: break-word !important;
         }
         
         .print-tight-margins {
@@ -144,7 +203,7 @@ export const PrintPreviewStyles: React.FC = () => {
           min-height: 6mm !important;
         }
         
-        /* WhatsApp otimização */
+        /* Otimizações para mobile */
         .mb-1, .mb-2, .mb-3 {
           margin-bottom: 2mm !important;
         }
@@ -161,6 +220,41 @@ export const PrintPreviewStyles: React.FC = () => {
         .px-1, .px-2, .px-3 {
           padding-left: 2mm !important;
           padding-right: 2mm !important;
+        }
+        
+        /* Forçar width apropriado em mobile */
+        @media only screen and (max-width: 640px) {
+          .print-container, #quotation-pdf {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 5px !important;
+          }
+          
+          .text-sm, .text-xs {
+            font-size: 8px !important;
+          }
+          
+          .p-3, .p-4, .px-3, .py-2 {
+            padding: 2px !important;
+          }
+          
+          .space-y-1 > * + * {
+            margin-top: 2px !important;
+          }
+          
+          .space-y-2 > * + * {
+            margin-top: 4px !important;
+          }
+          
+          .mb-2, .mb-4 {
+            margin-bottom: 4px !important;
+          }
+          
+          /* Ajustar layout para ser single column em mobile */
+          .grid-cols-2 {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}
     </style>

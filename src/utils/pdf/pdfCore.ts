@@ -1,3 +1,4 @@
+
 /**
  * Core PDF generation utilities shared across document types
  */
@@ -20,16 +21,28 @@ export const generateCanvasFromElement = async (
     throw new Error(`Element with ID '${elementId}' not found`);
   }
   
+  // Verificar se estamos em um dispositivo móvel
+  const isMobile = window.innerWidth <= 640;
+  
+  // Ajustar a escala para dispositivos móveis
+  const scale = isMobile ? (options.scale || 1) : (options.scale || 2);
+  
   // Save original width if needed
   const originalWidth = printElement.style.width;
+  const originalMaxWidth = printElement.style.maxWidth;
   
   // Set a fixed width if provided
   if (options.setWidth) {
     printElement.style.width = options.setWidth;
+    printElement.style.maxWidth = "100%";
+  } else if (isMobile) {
+    // Ajustar a largura para dispositivos móveis se não foi especificado
+    printElement.style.width = "100%";
+    printElement.style.maxWidth = "100%";
   }
   
   const canvas = await html2canvas(printElement, {
-    scale: options.scale || 2, // Higher scale for better quality
+    scale: scale, 
     useCORS: true,
     logging: false,
     backgroundColor: '#FFFFFF',
@@ -42,13 +55,42 @@ export const generateCanvasFromElement = async (
           img.src = img.src;
         }
       });
+
+      // Ajustar elementos para impressão em dispositivos móveis
+      if (isMobile) {
+        const styles = document.createElement('style');
+        styles.innerHTML = `
+          .w-full, .max-w-3xl, .max-w-4xl, .max-w-5xl, .max-w-6xl, .max-w-7xl {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          table {
+            table-layout: fixed !important;
+            width: 100% !important;
+          }
+          table td, table th {
+            padding: 2px !important;
+            font-size: 10px !important;
+            word-break: break-word !important;
+          }
+          .text-sm, .text-xs {
+            font-size: 10px !important;
+          }
+          .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+            grid-template-columns: 1fr !important;
+          }
+        `;
+        document.head.appendChild(styles);
+      }
+      
       return element;
     }
   });
   
   // Restore original width if needed
-  if (options.restoreWidth && options.setWidth) {
+  if (options.restoreWidth) {
     printElement.style.width = originalWidth;
+    printElement.style.maxWidth = originalMaxWidth;
   }
   
   return canvas;
@@ -65,7 +107,7 @@ export const generatePdfFromCanvas = (
     keywords?: string;
     creator?: string;
     handleMultiplePages?: boolean;
-    compress?: boolean; // Add this option to the type definition
+    compress?: boolean;
   } = {}
 ): jsPDF => {
   const imgData = canvas.toDataURL('image/png');
@@ -95,8 +137,8 @@ export const generatePdfFromCanvas = (
       }
       
       // Calculate source position and height for the current page
-      const sourceY = (canvas.height / imgHeight) * availableHeight * i;
-      const sourceHeight = (canvas.height / imgHeight) * availableHeight;
+      const sourceY = (i * canvas.height) / totalPages;
+      const sourceHeight = canvas.height / totalPages;
       
       pdf.addImage({
         imageData: imgData,
@@ -104,7 +146,11 @@ export const generatePdfFromCanvas = (
         x: 5,
         y: 5,
         width: imgWidth,
-        height: availableHeight,
+        height: Math.min(availableHeight, imgHeight / totalPages),
+        sx: 0,
+        sy: sourceY,
+        sWidth: canvas.width,
+        sHeight: sourceHeight,
         alias: `page-${i}`,
         compression: 'FAST'
       });

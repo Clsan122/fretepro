@@ -33,4 +33,5 @@ export interface QuotationData {
   createdAt: string;
   userId: string;
   status: 'open' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'cancelled';
+  pdfGenerated?: boolean;
 }

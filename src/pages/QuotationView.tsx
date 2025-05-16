@@ -27,7 +27,7 @@ const QuotationView: React.FC = () => {
 
   return (
     <Layout>
-      <div className="w-full max-w-7xl mx-auto pb-20 md:pb-10">
+      <div className="w-full max-w-7xl mx-auto pb-20 md:pb-10 px-2 sm:px-4">
         <QuotationViewActions 
           id={id!}
           sending={sending}
@@ -39,7 +39,9 @@ const QuotationView: React.FC = () => {
         />
         
         {/* Conteúdo do PDF */}
-        <QuotationContent quotation={quotation} />
+        <div className="print-container">
+          <QuotationContent quotation={quotation} />
+        </div>
       </div>
     </Layout>
   );
