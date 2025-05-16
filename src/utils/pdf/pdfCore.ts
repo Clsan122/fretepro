@@ -140,21 +140,21 @@ export const generatePdfFromCanvas = (
       const sourceY = (i * canvas.height) / totalPages;
       const sourceHeight = canvas.height / totalPages;
       
-      // Fix: Remove 'sx' property and use sourceX, sourceY, etc. correctly
-      pdf.addImage({
-        imageData: imgData,
-        format: 'PNG',
-        x: 5,
-        y: 5,
-        width: imgWidth,
-        height: Math.min(availableHeight, imgHeight / totalPages),
-        sourceX: 0,
-        sourceY: sourceY,
-        sourceWidth: canvas.width,
-        sourceHeight: sourceHeight,
-        alias: `page-${i}`,
-        compression: 'FAST'
-      });
+      // Fixed: Use the correct properties for jsPDF 3.x
+      pdf.addImage(
+        imgData,
+        'PNG',
+        5,
+        5,
+        imgWidth,
+        Math.min(availableHeight, imgHeight / totalPages),
+        `page-${i}`,
+        'FAST',
+        0,
+        sourceY, // source y position
+        canvas.width, // source width
+        sourceHeight // source height
+      );
     }
   } else {
     // Single page document
