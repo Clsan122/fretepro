@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -60,21 +59,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    // Verificar se existe uma sessão salva apenas se o usuário optou por "permanecer logado"
-    if (localStorage.getItem("keepLoggedIn") === "true") {
-      // Verificar se existe uma sessão salva
-      supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (session && isMounted) {
-          setSession(session);
-          await updateUserState(session.user);
-        }
-        setLoading(false);
-        setAuthInitialized(true);
-      });
-    } else {
+    // ALTERAÇÃO: Sempre verificar se existe uma sessão, independente da opção "keepLoggedIn"
+    // Isso garante que se o usuário já estiver logado, ele será redirecionado corretamente
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session && isMounted) {
+        console.log("Sessão existente encontrada no inicialização", session.user.email);
+        setSession(session);
+        await updateUserState(session.user);
+      } else {
+        console.log("Nenhuma sessão existente encontrada na inicialização");
+      }
       setLoading(false);
       setAuthInitialized(true);
-    }
+    });
 
     return () => {
       isMounted = false;

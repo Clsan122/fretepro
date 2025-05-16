@@ -8,18 +8,19 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated, session } = useAuth();
   const location = useLocation();
   
   // Adicionar logs claros para melhor depuração
   React.useEffect(() => {
     console.log("PrivateRoute - Auth state:", { 
       isAuthenticated, 
-      hasUser: !!user, 
+      hasUser: !!user,
+      hasSession: !!session,
       loading, 
       path: location.pathname
     });
-  }, [user, isAuthenticated, loading, location]);
+  }, [user, session, isAuthenticated, loading, location]);
   
   // Mostrar loading state enquanto a autenticação está sendo verificada
   if (loading) {

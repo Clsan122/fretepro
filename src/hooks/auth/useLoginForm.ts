@@ -25,9 +25,11 @@ export const useLoginForm = () => {
     console.log("Login component: Authentication state changed", { isAuthenticated, user });
     if (isAuthenticated && user) {
       console.log("Login component: User is authenticated, redirecting to dashboard");
-      navigate("/dashboard", { replace: true });
+      // Verificar se há uma rota de retorno armazenada no state
+      const from = location.state?.from || "/dashboard";
+      navigate(from, { replace: true });
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, location]);
 
   const handleLogin = async ({ email, password, keepLoggedIn, event }: LoginParams) => {
     if (event) {
@@ -40,15 +42,18 @@ export const useLoginForm = () => {
     setIsLoggingIn(true);
 
     try {
-      console.log("Login component: Attempting login with", email);
+      console.log("Login component: Attempting login with", email, "keepLoggedIn:", keepLoggedIn);
       const success = await login(email, password, keepLoggedIn);
 
       if (success) {
-        console.log("Login component: Login successful");
+        console.log("Login component: Login successful, redirecting will happen via useEffect");
         toast({
           title: "Login realizado com sucesso",
           description: "Bem-vindo de volta!",
         });
+        
+        // Não é necessário redirecionar manualmente aqui, o useEffect cuidará disso
+        // após a atualização do estado de autenticação
       } else {
         throw new Error("Falha na autenticação");
       }
