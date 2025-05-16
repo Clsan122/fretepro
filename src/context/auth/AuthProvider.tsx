@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Flag to track component mounting state
     let isMounted = true;
     
-    // Set up auth state listener for future auth changes
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         if (!isMounted) return;
@@ -48,29 +49,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Update session state immediately
           setSession(newSession);
           
-          // Update user state
-          await updateUserState(newSession.user);
+          // Important: Avoid deadlocks by deferring profile fetch
+          setTimeout(() => {
+            if (isMounted) {
+              updateUserState(newSession.user);
+              if (!authInitialized) {
+                setAuthInitialized(true);
+              }
+              setLoading(false);
+            }
+          }, 0);
         } else {
           setSession(null);
           setUser(null);
+          if (!authInitialized) {
+            setAuthInitialized(true);
+          }
+          setLoading(false);
         }
-        setLoading(false);
-        setAuthInitialized(true);
       }
     );
 
-    // ALTERAÇÃO: Sempre verificar se existe uma sessão, independente da opção "keepLoggedIn"
-    // Isso garante que se o usuário já estiver logado, ele será redirecionado corretamente
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session && isMounted) {
-        console.log("Sessão existente encontrada no inicialização", session.user.email);
-        setSession(session);
-        await updateUserState(session.user);
-      } else {
-        console.log("Nenhuma sessão existente encontrada na inicialização");
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      if (!isMounted) return;
+      
+      console.log("Initial session check:", existingSession ? "Session found" : "No session");
+      
+      if (existingSession) {
+        // Update session state immediately
+        setSession(existingSession);
+        
+        // Important: Avoid deadlocks by deferring profile fetch
+        setTimeout(() => {
+          if (isMounted) {
+            updateUserState(existingSession.user);
+          }
+        }, 0);
       }
-      setLoading(false);
-      setAuthInitialized(true);
+      
+      // Always set authInitialized and loading after the initial session check
+      setTimeout(() => {
+        if (isMounted) {
+          setAuthInitialized(true);
+          setLoading(false);
+        }
+      }, 100);
     });
 
     return () => {
@@ -79,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  const login = async (email: string, password: string, keepLoggedIn: boolean = false) => {
+  const login = async (email: string, password: string) => {
     try {
       setError(null);
       setLoading(true);
@@ -94,16 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
       
-      // Salvar a preferência de "permanecer logado"
-      localStorage.setItem("keepLoggedIn", keepLoggedIn ? "true" : "false");
-      
-      console.log("Login successful, session established", data.session);
-      
-      // Explicitly update session and user state for immediate effect
-      setSession(data.session);
-      await updateUserState(data.session.user);
-      
-      setLoading(false);
+      console.log("Login successful, session established");
       return true;
     } catch (err: any) {
       console.error("Login exception:", err);
@@ -139,8 +154,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(err.message || 'Erro ao criar conta');
       setLoading(false);
       return false;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -149,9 +162,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("Logging out user");
       setLoading(true);
       await supabase.auth.signOut();
-      
-      // Limpar a preferência de "permanecer logado"
-      localStorage.removeItem("keepLoggedIn");
       
       // Explicitly clear user and session states
       setUser(null);
@@ -167,14 +177,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Allow updating user data from profile page
   const updateUserData = (updatedUser: User) => {
-    console.log("Updating user data:", updatedUser);
     setUser(updatedUser);
   };
 
   const value = {
     user,
     session,
-    loading,
+    loading: loading && !authInitialized,
     error,
     login,
     signup,

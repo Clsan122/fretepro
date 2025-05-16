@@ -8,19 +8,17 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const { user, loading, isAuthenticated, session } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   
   // Adicionar logs claros para melhor depuração
   React.useEffect(() => {
     console.log("PrivateRoute - Auth state:", { 
-      isAuthenticated, 
-      hasUser: !!user,
-      hasSession: !!session,
+      isAuthenticated: !!user, 
       loading, 
       path: location.pathname
     });
-  }, [user, session, isAuthenticated, loading, location]);
+  }, [user, loading, location]);
   
   // Mostrar loading state enquanto a autenticação está sendo verificada
   if (loading) {
@@ -33,7 +31,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   }
   
   // Redirecionar para login se não estiver autenticado
-  if (!isAuthenticated || !user) {
+  if (!user) {
     console.log("PrivateRoute - Not authenticated, redirecting to login");
     // Salvar a localização atual para redirecionar de volta após o login
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;

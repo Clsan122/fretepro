@@ -7,7 +7,7 @@ export interface AuthContextType {
   session: Session | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string, keepLoggedIn?: boolean) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;

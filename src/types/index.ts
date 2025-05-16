@@ -1,4 +1,3 @@
-
 export interface CollectionOrder {
   id: string;
   orderNumber: string; // Added this field for auto-numbering
