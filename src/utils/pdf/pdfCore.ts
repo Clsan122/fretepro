@@ -24,12 +24,13 @@ export const generateCanvasFromElement = async (
   // Verificar se estamos em um dispositivo móvel
   const isMobile = window.innerWidth <= 640;
   
-  // Ajustar a escala para dispositivos móveis
-  const scale = isMobile ? (options.scale || 1) : (options.scale || 2);
+  // Ajustar a escala para melhorar a qualidade da imagem (maior em desktop, adequada para mobile)
+  const scale = isMobile ? (options.scale || 1.5) : (options.scale || 3);
   
   // Save original width if needed
   const originalWidth = printElement.style.width;
   const originalMaxWidth = printElement.style.maxWidth;
+  const originalOverflow = printElement.style.overflow;
   
   // Set a fixed width if provided
   if (options.setWidth) {
@@ -48,6 +49,7 @@ export const generateCanvasFromElement = async (
     logging: false,
     backgroundColor: '#FFFFFF',
     allowTaint: true,
+    imageTimeout: 15000, // Aumento do timeout para carregar imagens
     onclone: (document, element) => {
       // Ensure all images are loaded before rendering
       element.querySelectorAll('img').forEach(img => {
@@ -84,6 +86,27 @@ export const generateCanvasFromElement = async (
         document.head.appendChild(styles);
       }
       
+      // Adicionar estilo para garantir tudo em uma página
+      const singlePageStyle = document.createElement('style');
+      singlePageStyle.innerHTML = `
+        #${elementId} {
+          max-height: 270mm !important; /* Altura aproximada de uma página A4 com margens */
+          width: ${isMobile ? '100%' : '210mm'} !important;
+          page-break-inside: avoid !important;
+        }
+        #${elementId} .no-break {
+          page-break-inside: avoid !important;
+        }
+        #${elementId} * {
+          page-break-inside: avoid !important;
+        }
+        #${elementId} table {
+          page-break-inside: avoid !important;
+          font-size: ${isMobile ? '8px' : '10px'} !important;
+        }
+      `;
+      document.head.appendChild(singlePageStyle);
+      
       return element;
     }
   });
@@ -92,6 +115,7 @@ export const generateCanvasFromElement = async (
   if (options.restoreWidth) {
     printElement.style.width = originalWidth;
     printElement.style.maxWidth = originalMaxWidth;
+    printElement.style.overflow = originalOverflow;
   }
   
   return canvas;
@@ -109,9 +133,16 @@ export const generatePdfFromCanvas = (
     creator?: string;
     handleMultiplePages?: boolean;
     compress?: boolean;
+    quality?: number; // 0.1 (lowest) to 1.0 (highest)
+    fitToPage?: boolean;
   } = {}
 ): jsPDF => {
-  const imgData = canvas.toDataURL('image/png');
+  // Definir qualidade padrão alta se não especificada
+  const imageQuality = options.quality || 0.95;
+  
+  // Gerar imagem com qualidade definida
+  const imgData = canvas.toDataURL('image/png', imageQuality);
+  
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -123,11 +154,25 @@ export const generatePdfFromCanvas = (
   const pageHeight = pdf.internal.pageSize.getHeight();
   
   // Calculate image dimensions to fit the page
-  const imgWidth = pageWidth - 10; // 5mm margin on each side
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const imgWidth = options.fitToPage ? pageWidth - 10 : Math.min(pageWidth - 10, (canvas.width * 0.264583));
+  const ratio = canvas.width / imgWidth;
+  const imgHeight = canvas.height / ratio;
   
+  // Use single page approach when fitToPage is true or height is reasonable
+  if (options.fitToPage || imgHeight <= pageHeight - 10) {
+    pdf.addImage(
+      imgData,
+      'PNG',
+      5, // x position - margem de 5mm na esquerda
+      5, // y position - margem de 5mm no topo 
+      imgWidth,
+      imgHeight,
+      undefined,
+      'FAST'
+    );
+  }
   // Handle multipage documents if needed
-  if (options.handleMultiplePages && imgHeight > pageHeight - 10) {
+  else if (options.handleMultiplePages) {
     let positionY = 5;
     const availableHeight = pageHeight - 10;
     const totalPages = Math.ceil(imgHeight / availableHeight);
@@ -136,10 +181,6 @@ export const generatePdfFromCanvas = (
       if (i > 0) {
         pdf.addPage();
       }
-      
-      // Calculate source position and height for the current page
-      const sourceY = (i * canvas.height) / totalPages;
-      const sourceHeight = canvas.height / totalPages;
       
       // Fixed: Use correct parameters for jsPDF 3.x addImage method
       pdf.addImage(
@@ -154,8 +195,21 @@ export const generatePdfFromCanvas = (
       );
     }
   } else {
-    // Single page document
-    pdf.addImage(imgData, 'PNG', 5, 5, imgWidth, imgHeight);
+    // Single page document (scaling down if needed)
+    const scaleFactor = Math.min(1, (pageHeight - 10) / imgHeight);
+    const finalWidth = imgWidth * scaleFactor;
+    const finalHeight = imgHeight * scaleFactor;
+    
+    pdf.addImage(
+      imgData,
+      'PNG',
+      5 + (pageWidth - 10 - finalWidth) / 2, // centralizar horizontalmente
+      5,
+      finalWidth,
+      finalHeight,
+      undefined,
+      'FAST'
+    );
   }
   
   // Add metadata if provided

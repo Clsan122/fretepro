@@ -20,11 +20,12 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
         
         // Generate canvas with optimized settings for WhatsApp sharing
         const canvas = await html2canvas(element, {
-          scale: 2, // Higher DPI for better quality
+          scale: 3, // Maior DPI para melhor qualidade
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#ffffff",
           logging: false,
+          imageTimeout: 15000, // Maior timeout para carregar imagens
           onclone: (document, element) => {
             // Ensure all images are loaded before rendering
             element.querySelectorAll('img').forEach(img => {
@@ -33,6 +34,24 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
                 img.src = img.src;
               }
             });
+            
+            // Adicionar estilo para garantir tudo em uma página
+            const singlePageStyle = document.createElement('style');
+            singlePageStyle.innerHTML = `
+              #quotation-pdf {
+                max-height: 270mm !important;
+                width: 210mm !important;
+                page-break-inside: avoid !important;
+              }
+              #quotation-pdf .no-break {
+                page-break-inside: avoid !important;
+              }
+              #quotation-pdf * {
+                page-break-inside: avoid !important;
+              }
+            `;
+            document.head.appendChild(singlePageStyle);
+            
             return element;
           }
         });
@@ -49,8 +68,9 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
           subject: quotationSubject,
           author: "FreteValor",
           creator: "FreteValor",
-          // Make WhatsApp-friendly PDF (smaller file size)
-          compress: true
+          compress: true,
+          quality: 0.95, // Alta qualidade
+          fitToPage: true // Garantir que tudo esteja em uma página
         });
         
         // Return the PDF as a blob

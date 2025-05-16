@@ -38,11 +38,12 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
           
           // Generate canvas with optimized settings
           const canvas = await html2canvas(element, {
-            scale: isMobile ? 1 : 2, // Escala menor para dispositivos móveis para evitar problemas de memória
+            scale: isMobile ? 1.5 : 3, // Escala aumentada para melhor qualidade
             useCORS: true,
             allowTaint: true,
             backgroundColor: "#ffffff",
             logging: false, // Disable logging
+            imageTimeout: 15000, // Maior timeout para carregar imagens
             onclone: (document, element) => {
               // Ensure all images are loaded before rendering
               element.querySelectorAll('img').forEach(img => {
@@ -82,6 +83,23 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
                 document.head.appendChild(styles);
               }
               
+              // Adicionar estilo para garantir tudo em uma página
+              const singlePageStyle = document.createElement('style');
+              singlePageStyle.innerHTML = `
+                #quotation-pdf {
+                  max-height: 270mm !important;
+                  width: ${isMobile ? '100%' : '210mm'} !important;
+                  page-break-inside: avoid !important;
+                }
+                #quotation-pdf .no-break {
+                  page-break-inside: avoid !important;
+                }
+                #quotation-pdf * {
+                  page-break-inside: avoid !important;
+                }
+              `;
+              document.head.appendChild(singlePageStyle);
+              
               return element;
             }
           });
@@ -97,7 +115,8 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
             author: "FreteValor",
             creator: "FreteValor",
             compress: true,
-            handleMultiplePages: true
+            quality: 0.95, // Alta qualidade de imagem
+            fitToPage: true // Ajustar para caber em uma página
           });
           
           // Trigger download
@@ -134,10 +153,11 @@ export const previewQuotationPdf = async (quotation: QuotationData | null): Prom
     
     // Generate canvas with optimized settings
     const canvas = await html2canvas(element, {
-      scale: isMobile ? 1 : 2,
+      scale: isMobile ? 1.5 : 3, // Escala maior para melhor qualidade
       useCORS: true,
       allowTaint: true,
       backgroundColor: "#ffffff",
+      imageTimeout: 15000, // Maior timeout para imagens
       onclone: (document, element) => {
         // Ajustar elementos para impressão em dispositivos móveis
         if (isMobile) {
@@ -169,6 +189,23 @@ export const previewQuotationPdf = async (quotation: QuotationData | null): Prom
           document.head.appendChild(styles);
         }
         
+        // Adicionar estilo para garantir tudo em uma página
+        const singlePageStyle = document.createElement('style');
+        singlePageStyle.innerHTML = `
+          #quotation-pdf {
+            max-height: 270mm !important;
+            width: ${isMobile ? '100%' : '210mm'} !important;
+            page-break-inside: avoid !important;
+          }
+          #quotation-pdf .no-break {
+            page-break-inside: avoid !important;
+          }
+          #quotation-pdf * {
+            page-break-inside: avoid !important;
+          }
+        `;
+        document.head.appendChild(singlePageStyle);
+        
         return element;
       }
     });
@@ -180,7 +217,8 @@ export const previewQuotationPdf = async (quotation: QuotationData | null): Prom
       author: quotation.creatorName || "FreteValor",
       creator: "FreteValor",
       compress: true,
-      handleMultiplePages: true
+      quality: 0.95, // Alta qualidade de imagem
+      fitToPage: true // Ajustar para caber em uma página
     });
     
     // Open in new window
