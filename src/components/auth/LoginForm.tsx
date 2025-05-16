@@ -38,11 +38,12 @@ export const LoginForm = () => {
   });
 
   const onSubmit = (values: LoginFormValues) => {
+    console.log("Form submitted with values:", values);
     handleLogin({
       email: values.email,
       password: values.password,
       keepLoggedIn: values.keepLoggedIn,
-      event: null // Pass null instead of creating an Event object
+      event: null
     });
   };
 
