@@ -140,6 +140,7 @@ export const generatePdfFromCanvas = (
       const sourceY = (i * canvas.height) / totalPages;
       const sourceHeight = canvas.height / totalPages;
       
+      // Fix: Remove 'sx' property and use sourceX, sourceY, etc. correctly
       pdf.addImage({
         imageData: imgData,
         format: 'PNG',
@@ -147,10 +148,10 @@ export const generatePdfFromCanvas = (
         y: 5,
         width: imgWidth,
         height: Math.min(availableHeight, imgHeight / totalPages),
-        sx: 0,
-        sy: sourceY,
-        sWidth: canvas.width,
-        sHeight: sourceHeight,
+        sourceX: 0,
+        sourceY: sourceY,
+        sourceWidth: canvas.width,
+        sourceHeight: sourceHeight,
         alias: `page-${i}`,
         compression: 'FAST'
       });
