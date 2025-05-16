@@ -39,6 +39,7 @@ export const generateCanvasFromElement = async (
     // Ajustar a largura para dispositivos móveis se não foi especificado
     printElement.style.width = "100%";
     printElement.style.maxWidth = "100%";
+    printElement.style.overflow = "hidden";
   }
   
   const canvas = await html2canvas(printElement, {
@@ -140,7 +141,7 @@ export const generatePdfFromCanvas = (
       const sourceY = (i * canvas.height) / totalPages;
       const sourceHeight = canvas.height / totalPages;
       
-      // Fixed: Use the correct properties for jsPDF 3.x
+      // Fixed: Use correct parameters for jsPDF 3.x addImage method
       pdf.addImage(
         imgData,
         'PNG',
@@ -149,11 +150,7 @@ export const generatePdfFromCanvas = (
         imgWidth,
         Math.min(availableHeight, imgHeight / totalPages),
         `page-${i}`,
-        'FAST',
-        0,
-        sourceY, // source y position
-        canvas.width, // source width
-        sourceHeight // source height
+        'FAST'
       );
     }
   } else {
