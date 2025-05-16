@@ -42,7 +42,7 @@ export const LoginForm = () => {
       email: values.email,
       password: values.password,
       keepLoggedIn: values.keepLoggedIn,
-      event: new Event('submit') as React.FormEvent
+      event: null // Pass null instead of creating an Event object
     });
   };
 

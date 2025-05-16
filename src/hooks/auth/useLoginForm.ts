@@ -8,7 +8,7 @@ interface LoginParams {
   email: string;
   password: string;
   keepLoggedIn: boolean;
-  event: React.FormEvent;
+  event: React.FormEvent | null;
 }
 
 export const useLoginForm = () => {
