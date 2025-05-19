@@ -59,9 +59,8 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
               <User className="h-4 w-4" />
               REMETENTE:
             </p>
-            <p className="text-sm">{order.shipper || order.sender}</p>
+            <p className="text-sm">{order.shipper}</p>
             {order.shipperAddress && <p className="text-xs text-gray-600">{order.shipperAddress}</p>}
-            {(!order.shipperAddress && order.senderAddress) && <p className="text-xs text-gray-600">{order.senderAddress}</p>}
           </div>
           
           <div className="space-y-1">
@@ -76,9 +75,19 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       </Card>
 
       {/* Expedidor e Recebedor - Se existirem dados diferentes dos já exibidos */}
-      {(order.receiver) && (
+      {(order.shipper !== order.sender || order.receiver) && (
         <Card className="border border-freight-100 print:border-0 print:shadow-none overflow-hidden">
           <CardContent className="p-4 print:p-2 grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2 text-sm">
+            {order.shipper !== order.sender && (
+              <div className="space-y-1">
+                <p className="font-semibold text-freight-700 print:text-black mb-2 flex items-center gap-1.5">
+                  <User className="h-4 w-4" />
+                  EXPEDIDOR:
+                </p>
+                <p className="text-sm">{order.shipper}</p>
+                {order.shipperAddress && <p className="text-xs text-gray-600">{order.shipperAddress}</p>}
+              </div>
+            )}
             {order.receiver && (
               <div className="space-y-1">
                 <p className="font-semibold text-freight-700 print:text-black mb-2 flex items-center gap-1.5">
