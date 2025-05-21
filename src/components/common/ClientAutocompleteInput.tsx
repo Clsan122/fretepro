@@ -31,7 +31,8 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
   placeholder = "Selecione um cliente..."
 }) => {
   const [open, setOpen] = useState(false);
-  const availableClients = clients || [];
+  // Make sure clients is always an array, even if it's undefined
+  const availableClients = Array.isArray(clients) ? clients : [];
   const selectedClient = availableClients.find((client) => client.id === value);
   
   // Use correct ref type for button element

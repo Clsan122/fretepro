@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -53,7 +54,7 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
   useEffect(() => {
     if (user) {
       const userClients = getClientsByUserId(user.id);
-      setClients(userClients);
+      setClients(userClients || []); // Ensure clients is always an array
     }
   }, [user]);
   const createHighlightedLabel = (text: string) => <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
@@ -104,7 +105,11 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
       
       {selectedSenderType === 'client' && <div className="mb-4">
           <Label className="mb-1 block">Selecionar Cliente</Label>
-          <ClientAutocompleteInput clients={clients} onChange={handleClientSelect} placeholder="Buscar cliente..." />
+          <ClientAutocompleteInput 
+            clients={clients || []} 
+            onChange={handleClientSelect} 
+            placeholder="Buscar cliente..." 
+          />
         </div>}
       
       {selectedSenderType === 'client' && <CNPJLookupField label="CNPJ da Transportadora" onDataFetched={data => {
