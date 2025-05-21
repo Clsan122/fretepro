@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VEHICLE_TYPES, BODY_TYPES } from "@/utils/constants";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 interface VehicleInfoSectionProps {
   licensePlate: string;
@@ -39,6 +41,10 @@ export const VehicleInfoSection: React.FC<VehicleInfoSectionProps> = ({
   onVehicleYearChange,
   onVehicleModelChange,
 }) => {
+  const handleAnttSearch = () => {
+    window.open('https://consultapublica.antt.gov.br/Site/ConsultaRNTRC.aspx/consultapublica', '_blank');
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -104,14 +110,27 @@ export const VehicleInfoSection: React.FC<VehicleInfoSectionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="anttCode">Código ANTT</Label>
-            <Input
-              id="anttCode"
-              value={anttCode}
-              onChange={(e) => onAnttCodeChange(e.target.value)}
-              placeholder="Digite o código ANTT"
-              required
-            />
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <Label htmlFor="anttCode">Código ANTT</Label>
+                <Input
+                  id="anttCode"
+                  value={anttCode}
+                  onChange={(e) => onAnttCodeChange(e.target.value)}
+                  placeholder="Digite o código ANTT"
+                  required
+                />
+              </div>
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={handleAnttSearch}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Consultar ANTT
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
