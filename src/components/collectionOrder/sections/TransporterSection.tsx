@@ -13,6 +13,7 @@ import { UseFormReturn } from "react-hook-form";
 import { CollectionOrderFormValues } from "../schema";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { ClientAutocompleteInput } from "@/components/common/ClientAutocompleteInput";
+
 interface TransporterSectionProps {
   sender: string;
   setSender: (value: string) => void;
@@ -30,6 +31,7 @@ interface TransporterSectionProps {
   onOpenClientDialog: () => void;
   form: UseFormReturn<CollectionOrderFormValues>;
 }
+
 export const TransporterSection: React.FC<TransporterSectionProps> = ({
   sender,
   setSender,
@@ -47,32 +49,42 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
   onOpenClientDialog,
   form
 }) => {
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
+  
   useEffect(() => {
     if (user) {
-      const userClients = getClientsByUserId(user.id);
-      setClients(userClients || []); // Ensure clients is always an array
+      try {
+        const userClients = getClientsByUserId(user.id);
+        setClients(Array.isArray(userClients) ? userClients : []);
+      } catch (error) {
+        console.error("Erro ao buscar clientes:", error);
+        setClients([]);
+      }
     }
   }, [user]);
+  
   const createHighlightedLabel = (text: string) => <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
       {text}
     </Label>;
+  
   const handleSenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSender(e.target.value);
     form.setValue("sender", e.target.value, {
       shouldValidate: true
     });
   };
+  
   const handleSenderAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSenderAddress(e.target.value);
     form.setValue("senderAddress", e.target.value, {
       shouldValidate: true
     });
   };
+  
   const handleClientSelect = (clientId: string) => {
+    if (!clientId) return;
+    
     const selectedClient = clients.find(client => client.id === clientId);
     if (selectedClient) {
       setSender(selectedClient.name);
@@ -88,6 +100,7 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
       });
     }
   };
+  
   return <div className="space-y-4">
       {createHighlightedLabel("TRANSPORTADORA")}
       
@@ -106,7 +119,7 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
       {selectedSenderType === 'client' && <div className="mb-4">
           <Label className="mb-1 block">Selecionar Cliente</Label>
           <ClientAutocompleteInput 
-            clients={clients || []} 
+            clients={clients} 
             onChange={handleClientSelect} 
             placeholder="Buscar cliente..." 
           />

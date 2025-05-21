@@ -70,13 +70,15 @@ const CollectionOrderPage: React.FC = () => {
     volumes: quotationData.volumes || 0,
     weight: quotationData.weight || 0,
     merchandiseValue: quotationData.merchandiseValue || 0,
-    measurements: quotationData.measurements?.map((m: QuotationMeasurement) => ({
-      id: m.id,
-      length: m.length,
-      width: m.width,
-      height: m.height,
-      quantity: m.quantity
-    })) || []
+    measurements: Array.isArray(quotationData.measurements) 
+      ? quotationData.measurements.map((m: QuotationMeasurement) => ({
+          id: m.id,
+          length: m.length,
+          width: m.width,
+          height: m.height,
+          quantity: m.quantity
+        })) 
+      : []
   } : undefined;
 
   return (

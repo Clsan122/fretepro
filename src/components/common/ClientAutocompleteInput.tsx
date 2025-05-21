@@ -25,15 +25,17 @@ interface ClientAutocompleteInputProps {
 }
 
 export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = ({
-  clients,
+  clients = [],
   value,
   onChange,
   placeholder = "Selecione um cliente..."
 }) => {
   const [open, setOpen] = useState(false);
-  // Make sure clients is always an array, even if it's undefined
+  // Garantindo que clients é sempre um array
   const availableClients = Array.isArray(clients) ? clients : [];
-  const selectedClient = availableClients.find((client) => client.id === value);
+  const selectedClient = availableClients.length > 0 ? 
+    availableClients.find((client) => client.id === value) : 
+    undefined;
   
   // Use correct ref type for button element
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -50,6 +52,20 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Se não tivermos clientes, não renderizamos o componente
+  if (!availableClients || availableClients.length === 0) {
+    return (
+      <Button
+        variant="outline"
+        className="w-full justify-between"
+        disabled
+      >
+        Nenhum cliente disponível
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
