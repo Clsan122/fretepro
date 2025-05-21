@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { updateUser } from "@/utils/storage";
@@ -28,6 +29,7 @@ export const useProfileActions = (setUser: (user: any) => void) => {
             cpf: updatedUser.cpf,
             pix_key: updatedUser.pixKey,
             avatar_url: updatedUser.avatar
+            // Removido o campo updated_at que estava causando o erro
           });
           
         if (error) {
