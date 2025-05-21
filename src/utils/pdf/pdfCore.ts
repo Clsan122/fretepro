@@ -25,7 +25,7 @@ export const generateCanvasFromElement = async (
   const isMobile = window.innerWidth <= 640;
   
   // Ajustar a escala para melhorar a qualidade da imagem (maior em desktop, adequada para mobile)
-  const scale = isMobile ? (options.scale || 1.5) : (options.scale || 3);
+  const scale = isMobile ? (options.scale || 2) : (options.scale || 4);
   
   // Save original width if needed
   const originalWidth = printElement.style.width;
@@ -73,14 +73,15 @@ export const generateCanvasFromElement = async (
           }
           table td, table th {
             padding: 2px !important;
-            font-size: 10px !important;
+            font-size: 8px !important;
             word-break: break-word !important;
           }
           .text-sm, .text-xs {
-            font-size: 10px !important;
+            font-size: 8px !important;
           }
           .grid-cols-2, .grid-cols-3, .grid-cols-4 {
-            grid-template-columns: 1fr !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
           }
         `;
         document.head.appendChild(styles);
@@ -90,7 +91,7 @@ export const generateCanvasFromElement = async (
       const singlePageStyle = document.createElement('style');
       singlePageStyle.innerHTML = `
         #${elementId} {
-          max-height: 270mm !important; /* Altura aproximada de uma página A4 com margens */
+          max-height: 280mm !important; /* Altura aproximada de uma página A4 com margens */
           width: ${isMobile ? '100%' : '210mm'} !important;
           page-break-inside: avoid !important;
         }
@@ -102,7 +103,35 @@ export const generateCanvasFromElement = async (
         }
         #${elementId} table {
           page-break-inside: avoid !important;
-          font-size: ${isMobile ? '8px' : '10px'} !important;
+          font-size: ${isMobile ? '8px' : '8px'} !important;
+        }
+        .text-sm {
+          font-size: 7px !important;
+        }
+        .text-xs {
+          font-size: 6px !important;
+        }
+        p.text-sm {
+          font-size: 7px !important;
+          line-height: 1.1 !important;
+          margin: 0.5mm 0 !important;
+        }
+        p.text-xs {
+          font-size: 6px !important;
+          line-height: 1.1 !important;
+          margin: 0 !important;
+        }
+        .p-4, .p-3, .p-2 {
+          padding: 0.5mm !important;
+        }
+        .mb-4, .mb-3, .mb-2 {
+          margin-bottom: 0.5mm !important;
+        }
+        .mt-4, .mt-3, .mt-2 {
+          margin-top: 0.5mm !important;
+        }
+        .gap-4, .gap-3, .gap-2 {
+          gap: 0.5mm !important;
         }
       `;
       document.head.appendChild(singlePageStyle);
@@ -138,7 +167,7 @@ export const generatePdfFromCanvas = (
   } = {}
 ): jsPDF => {
   // Definir qualidade padrão alta se não especificada
-  const imageQuality = options.quality || 0.95;
+  const imageQuality = options.quality || 0.98;
   
   // Gerar imagem com qualidade definida
   const imgData = canvas.toDataURL('image/png', imageQuality);
@@ -154,17 +183,17 @@ export const generatePdfFromCanvas = (
   const pageHeight = pdf.internal.pageSize.getHeight();
   
   // Calculate image dimensions to fit the page
-  const imgWidth = options.fitToPage ? pageWidth - 10 : Math.min(pageWidth - 10, (canvas.width * 0.264583));
+  const imgWidth = options.fitToPage ? pageWidth - 6 : Math.min(pageWidth - 6, (canvas.width * 0.264583));
   const ratio = canvas.width / imgWidth;
   const imgHeight = canvas.height / ratio;
   
   // Use single page approach when fitToPage is true or height is reasonable
-  if (options.fitToPage || imgHeight <= pageHeight - 10) {
+  if (options.fitToPage || imgHeight <= pageHeight - 6) {
     pdf.addImage(
       imgData,
       'PNG',
-      5, // x position - margem de 5mm na esquerda
-      5, // y position - margem de 5mm no topo 
+      3, // x position - margem de 3mm na esquerda
+      3, // y position - margem de 3mm no topo 
       imgWidth,
       imgHeight,
       undefined,
@@ -196,15 +225,15 @@ export const generatePdfFromCanvas = (
     }
   } else {
     // Single page document (scaling down if needed)
-    const scaleFactor = Math.min(1, (pageHeight - 10) / imgHeight);
+    const scaleFactor = Math.min(1, (pageHeight - 6) / imgHeight);
     const finalWidth = imgWidth * scaleFactor;
     const finalHeight = imgHeight * scaleFactor;
     
     pdf.addImage(
       imgData,
       'PNG',
-      5 + (pageWidth - 10 - finalWidth) / 2, // centralizar horizontalmente
-      5,
+      3 + (pageWidth - 6 - finalWidth) / 2, // centralizar horizontalmente
+      3,
       finalWidth,
       finalHeight,
       undefined,

@@ -56,7 +56,7 @@ export const generateCollectionOrderPdf = async (
     try {
       // Usar as funções core otimizadas para geração de PDF
       const canvas = await generateCanvasFromElement(elementId, {
-        scale: 3,
+        scale: 4, // Aumentado para melhor qualidade
         setWidth: '800px',
         restoreWidth: true
       });
@@ -66,9 +66,10 @@ export const generateCollectionOrderPdf = async (
         subject: `Transporte de ${order.originCity}/${order.originState} para ${order.destinationCity}/${order.destinationState}`,
         author: order.sender,
         creator: 'FreteValor',
-        quality: 0.95,
-        fitToPage: true,
-        filename: options.savePdf ? (options.filename || `ordem-coleta-${order.orderNumber}.pdf`) : undefined
+        quality: 0.98, // Aumentado para melhor qualidade
+        fitToPage: true, // Forçar ajuste para uma página
+        filename: options.savePdf ? (options.filename || `ordem-coleta-${order.orderNumber}.pdf`) : undefined,
+        compress: true // Compressão para otimizar o tamanho
       });
       
       if (options.openInNewTab) {
