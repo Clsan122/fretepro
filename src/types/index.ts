@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -17,6 +16,7 @@ export interface User {
   pixKey?: string;
   bankInfo?: string;
   updatedAt?: string;
+  avatar?: string; // Added missing avatar property
 }
 
 export interface Client {
@@ -192,6 +192,10 @@ export interface CollectionOrder {
   observations?: string;
   companyLogo?: string;
   issuerId: string;
+  
+  // Added sync properties
+  syncId?: string;
+  syncVersion?: number;
 }
 
 // Tipo adicionado para manter compatibilidade com o código existente
