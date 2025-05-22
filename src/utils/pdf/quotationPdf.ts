@@ -140,7 +140,8 @@ export const previewQuotationPdf = async (quotation: QuotationData): Promise<voi
                       
                       // Clean up
                       document.body.removeChild(tempDiv);
-                      pdfUtils.restoreQuotationFromPdf(quotation.id);
+                      // Fix: Remove the ID argument as it's not needed for restoreFromPdf
+                      pdfUtils.restoreQuotationFromPdf();
                       
                       resolve();
                     }).catch(reject);
