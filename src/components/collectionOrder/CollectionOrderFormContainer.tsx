@@ -184,6 +184,8 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
           setReceiver={setters.setReceiver}
           setReceiverAddress={setters.setReceiverAddress}
           form={form}
+          senderLogo={formData.senderLogo}
+          setSenderLogo={setters.setSenderLogo}
         />
 
         <LocationDetailsSection
