@@ -23,7 +23,6 @@ const CollectionOrderPage: React.FC = () => {
         localStorage.removeItem('quotationForCollectionOrder');
         
         toast({
-          title: "Dados importados",
           description: "Os dados da cotação foram importados para a ordem de coleta"
         });
       } catch (error) {

@@ -301,33 +301,38 @@ export const getCollectionOrderById = async (id: string): Promise<CollectionOrde
   }
 };
 
-export const saveCollectionOrder = (order: CollectionOrder): void => {
-  const orders = getCollectionOrdersByUserId(order.userId);
-  
-  // Verificar se já existe uma ordem com este ID
-  const existingOrderIndex = orders.findIndex(o => o.id === order.id);
-  
-  if (existingOrderIndex >= 0) {
-    // Atualizar ordem existente
-    orders[existingOrderIndex] = {
-      ...order,
-      // Garantir que mantemos o número da ordem original
-      orderNumber: orders[existingOrderIndex].orderNumber
-    };
-  } else {
-    // Adicionar nova ordem
-    orders.push(order);
-  }
-  
-  localStorage.setItem('collectionOrders', JSON.stringify(orders));
-  
-  // Sincronizar com IndexedDB se disponível
+export const saveCollectionOrder = async (order: CollectionOrder): Promise<void> => {
   try {
-    import('./sync/collectionOrderSync').then(module => {
-      module.saveCollectionOrderWithSync(order);
-    });
+    const orders = await getCollectionOrdersByUserId(order.userId);
+    
+    // Verificar se já existe uma ordem com este ID
+    const existingOrderIndex = orders.findIndex(o => o.id === order.id);
+    
+    if (existingOrderIndex >= 0) {
+      // Atualizar ordem existente
+      orders[existingOrderIndex] = {
+        ...order,
+        // Garantir que mantemos o número da ordem original
+        orderNumber: orders[existingOrderIndex].orderNumber
+      };
+    } else {
+      // Adicionar nova ordem
+      orders.push(order);
+    }
+    
+    localStorage.setItem('collectionOrders', JSON.stringify(orders));
+    
+    // Sincronizar com IndexedDB se disponível
+    try {
+      import('./sync/collectionOrderSync').then(module => {
+        module.saveCollectionOrderWithSync(order);
+      });
+    } catch (error) {
+      console.error("Erro ao sincronizar ordem de coleta:", error);
+    }
   } catch (error) {
-    console.error("Erro ao sincronizar ordem de coleta:", error);
+    console.error("Erro ao salvar ordem de coleta:", error);
+    throw error;
   }
 };
 
