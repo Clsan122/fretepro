@@ -22,7 +22,8 @@ export { generateFreightReceiptPdf, generateMultiFreightReceiptPdf } from "./fre
 export { 
   generateCollectionOrderPdf, 
   prepareForPrintMode, 
-  restoreFromPrintMode 
+  restoreFromPrintMode,
+  generateOrderHtmlPreview
 } from "./collectionOrderPdf";
 
 // Email PDF functions

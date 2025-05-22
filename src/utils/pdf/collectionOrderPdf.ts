@@ -73,9 +73,14 @@ export const generateCollectionOrderPdf = async (
     try {
       // Usar as funções core otimizadas para geração de PDF
       const canvas = await generateCanvasFromElement(elementId, {
-        scale: 4, // Aumentado para melhor qualidade
+        scale: 4, // Alta resolução para melhor qualidade
         setWidth: '800px',
-        restoreWidth: true
+        restoreWidth: true,
+        // Adicionar os seguintes parâmetros para melhorar a qualidade
+        logging: false,
+        allowTaint: true,
+        useCORS: true,
+        backgroundColor: '#ffffff'
       });
       
       const pdf = generatePdfFromCanvas(canvas, {
@@ -83,10 +88,10 @@ export const generateCollectionOrderPdf = async (
         subject: `Transporte de ${order.originCity}/${order.originState || ''} para ${order.destinationCity}/${order.destinationState || ''}`,
         author: order.sender || 'FreteValor',
         creator: 'FreteValor',
-        quality: 0.98, // Aumentado para melhor qualidade
+        quality: 0.98, // Alta qualidade
         fitToPage: true, // Forçar ajuste para uma página
         filename: options.savePdf ? (options.filename || `ordem-coleta-${order.orderNumber || 'nova'}.pdf`) : undefined,
-        compress: true, // Compressão para otimizar o tamanho,
+        compress: true, // Compressão para otimizar o tamanho
         keywords: `ordem de coleta, frete, transporte, ${order.originCity}, ${order.destinationCity}`
       });
       
@@ -106,7 +111,7 @@ export const generateCollectionOrderPdf = async (
   }
 };
 
-// Nova função para gerar HTML preview
+// Função para gerar HTML preview
 export const generateOrderHtmlPreview = (
   elementId: string,
   order: CollectionOrder

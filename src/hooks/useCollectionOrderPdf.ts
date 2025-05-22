@@ -163,7 +163,7 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
     }
   };
 
-  // Nova função para abrir visualização HTML
+  // Função aprimorada para abrir visualização HTML
   const openHtmlPreview = () => {
     if (!order) return;
 
@@ -201,7 +201,7 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
       // Cabeçalho da ordem de coleta
       const orderTitle = `Ordem de Coleta nº ${order.orderNumber} - ${order.originCity} para ${order.destinationCity}`;
       
-      // Escrever o HTML na nova janela
+      // Escrever o HTML na nova janela com layout aprimorado
       newWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -224,10 +224,13 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
                 border: 0.1mm solid #eaeaea !important;
                 margin-bottom: 2mm !important;
               }
+              .actions-bar {
+                display: none !important;
+              }
             }
             body {
               font-family: Arial, sans-serif;
-              padding: 20px;
+              padding: 0;
               max-width: 800px;
               margin: 0 auto;
               background: #f8f8f8;
@@ -239,13 +242,17 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
               box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
             .actions-bar {
+              position: sticky;
+              top: 0;
+              z-index: 100;
               margin-bottom: 20px;
               display: flex;
               justify-content: space-between;
               align-items: center;
-              padding: 10px;
-              background: #f0f0f0;
-              border-radius: 5px;
+              padding: 10px 15px;
+              background: #fff;
+              border-bottom: 1px solid #e0e0e0;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
             .btn {
               padding: 8px 16px;
@@ -254,6 +261,7 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
               cursor: pointer;
               font-weight: bold;
               transition: background 0.3s;
+              margin-left: 8px;
             }
             .btn-primary {
               background: #606;
@@ -269,9 +277,28 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
             .btn-secondary:hover {
               background: #d0d0d0;
             }
+            .btn-group {
+              display: flex;
+              gap: 8px;
+            }
             .logo {
               max-height: 60px;
               margin-bottom: 10px;
+            }
+            .document-info {
+              background-color: #f9f9f9;
+              padding: 8px 15px;
+              margin-bottom: 15px;
+              border-radius: 4px;
+              border-left: 3px solid #606;
+            }
+            .document-info p {
+              margin: 3px 0;
+              font-size: 14px;
+            }
+            .document-info .title {
+              font-weight: bold;
+              color: #606;
             }
             @media (max-width: 600px) {
               body {
@@ -283,6 +310,15 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
               .actions-bar {
                 flex-direction: column;
                 gap: 10px;
+                position: relative;
+              }
+              .btn-group {
+                width: 100%;
+                justify-content: space-between;
+              }
+              .btn {
+                padding: 6px 12px;
+                font-size: 14px;
               }
             }
           </style>
@@ -290,11 +326,21 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
         <body>
           <div class="actions-bar print-exclude">
             <h1>${orderTitle}</h1>
-            <div>
+            <div class="btn-group">
               <button class="btn btn-primary" onclick="window.print()">Imprimir</button>
               <button class="btn btn-secondary" onclick="window.close()">Fechar</button>
             </div>
           </div>
+          
+          <div class="document-info print-exclude">
+            <p class="title">Informações do Documento</p>
+            <p><strong>Origem:</strong> ${order.originCity}/${order.originState}</p>
+            <p><strong>Destino:</strong> ${order.destinationCity}/${order.destinationState}</p>
+            <p><strong>Data de Emissão:</strong> ${new Date(order.createdAt).toLocaleDateString('pt-BR')}</p>
+            <p><strong>Remetente:</strong> ${order.shipper || '-'}</p>
+            <p><strong>Destinatário:</strong> ${order.recipient || '-'}</p>
+          </div>
+          
           <div id="print-container">
             ${element.outerHTML}
           </div>
@@ -309,6 +355,16 @@ export const useCollectionOrderPdf = (order: CollectionOrder | null, id?: string
                   el.style.display = 'none';
                 }
               }
+              
+              // Adicionar data e hora de visualização no topo
+              const infoBar = document.createElement('div');
+              infoBar.style.fontSize = '12px';
+              infoBar.style.color = '#666';
+              infoBar.style.textAlign = 'right';
+              infoBar.style.padding = '5px 0';
+              infoBar.style.marginBottom = '10px';
+              infoBar.innerHTML = 'Visualizado em: ' + new Date().toLocaleString('pt-BR');
+              printContainer.insertBefore(infoBar, printContainer.firstChild);
             });
           </script>
         </body>
