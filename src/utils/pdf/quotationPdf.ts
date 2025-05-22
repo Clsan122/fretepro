@@ -1,13 +1,18 @@
+
 /**
  * Re-export all quotation PDF functionality for backward compatibility
  */
-import { prepareQuotationForPdf, restoreQuotationFromPdf } from "./quotationPdfPrep";
+import { 
+  prepareQuotationForPdf as prepForPdf, 
+  restoreQuotationFromPdf as restoreFromPdf 
+} from "./quotationPdfPrep";
 import { 
   generateFreightQuotationPdf, 
   shareFreightQuotationPdf,
   previewFreightQuotationPdf 
 } from "./freightQuotationPdf";
 import { QuotationData } from "@/components/quotation/types";
+import React from "react"; // Add missing import for React
 
 // Re-export all functions using the new implementations
 export const generateQuotationPdf = async (id: string): Promise<boolean> => {
@@ -19,7 +24,7 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
     }
 
     // Generate the PDF with the new format
-    const quotationData = prepareQuotationForPdf(id);
+    const quotationData = prepForPdf(id);
     if (!quotationData) {
       return false;
     }
@@ -29,11 +34,11 @@ export const generateQuotationPdf = async (id: string): Promise<boolean> => {
     });
     
     // Restore the original state
-    restoreQuotationFromPdf();
+    restoreFromPdf();
     return true;
   } catch (error) {
     console.error("Error generating quotation PDF:", error);
-    restoreQuotationFromPdf();
+    restoreFromPdf();
     return false;
   }
 };
@@ -98,7 +103,8 @@ export const previewQuotationPdf = async (quotation: QuotationData): Promise<voi
                     backgroundColor: '#ffffff',
                   }).then(canvas => {
                     import('jspdf').then((jsPDFModule) => {
-                      const { jsPDF } = jsPDFModule.default;
+                      // Fix the jsPDF import
+                      const jsPDF = jsPDFModule.default;
                       
                       // Create new PDF document
                       const pdf = new jsPDF({
@@ -154,7 +160,7 @@ export const previewQuotationPdf = async (quotation: QuotationData): Promise<voi
 
 export const shareQuotationPdf = async (id: string): Promise<Blob> => {
   // Get quotation data
-  const quotationData = prepareQuotationForPdf(id);
+  const quotationData = prepForPdf(id);
   if (!quotationData) {
     throw new Error("Quotation not found");
   }
@@ -164,18 +170,18 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
     const pdfBlob = await generateFreightQuotationPdf("quotation-pdf", quotationData);
     
     // Restore the original state
-    restoreQuotationFromPdf();
+    restoreFromPdf();
     
     return pdfBlob;
   } catch (error) {
     console.error("Error sharing quotation PDF:", error);
-    restoreQuotationFromPdf();
+    restoreFromPdf();
     throw error;
   }
 };
 
-// Re-export for backward compatibility
-export const prepareQuotationForPdf = (
+// Create local implementations with different names to avoid conflicts
+export const prepareForPdfPrint = (
   quotationId: string,
   containerId: string = "quotation-content"
 ) => {
@@ -192,7 +198,7 @@ export const prepareQuotationForPdf = (
   return true;
 };
 
-export const restoreQuotationFromPdf = (
+export const restoreFromPdfPrint = (
   containerId: string = "quotation-content"
 ) => {
   const container = document.getElementById(containerId);
@@ -205,7 +211,5 @@ export const restoreQuotationFromPdf = (
   document.body.style.zoom = "";
 };
 
-export {
-  prepareQuotationForPdf,
-  restoreQuotationFromPdf
-};
+// Re-export the imported functions
+export { prepForPdf as prepareQuotationForPdf, restoreFromPdf as restoreQuotationFromPdf };
