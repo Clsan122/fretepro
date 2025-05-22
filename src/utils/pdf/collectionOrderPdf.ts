@@ -76,11 +76,8 @@ export const generateCollectionOrderPdf = async (
         scale: 4, // Alta resolução para melhor qualidade
         setWidth: '800px',
         restoreWidth: true,
-        // Adicionar os seguintes parâmetros para melhorar a qualidade
-        logging: false,
-        allowTaint: true,
-        useCORS: true,
-        backgroundColor: '#ffffff'
+        // Removendo propriedades não suportadas pelo tipo
+        // As configurações avançadas serão tratadas internamente no pdfCore.ts
       });
       
       const pdf = generatePdfFromCanvas(canvas, {
