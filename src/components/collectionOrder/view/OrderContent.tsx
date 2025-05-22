@@ -16,6 +16,9 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     year: 'numeric'
   }) : '';
 
+  // Determinar se temos um logo específico para a transportadora
+  const hasCarrierLogo = order.senderLogo || false;
+
   return (
     <div className="space-y-1 print:space-y-0.5">
       {/* Logo e Número da Ordem de Coleta */}
@@ -57,9 +60,17 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
                   <Truck className="h-3 w-3" />
                   DADOS DA TRANSPORTADORA:
                 </h3>
-                <div className="text-center text-xs">
+                <div className="flex flex-col items-center text-xs">
+                  {/* Exibir o logo da transportadora se existir */}
+                  {order.senderLogo && (
+                    <img 
+                      src={order.senderLogo} 
+                      alt="Logo da Transportadora" 
+                      className="max-h-12 print:max-h-8 object-contain mb-1"
+                    />
+                  )}
                   <p className="font-semibold">{order.sender}</p>
-                  {order.senderCnpj && <p className="text-xs">CNPJ: {order.senderCnpj}</p>}
+                  {order.senderCnpj && <p className="text-xs font-medium">CNPJ: {order.senderCnpj}</p>}
                   {order.senderAddress && <p className="text-xs">{order.senderAddress}</p>}
                   {(order.senderCity && order.senderState) && (
                     <p className="text-xs">{order.senderCity} - {order.senderState}</p>
@@ -235,3 +246,4 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     </div>
   );
 };
+

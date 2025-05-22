@@ -41,6 +41,8 @@ interface SenderRecipientSectionProps {
   handleSenderTypeChange?: (type: 'my-company' | 'client') => void;
   handleSenderClientChange?: (clientId: string) => void;
   clients?: Client[];
+  senderLogo?: string;
+  setSenderLogo?: (value: string) => void;
   form: UseFormReturn<CollectionOrderFormValues>;
 }
 
@@ -72,6 +74,8 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   handleSenderTypeChange = () => {},
   handleSenderClientChange = () => {},
   clients = [],
+  senderLogo = "",
+  setSenderLogo = () => {},
   form
 }) => {
   const { user } = useAuth();
@@ -147,6 +151,8 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           onOpenClientDialog={handleOpenSenderDialog}
           form={form}
           clients={safeClientsList}
+          senderLogo={senderLogo}
+          setSenderLogo={setSenderLogo}
         />
 
         <Separator className="my-2" />
@@ -191,6 +197,9 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           setSenderCnpj(client.cnpj || '');
           setSenderCity(client.city || '');
           setSenderState(client.state || '');
+          if (client.logo) {
+            setSenderLogo(client.logo);
+          }
           setSenderDialogOpen(false);
           if (handleSenderClientChange) {
             handleSenderClientChange(client.id);

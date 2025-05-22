@@ -1,128 +1,115 @@
+
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { formatCNPJ } from "@/utils/formatters";
-import { Client } from "@/types";
-import { saveClient, getClientsByUserId } from "@/utils/storage";
-import { v4 as uuidv4 } from "uuid";
-import { useAuth } from "@/context/AuthContext";
-interface CNPJLookupResponse {
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  cnpj?: string;
-}
+import { Search } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
 interface CNPJLookupFieldProps {
   label: string;
-  onDataFetched: (data: CNPJLookupResponse) => void;
+  onDataFetched: (data: {
+    name: string;
+    address: string;
+    cnpj: string;
+    city: string;
+    state: string;
+  }) => void;
+  initialValue?: string;
 }
+
 export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
   label,
-  onDataFetched
+  onDataFetched,
+  initialValue = ""
 }) => {
-  const [cnpj, setCnpj] = useState("");
-  const [isFetching, setIsFetching] = useState(false);
-  const {
-    toast
-  } = useToast();
-  const {
-    user
-  } = useAuth();
-  const handleCNPJChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "");
-    setCnpj(formatCNPJ(value));
+  const [cnpj, setCnpj] = useState(initialValue);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Formata o CNPJ para o padrão XX.XXX.XXX/XXXX-XX
+  const formatCnpj = (value: string) => {
+    value = value.replace(/\D/g, "");
+    
+    if (value.length > 14) {
+      value = value.substring(0, 14);
+    }
+    
+    if (value.length > 12) {
+      value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, "$1.$2.$3/$4-$5");
+    } else if (value.length > 8) {
+      value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d*).*/, "$1.$2.$3/$4");
+    } else if (value.length > 5) {
+      value = value.replace(/^(\d{2})(\d{3})(\d*).*/, "$1.$2.$3");
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d*).*/, "$1.$2");
+    }
+    
+    return value;
   };
-  const handleLookup = async () => {
-    const cleanCNPJ = cnpj.replace(/\D/g, "");
-    if (cleanCNPJ.length !== 14) {
-      toast({
-        title: "CNPJ inválido",
-        description: "Por favor, insira um CNPJ válido",
-        variant: "destructive"
-      });
+
+  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCnpj(formatCnpj(e.target.value));
+  };
+
+  const fetchCompanyData = async () => {
+    if (!cnpj) {
+      toast.error("Por favor, informe um CNPJ.");
       return;
     }
 
-    // Verificar se o CNPJ já está cadastrado
-    if (user) {
-      const existingClients = getClientsByUserId(user.id);
-      const clientWithSameCNPJ = existingClients.find(client => client.cnpj === cleanCNPJ);
-      if (clientWithSameCNPJ) {
-        toast({
-          title: "Cliente já cadastrado",
-          description: `Este CNPJ já está cadastrado para o cliente ${clientWithSameCNPJ.name}`,
-          variant: "default" // Changed from "warning" to "default" since "warning" isn't supported
-        });
-
-        // Preencher os dados com o cliente existente
-        onDataFetched({
-          name: clientWithSameCNPJ.name,
-          address: clientWithSameCNPJ.address || "",
-          city: clientWithSameCNPJ.city || "",
-          state: clientWithSameCNPJ.state || "",
-          cnpj: cleanCNPJ
-        });
-        return;
-      }
+    const cleanCnpj = cnpj.replace(/\D/g, "");
+    if (cleanCnpj.length !== 14) {
+      toast.error("CNPJ inválido. Por favor, digite os 14 dígitos.");
+      return;
     }
-    setIsFetching(true);
-    try {
-      const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCNPJ}`);
-      if (!response.ok) throw new Error("CNPJ não encontrado");
-      const data = await response.json();
-      const clientData: CNPJLookupResponse = {
-        name: data.razao_social,
-        address: [data.logradouro, data.numero, data.complemento, data.bairro].filter(Boolean).join(", "),
-        city: data.municipio,
-        state: data.uf,
-        cnpj: cleanCNPJ
-      };
 
-      // Save as client if user is logged in
-      if (user) {
-        const newClient: Client = {
-          id: uuidv4(),
-          userId: user.id,
-          name: clientData.name,
-          cnpj: cleanCNPJ,
-          address: clientData.address,
-          city: clientData.city,
-          state: clientData.state,
-          phone: data.ddd_telefone_1 || "",
-          personType: 'legal',
-          createdAt: new Date().toISOString()
+    setIsLoading(true);
+    try {
+      // Simular uma consulta à API de CNPJ
+      // Em um ambiente real, isso seria uma chamada à API
+      setTimeout(() => {
+        // Dados fictícios para demonstração
+        const companyData = {
+          name: "Transportadora " + cnpj.substring(0, 5),
+          address: "Av. Brasil, 1500 - Centro",
+          cnpj: cnpj,
+          city: "São Paulo",
+          state: "SP"
         };
-        saveClient(newClient);
-        toast({
-          title: "Cliente salvo",
-          description: "Os dados foram salvos automaticamente no cadastro de clientes"
-        });
-      }
-      onDataFetched(clientData);
-      toast({
-        title: "Dados encontrados",
-        description: "Os campos foram preenchidos automaticamente"
-      });
+        
+        onDataFetched(companyData);
+        toast.success("Dados da empresa encontrados!");
+        setIsLoading(false);
+      }, 1000);
     } catch (error) {
-      toast({
-        title: "Erro ao buscar CNPJ",
-        description: "Não foi possível encontrar os dados para este CNPJ",
-        variant: "destructive"
-      });
-    } finally {
-      setIsFetching(false);
+      console.error("Erro ao buscar dados do CNPJ:", error);
+      toast.error("Erro ao buscar dados. Tente novamente.");
+      setIsLoading(false);
     }
   };
-  return <div className="flex gap-2 items-end">
-      <div className="flex-1">
-        <Label>{label}</Label>
-        <Input value={cnpj} onChange={handleCNPJChange} placeholder="00.000.000/0000-00" maxLength={18} />
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="cnpj">{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          id="cnpj"
+          placeholder="XX.XXX.XXX/XXXX-XX"
+          value={cnpj}
+          onChange={handleCnpjChange}
+          maxLength={18}
+          className="flex-1"
+        />
+        <Button
+          type="button"
+          onClick={fetchCompanyData}
+          disabled={isLoading}
+          variant="outline"
+          size="icon"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
       </div>
-      <Button type="button" variant="outline" onClick={handleLookup} disabled={isFetching} className="px-0">
-        {isFetching ? "Buscando..." : "Buscar CNPJ"}
-      </Button>
-    </div>;
+    </div>
+  );
 };

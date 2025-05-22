@@ -91,6 +91,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       senderCnpj: data.senderCnpj || undefined,
       senderCity: data.senderCity || undefined,
       senderState: data.senderState || undefined,
+      senderLogo: formData.senderLogo, // Adicionando o logo do remetente
       recipient: data.recipient,
       recipientAddress: data.recipientAddress,
       originCity: data.originCity,

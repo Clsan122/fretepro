@@ -1,56 +1,12 @@
-export interface CollectionOrder {
+export interface User {
   id: string;
-  orderNumber: string; // Added this field for auto-numbering
-  sender: string;
-  senderAddress: string;
-  senderCnpj?: string;  // Added for company details
-  senderCity?: string;  // Added for company details
-  senderState?: string; // Added for company details
-  recipient: string;
-  recipientAddress: string;
-  originCity: string;
-  originState: string;
-  destinationCity: string;
-  destinationState: string;
-  receiver: string;
-  receiverAddress: string;
-  volumes: number;
-  weight: number;
-  measurements: Measurement[];
-  cubicMeasurement: number;
-  merchandiseValue: number;
-  invoiceNumber: string;
-  observations: string;
-  driverId?: string;
-  driverName?: string;
-  driverCpf?: string;
-  licensePlate?: string;
-  companyLogo: string;
-  issuerId: string;
-  createdAt: string;
-  userId: string;
-  shipper?: string;
-  shipperAddress?: string;
-  syncId?: string;
-  syncVersion?: number;
-  _deleted?: boolean;
-  _synced?: boolean;
-}
-
-export interface Driver {
-  id: string;
-  userId: string;
   name: string;
-  cpf: string;
-  phone: string;
-  licensePlate: string;
-  trailerPlate?: string;
-  vehicleType: string;
-  bodyType: string;
+  email: string;
   address?: string;
-  anttCode: string;
-  vehicleYear: string;
-  vehicleModel: string;
+  city?: string;
+  state?: string;
+  cnpj?: string;
+  companyLogo?: string;
   createdAt: string;
 }
 
@@ -61,112 +17,151 @@ export interface Client {
   email?: string;
   phone?: string;
   address?: string;
-  city: string;
-  state: string;
-  zipCode?: string;
+  city?: string;
+  state?: string;
   cnpj?: string;
-  cpf?: string;
   logo?: string;
-  personType: 'physical' | 'legal';
   createdAt: string;
 }
 
-export interface Measurement {
+export interface Driver {
   id: string;
-  length: number;
-  width: number;
-  height: number;
-  quantity: number;
-}
-
-export interface User {
-  id: string;
-  email: string;
+  userId: string;
   name: string;
-  cpf?: string;
+  email?: string;
   phone?: string;
-  avatar?: string;
+  cpf?: string;
+  licensePlate?: string;
   address?: string;
   city?: string;
   state?: string;
-  zipCode?: string;
-  pixKey?: string;
-  bankInfo: string;
-  role?: 'user' | 'admin';
-  createdAt?: string;
-  updatedAt?: string;
-  password?: string; // Add password as an optional property for registration
-  companyName?: string; // Add back the company fields
-  companyLogo?: string;
-  cnpj?: string;
+  createdAt: string;
+}
+
+export interface Vehicle {
+  id: string;
+  userId: string;
+  model: string;
+  licensePlate: string;
+  type: string;
+  capacity: number;
+  createdAt: string;
 }
 
 export interface Freight {
   id: string;
-  userId: string;
   clientId: string;
+  userId: string;
   driverId?: string;
   originCity: string;
   originState: string;
   destinationCity: string;
   destinationState: string;
+  departureDate: string;
+  arrivalDate: string;
   distance: number;
   price: number;
-  totalValue: number;
+  volumes: number;
+  weight: number;
+  dimensions: string;
+  cubicMeasurement: number;
   cargoType: string;
-  cargoWeight?: number;
-  cargoDescription?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'canceled';
-  paymentStatus: 'pending' | 'partial' | 'paid';
-  paymentDate?: string;
-  paymentMethod?: string;
-  paymentProof?: string;
-  deliveryProof?: string;
-  expenses: FreightExpense[];
-  observations?: string;
-  createdAt: string;
-  updatedAt?: string;
-  startDate?: string;
-  endDate?: string;
-  
-  // Additional properties needed by FreightForm.tsx and other components
-  departureDate?: string;
-  arrivalDate?: string;
-  volumes?: number;
-  weight?: number;
-  dimensions?: string;
-  cubicMeasurement?: number;
-  vehicleType?: string;
+  vehicleType: string;
   freightValue: number;
   dailyRate: number;
   otherCosts: number;
   tollCosts: number;
-  proofOfDeliveryImage?: string;
-  pixKey?: string;
-  paymentTerm?: string;
-  thirdPartyDriverCost?: number;
-  tollExpenses?: number;
-  fuelExpenses?: number;
-  mealExpenses?: number;
-  helperExpenses?: number;
-  accommodationExpenses?: number;
-  totalExpenses?: number;
-  netProfit?: number;
-  clientName?: string; // Add clientName property for CollectionOrderView
-  clientAddress?: string; // Add clientAddress property for CollectionOrderView
-  requesterName?: string; // Add new property
+  totalValue: number;
+  status: 'pending' | 'in transit' | 'delivered' | 'canceled';
+  paymentStatus: 'pending' | 'paid' | 'overdue';
+  createdAt: string;
+  expenses: Expense[];
 }
 
-export interface FreightExpense {
+export interface Expense {
   id: string;
+  freightId: string;
+  type: string;
   description: string;
   value: number;
-  date: string;
-  category: string;
+  createdAt: string;
 }
 
-// Adicionar o tipo QuotationMeasurement
-export interface QuotationMeasurement {
+export interface Quotation {
+  id: string;
+  userId: string;
+  clientId?: string;
+  clientName?: string;
+  originCity: string;
+  originState: string;
+  destinationCity: string;
+  destinationState: string;
+  volumes: number;
+  weight: number;
+  dimensions: string;
+  cubicMeasurement: number;
+  cargoType: string;
+  vehicleType: string;
+  pricePerKm: number;
+  tollCost: number;
+  additionalCosts: number;
+  totalPrice: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface CollectionOrder {
+  id: string;
+  userId: string;
+  orderNumber: string;
+  createdAt: string;
+  
+  // Transportadora
+  sender: string;
+  senderAddress: string;
+  senderCnpj?: string;
+  senderCity?: string;
+  senderState?: string;
+  senderLogo?: string; // Adicionando o logo da transportadora
+  
+  // Remetente
+  shipper?: string;
+  shipperAddress?: string;
+  
+  // Destinatário
+  recipient: string;
+  recipientAddress: string;
+  
+  // Recebedor
+  receiver?: string;
+  receiverAddress?: string;
+  
+  // Localização
+  originCity: string;
+  originState: string;
+  destinationCity: string;
+  destinationState: string;
+  
+  // Carga
+  volumes: number;
+  weight: number;
+  merchandiseValue: number;
+  cubicMeasurement?: number;
+  measurements?: CargoMeasurement[];
+  
+  // Informações adicionais
+  driverId?: string;
+  driverName?: string;
+  driverCpf?: string;
+  licensePlate?: string;
+  invoiceNumber: string;
+  observations?: string;
+  companyLogo?: string;
+  issuerId: string;
+}
+
+// Tipo adicionado para manter compatibilidade com o código existente
+export interface CargoMeasurement {
   id: string;
   length: number;
   width: number;

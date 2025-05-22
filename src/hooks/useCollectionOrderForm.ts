@@ -119,6 +119,7 @@ export const useCollectionOrderForm = ({ orderToEdit, initialData }: UseCollecti
       setShipperAddress: partiesForm.setShipperAddress,
       setReceiver: partiesForm.setReceiver,
       setReceiverAddress: partiesForm.setReceiverAddress,
+      setSenderLogo: partiesForm.setSenderLogo,
       handleSenderTypeChange: partiesForm.handlers.handleSenderTypeChange,
       handleSenderClientChange: (clientId: string) => {
         partiesForm.handlers.handleSenderClientChange(clientId, clients);

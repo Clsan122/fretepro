@@ -15,6 +15,7 @@ export const usePartiesForm = (initialData?: {
   shipperAddress?: string;
   receiver?: string;
   receiverAddress?: string;
+  senderLogo?: string;
 }) => {
   const { user } = useAuth();
   
@@ -43,7 +44,7 @@ export const usePartiesForm = (initialData?: {
   );
   
   const [selectedSenderId, setSelectedSenderId] = useState<string>(user ? user.id : 'none');
-  const [senderLogo, setSenderLogo] = useState('');
+  const [senderLogo, setSenderLogo] = useState(initialData?.senderLogo || '');
 
   // Quando o tipo de transportadora muda
   const handleSenderTypeChange = (type: 'my-company' | 'client') => {
@@ -128,6 +129,7 @@ export const usePartiesForm = (initialData?: {
     selectedSenderId,
     selectedSenderType,
     senderLogo,
+    setSenderLogo,
     
     handlers: {
       handleSenderTypeChange,

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Upload, Image as ImageIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CNPJLookupField } from "../CNPJLookupField";
 import { Client } from "@/types";
@@ -31,6 +31,8 @@ interface TransporterSectionProps {
   onOpenClientDialog: () => void;
   form: UseFormReturn<CollectionOrderFormValues>;
   clients: Client[];
+  senderLogo?: string;
+  setSenderLogo?: (value: string) => void;
 }
 
 export const TransporterSection: React.FC<TransporterSectionProps> = ({
@@ -49,10 +51,13 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
   handleSenderClientChange,
   onOpenClientDialog,
   form,
-  clients = [] // Garantindo que clients é sempre um array
+  clients = [], 
+  senderLogo = "",
+  setSenderLogo = () => {}
 }) => {
   // Garantimos que clients é sempre um array
   const availableClients = Array.isArray(clients) ? clients : [];
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   
   const createHighlightedLabel = (text: string) => <Label className="text-lg font-semibold mb-1 text-purple-700 border-b-2 border-purple-300 pb-1 rounded-none">
       {text}
@@ -82,6 +87,10 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
       setSenderCnpj(selectedClient.cnpj || "");
       setSenderCity(selectedClient.city || "");
       setSenderState(selectedClient.state || "");
+      if (selectedClient.logo) {
+        setSenderLogo(selectedClient.logo);
+      }
+      
       form.setValue("sender", selectedClient.name, {
         shouldValidate: true
       });
@@ -90,7 +99,18 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
       });
     }
   };
-  
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSenderLogo(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return <div className="space-y-4">
       {createHighlightedLabel("TRANSPORTADORA")}
       
@@ -116,20 +136,75 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
         </div>}
       
       {selectedSenderType === 'client' && <CNPJLookupField label="CNPJ da Transportadora" onDataFetched={data => {
-      setSender(data.name);
-      setSenderAddress(data.address);
-      form.setValue("sender", data.name, {
-        shouldValidate: true
-      });
-      form.setValue("senderAddress", data.address, {
-        shouldValidate: true
-      });
-      if (data.cnpj) {
-        setSenderCnpj(data.cnpj);
-      }
-      setSenderCity(data.city);
-      setSenderState(data.state);
-    }} />}
+        setSender(data.name);
+        setSenderAddress(data.address);
+        form.setValue("sender", data.name, {
+          shouldValidate: true
+        });
+        form.setValue("senderAddress", data.address, {
+          shouldValidate: true
+        });
+        if (data.cnpj) {
+          setSenderCnpj(data.cnpj);
+        }
+        setSenderCity(data.city);
+        setSenderState(data.state);
+      }} initialValue={senderCnpj} />}
+      
+      {/* Logo da transportadora */}
+      {selectedSenderType === 'client' && (
+        <div className="mb-4">
+          <Label htmlFor="senderLogo" className="block mb-1">Logo da Transportadora</Label>
+          <input
+            type="file"
+            id="senderLogo"
+            accept="image/*"
+            onChange={handleLogoUpload}
+            className="hidden"
+            ref={fileInputRef}
+          />
+          <div className="w-full flex items-center justify-center border-2 border-dashed border-gray-300 p-3 rounded-lg min-h-[84px] bg-white relative">
+            {senderLogo ? (
+              <>
+                <img
+                  src={senderLogo}
+                  alt="Logo da transportadora"
+                  className="max-h-16 max-w-[150px] object-contain"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1 right-1 bg-white border rounded-full shadow"
+                  onClick={() => setSenderLogo("")}
+                  aria-label="Remover logo"
+                >
+                  ×
+                </Button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center text-gray-500 hover:text-freight-700 transition-colors"
+              >
+                <ImageIcon className="h-7 w-7 mb-2" />
+                <span className="text-xs">Clique para fazer upload do logo</span>
+              </button>
+            )}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            {senderLogo ? "Trocar logo" : "Enviar logo"}
+          </Button>
+        </div>
+      )}
       
       <FormField control={form.control} name="sender" render={({
       field
