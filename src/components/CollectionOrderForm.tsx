@@ -8,13 +8,15 @@ interface CollectionOrderFormProps {
   onCancel: () => void;
   orderToEdit?: CollectionOrder;
   initialData?: Partial<CollectionOrder>;
+  isSaving?: boolean;
 }
 
 const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({ 
   onSave, 
   onCancel, 
   orderToEdit,
-  initialData 
+  initialData,
+  isSaving = false
 }) => {
   // Garantir que initialData seja sempre um objeto
   const safeInitialData = initialData || {};
@@ -30,6 +32,7 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
       onCancel={onCancel}
       orderToEdit={orderToEdit}
       initialData={safeInitialData}
+      isSaving={isSaving}
     />
   );
 };

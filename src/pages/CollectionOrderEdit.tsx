@@ -6,12 +6,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { CollectionOrder } from "@/types";
 import { getCollectionOrderById, saveCollectionOrder } from "@/utils/storage";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CollectionOrderEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<CollectionOrder | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     async function fetchOrder() {
@@ -19,6 +22,10 @@ const CollectionOrderEdit: React.FC = () => {
         try {
           const collectionOrder = await getCollectionOrderById(id);
           if (collectionOrder) {
+            // Ensure measurements is always an array
+            if (!Array.isArray(collectionOrder.measurements)) {
+              collectionOrder.measurements = [];
+            }
             setOrder(collectionOrder);
           } else {
             toast.error("Ordem de coleta não encontrada");
@@ -37,26 +44,34 @@ const CollectionOrderEdit: React.FC = () => {
     fetchOrder();
   }, [id, navigate]);
 
-  const handleSaveOrder = (updatedOrder: CollectionOrder) => {
+  const handleSaveOrder = async (updatedOrder: CollectionOrder) => {
     if (!id) {
       toast.error("ID da ordem não encontrado");
       return;
     }
     
-    // Garantir que preservamos o ID e o número da ordem original
-    // usando o objeto order que já foi carregado do banco de dados
-    const orderToSave = {
-      ...updatedOrder,
-      id: id, // Garantir que usamos o ID original
-      orderNumber: order?.orderNumber || updatedOrder.orderNumber, // Garantir que usamos o número original da ordem
-      syncVersion: (order?.syncVersion || 1) + 1 // Incrementar a versão para sincronização
-    };
-    
-    // Salvar mantendo o mesmo ID para não duplicar
-    saveCollectionOrder(orderToSave);
-    
-    toast.success("Ordem de coleta atualizada com sucesso!");
-    navigate("/collection-orders");
+    try {
+      setSaving(true);
+      
+      // Garantir que preservamos o ID e o número da ordem original
+      const orderToSave = {
+        ...updatedOrder,
+        id: id, // Garantir que usamos o ID original
+        orderNumber: order?.orderNumber || updatedOrder.orderNumber, // Garantir que usamos o número original da ordem
+        syncVersion: (order?.syncVersion || 1) + 1 // Incrementar a versão para sincronização
+      };
+      
+      // Salvar mantendo o mesmo ID para não duplicar
+      await saveCollectionOrder(orderToSave);
+      
+      toast.success("Ordem de coleta atualizada com sucesso!");
+      navigate("/collection-orders");
+    } catch (error) {
+      console.error("Erro ao salvar ordem de coleta:", error);
+      toast.error("Falha ao atualizar a ordem de coleta");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -94,6 +109,7 @@ const CollectionOrderEdit: React.FC = () => {
           onSave={handleSaveOrder} 
           onCancel={handleCancel}
           orderToEdit={order}
+          isSaving={saving}
         />
       </div>
     </Layout>

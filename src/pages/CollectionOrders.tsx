@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
@@ -5,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getCollectionOrdersByUserId, deleteCollectionOrder } from "@/utils/storage";
 import { CollectionOrder } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Table,
   TableBody,
@@ -17,11 +19,12 @@ import {
   Plus, 
   Eye, 
   Pencil, 
-  Download, 
   Truck, 
   FileText,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  CheckSquare,
+  XSquare
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -35,13 +38,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CollectionOrders: React.FC = () => {
   const [orders, setOrders] = useState<CollectionOrder[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState<boolean>(false);
+  const [isDeletingMultiple, setIsDeletingMultiple] = useState<boolean>(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -49,7 +57,13 @@ const CollectionOrders: React.FC = () => {
         try {
           setLoading(true);
           const userOrders = await getCollectionOrdersByUserId(user.id);
-          setOrders(userOrders);
+          
+          // Sort orders by date (newest first)
+          const sortedOrders = userOrders.sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+          
+          setOrders(sortedOrders);
         } catch (error) {
           console.error("Erro ao buscar ordens de coleta:", error);
           toast.error("Erro ao carregar ordens de coleta");
@@ -63,11 +77,23 @@ const CollectionOrders: React.FC = () => {
   }, [user]);
 
   const handleView = (orderId: string) => {
-    navigate(`/collection-order/view/${orderId}`);
+    if (isSelectionMode) {
+      toggleOrderSelection(orderId);
+    } else {
+      navigate(`/collection-order/view/${orderId}`);
+    }
   };
 
-  const handleEdit = (orderId: string) => {
-    navigate(`/collection-order/edit/${orderId}`);
+  const handleEdit = (orderId: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    if (isSelectionMode) {
+      toggleOrderSelection(orderId);
+    } else {
+      navigate(`/collection-order/edit/${orderId}`);
+    }
   };
 
   const handleDelete = async (orderId: string) => {
@@ -86,8 +112,66 @@ const CollectionOrders: React.FC = () => {
     }
   };
 
-  const handleGenerateFreight = (orderId: string) => {
-    navigate(`/collection-order/view/${orderId}`, { state: { generateFreight: true } });
+  const handleGenerateFreight = (orderId: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    if (isSelectionMode) {
+      toggleOrderSelection(orderId);
+    } else {
+      navigate(`/collection-order/view/${orderId}`, { state: { generateFreight: true } });
+    }
+  };
+  
+  const toggleOrderSelection = (orderId: string) => {
+    setSelectedOrders(prev => {
+      if (prev.includes(orderId)) {
+        return prev.filter(id => id !== orderId);
+      } else {
+        return [...prev, orderId];
+      }
+    });
+  };
+  
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(prev => !prev);
+    if (isSelectionMode) {
+      setSelectedOrders([]);
+    }
+  };
+  
+  const selectAllOrders = () => {
+    if (selectedOrders.length === orders.length) {
+      // Deselect all
+      setSelectedOrders([]);
+    } else {
+      // Select all
+      setSelectedOrders(orders.map(order => order.id));
+    }
+  };
+  
+  const deleteSelectedOrders = async () => {
+    try {
+      setIsDeletingMultiple(true);
+      
+      // Delete all selected orders
+      for (const orderId of selectedOrders) {
+        await deleteCollectionOrder(orderId);
+      }
+      
+      // Update orders state
+      setOrders(prevOrders => prevOrders.filter(order => !selectedOrders.includes(order.id)));
+      
+      toast.success(`${selectedOrders.length} ordem(ns) excluída(s) com sucesso`);
+      setSelectedOrders([]);
+      setIsSelectionMode(false);
+    } catch (error) {
+      console.error("Erro ao excluir ordens selecionadas:", error);
+      toast.error("Erro ao excluir ordens selecionadas");
+    } finally {
+      setIsDeletingMultiple(false);
+    }
   };
 
   return (
@@ -95,13 +179,78 @@ const CollectionOrders: React.FC = () => {
       <div className="p-4 md:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
           <h1 className="text-2xl font-bold mb-4 sm:mb-0">Ordens de Coleta</h1>
-          <Button 
-            onClick={() => navigate("/collection-order/new")}
-            className="bg-freight-600 hover:bg-freight-700 w-full sm:w-auto"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Nova Ordem
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button 
+              onClick={toggleSelectionMode}
+              variant={isSelectionMode ? "destructive" : "outline"}
+              className="flex-1 sm:flex-auto"
+            >
+              {isSelectionMode ? (
+                <>
+                  <XSquare className="mr-2 h-4 w-4" /> Cancelar
+                </>
+              ) : (
+                <>
+                  <CheckSquare className="mr-2 h-4 w-4" /> Selecionar
+                </>
+              )}
+            </Button>
+            <Button 
+              onClick={() => navigate("/collection-order/new")}
+              className="bg-freight-600 hover:bg-freight-700 flex-1 sm:flex-auto"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Nova Ordem
+            </Button>
+          </div>
         </div>
+
+        {isSelectionMode && selectedOrders.length > 0 && (
+          <div className="bg-muted/30 border rounded-lg p-3 mb-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{selectedOrders.length} {selectedOrders.length === 1 ? 'ordem selecionada' : 'ordens selecionadas'}</span>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={selectAllOrders}
+              >
+                {selectedOrders.length === orders.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
+              </Button>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  size="sm" 
+                  variant="destructive"
+                  disabled={isDeletingMultiple}
+                  className="w-full sm:w-auto"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" /> 
+                  {isDeletingMultiple ? 'Excluindo...' : 'Excluir Selecionadas'}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                    Excluir {selectedOrders.length} {selectedOrders.length === 1 ? 'Ordem' : 'Ordens'} de Coleta
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tem certeza que deseja excluir {selectedOrders.length > 1 ? 'essas ordens' : 'esta ordem'} de coleta? Esta ação não pode ser desfeita.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={deleteSelectedOrders} 
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {isDeletingMultiple ? 'Excluindo...' : 'Excluir'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex justify-center items-center py-12">
@@ -119,81 +268,119 @@ const CollectionOrders: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  {isSelectionMode && (
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={selectedOrders.length === orders.length && orders.length > 0}
+                        onCheckedChange={selectAllOrders}
+                        aria-label="Selecionar todas as ordens"
+                      />
+                    </TableHead>
+                  )}
                   <TableHead>Data</TableHead>
                   <TableHead>Remetente</TableHead>
-                  <TableHead>Rota</TableHead>
-                  <TableHead>Volumes</TableHead>
-                  <TableHead>Peso</TableHead>
+                  <TableHead className="hidden md:table-cell">Rota</TableHead>
+                  <TableHead className="hidden sm:table-cell">Volumes</TableHead>
+                  <TableHead className="hidden sm:table-cell">Peso</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {orders.map((order) => (
-                  <TableRow key={order.id}>
+                  <TableRow 
+                    key={order.id}
+                    className={isSelectionMode && selectedOrders.includes(order.id) ? "bg-muted/40" : ""}
+                    onClick={() => isSelectionMode ? toggleOrderSelection(order.id) : handleView(order.id)}
+                  >
+                    {isSelectionMode && (
+                      <TableCell className="w-10" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedOrders.includes(order.id)}
+                          onCheckedChange={() => toggleOrderSelection(order.id)}
+                          aria-label={`Selecionar ordem de ${order.sender}`}
+                        />
+                      </TableCell>
+                    )}
                     <TableCell>{new Date(order.createdAt).toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell>{order.sender}</TableCell>
-                    <TableCell>{order.originCity}/{order.originState} → {order.destinationCity}/{order.destinationState}</TableCell>
-                    <TableCell>{order.volumes}</TableCell>
-                    <TableCell>{order.weight} kg</TableCell>
+                    <TableCell>
+                      <div className="max-w-[150px] truncate">
+                        {order.sender}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{order.originCity}/{order.originState} → {order.destinationCity}/{order.destinationState}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{order.volumes}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{order.weight} kg</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleView(order.id)}
-                          title="Visualizar"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(order.id)}
-                          title="Editar"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleGenerateFreight(order.id)}
-                          title="Gerar Frete"
-                        >
-                          <Truck className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
+                      <div className="flex justify-end gap-1 md:gap-2">
+                        {!isSelectionMode ? (
+                          <>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                              title="Excluir"
+                              onClick={(e) => { e.stopPropagation(); handleView(order.id); }}
+                              title="Visualizar"
+                              className="h-8 w-8 p-0"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Eye className="h-4 w-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="flex items-center gap-2">
-                                <AlertTriangle className="h-5 w-5 text-destructive" />
-                                Excluir Ordem de Coleta
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir esta ordem de coleta? Esta ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction 
-                                onClick={() => handleDelete(order.id)} 
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                disabled={deletingOrderId === order.id}
-                              >
-                                {deletingOrderId === order.id ? 'Excluindo...' : 'Excluir'}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => handleEdit(order.id, e)}
+                              title="Editar"
+                              className="h-8 w-8 p-0"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => handleGenerateFreight(order.id, e)}
+                              title="Gerar Frete"
+                              className="h-8 w-8 p-0"
+                            >
+                              <Truck className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
+                                  title="Excluir"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="flex items-center gap-2">
+                                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                                    Excluir Ordem de Coleta
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir esta ordem de coleta? Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDelete(order.id)} 
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    disabled={deletingOrderId === order.id}
+                                  >
+                                    {deletingOrderId === order.id ? 'Excluindo...' : 'Excluir'}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground pr-2">
+                            Clique para selecionar
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

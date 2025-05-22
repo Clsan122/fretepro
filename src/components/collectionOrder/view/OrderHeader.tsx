@@ -1,7 +1,6 @@
 
 import React from "react";
-import { IssuerHeaderDetails } from "./IssuerHeaderDetails";
-import { Client, User } from "@/types";
+import { User, Client } from "@/types";
 
 interface OrderHeaderProps {
   companyLogo?: string;
@@ -18,14 +17,13 @@ interface OrderHeaderProps {
 
 export const OrderHeader: React.FC<OrderHeaderProps> = ({
   createdAt,
-  clientLogo,
-  issuer,
-  orderNumber,
+  orderNumber
 }) => {
-  // Removida a exibição do logo para evitar duplicação
   return (
     <div className="mb-3 print:mb-2 text-center">
-      <p className="text-gray-500 text-xs md:text-sm">Data: {createdAt}</p>
+      <p className="text-gray-500 text-xs md:text-sm">
+        Data: {createdAt} {orderNumber && <span className="ml-2">| Ordem: {orderNumber}</span>}
+      </p>
     </div>
   );
 };
