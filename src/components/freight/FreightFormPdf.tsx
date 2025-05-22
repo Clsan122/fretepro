@@ -128,7 +128,7 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
                 <td className="font-bold">Valor da Carga:</td>
                 <td>R$ {freight.totalValue}</td>
                 <td className="font-bold">Observações:</td>
-                <td>{freight.observations}</td>
+                <td>{freight.cargoDescription || "—"}</td>
               </tr>
             </tbody>
           </table>
