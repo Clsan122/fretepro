@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from "react";
 import { AddressCardProps } from "./types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BRAZILIAN_STATES } from "@/utils/constants";
-import { Home, Building, MapPin, Save, Upload } from "lucide-react";
+import { Home, Building, MapPin, Save, Upload, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -34,19 +35,21 @@ const AddressCard: React.FC<AddressCardProps> = ({
   setCnpj,
   setCompanyLogo,
   handleUpdateProfile,
+  handleCompanyLogoUpload,
+  isUpdating,
+  isUploading
 }) => {
   const logoFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [isFetching, setIsFetching] = useState(false);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCompanyLogo(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (file && handleCompanyLogoUpload) {
+      const url = await handleCompanyLogoUpload(file);
+      if (url) {
+        setCompanyLogo(url);
+      }
     }
   };
 
@@ -109,9 +112,19 @@ const AddressCard: React.FC<AddressCardProps> = ({
                 size="sm"
                 className="gap-2"
                 onClick={() => logoFileInputRef.current?.click()}
+                disabled={isUploading}
               >
-                <Upload className="h-4 w-4" />
-                Logo da empresa
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4" />
+                    Logo da empresa
+                  </>
+                )}
               </Button>
               
               <input
@@ -120,6 +133,7 @@ const AddressCard: React.FC<AddressCardProps> = ({
                 className="hidden"
                 accept="image/*"
                 onChange={handleFileSelect}
+                disabled={isUploading}
               />
             </div>
             
@@ -215,9 +229,18 @@ const AddressCard: React.FC<AddressCardProps> = ({
             </div>
           </div>
           
-          <Button type="submit" className="w-full">
-            <Save className="mr-2 h-4 w-4" />
-            Salvar Informações
+          <Button type="submit" className="w-full" disabled={isUpdating}>
+            {isUpdating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Salvar Informações
+              </>
+            )}
           </Button>
         </form>
       </CardContent>

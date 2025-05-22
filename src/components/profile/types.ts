@@ -1,4 +1,6 @@
 
+import { User } from "@/types";
+
 export interface ProfileData {
   id: string;
   full_name: string | null;
@@ -16,12 +18,12 @@ export interface ProfileData {
 }
 
 export interface ProfileFormProps {
-  user: any;
+  user: User;
   onUpdateProfile: (updatedData: any) => void;
 }
 
 export interface PersonalInfoCardProps {
-  user: any;
+  user: User | null;
   name: string;
   email: string;
   cpf: string;
@@ -35,7 +37,9 @@ export interface PersonalInfoCardProps {
   setAvatar: (avatar: string) => void;
   setPixKey: (pixKey: string) => void;
   onSubmit: (e: React.FormEvent) => void;
-  handleAvatarUpload?: (file: File) => void;
+  handleAvatarUpload?: (file: File) => Promise<string | null>;
+  isUpdating?: boolean;
+  isUploading?: boolean;
 }
 
 export interface AddressCardProps {
@@ -54,4 +58,7 @@ export interface AddressCardProps {
   setCnpj: (cnpj: string) => void;
   setCompanyLogo: (companyLogo: string) => void;
   handleUpdateProfile: (e: React.FormEvent) => void;
+  handleCompanyLogoUpload?: (file: File) => Promise<string | null>;
+  isUpdating?: boolean;
+  isUploading?: boolean;
 }

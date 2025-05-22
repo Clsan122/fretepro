@@ -1,7 +1,7 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "@/components/Layout";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Lock, Building } from "lucide-react";
 import AccountInfoCard from "@/components/profile/AccountInfoCard";
@@ -13,8 +13,21 @@ import { useProfileActions } from "@/components/profile/hooks/useProfileActions"
 
 const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
-  const { formData, setters } = useProfileForm(user);
-  const { handleUpdateProfile, handleChangePassword } = useProfileActions(setUser);
+  const { formData, setters, resetForm } = useProfileForm(user);
+  const { 
+    isUpdating, 
+    isChangingPassword, 
+    isUploading, 
+    handleUpdateProfile, 
+    handleChangePassword, 
+    handleAvatarUpload,
+    handleCompanyLogoUpload
+  } = useProfileActions(setUser);
+
+  // Atualizar o formulário quando o usuário mudar
+  useEffect(() => {
+    resetForm(user);
+  }, [user, resetForm]);
 
   if (!user) {
     return (
@@ -29,6 +42,49 @@ const Profile: React.FC = () => {
       </Layout>
     );
   }
+
+  const handlePersonalInfoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleUpdateProfile({
+      ...user,
+      name: formData.name,
+      email: formData.email,
+      cpf: formData.cpf,
+      phone: formData.phone,
+      avatar: formData.avatar,
+      pixKey: formData.pixKey,
+    });
+  };
+
+  const handleAddressInfoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleUpdateProfile({
+      ...user,
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zipCode: formData.zipCode,
+      companyName: formData.companyName,
+      cnpj: formData.cnpj,
+      companyLogo: formData.companyLogo,
+    });
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = handleChangePassword(
+      formData.currentPassword,
+      formData.newPassword,
+      formData.confirmPassword
+    );
+    
+    if (success) {
+      // Limpar campos de senha após atualização bem-sucedida
+      setters.setCurrentPassword("");
+      setters.setNewPassword("");
+      setters.setConfirmPassword("");
+    }
+  };
 
   return (
     <Layout>
@@ -71,18 +127,10 @@ const Profile: React.FC = () => {
                 setPhone={setters.setPhone}
                 setAvatar={setters.setAvatar}
                 setPixKey={setters.setPixKey}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleUpdateProfile({
-                    ...user,
-                    name: formData.name,
-                    email: formData.email,
-                    cpf: formData.cpf,
-                    phone: formData.phone,
-                    avatar: formData.avatar,
-                    pixKey: formData.pixKey,
-                  });
-                }}
+                onSubmit={handlePersonalInfoSubmit}
+                handleAvatarUpload={handleAvatarUpload}
+                isUpdating={isUpdating}
+                isUploading={isUploading}
               />
             </div>
           </TabsContent>
@@ -104,19 +152,10 @@ const Profile: React.FC = () => {
                 setCompanyName={setters.setCompanyName}
                 setCnpj={setters.setCnpj}
                 setCompanyLogo={setters.setCompanyLogo}
-                handleUpdateProfile={(e) => {
-                  e.preventDefault();
-                  handleUpdateProfile({
-                    ...user,
-                    address: formData.address,
-                    city: formData.city,
-                    state: formData.state,
-                    zipCode: formData.zipCode,
-                    companyName: formData.companyName,
-                    cnpj: formData.cnpj,
-                    companyLogo: formData.companyLogo,
-                  });
-                }}
+                handleUpdateProfile={handleAddressInfoSubmit}
+                handleCompanyLogoUpload={handleCompanyLogoUpload}
+                isUpdating={isUpdating}
+                isUploading={isUploading}
               />
             </div>
           </TabsContent>
@@ -129,14 +168,8 @@ const Profile: React.FC = () => {
               setCurrentPassword={setters.setCurrentPassword}
               setNewPassword={setters.setNewPassword}
               setConfirmPassword={setters.setConfirmPassword}
-              handleChangePassword={(e) => {
-                e.preventDefault();
-                handleChangePassword(
-                  formData.currentPassword,
-                  formData.newPassword,
-                  formData.confirmPassword
-                );
-              }}
+              handleChangePassword={handlePasswordSubmit}
+              isChangingPassword={isChangingPassword}
             />
           </TabsContent>
         </Tabs>

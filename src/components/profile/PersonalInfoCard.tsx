@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Phone, Mail, Upload, User as UserIcon } from "lucide-react";
+import { Save, Phone, Mail, Upload, User as UserIcon, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatBrazilianPhone, formatCPF } from "@/utils/formatters";
 
@@ -25,13 +25,18 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
   setPixKey,
   onSubmit,
   handleAvatarUpload,
+  isUpdating,
+  isUploading
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && handleAvatarUpload) {
-      handleAvatarUpload(file);
+      const url = await handleAvatarUpload(file);
+      if (url) {
+        setAvatar(url);
+      }
     }
   };
 
@@ -67,9 +72,19 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
               size="sm"
               className="gap-2"
               onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
             >
-              <Upload className="h-4 w-4" />
-              Alterar foto
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  Alterar foto
+                </>
+              )}
             </Button>
             
             <input
@@ -78,20 +93,22 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
               className="hidden"
               accept="image/*"
               onChange={handleFileSelect}
+              disabled={isUploading}
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="name">Nome Completo</Label>
+            <Label htmlFor="name" variant="required">Nome Completo</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email" variant="required">E-mail</Label>
             <div className="flex items-center space-x-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <Input
@@ -99,22 +116,25 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={true} // Email não pode ser alterado após o cadastro
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="cpf">CPF</Label>
+            <Label htmlFor="cpf" variant="required">CPF</Label>
             <Input
               id="cpf"
               value={cpf}
               onChange={handleCPFChange}
               placeholder="000.000.000-00"
+              required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="phone">Telefone</Label>
+            <Label htmlFor="phone" variant="required">Telefone</Label>
             <div className="flex items-center space-x-2">
               <Phone className="h-4 w-4 text-muted-foreground" />
               <Input
@@ -137,9 +157,18 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
             />
           </div>
           
-          <Button type="submit" className="w-full">
-            <Save className="mr-2 h-4 w-4" />
-            Atualizar Perfil
+          <Button type="submit" className="w-full" disabled={isUpdating}>
+            {isUpdating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Atualizando...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Atualizar Perfil
+              </>
+            )}
           </Button>
         </form>
       </CardContent>
