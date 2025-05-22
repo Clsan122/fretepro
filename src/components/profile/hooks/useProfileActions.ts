@@ -28,7 +28,10 @@ export const useProfileActions = (setUser: (user: any) => void) => {
             zip_code: updatedUser.zipCode,
             cpf: updatedUser.cpf,
             pix_key: updatedUser.pixKey,
-            avatar_url: updatedUser.avatar
+            avatar_url: updatedUser.avatar,
+            company_name: updatedUser.companyName,
+            cnpj: updatedUser.cnpj,
+            company_logo: updatedUser.companyLogo
             // Removido o campo updated_at que estava causando o erro
           });
           

@@ -3,10 +3,11 @@ import React from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock } from "lucide-react";
+import { User, Lock, Building } from "lucide-react";
 import AccountInfoCard from "@/components/profile/AccountInfoCard";
 import PersonalInfoCard from "@/components/profile/PersonalInfoCard";
 import PasswordCard from "@/components/profile/PasswordCard";
+import AddressCard from "@/components/profile/AddressCard";
 import { useProfileForm } from "@/components/profile/hooks/useProfileForm";
 import { useProfileActions } from "@/components/profile/hooks/useProfileActions";
 
@@ -40,6 +41,11 @@ const Profile: React.FC = () => {
               <User className="h-4 w-4" />
               <span className="hidden md:inline">Dados Pessoais</span>
               <span className="md:hidden">Pessoais</span>
+            </TabsTrigger>
+            <TabsTrigger value="company" className="flex items-center gap-2">
+              <Building className="h-4 w-4" />
+              <span className="hidden md:inline">Empresa</span>
+              <span className="md:hidden">Empresa</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Lock className="h-4 w-4" />
@@ -75,6 +81,40 @@ const Profile: React.FC = () => {
                     phone: formData.phone,
                     avatar: formData.avatar,
                     pixKey: formData.pixKey,
+                  });
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="company">
+            <div className="space-y-6">
+              <AddressCard
+                address={formData.address}
+                city={formData.city}
+                state={formData.state}
+                zipCode={formData.zipCode}
+                companyName={formData.companyName}
+                cnpj={formData.cnpj}
+                companyLogo={formData.companyLogo}
+                setAddress={setters.setAddress}
+                setCity={setters.setCity}
+                setState={setters.setState}
+                setZipCode={setters.setZipCode}
+                setCompanyName={setters.setCompanyName}
+                setCnpj={setters.setCnpj}
+                setCompanyLogo={setters.setCompanyLogo}
+                handleUpdateProfile={(e) => {
+                  e.preventDefault();
+                  handleUpdateProfile({
+                    ...user,
+                    address: formData.address,
+                    city: formData.city,
+                    state: formData.state,
+                    zipCode: formData.zipCode,
+                    companyName: formData.companyName,
+                    cnpj: formData.cnpj,
+                    companyLogo: formData.companyLogo,
                   });
                 }}
               />

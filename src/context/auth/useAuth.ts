@@ -9,7 +9,5 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   
-  console.log("useAuth hook called, authenticated:", context.isAuthenticated);
-  
   return context;
 };

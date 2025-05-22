@@ -10,6 +10,11 @@ export const useProfileForm = (user: any) => {
   const [avatar, setAvatar] = useState(user?.avatar || "");
   const [pixKey, setPixKey] = useState(user?.pixKey || "");
   
+  // Company Information
+  const [companyName, setCompanyName] = useState(user?.companyName || "");
+  const [cnpj, setCnpj] = useState(user?.cnpj || "");
+  const [companyLogo, setCompanyLogo] = useState(user?.companyLogo || "");
+  
   // Address Information
   const [address, setAddress] = useState(user?.address || "");
   const [city, setCity] = useState(user?.city || "");
@@ -29,6 +34,9 @@ export const useProfileForm = (user: any) => {
       phone,
       avatar,
       pixKey,
+      companyName,
+      cnpj,
+      companyLogo,
       address,
       city,
       state,
@@ -44,6 +52,9 @@ export const useProfileForm = (user: any) => {
       setPhone,
       setAvatar,
       setPixKey,
+      setCompanyName,
+      setCnpj,
+      setCompanyLogo,
       setAddress,
       setCity,
       setState,

@@ -1,3 +1,4 @@
+
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { User } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,10 +10,10 @@ export const transformUser = (supabaseUser: SupabaseUser | null, userMetadata: a
   return {
     id: supabaseUser.id,
     email: supabaseUser.email || '',
-    name: supabaseUser.user_metadata?.name || userMetadata?.name || '',
+    name: supabaseUser.user_metadata?.name || userMetadata?.full_name || '',
     cpf: userMetadata?.cpf || '',
     phone: userMetadata?.phone || '',
-    avatar: userMetadata?.avatar_url || '', // Using correct property name
+    avatar: userMetadata?.avatar_url || '', 
     address: userMetadata?.address || '',
     city: userMetadata?.city || '',
     state: userMetadata?.state || '',
