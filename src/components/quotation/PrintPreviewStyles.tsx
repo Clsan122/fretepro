@@ -1,3 +1,4 @@
+
 import React from "react";
 
 export const PrintPreviewStyles: React.FC = () => {
@@ -6,18 +7,19 @@ export const PrintPreviewStyles: React.FC = () => {
       {`
         @page {
           size: A4;
-          margin: 10mm;
-          scale: 0.95;
+          margin: 5mm;
+          scale: 0.90;
         }
         
         body {
           font-family: Arial, Helvetica, sans-serif !important;
-          font-size: 12px !important;
+          font-size: 9px !important;
           background-color: white !important;
           color: black !important;
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           print-color-adjust: exact !important;
+          zoom: 0.85;
         }
         
         #quotation-pdf {
@@ -52,8 +54,8 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         img {
-          max-width: 150px !important;
-          max-height: 100px !important;
+          max-width: 120px !important;
+          max-height: 70px !important;
           display: block !important;
           print-color-adjust: exact !important;
           -webkit-print-color-adjust: exact !important;
@@ -75,11 +77,12 @@ export const PrintPreviewStyles: React.FC = () => {
           width: 100% !important;
           border-collapse: collapse !important;
           page-break-inside: avoid !important;
+          font-size: 8px !important;
         }
         
         table td, table th {
-          padding: 2mm 3mm !important;
-          font-size: 11px !important;
+          padding: 1mm 2mm !important;
+          font-size: 8px !important;
           overflow-wrap: break-word !important;
         }
         
@@ -89,27 +92,53 @@ export const PrintPreviewStyles: React.FC = () => {
         
         /* Otimizações para ajuste de página */
         .mb-6, .mb-8, .mb-4 {
-          margin-bottom: 4mm !important;
+          margin-bottom: 2mm !important;
+        }
+        
+        .mb-3 {
+          margin-bottom: 1.5mm !important;
+        }
+        
+        .mb-2, .mb-1 {
+          margin-bottom: 1mm !important;
         }
         
         .mt-8, .mt-6, .mt-4 {
-          margin-top: 4mm !important;
+          margin-top: 2mm !important;
+        }
+        
+        .mt-3, .mt-2 {
+          margin-top: 1.5mm !important;
+        }
+        
+        .p-8, .p-6, .p-4 {
+          padding: 2mm !important;
+        }
+        
+        .p-3, .p-2 {
+          padding: 1mm !important;
+        }
+        
+        .py-3, .py-2, .py-1 {
+          padding-top: 1mm !important;
+          padding-bottom: 1mm !important;
+        }
+        
+        .px-4, .px-3, .px-2 {
+          padding-left: 1.5mm !important;
+          padding-right: 1.5mm !important;
         }
         
         .text-lg, .text-xl, .text-2xl {
-          font-size: 14px !important;
+          font-size: 11px !important;
         }
         
-        .text-base {
-          font-size: 12px !important;
-        }
-        
-        .text-sm {
-          font-size: 10px !important;
+        .text-base, .text-sm {
+          font-size: 9px !important;
         }
         
         .text-xs {
-          font-size: 9px !important;
+          font-size: 8px !important;
         }
         
         /* Otimizações para layout de grid */
@@ -121,10 +150,19 @@ export const PrintPreviewStyles: React.FC = () => {
           grid-template-columns: 1fr 1fr !important;
         }
         
+        .gap-4, .gap-3 {
+          gap: 2mm !important;
+        }
+        
+        .gap-2, .gap-1 {
+          gap: 1mm !important;
+        }
+        
         /* Otimizações para telas pequenas/mobile */
         @media screen and (max-width: 640px) {
           body {
-            font-size: 10px !important;
+            font-size: 8px !important;
+            zoom: 0.8;
           }
           
           #quotation-pdf {
@@ -132,8 +170,8 @@ export const PrintPreviewStyles: React.FC = () => {
           }
           
           img {
-            max-width: 120px !important;
-            max-height: 80px !important;
+            max-width: 100px !important;
+            max-height: 60px !important;
           }
           
           .grid-cols-2 {
@@ -141,19 +179,12 @@ export const PrintPreviewStyles: React.FC = () => {
           }
           
           table td, table th {
-            padding: 1mm 2mm !important;
-            font-size: 8px !important;
-          }
-          
-          .mb-6, .mb-4 {
-            margin-bottom: 2mm !important;
-          }
-          
-          .mt-8, .mt-6, .mt-4 {
-            margin-top: 2mm !important;
+            padding: 0.5mm 1mm !important;
+            font-size: 7px !important;
           }
         }
       `}
     </style>
   );
 };
+
