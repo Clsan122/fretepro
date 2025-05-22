@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -8,6 +9,14 @@ export interface User {
   cnpj?: string;
   companyLogo?: string;
   createdAt: string;
+  // Additional properties needed
+  companyName?: string;
+  phone?: string;
+  cpf?: string;
+  zipCode?: string;
+  pixKey?: string;
+  bankInfo?: string;
+  updatedAt?: string;
 }
 
 export interface Client {
@@ -22,6 +31,9 @@ export interface Client {
   cnpj?: string;
   logo?: string;
   createdAt: string;
+  // Additional properties needed
+  cpf?: string;
+  personType: 'physical' | 'legal';
 }
 
 export interface Driver {
@@ -36,6 +48,13 @@ export interface Driver {
   city?: string;
   state?: string;
   createdAt: string;
+  // Additional properties needed
+  trailerPlate?: string;
+  vehicleType: string;
+  bodyType: string;
+  anttCode: string;
+  vehicleYear: string;
+  vehicleModel: string;
 }
 
 export interface Vehicle {
@@ -76,6 +95,21 @@ export interface Freight {
   paymentStatus: 'pending' | 'paid' | 'overdue';
   createdAt: string;
   expenses: Expense[];
+  // Additional properties needed
+  requesterName?: string;
+  pixKey?: string;
+  paymentTerm?: string;
+  cargoWeight?: number;
+  cargoDescription?: string;
+  proofOfDeliveryImage?: string;
+  thirdPartyDriverCost?: number;
+  tollExpenses?: number;
+  fuelExpenses?: number;
+  mealExpenses?: number;
+  helperExpenses?: number;
+  accommodationExpenses?: number;
+  totalExpenses?: number;
+  netProfit?: number;
 }
 
 export interface Expense {
@@ -168,3 +202,15 @@ export interface CargoMeasurement {
   height: number;
   quantity: number;
 }
+
+// Adding type alias for reference in components
+export type Measurement = CargoMeasurement;
+
+// Add QuotationMeasurement type for CollectionOrder.tsx
+export type QuotationMeasurement = {
+  id: string;
+  length: number;
+  width: number;
+  height: number;
+  quantity: number;
+};
