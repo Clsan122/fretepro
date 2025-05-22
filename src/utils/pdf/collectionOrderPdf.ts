@@ -81,3 +81,45 @@ export const generateCollectionOrderPdf = async (
     throw error;
   }
 };
+
+// Add the missing functions that are being imported elsewhere
+/**
+ * Prepares collection order for print mode by adding CSS classes
+ */
+export const prepareForPrintMode = (id: string): boolean => {
+  const container = document.getElementById(id);
+  if (!container) return false;
+  
+  container.classList.add('print-mode');
+  return true;
+};
+
+/**
+ * Restores from print mode by removing CSS classes
+ */
+export const restoreFromPrintMode = (): void => {
+  const container = document.getElementById("order-print");
+  if (!container) return;
+  
+  container.classList.remove('print-mode');
+};
+
+/**
+ * Generates HTML preview for a collection order
+ */
+export const generateOrderHtmlPreview = async (id: string): Promise<boolean> => {
+  const element = document.getElementById(id);
+  if (!element) return false;
+
+  try {
+    // Preview logic would go here
+    const previewContainer = document.getElementById('preview-container');
+    if (previewContainer) {
+      previewContainer.innerHTML = element.innerHTML;
+    }
+    return true;
+  } catch (error) {
+    console.error("Error generating HTML preview:", error);
+    return false;
+  }
+};

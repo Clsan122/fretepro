@@ -8,6 +8,7 @@ import {
   shareFreightQuotationPdf,
   previewFreightQuotationPdf 
 } from "./freightQuotationPdf";
+import { QuotationData } from "@/components/quotation/types";
 
 // Re-export all functions using the new implementations
 export const generateQuotationPdf = async (id: string): Promise<boolean> => {

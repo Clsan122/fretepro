@@ -88,6 +88,26 @@ export const formatBrazilianPhone = (value: string): string => {
 };
 
 /**
+ * Formata um CPF ou CNPJ dependendo do tamanho
+ */
+export const formatCPFCNPJ = (value: string): string => {
+  if (!value) return '';
+  const numbers = value.replace(/\D/g, '');
+  if (numbers.length <= 11) {
+    return formatCPF(numbers);
+  } else {
+    return formatCNPJ(numbers);
+  }
+};
+
+/**
+ * Formata um número de telefone brasileiro
+ */
+export const formatPhone = (value: string): string => {
+  return formatBrazilianPhone(value);
+};
+
+/**
  * Cria uma URL para o recibo de múltiplos fretes
  */
 export const createMultiFreightReceiptUrl = (freightIds: string[]): string => {

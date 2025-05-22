@@ -20,8 +20,8 @@ export { generateFreightReceiptPdf, generateMultiFreightReceiptPdf } from "./fre
 
 // Collection order PDF functions
 export { 
-  generateCollectionOrderPdf, 
-  prepareForPrintMode, 
+  generateCollectionOrderPdf,
+  prepareForPrintMode,
   restoreFromPrintMode,
   generateOrderHtmlPreview
 } from "./collectionOrderPdf";
