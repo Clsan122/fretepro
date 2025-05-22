@@ -25,7 +25,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
   // Removida a exibição do logo para evitar duplicação
   return (
     <div className="mb-3 print:mb-2 text-center">
-      <p className="text-gray-500 text-xs">Data: {createdAt}</p>
+      <p className="text-gray-500 text-xs md:text-sm">Data: {createdAt}</p>
     </div>
   );
 };
