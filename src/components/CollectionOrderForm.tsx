@@ -16,7 +16,7 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   orderToEdit,
   initialData 
 }) => {
-  // Garantir que os dados de edição tenham prioridade sobre os dados iniciais
+  // Garantimos que os dados iniciais são sempre um objeto válido
   const preparedInitialData = orderToEdit || initialData || {};
 
   return (

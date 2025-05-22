@@ -31,8 +31,9 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
   placeholder = "Selecione um cliente..."
 }) => {
   const [open, setOpen] = useState(false);
-  // Garantindo que clients é sempre um array
-  const availableClients = Array.isArray(clients) ? clients : [];
+  
+  // Garantindo que clients é sempre um array não vazio para o Command
+  const availableClients = Array.isArray(clients) && clients.length > 0 ? clients : [];
   const selectedClient = availableClients.length > 0 ? 
     availableClients.find((client) => client.id === value) : 
     undefined;
@@ -53,8 +54,8 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
     };
   }, []);
 
-  // Se não tivermos clientes, não renderizamos o componente
-  if (!availableClients || availableClients.length === 0) {
+  // Se não tivermos clientes, apenas renderizamos um botão desativado
+  if (availableClients.length === 0) {
     return (
       <Button
         variant="outline"

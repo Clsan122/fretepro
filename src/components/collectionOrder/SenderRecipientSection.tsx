@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Client } from "@/types";
 import { ClientListDialog } from "@/components/client/ClientListDialog";
@@ -83,10 +83,22 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
   
   const loadClients = () => {
     if (user) {
-      const userClients = getClientsByUserId(user.id);
-      setClientsList(userClients);
+      try {
+        const userClients = getClientsByUserId(user.id);
+        setClientsList(Array.isArray(userClients) ? userClients : []);
+      } catch (error) {
+        console.error("Erro ao buscar clientes:", error);
+        setClientsList([]);
+      }
+    } else {
+      setClientsList([]);
     }
   };
+  
+  // Carregar clientes no início
+  useEffect(() => {
+    loadClients();
+  }, [user]);
   
   const handleOpenSenderDialog = () => {
     loadClients();
@@ -131,6 +143,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           handleSenderClientChange={handleSenderClientChange}
           onOpenClientDialog={handleOpenSenderDialog}
           form={form}
+          clients={clientsList}  // Pass the safe clientsList here
         />
 
         <Separator className="my-2" />
