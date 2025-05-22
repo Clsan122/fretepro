@@ -30,12 +30,20 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
               box-sizing: border-box !important;
             }
             .text-xs, .text-sm, .text-base {
-              font-size: 10px !important;
+              font-size: 9px !important;
               line-height: 1.1 !important;
+            }
+            .text-lg {
+              font-size: 11px !important;
+              line-height: 1.2 !important;
+            }
+            .text-xl {
+              font-size: 12px !important;
+              line-height: 1.2 !important;
             }
             img {
               max-width: 150px !important;
-              max-height: 100px !important;
+              max-height: 80px !important;
               object-fit: contain !important;
             }
             .border-b {
@@ -46,6 +54,25 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
             }
             table {
               page-break-inside: avoid !important;
+              font-size: 9px !important;
+            }
+            .mb-6 {
+              margin-bottom: 10px !important;
+            }
+            .pb-4 {
+              padding-bottom: 8px !important;
+            }
+            .p-8 {
+              padding: 10px !important;
+            }
+            #freight-form-print {
+              zoom: 0.9;
+              width: 210mm !important;
+              max-width: 210mm !important;
+              font-size: 9px !important;
+            }
+            td, th {
+              padding: 4px 6px !important;
             }
           }
         `}
@@ -60,7 +87,7 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
             <img 
               src={sender.companyLogo} 
               alt="Logo da Empresa" 
-              className="w-[150px] h-[100px] object-contain mb-0" 
+              className="w-[150px] h-[80px] object-contain mb-0" 
             />
           )}
             <div className="text-sm">
