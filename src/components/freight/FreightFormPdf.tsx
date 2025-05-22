@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Freight, Client, User, Driver } from "@/types";
 
@@ -83,7 +84,7 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
         <div className="mb-6 border-b border-gray-200 pb-4">
           <h3 className="text-lg font-bold mb-2">Informações do Cliente</h3>
           <div>Nome: {client?.name}</div>
-          <div>CNPJ/CPF: {client?.document}</div>
+          <div>CNPJ/CPF: {client?.cnpj || client?.cpf}</div>
           <div>Endereço: {client?.address}, {client?.city}/{client?.state}</div>
           <div>Telefone: {client?.phone}</div>
           <div>Email: {client?.email}</div>
@@ -94,7 +95,7 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
           <div className="mb-6 border-b border-gray-200 pb-4">
             <h3 className="text-lg font-bold mb-2">Informações do Motorista</h3>
             <div>Nome: {driver.name}</div>
-            <div>CPF: {driver.document}</div>
+            <div>CPF: {driver.cpf}</div>
             <div>Telefone: {driver.phone}</div>
             <div>Email: {driver.email}</div>
           </div>
@@ -115,19 +116,19 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
                 <td className="font-bold">Data de Saída:</td>
                 <td>{freight.departureDate}</td>
                 <td className="font-bold">Data de Entrega:</td>
-                <td>{freight.deliveryDate}</td>
+                <td>{freight.arrivalDate}</td>
               </tr>
               <tr>
                 <td className="font-bold">Tipo de Carga:</td>
                 <td>{freight.cargoType}</td>
                 <td className="font-bold">Peso Total:</td>
-                <td>{freight.totalWeight} kg</td>
+                <td>{freight.weight} kg</td>
               </tr>
               <tr>
                 <td className="font-bold">Valor da Carga:</td>
-                <td>R$ {freight.cargoValue}</td>
+                <td>R$ {freight.totalValue}</td>
                 <td className="font-bold">Observações:</td>
-                <td>{freight.notes}</td>
+                <td>{freight.observations}</td>
               </tr>
             </tbody>
           </table>
