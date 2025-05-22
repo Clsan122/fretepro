@@ -43,11 +43,13 @@ const CollectionOrderEdit: React.FC = () => {
       return;
     }
     
-    // Preservamos o ID e o número da ordem original
+    // Garantir que preservamos o ID e o número da ordem original
+    // usando o objeto order que já foi carregado do banco de dados
     const orderToSave = {
       ...updatedOrder,
       id: id, // Garantir que usamos o ID original
-      orderNumber: order?.orderNumber || updatedOrder.orderNumber // Garantir que usamos o número original da ordem
+      orderNumber: order?.orderNumber || updatedOrder.orderNumber, // Garantir que usamos o número original da ordem
+      syncVersion: (order?.syncVersion || 1) + 1 // Incrementar a versão para sincronização
     };
     
     // Salvar mantendo o mesmo ID para não duplicar

@@ -80,6 +80,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     const logoToUse = formData.selectedSenderType === 'client' ? formData.senderLogo : formData.companyLogo;
 
     // Manter o ID e orderNumber originais se estivermos editando
+    // Caso contrário, gerar novos
     const id = orderToEdit ? orderToEdit.id : uuidv4();
     const orderNumber = orderToEdit ? orderToEdit.orderNumber : generateOrderNumber();
 
@@ -116,7 +117,9 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
       shipper: data.shipper,
-      shipperAddress: data.shipperAddress
+      shipperAddress: data.shipperAddress,
+      syncId: orderToEdit?.syncId,
+      syncVersion: orderToEdit ? (orderToEdit.syncVersion || 1) + 1 : 1
     };
 
     console.log('Salvando ordem:', newOrder);

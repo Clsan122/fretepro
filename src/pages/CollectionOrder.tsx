@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import CollectionOrderForm from "@/components/CollectionOrderForm";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { CollectionOrder, QuotationMeasurement } from "@/types";
 import { saveCollectionOrder } from "@/utils/storage";
+import { generateOrderNumber, orderExists } from "@/utils/orderNumber";
 
 const CollectionOrderPage: React.FC = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [quotationData, setQuotationData] = useState<any>(null);
 
   useEffect(() => {
@@ -30,26 +30,37 @@ const CollectionOrderPage: React.FC = () => {
         console.error("Erro ao processar dados da cotação:", error);
       }
     }
-  }, [toast]);
+  }, []);
 
   const handleSaveOrder = async (order: CollectionOrder) => {
     try {
-      // Verificar se já existe uma ordem com este ID (caso de edição)
-      // Se for edição, mantemos o ID original
+      // Gerar um novo número de ordem apenas se não for um update
+      if (!order.id || order.id.trim() === "") {
+        let orderNumber;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        // Tentar encontrar um número de ordem único
+        do {
+          orderNumber = generateOrderNumber();
+          attempts++;
+        } while (orderExists(orderNumber) && attempts < maxAttempts);
+        
+        if (attempts >= maxAttempts) {
+          toast.error("Não foi possível gerar um número de ordem único. Tente novamente mais tarde.");
+          return;
+        }
+        
+        order.orderNumber = orderNumber;
+      }
+      
       await saveCollectionOrder(order);
       
-      toast({
-        title: "Ordem de coleta cadastrada",
-        description: "A ordem de coleta foi cadastrada com sucesso!"
-      });
+      toast.success("Ordem de coleta cadastrada com sucesso!");
       navigate("/collection-orders");
     } catch (error) {
       console.error("Erro ao salvar ordem de coleta:", error);
-      toast({
-        title: "Erro",
-        description: "Houve um problema ao salvar a ordem de coleta",
-        variant: "destructive"
-      });
+      toast.error("Houve um problema ao salvar a ordem de coleta");
     }
   };
 

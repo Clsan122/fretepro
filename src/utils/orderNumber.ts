@@ -23,7 +23,7 @@ export function generateOrderNumber(): string {
   // Get the highest number and increment by 1
   const highestNumber = Math.max(
     ...currentYearOrders.map((order: any) => 
-      parseInt(order.orderNumber?.slice(-4) || '1000')
+      parseInt(order.orderNumber?.substring(4) || '1000')
     )
   );
   
