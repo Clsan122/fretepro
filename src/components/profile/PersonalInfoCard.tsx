@@ -33,9 +33,13 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && handleAvatarUpload) {
-      const url = await handleAvatarUpload(file);
-      if (url) {
-        setAvatar(url);
+      try {
+        const url = await handleAvatarUpload(file);
+        if (url) {
+          setAvatar(url);
+        }
+      } catch (error) {
+        console.error("Erro ao fazer upload do avatar:", error);
       }
     }
   };
@@ -151,7 +155,7 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
             <Label htmlFor="pixKey">Chave PIX</Label>
             <Input
               id="pixKey"
-              value={pixKey}
+              value={pixKey || ""}
               onChange={(e) => setPixKey(e.target.value)}
               placeholder="CPF, e-mail, telefone ou chave aleatória"
             />

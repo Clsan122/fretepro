@@ -38,7 +38,8 @@ export const useProfileActions = (setUser: (user: User) => void) => {
             avatar_url: updatedUser.avatar,
             company_name: updatedUser.companyName,
             cnpj: updatedUser.cnpj,
-            company_logo: updatedUser.companyLogo
+            company_logo: updatedUser.companyLogo,
+            bank_info: updatedUser.bankInfo
           });
           
         if (error) {
@@ -75,7 +76,7 @@ export const useProfileActions = (setUser: (user: User) => void) => {
         description: "Todos os campos são obrigatórios.",
         variant: "destructive"
       });
-      return;
+      return false;
     }
 
     if (newPassword !== confirmPassword) {
@@ -84,7 +85,7 @@ export const useProfileActions = (setUser: (user: User) => void) => {
         description: "A nova senha e a confirmação não coincidem.",
         variant: "destructive"
       });
-      return;
+      return false;
     }
 
     try {
@@ -103,7 +104,7 @@ export const useProfileActions = (setUser: (user: User) => void) => {
             description: error.message,
             variant: "destructive"
           });
-          return;
+          return false;
         }
       }
 
@@ -164,11 +165,15 @@ export const useProfileActions = (setUser: (user: User) => void) => {
         
         return publicUrl;
       } else {
-        // If no Supabase, use FileReader for local preview
+        // Se não tiver Supabase, usar FileReader para preview local
         return new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => {
             resolve(reader.result as string);
+            toast({
+              title: "Upload concluído",
+              description: "Sua foto foi atualizada localmente."
+            });
           };
           reader.readAsDataURL(file);
         });
@@ -223,11 +228,15 @@ export const useProfileActions = (setUser: (user: User) => void) => {
         
         return publicUrl;
       } else {
-        // If no Supabase, use FileReader for local preview
+        // Se não tiver Supabase, usar FileReader para preview local
         return new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => {
             resolve(reader.result as string);
+            toast({
+              title: "Upload concluído",
+              description: "O logo da empresa foi atualizado localmente."
+            });
           };
           reader.readAsDataURL(file);
         });

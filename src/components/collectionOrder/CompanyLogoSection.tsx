@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { getClientsByUserId } from "@/utils/storage";
 import { Button } from "@/components/ui/button";
-import { Upload, Image as ImageIcon } from "lucide-react";
+import { Upload, Image as ImageIcon, Loader2 } from "lucide-react";
 
 interface CompanyLogoSectionProps {
   companyLogo: string;
@@ -20,6 +20,7 @@ interface CompanyLogoSectionProps {
   selectedIssuerId?: string;
   onIssuerChange?: (id: string) => void;
   handleRemoveLogo?: () => void;
+  isUploading?: boolean;
 }
 
 export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
@@ -28,6 +29,7 @@ export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
   selectedIssuerId,
   onIssuerChange,
   handleRemoveLogo,
+  isUploading = false,
 }) => {
   const { user } = useAuth();
   const clients = user ? getClientsByUserId(user.id) : [];
@@ -48,6 +50,7 @@ export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
               onChange={handleLogoUpload}
               className="hidden"
               ref={fileInputRef}
+              disabled={isUploading}
             />
             <div className="w-full flex items-center justify-center border-2 border-dashed border-gray-300 p-3 rounded-lg min-h-[84px] bg-white relative">
               {companyLogo ? (
@@ -64,6 +67,7 @@ export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
                     className="absolute top-1 right-1 bg-white border rounded-full shadow print:hidden"
                     onClick={handleRemoveLogo}
                     aria-label="Remover logo"
+                    disabled={isUploading}
                   >
                     ×
                   </Button>
@@ -74,10 +78,16 @@ export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                   className="flex flex-col items-center text-gray-500 hover:text-freight-700 transition-colors focus:outline-none"
                   tabIndex={0}
+                  disabled={isUploading}
                 >
                   <ImageIcon className="h-7 w-7 mb-2" />
                   <span className="text-xs">Clique para fazer upload do logo</span>
                 </button>
+              )}
+              {isUploading && (
+                <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-freight-700" />
+                </div>
               )}
             </div>
             <Button
@@ -86,9 +96,19 @@ export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
               size="sm"
               className="mt-2"
               onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              {companyLogo ? "Trocar logo" : "Enviar logo"}
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  {companyLogo ? "Trocar logo" : "Enviar logo"}
+                </>
+              )}
             </Button>
           </div>
           <div className="flex-1">
@@ -96,6 +116,7 @@ export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
             <Select
               value={selectedIssuerId}
               onValueChange={onIssuerChange}
+              disabled={isUploading}
             >
               <SelectTrigger id="issuer" className="w-full">
                 <SelectValue placeholder="Selecione o emissor" />
@@ -103,7 +124,7 @@ export const CompanyLogoSection: React.FC<CompanyLogoSectionProps> = ({
               <SelectContent>
                 {user && (
                   <SelectItem value={user.id}>
-                    {user.name || "Minha Empresa"}
+                    {user.companyName || user.name || "Minha Empresa"}
                   </SelectItem>
                 )}
                 {clients.map((client) => (
