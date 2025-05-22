@@ -16,12 +16,20 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   orderToEdit,
   initialData 
 }) => {
+  // Garantir que initialData seja sempre um objeto
+  const safeInitialData = initialData || {};
+  
+  // Garantir que measurements seja sempre um array
+  if (safeInitialData && !safeInitialData.measurements) {
+    safeInitialData.measurements = [];
+  }
+
   return (
     <CollectionOrderFormContainer
       onSave={onSave}
       onCancel={onCancel}
       orderToEdit={orderToEdit}
-      initialData={initialData || {}}
+      initialData={safeInitialData}
     />
   );
 };

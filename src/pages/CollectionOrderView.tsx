@@ -24,7 +24,13 @@ const CollectionOrderView: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
-  const { isGenerating, handleShare, handleDownload, handlePrint } = useCollectionOrderPdf(order, id);
+  const { 
+    isGenerating, 
+    handleShare, 
+    handleDownload, 
+    handlePrint, 
+    openHtmlPreview 
+  } = useCollectionOrderPdf(order, id);
 
   useEffect(() => {
     async function fetchOrder() {
@@ -32,6 +38,11 @@ const CollectionOrderView: React.FC = () => {
         try {
           const collectionOrder = await getCollectionOrderById(id);
           if (collectionOrder) {
+            // Garantir que measurements é um array válido
+            if (!Array.isArray(collectionOrder.measurements)) {
+              collectionOrder.measurements = [];
+            }
+            
             setOrder(collectionOrder);
 
             // Try to find issuer (user or client) by ID
@@ -120,10 +131,12 @@ const CollectionOrderView: React.FC = () => {
       arrivalDate: "",
       volumes: order.volumes,
       weight: order.weight,
-      dimensions: order.measurements.map(m => 
-        `${m.length}x${m.width}x${m.height} (${m.quantity})`
-      ).join(", "),
-      cubicMeasurement: order.cubicMeasurement,
+      dimensions: Array.isArray(order.measurements) 
+        ? order.measurements.map(m => 
+            `${m.length}x${m.width}x${m.height} (${m.quantity})`
+          ).join(", ")
+        : "",
+      cubicMeasurement: order.cubicMeasurement || 0,
       cargoType: "general", // Default value
       vehicleType: "truck", // Default value
       freightValue: 0,
@@ -210,6 +223,7 @@ const CollectionOrderView: React.FC = () => {
           onDownload={handleDownload}
           onPrint={handlePrint}
           onGenerateFreight={handleGenerateFreight}
+          onViewHtml={openHtmlPreview}
         />
         
         <PrintStyles />

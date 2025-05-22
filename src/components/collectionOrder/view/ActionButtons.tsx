@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Edit, Share2, Trash2, Printer, Download, Truck } from "lucide-react";
+import { ChevronLeft, Edit, Share2, Trash2, Printer, Download, Truck, FileText, Html } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +19,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface ActionButtonsProps {
@@ -28,6 +29,7 @@ interface ActionButtonsProps {
   onDownload?: () => void;
   onPrint?: () => void;
   onGenerateFreight?: () => void;
+  onViewHtml?: () => void; // Nova opção para visualização HTML
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -37,6 +39,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onDownload,
   onPrint,
   onGenerateFreight,
+  onViewHtml,
 }) => {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = React.useState(false);
@@ -67,6 +70,19 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       </div>
       
       <div className="flex flex-wrap gap-2">
+        {/* Botão de visualização HTML */}
+        {onViewHtml && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onViewHtml}
+            className="gap-1"
+          >
+            <Html className="h-4 w-4" /> Ver HTML
+          </Button>
+        )}
+        
+        {/* Botão para gerar frete */}
         <Button
           variant="outline"
           size="sm"
@@ -76,6 +92,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           <Truck className="h-4 w-4" /> Gerar Frete
         </Button>
         
+        {/* Dropdown para opções de compartilhamento */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -87,13 +104,14 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onShare}>
-              <Share2 className="h-4 w-4 mr-2" /> Compartilhar PDF
+              <Html className="h-4 w-4 mr-2" /> Compartilhar como HTML
             </DropdownMenuItem>
             {onDownload && (
               <DropdownMenuItem onClick={onDownload}>
                 <Download className="h-4 w-4 mr-2" /> Baixar PDF
               </DropdownMenuItem>
             )}
+            <DropdownMenuSeparator />
             {onPrint && (
               <DropdownMenuItem onClick={onPrint}>
                 <Printer className="h-4 w-4 mr-2" /> Imprimir
@@ -102,6 +120,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
         
+        {/* Botão de edição */}
         <Button
           variant="outline"
           size="sm"
@@ -110,6 +129,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           <Edit className="h-4 w-4 mr-1" /> Editar
         </Button>
         
+        {/* Diálogo para exclusão */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button

@@ -19,6 +19,17 @@ export const prepareForPrintMode = (elementId: string): void => {
   
   // Adicionar classe para estilo específico de impressão
   element.classList.add('print-mode');
+
+  // Assegurar que todas as imagens estão carregadas
+  const images = element.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.complete) {
+      img.style.opacity = '0';
+      img.onload = () => {
+        img.style.opacity = '1';
+      };
+    }
+  });
 };
 
 export const restoreFromPrintMode = (elementId: string): void => {
@@ -33,6 +44,12 @@ export const restoreFromPrintMode = (elementId: string): void => {
   
   // Remover classe de estilo de impressão
   element.classList.remove('print-mode');
+
+  // Restaurar opacidade de imagens
+  const images = element.querySelectorAll('img');
+  images.forEach(img => {
+    img.style.opacity = '1';
+  });
 };
 
 export const generateCollectionOrderPdf = async (
@@ -62,14 +79,15 @@ export const generateCollectionOrderPdf = async (
       });
       
       const pdf = generatePdfFromCanvas(canvas, {
-        title: `Ordem de Coleta - ${order.orderNumber}`,
-        subject: `Transporte de ${order.originCity}/${order.originState} para ${order.destinationCity}/${order.destinationState}`,
-        author: order.sender,
+        title: `Ordem de Coleta - ${order.orderNumber || 'Nova'}`,
+        subject: `Transporte de ${order.originCity}/${order.originState || ''} para ${order.destinationCity}/${order.destinationState || ''}`,
+        author: order.sender || 'FreteValor',
         creator: 'FreteValor',
         quality: 0.98, // Aumentado para melhor qualidade
         fitToPage: true, // Forçar ajuste para uma página
-        filename: options.savePdf ? (options.filename || `ordem-coleta-${order.orderNumber}.pdf`) : undefined,
-        compress: true // Compressão para otimizar o tamanho
+        filename: options.savePdf ? (options.filename || `ordem-coleta-${order.orderNumber || 'nova'}.pdf`) : undefined,
+        compress: true, // Compressão para otimizar o tamanho,
+        keywords: `ordem de coleta, frete, transporte, ${order.originCity}, ${order.destinationCity}`
       });
       
       if (options.openInNewTab) {
@@ -84,6 +102,25 @@ export const generateCollectionOrderPdf = async (
     }
   } catch (error) {
     console.error("Erro ao gerar PDF da ordem de coleta:", error);
+    throw error;
+  }
+};
+
+// Nova função para gerar HTML preview
+export const generateOrderHtmlPreview = (
+  elementId: string,
+  order: CollectionOrder
+): void => {
+  try {
+    const element = document.getElementById(elementId);
+    if (!element) {
+      throw new Error("Elemento para geração de HTML não encontrado");
+    }
+    
+    // Implementação está no hook useCollectionOrderPdf
+    // para evitar duplicação de código
+  } catch (error) {
+    console.error("Erro ao gerar HTML da ordem de coleta:", error);
     throw error;
   }
 };

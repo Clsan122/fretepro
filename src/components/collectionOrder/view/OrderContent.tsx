@@ -3,13 +3,19 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CollectionOrder } from "@/types";
-import { MapPin, Truck, Package, FileText, User } from "lucide-react";
+import { MapPin, Truck, Package, FileText, User, Calendar, Hash } from "lucide-react";
 
 interface OrderContentProps {
   order: CollectionOrder;
 }
 
 export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
+  const formattedDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }) : '';
+
   return (
     <div className="space-y-2 print:space-y-1">
       {/* Logo e Número da Ordem de Coleta */}
@@ -25,9 +31,17 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
           <h2 className="text-xl font-bold text-freight-700 print:text-black mb-1 bg-gradient-to-r from-freight-600 to-freight-800 bg-clip-text text-transparent print:bg-none print:text-black">
             ORDEM DE COLETA
           </h2>
-          <p className="text-base font-semibold text-freight-700 print:text-black">
-            Nº {order.orderNumber}
-          </p>
+          <div className="flex items-center justify-center gap-1">
+            <Hash className="h-3 w-3" />
+            <p className="text-base font-semibold text-freight-700 print:text-black">
+              {order.orderNumber}
+            </p>
+            <span className="mx-2 text-gray-400">|</span>
+            <Calendar className="h-3 w-3" />
+            <p className="text-sm text-gray-600">
+              {formattedDate}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -106,14 +120,14 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       <Card className="border border-freight-100 print:border-0 print:shadow-none overflow-hidden">
         <CardContent className="p-3 print:p-1 space-y-1 text-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 print:gap-1">
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 bg-freight-50/30 p-2 rounded">
               <p className="font-semibold text-freight-700 print:text-black mb-1 flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
                 ORIGEM:
               </p>
               <p className="text-sm">{order.originCity} - {order.originState}</p>
             </div>
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 bg-freight-50/30 p-2 rounded">
               <p className="font-semibold text-freight-700 print:text-black mb-1 flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
                 DESTINO:
@@ -171,12 +185,14 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
             </div>
             <div className="space-y-0.5">
               <p className="font-semibold text-xs">Cubagem:</p>
-              <p className="text-sm">{order.cubicMeasurement.toFixed(3)} m³</p>
+              <p className="text-sm">{order.cubicMeasurement?.toFixed(3) || "0.000"} m³</p>
             </div>
             <div className="space-y-0.5">
               <p className="font-semibold text-xs">Valor:</p>
               <p className="text-sm">
-                {order.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                {typeof order.merchandiseValue === 'number' 
+                  ? order.merchandiseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                  : "R$ 0,00"}
               </p>
             </div>
           </div>
@@ -191,7 +207,7 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
       </Card>
 
       {/* Measurements */}
-      {order.measurements.length > 0 && (
+      {Array.isArray(order.measurements) && order.measurements.length > 0 && (
         <Card className="border border-freight-100 print:border-0 print:shadow-none overflow-hidden">
           <CardContent className="p-3 print:p-1 text-sm">
             <p className="font-semibold text-freight-700 mb-1 print:text-black flex items-center gap-1">
@@ -206,7 +222,7 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
                 <div>Qtd</div>
               </div>
               
-              {order.measurements.map((measurement) => (
+              {Array.isArray(order.measurements) && order.measurements.map((measurement) => (
                 <div key={measurement.id} className="grid grid-cols-4 gap-1 text-sm py-1 border-b border-gray-100 last:border-0">
                   <div>{measurement.length}</div>
                   <div>{measurement.width}</div>
