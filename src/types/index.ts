@@ -17,6 +17,7 @@ export interface User {
   bankInfo?: string;
   updatedAt?: string;
   avatar?: string; // Added missing avatar property
+  role?: string; // Added missing role property
 }
 
 export interface Client {
