@@ -16,6 +16,8 @@ const QuotationView: React.FC = () => {
     sending,
     generating,
     sharing,
+    previewing,
+    handlePreviewPdf,
     handleSharePdf,
     handleSendQuotation,
     handleEdit
@@ -30,12 +32,14 @@ const QuotationView: React.FC = () => {
       <div className="w-full max-w-7xl mx-auto pb-20 md:pb-10 px-2 sm:px-4">
         <QuotationViewActions 
           id={id!}
+          quotation={quotation}
           sending={sending}
           generating={generating}
           sharing={sharing}
           handleSharePdf={handleSharePdf}
           handleSendQuotation={handleSendQuotation}
           handleEdit={handleEdit}
+          handlePreviewPdf={handlePreviewPdf}
         />
         
         {/* Conteúdo do PDF */}

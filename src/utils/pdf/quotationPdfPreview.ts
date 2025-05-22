@@ -1,7 +1,10 @@
 
 import React from "react";
 import { QuotationData } from "@/components/quotation/types";
-import { prepareQuotationForPdf, restoreQuotationFromPdf } from "./quotationPdfPrep";
+import { prepareQuotationForPdf, restoreQuotationFromPdf, getQuotationMetadata } from "./quotationPdfPrep";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { openPdfInNewWindow } from "./pdfCore";
 
 /**
  * Opens a preview of the quotation PDF in a new window
@@ -20,98 +23,103 @@ export const previewQuotationPdf = async (quotation: QuotationData): Promise<voi
       // Add data attribute to access the quotation
       tempDiv.setAttribute('data-quotation', JSON.stringify(quotation));
       
-      import('../pdf/index').then((pdfUtils) => {
-        // Prepare for PDF
-        pdfUtils.prepareQuotationForPdf(quotation.id);
-        
-        // Get current user
-        import('@/context/AuthContext').then(({ useAuth }) => {
-          const auth = useAuth();
-          const user = auth.user;
+      // Prepare for print mode
+      const prepareResult = prepareQuotationForPdf(quotation.id);
+      if (!prepareResult) {
+        reject(new Error("Failed to prepare quotation for PDF"));
+        return;
+      }
+      
+      // Prepare creator info (without using useAuth hook)
+      const creatorInfo = {
+        name: quotation.creatorName || "",
+        document: "",
+        email: "",
+        phone: "",
+        address: "",
+        city: "",
+        state: ""
+      };
+      
+      // Try to get user info from localStorage if available
+      try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          creatorInfo.name = user?.companyName || quotation.creatorName || user?.name || "";
+          creatorInfo.document = user?.cnpj || "";
+          creatorInfo.email = user?.email || "";
+          creatorInfo.phone = user?.phone || "";
+          creatorInfo.address = user?.address || "";
+          creatorInfo.city = user?.city || "";
+          creatorInfo.state = user?.state || "";
+        }
+      } catch (error) {
+        console.warn("Could not get user info from localStorage:", error);
+      }
+      
+      // Use dynamic import for FreightQuotationPdf component
+      import('@/components/quotation/FreightQuotationPdf').then(({ FreightQuotationPdf }) => {
+        import('react-dom/client').then((ReactDOM) => {
+          // Create React root
+          const root = ReactDOM.createRoot(tempDiv);
           
-          // Prepare creator info
-          const creatorInfo = {
-            name: user?.companyName || quotation.creatorName || user?.name || "",
-            document: user?.cnpj || "",
-            email: user?.email || "",
-            phone: user?.phone || "",
-            address: user?.address || "",
-            city: user?.city || "",
-            state: user?.state || ""
-          };
+          // Render FreightQuotationPdf component
+          root.render(
+            React.createElement(FreightQuotationPdf, {
+              quotation,
+              creatorInfo
+            })
+          );
           
-          import('@/components/quotation/FreightQuotationPdf').then(({ FreightQuotationPdf }) => {
-            import('react-dom/client').then((ReactDOM) => {
-              // Create React root
-              const root = ReactDOM.createRoot(tempDiv);
+          // Add small delay to ensure rendering completes
+          setTimeout(() => {
+            html2canvas(tempDiv, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+              backgroundColor: '#ffffff',
+            }).then(canvas => {
+              // Create new PDF document
+              const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+                compress: true
+              });
               
-              // Render FreightQuotationPdf component
-              root.render(
-                React.createElement(FreightQuotationPdf, {
-                  quotation,
-                  creatorInfo
-                })
-              );
+              // Get canvas data
+              const imgData = canvas.toDataURL('image/png');
               
-              // Add small delay to ensure rendering completes
-              setTimeout(() => {
-                import('html2canvas').then((html2canvasModule) => {
-                  const html2canvas = html2canvasModule.default;
-                  
-                  html2canvas(tempDiv, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                  }).then(canvas => {
-                    import('jspdf').then((jsPDFModule) => {
-                      // Fix the jsPDF import
-                      const jsPDF = jsPDFModule.default;
-                      
-                      // Create new PDF document
-                      const pdf = new jsPDF({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4',
-                        compress: true
-                      });
-                      
-                      // Get canvas data
-                      const imgData = canvas.toDataURL('image/png');
-                      
-                      // A4 dimensions
-                      const pdfWidth = pdf.internal.pageSize.getWidth();
-                      const pdfHeight = pdf.internal.pageSize.getHeight();
-                      
-                      // Calculate scaling to fit on A4
-                      const widthRatio = pdfWidth / canvas.width;
-                      const heightRatio = pdfHeight / canvas.height;
-                      const ratio = Math.min(widthRatio, heightRatio);
-                      
-                      const canvasWidth = canvas.width * ratio;
-                      const canvasHeight = canvas.height * ratio;
-                      
-                      const marginX = (pdfWidth - canvasWidth) / 2;
-                      const marginY = (pdfHeight - canvasHeight) / 2;
-                      
-                      // Add image to PDF
-                      pdf.addImage(imgData, 'PNG', marginX, marginY, canvasWidth, canvasHeight);
-                      
-                      // Open PDF in new window
-                      pdfUtils.openPdfInNewWindow(pdf);
-                      
-                      // Clean up
-                      document.body.removeChild(tempDiv);
-                      pdfUtils.restoreQuotationFromPdf();
-                      
-                      resolve();
-                    }).catch(reject);
-                  }).catch(reject);
-                }).catch(reject);
-              }, 200);
+              // A4 dimensions
+              const pdfWidth = pdf.internal.pageSize.getWidth();
+              const pdfHeight = pdf.internal.pageSize.getHeight();
+              
+              // Calculate scaling to fit on A4
+              const widthRatio = pdfWidth / canvas.width;
+              const heightRatio = pdfHeight / canvas.height;
+              const ratio = Math.min(widthRatio, heightRatio);
+              
+              const canvasWidth = canvas.width * ratio;
+              const canvasHeight = canvas.height * ratio;
+              
+              const marginX = (pdfWidth - canvasWidth) / 2;
+              const marginY = (pdfHeight - canvasHeight) / 2;
+              
+              // Add image to PDF
+              pdf.addImage(imgData, 'PNG', marginX, marginY, canvasWidth, canvasHeight);
+              
+              // Open PDF in new window
+              openPdfInNewWindow(pdf);
+              
+              // Clean up
+              document.body.removeChild(tempDiv);
+              restoreQuotationFromPdf();
+              
+              resolve();
             }).catch(reject);
-          }).catch(reject);
+          }, 200);
         }).catch(reject);
       }).catch(reject);
     } catch (error) {

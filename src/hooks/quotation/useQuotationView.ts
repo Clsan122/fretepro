@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { QuotationData } from "@/components/quotation/types";
 import { generateQuotationPdf, shareQuotationPdf } from "@/utils/pdf";
+import { previewQuotationPdf } from "@/utils/pdf/quotationPdfPreview";
 
 export const useQuotationView = (id: string | undefined) => {
   const { toast } = useToast();
@@ -14,6 +15,7 @@ export const useQuotationView = (id: string | undefined) => {
   const [sending, setSending] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   
   useEffect(() => {
     if (id) {
@@ -52,6 +54,34 @@ export const useQuotationView = (id: string | undefined) => {
       }
     }
   }, [id, navigate, toast]);
+
+  const handlePreviewPdf = async () => {
+    if (!quotation) return;
+    
+    setPreviewing(true);
+    toast({
+      title: "Gerando visualização",
+      description: "Aguarde enquanto preparamos o documento..."
+    });
+    
+    try {
+      await previewQuotationPdf(quotation);
+      
+      toast({
+        title: "PDF gerado",
+        description: "A visualização do PDF foi gerada com sucesso"
+      });
+    } catch (error) {
+      console.error("Error previewing PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar a visualização do PDF",
+        variant: "destructive"
+      });
+    } finally {
+      setPreviewing(false);
+    }
+  };
 
   const handleSharePdf = async () => {
     if (!id || !quotation) return;
@@ -160,6 +190,8 @@ export const useQuotationView = (id: string | undefined) => {
     sending,
     generating,
     sharing,
+    previewing,
+    handlePreviewPdf,
     handleSharePdf,
     handleSendQuotation,
     handleEdit

@@ -3,26 +3,30 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Share2, Edit, ArrowLeft, Send, FileText } from "lucide-react";
-import { previewQuotationPdf } from "@/utils/pdf/quotationPdf";
+import { QuotationData } from "@/components/quotation/types";
 
 interface QuotationViewActionsProps {
   id: string;
+  quotation: QuotationData | null;
   sending: boolean;
   generating: boolean;
   sharing: boolean;
   handleSharePdf: () => void;
   handleSendQuotation: () => void;
   handleEdit: () => void;
+  handlePreviewPdf: () => void;
 }
 
 const QuotationViewActions: React.FC<QuotationViewActionsProps> = ({
   id,
+  quotation,
   sending,
   generating,
   sharing,
   handleSharePdf,
   handleSendQuotation,
-  handleEdit
+  handleEdit,
+  handlePreviewPdf
 }) => {
   const navigate = useNavigate();
   
@@ -45,13 +49,8 @@ const QuotationViewActions: React.FC<QuotationViewActionsProps> = ({
           
           <Button 
             variant="secondary" 
-            onClick={() => {
-              const quotationElement = document.getElementById("quotation-content");
-              if (quotationElement && quotationElement.dataset.quotation) {
-                const quotation = JSON.parse(quotationElement.dataset.quotation);
-                previewQuotationPdf(quotation);
-              }
-            }}
+            onClick={handlePreviewPdf}
+            disabled={!quotation}
             className="flex items-center"
           >
             <FileText className="mr-2 h-4 w-4" />
