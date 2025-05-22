@@ -92,7 +92,7 @@ export const FreightQuotationPdf: React.FC<FreightQuotationPdfProps> = ({
                 <img 
                   src={quotation.creatorLogo} 
                   alt="Logo da Transportadora" 
-                  className="w-[250px] h-[150px] object-contain" 
+                  className="w-[150px] h-[100px] object-contain" 
                 />
               ) : (
                 <Logo variant="full" size="lg" className="text-freight-700" />

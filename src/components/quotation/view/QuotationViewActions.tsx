@@ -2,7 +2,9 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Share2, Edit, ArrowLeft, Send } from "lucide-react";
+import { Share2, Edit, ArrowLeft, Send, FileText } from "lucide-react";
+import { previewQuotationPdf } from "@/utils/pdf/quotationPdf";
+
 interface QuotationViewActionsProps {
   id: string;
   sending: boolean;
@@ -12,6 +14,7 @@ interface QuotationViewActionsProps {
   handleSendQuotation: () => void;
   handleEdit: () => void;
 }
+
 const QuotationViewActions: React.FC<QuotationViewActionsProps> = ({
   id,
   sending,
@@ -22,6 +25,7 @@ const QuotationViewActions: React.FC<QuotationViewActionsProps> = ({
   handleEdit
 }) => {
   const navigate = useNavigate();
+  
   return <div className="fixed bottom-16 md:bottom-auto md:static z-10 w-full max-w-7xl bg-background/80 backdrop-blur-sm py-2 px-4 border-t md:border-none md:p-0 md:mb-6">
       <div className="flex flex-wrap gap-2 justify-between items-center">
         <Button variant="outline" onClick={() => navigate("/quotations")} className="flex items-center">
@@ -33,9 +37,25 @@ const QuotationViewActions: React.FC<QuotationViewActionsProps> = ({
             <Edit className="mr-2 h-4 w-4" />
             Editar
           </Button>
+          
           <Button variant="outline" onClick={handleSharePdf} disabled={sharing} className="flex items-center">
             <Share2 className="mr-2 h-4 w-4" />
             {sharing ? "Compartilhando..." : "Compartilhar"}
+          </Button>
+          
+          <Button 
+            variant="secondary" 
+            onClick={() => {
+              const quotationElement = document.getElementById("quotation-content");
+              if (quotationElement && quotationElement.dataset.quotation) {
+                const quotation = JSON.parse(quotationElement.dataset.quotation);
+                previewQuotationPdf(quotation);
+              }
+            }}
+            className="flex items-center"
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            Visualizar PDF
           </Button>
           
           <Button onClick={handleSendQuotation} className="flex items-center bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900" disabled={sending || generating}>
@@ -46,4 +66,5 @@ const QuotationViewActions: React.FC<QuotationViewActionsProps> = ({
       </div>
     </div>;
 };
+
 export default QuotationViewActions;

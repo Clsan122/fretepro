@@ -1,19 +1,35 @@
 
 import React from "react";
-import { Card } from "@/components/ui/card";
-import { QuotationPdfDocument } from "@/components/quotation/QuotationPdfDocument";
-import { QuotationData } from "@/components/quotation/types";
+import { FreightQuotationPdf } from "../FreightQuotationPdf";
+import { PrintPreviewStyles } from "../PrintPreviewStyles";
+import { QuotationData } from "../types";
+import { useAuth } from "@/context/AuthContext";
 
 interface QuotationContentProps {
   quotation: QuotationData;
 }
 
 const QuotationContent: React.FC<QuotationContentProps> = ({ quotation }) => {
+  const { user } = useAuth();
+  
+  // Prepare creator info from user data
+  const creatorInfo = {
+    name: user?.companyName || quotation.creatorName || user?.name || "",
+    document: user?.cnpj || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+    city: user?.city || "",
+    state: user?.state || ""
+  };
+  
   return (
-    <div className="print-container">
-      <Card className="p-6 shadow-md print-no-shadow">
-        <QuotationPdfDocument quotation={quotation} />
-      </Card>
+    <div id="quotation-content" data-quotation={JSON.stringify(quotation)}>
+      <PrintPreviewStyles />
+      <FreightQuotationPdf
+        quotation={quotation}
+        creatorInfo={creatorInfo}
+      />
     </div>
   );
 };

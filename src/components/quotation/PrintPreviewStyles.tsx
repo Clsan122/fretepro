@@ -1,4 +1,3 @@
-
 import React from "react";
 
 export const PrintPreviewStyles: React.FC = () => {
@@ -53,8 +52,8 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         img {
-          max-width: 250px !important;
-          max-height: 150px !important;
+          max-width: 150px !important;
+          max-height: 100px !important;
           display: block !important;
           print-color-adjust: exact !important;
           -webkit-print-color-adjust: exact !important;
@@ -133,8 +132,8 @@ export const PrintPreviewStyles: React.FC = () => {
           }
           
           img {
-            max-width: 200px !important;
-            max-height: 120px !important;
+            max-width: 120px !important;
+            max-height: 80px !important;
           }
           
           .grid-cols-2 {
