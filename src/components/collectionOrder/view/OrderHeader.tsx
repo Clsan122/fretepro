@@ -38,11 +38,9 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
 
   // Determine the company or user name based on the issuer type
   const issuerName = issuer ? 
-    // Check if it's a User with companyName
-    ('companyName' in issuer && issuer.companyName) || 
-    // If not, check if it's a Client with name
-    ('name' in issuer && issuer.name) || 
-    // Default fallback
+    // Check if it has companyName (for User) or name (for Client)
+    ('companyName' in issuer ? issuer.companyName : '') || 
+    ('name' in issuer ? issuer.name : '') || 
     "" 
     : "";
 

@@ -39,7 +39,8 @@ export const useProfileActions = (setUser: (user: User) => void) => {
             company_name: updatedUser.companyName,
             cnpj: updatedUser.cnpj,
             company_logo: updatedUser.companyLogo,
-            bank_info: updatedUser.bankInfo
+            bank_info: updatedUser.bankInfo,
+            updated_at: new Date().toISOString() // Use updated_at instead of modified_at
           });
           
         if (error) {
