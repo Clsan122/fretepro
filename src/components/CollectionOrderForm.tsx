@@ -16,15 +16,12 @@ const CollectionOrderForm: React.FC<CollectionOrderFormProps> = ({
   orderToEdit,
   initialData 
 }) => {
-  // Garantimos que os dados iniciais são sempre um objeto válido
-  const preparedInitialData = orderToEdit || initialData || {};
-
   return (
     <CollectionOrderFormContainer
       onSave={onSave}
       onCancel={onCancel}
       orderToEdit={orderToEdit}
-      initialData={initialData}
+      initialData={initialData || {}}
     />
   );
 };

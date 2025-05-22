@@ -120,6 +120,9 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
     setReceiverDialogOpen(true);
   };
 
+  // Garantir que clientsList é sempre um array válido
+  const safeClientsList = Array.isArray(clientsList) ? clientsList : [];
+
   return (
     <Card>
       <CardHeader className="p-4 sm:p-6">
@@ -143,7 +146,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           handleSenderClientChange={handleSenderClientChange}
           onOpenClientDialog={handleOpenSenderDialog}
           form={form}
-          clients={clientsList}  // Pass the safe clientsList here
+          clients={safeClientsList}
         />
 
         <Separator className="my-2" />
@@ -179,7 +182,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
         />
 
         {/* Diálogos de seleção de cliente */}
-        <ClientListDialog clients={clientsList} isOpen={senderDialogOpen} onClose={() => setSenderDialogOpen(false)} onSelectClient={(client) => {
+        <ClientListDialog clients={safeClientsList} isOpen={senderDialogOpen} onClose={() => setSenderDialogOpen(false)} onSelectClient={(client) => {
           setSender(client.name);
           setSenderAddress(client.address || '');
           form.setValue("sender", client.name, { shouldValidate: true });
@@ -194,7 +197,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           }
         }} />
         
-        <ClientListDialog clients={clientsList} isOpen={recipientDialogOpen} onClose={() => setRecipientDialogOpen(false)} onSelectClient={(client) => {
+        <ClientListDialog clients={safeClientsList} isOpen={recipientDialogOpen} onClose={() => setRecipientDialogOpen(false)} onSelectClient={(client) => {
           setRecipient(client.name);
           setRecipientAddress(client.address || '');
           form.setValue("recipient", client.name, { shouldValidate: true });
@@ -202,7 +205,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           setRecipientDialogOpen(false);
         }} />
         
-        <ClientListDialog clients={clientsList} isOpen={shipperDialogOpen} onClose={() => setShipperDialogOpen(false)} onSelectClient={(client) => {
+        <ClientListDialog clients={safeClientsList} isOpen={shipperDialogOpen} onClose={() => setShipperDialogOpen(false)} onSelectClient={(client) => {
           setShipper(client.name);
           setShipperAddress(client.address || '');
           form.setValue("shipper", client.name, { shouldValidate: true });
@@ -210,7 +213,7 @@ export const SenderRecipientSection: React.FC<SenderRecipientSectionProps> = ({
           setShipperDialogOpen(false);
         }} />
         
-        <ClientListDialog clients={clientsList} isOpen={receiverDialogOpen} onClose={() => setReceiverDialogOpen(false)} onSelectClient={(client) => {
+        <ClientListDialog clients={safeClientsList} isOpen={receiverDialogOpen} onClose={() => setReceiverDialogOpen(false)} onSelectClient={(client) => {
           setReceiver(client.name);
           setReceiverAddress(client.address || '');
           form.setValue("receiver", client.name, { shouldValidate: true });

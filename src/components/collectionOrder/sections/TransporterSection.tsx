@@ -30,7 +30,7 @@ interface TransporterSectionProps {
   handleSenderClientChange: (clientId: string) => void;
   onOpenClientDialog: () => void;
   form: UseFormReturn<CollectionOrderFormValues>;
-  clients?: Client[]; // Adicionando prop para receber clients do componente pai
+  clients: Client[];
 }
 
 export const TransporterSection: React.FC<TransporterSectionProps> = ({
@@ -49,11 +49,8 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
   handleSenderClientChange,
   onOpenClientDialog,
   form,
-  clients = [] // Adicionando prop para receber clients do componente pai
+  clients = [] // Garantindo que clients é sempre um array
 }) => {
-  // Não precisamos mais buscar os clientes aqui, vamos usar os que vêm do pai
-  const { user } = useAuth();
-  
   // Garantimos que clients é sempre um array
   const availableClients = Array.isArray(clients) ? clients : [];
   

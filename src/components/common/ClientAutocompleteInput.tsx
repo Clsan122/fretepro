@@ -33,10 +33,8 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
   const [open, setOpen] = useState(false);
   
   // Garantindo que clients é sempre um array não vazio para o Command
-  const availableClients = Array.isArray(clients) && clients.length > 0 ? clients : [];
-  const selectedClient = availableClients.length > 0 ? 
-    availableClients.find((client) => client.id === value) : 
-    undefined;
+  const availableClients = Array.isArray(clients) ? clients : [];
+  const selectedClient = availableClients.find((client) => client.id === value);
   
   // Use correct ref type for button element
   const triggerRef = useRef<HTMLButtonElement>(null);
