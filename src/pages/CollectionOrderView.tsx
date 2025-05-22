@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -233,13 +232,13 @@ const CollectionOrderView: React.FC = () => {
           ref={printRef}
           className={`bg-white rounded-lg p-6 shadow-md print:shadow-none print:p-0 print:m-0 ${isGenerating ? 'opacity-0 absolute' : ''}`}
         >
+          {/* Simplificado o cabeçalho para apenas mostrar a data */}
           <OrderHeader
-            clientLogo={client?.logo}
-            clientName={client?.name || order.recipient}
             createdAt={createdAt}
             issuer={issuer}
           />
           
+          {/* O logo será exibido apenas no OrderContent */}
           <OrderContent order={order} />
         </div>
       </div>

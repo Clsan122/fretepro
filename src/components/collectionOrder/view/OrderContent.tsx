@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -15,9 +14,6 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     month: '2-digit',
     year: 'numeric'
   }) : '';
-
-  // Determinar se temos um logo específico para a transportadora
-  const hasCarrierLogo = order.senderLogo || false;
 
   return (
     <div className="space-y-1 print:space-y-0.5">
@@ -60,15 +56,8 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
                   <Truck className="h-3 w-3" />
                   DADOS DA TRANSPORTADORA:
                 </h3>
-                <div className="flex flex-col items-center text-xs">
-                  {/* Exibir o logo da transportadora se existir */}
-                  {order.senderLogo && (
-                    <img 
-                      src={order.senderLogo} 
-                      alt="Logo da Transportadora" 
-                      className="max-h-12 print:max-h-8 object-contain mb-1"
-                    />
-                  )}
+                <div className="flex flex-col items-start text-xs">
+                  {/* Removido o logo aqui para evitar duplicação */}
                   <p className="font-semibold">{order.sender}</p>
                   {order.senderCnpj && <p className="text-xs font-medium">CNPJ: {order.senderCnpj}</p>}
                   {order.senderAddress && <p className="text-xs">{order.senderAddress}</p>}
@@ -246,4 +235,3 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     </div>
   );
 };
-

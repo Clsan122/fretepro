@@ -22,8 +22,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
   issuer,
   orderNumber,
 }) => {
-  // Componente simplificado para não repetir os dados do remetente
-  // O logotipo e número da ordem são exibidos no OrderContent
+  // Removida a exibição do logo para evitar duplicação
   return (
     <div className="mb-3 print:mb-2 text-center">
       <p className="text-gray-500 text-xs">Data: {createdAt}</p>
