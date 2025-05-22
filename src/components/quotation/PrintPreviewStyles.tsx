@@ -53,13 +53,14 @@ export const PrintPreviewStyles: React.FC = () => {
         }
         
         img {
-          max-width: 100% !important;
+          max-width: 250px !important;
+          max-height: 150px !important;
           display: block !important;
           print-color-adjust: exact !important;
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
           page-break-inside: avoid !important;
-          max-height: 40px !important;
+          object-fit: contain !important;
         }
         
         /* Garantir que gradientes e cores de fundo sejam impressos */
@@ -132,7 +133,8 @@ export const PrintPreviewStyles: React.FC = () => {
           }
           
           img {
-            max-height: 30px !important;
+            max-width: 200px !important;
+            max-height: 120px !important;
           }
           
           .grid-cols-2 {

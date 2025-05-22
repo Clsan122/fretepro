@@ -32,7 +32,9 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
             line-height: 1.1 !important;
           }
           img {
-            max-height: 25px !important;
+            max-width: 250px !important;
+            max-height: 150px !important;
+            object-fit: contain !important;
           }
           .border-b {
             border-bottom-width: 1px !important;
@@ -57,7 +59,7 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
             <img 
               src={sender.companyLogo} 
               alt="Logo da Empresa" 
-              className="h-8 w-auto object-contain mb-0" 
+              className="w-[250px] h-[150px] object-contain mb-0" 
             />
           )}
           <p className="font-semibold text-xs">{sender?.companyName || sender?.name || ""}</p>

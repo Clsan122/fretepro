@@ -1,7 +1,7 @@
 
 import React from "react";
 import { QuotationData } from "./types";
-import { formatCurrency, formatCPFCNPJ, formatPhone } from "@/utils/formatters";
+import { formatCurrency, formatCNPJ as formatCPFCNPJ, formatPhone } from "@/utils/formatters";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Logo from "@/components/Logo";
@@ -92,7 +92,7 @@ export const FreightQuotationPdf: React.FC<FreightQuotationPdfProps> = ({
                 <img 
                   src={quotation.creatorLogo} 
                   alt="Logo da Transportadora" 
-                  className="max-h-16 object-contain" 
+                  className="w-[250px] h-[150px] object-contain" 
                 />
               ) : (
                 <Logo variant="full" size="lg" className="text-freight-700" />
@@ -347,4 +347,3 @@ export const FreightQuotationPdf: React.FC<FreightQuotationPdfProps> = ({
     </div>
   );
 };
-
