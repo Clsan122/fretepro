@@ -12,7 +12,10 @@ export {
   previewQuotationPdf, 
   shareQuotationPdf,
   prepareQuotationForPdf,
-  restoreQuotationFromPdf
+  restoreQuotationFromPdf,
+  prepareForPrintMode,
+  restoreFromPrintMode,
+  shareQuotationPdfOptimized
 } from "./quotationPdf";
 
 // Freight receipt PDF functions
@@ -21,8 +24,8 @@ export { generateFreightReceiptPdf, generateMultiFreightReceiptPdf } from "./fre
 // Collection order PDF functions
 export { 
   generateCollectionOrderPdf,
-  prepareForPrintMode,
-  restoreFromPrintMode,
+  prepareForPrintMode as prepareOrderForPrintMode,
+  restoreFromPrintMode as restoreOrderFromPrintMode,
   generateOrderHtmlPreview
 } from "./collectionOrderPdf";
 

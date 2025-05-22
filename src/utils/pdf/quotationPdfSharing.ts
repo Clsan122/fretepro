@@ -1,10 +1,42 @@
 
+import { QuotationData } from "@/components/quotation/types";
+import { prepareQuotationForPdf, restoreQuotationFromPdf, getQuotationMetadata } from "./quotationPdfPrep";
+import { generateFreightQuotationPdf } from "./freightQuotationPdf";
 import html2canvas from "html2canvas";
 import { generatePdfFromCanvas } from "./pdfCore";
-import { getQuotationMetadata } from "./quotationPdfPrep";
 
-// Share quotation PDF - returns a Blob
+/**
+ * Generates and shares a quotation PDF
+ * @param id The ID of the quotation to share
+ * @returns A Promise that resolves to the generated PDF blob
+ */
 export const shareQuotationPdf = async (id: string): Promise<Blob> => {
+  // Get quotation data
+  const quotationData = prepareQuotationForPdf(id);
+  if (!quotationData) {
+    throw new Error("Quotation not found");
+  }
+
+  try {
+    // Generate the PDF
+    const pdfBlob = await generateFreightQuotationPdf("quotation-pdf", quotationData);
+    
+    // Restore the original state
+    restoreQuotationFromPdf();
+    
+    return pdfBlob;
+  } catch (error) {
+    console.error("Error sharing quotation PDF:", error);
+    restoreQuotationFromPdf();
+    throw error;
+  }
+};
+
+/**
+ * Optimized version for sharing via WhatsApp or other platforms
+ * Returns a Blob with optimized settings
+ */
+export const optimizedShareQuotationPdf = async (id: string): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     setTimeout(async () => {
       try {
@@ -20,12 +52,12 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
         
         // Generate canvas with optimized settings for WhatsApp sharing
         const canvas = await html2canvas(element, {
-          scale: 3, // Maior DPI para melhor qualidade
+          scale: 3, // Higher DPI for better quality
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#ffffff",
           logging: false,
-          imageTimeout: 15000, // Maior timeout para carregar imagens
+          imageTimeout: 15000, // Longer timeout for loading images
           onclone: (document, element) => {
             // Ensure all images are loaded before rendering
             element.querySelectorAll('img').forEach(img => {
@@ -35,7 +67,7 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
               }
             });
             
-            // Adicionar estilo para garantir tudo em uma página
+            // Add style to ensure everything fits on one page
             const singlePageStyle = document.createElement('style');
             singlePageStyle.innerHTML = `
               #quotation-pdf {
@@ -69,16 +101,16 @@ export const shareQuotationPdf = async (id: string): Promise<Blob> => {
           author: "FreteValor",
           creator: "FreteValor",
           compress: true,
-          quality: 0.95, // Alta qualidade
-          fitToPage: true // Garantir que tudo esteja em uma página
+          quality: 0.95, // High quality
+          fitToPage: true // Ensure everything fits on one page
         });
         
         // Return the PDF as a blob
         resolve(pdf.output('blob'));
       } catch (error) {
-        console.error("Error sharing quotation PDF:", error);
+        console.error("Error sharing optimized quotation PDF:", error);
         reject(error);
       }
-    }, 500); // Pequeno delay para garantir que o DOM está pronto
+    }, 500); // Small delay to ensure the DOM is ready
   });
 };
