@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Edit, Share2, Trash2, Printer, Download, Truck, FileText, Html } from "lucide-react";
+import { ChevronLeft, Edit, Share2, Trash2, Printer, Download, Truck, FileText, FileJson } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -78,7 +78,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             onClick={onViewHtml}
             className="gap-1"
           >
-            <Html className="h-4 w-4" /> Ver HTML
+            <FileJson className="h-4 w-4" /> Ver HTML
           </Button>
         )}
         
@@ -104,7 +104,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onShare}>
-              <Html className="h-4 w-4 mr-2" /> Compartilhar como HTML
+              <FileJson className="h-4 w-4 mr-2" /> Compartilhar como HTML
             </DropdownMenuItem>
             {onDownload && (
               <DropdownMenuItem onClick={onDownload}>
