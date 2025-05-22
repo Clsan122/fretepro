@@ -24,13 +24,15 @@ interface CollectionOrderFormContainerProps {
   onCancel: () => void;
   orderToEdit?: CollectionOrder;
   initialData?: Partial<CollectionOrder>;
+  isSaving?: boolean; // Added isSaving prop to the interface
 }
 
 const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> = ({
   onSave,
   onCancel,
   orderToEdit,
-  initialData
+  initialData,
+  isSaving = false // Added with default value of false
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -234,6 +236,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
           onCancel={onCancel}
           isEditing={Boolean(orderToEdit)}
           submitLabel={orderToEdit ? "Atualizar Ordem" : "Cadastrar Ordem"}
+          isSubmitting={isSaving} // Use the isSaving prop here to show loading state
         />
       </form>
     </Form>
