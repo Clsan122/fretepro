@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
@@ -75,7 +74,8 @@ const CollectionOrders: React.FC = () => {
     try {
       setDeletingOrderId(orderId);
       await deleteCollectionOrder(orderId);
-      // Imediatamente atualizar a lista local removendo a ordem excluída
+      
+      // Immediately update the orders state to remove the deleted order
       setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
       toast.success("Ordem de coleta excluída com sucesso");
     } catch (error) {

@@ -303,30 +303,30 @@ export const getCollectionOrderById = async (id: string): Promise<CollectionOrde
 
 export const saveCollectionOrder = async (order: CollectionOrder): Promise<void> => {
   try {
-    const orders = await getCollectionOrdersByUserId(order.userId);
+    // Obter as ordens atuais
+    const collectionOrders = getLocalStorageItem<CollectionOrder[]>('collectionOrders', []);
     
     // Verificar se já existe uma ordem com este ID
-    const existingOrderIndex = orders.findIndex(o => o.id === order.id);
+    const existingOrderIndex = collectionOrders.findIndex(o => o.id === order.id);
     
     if (existingOrderIndex >= 0) {
       // Atualizar ordem existente
-      orders[existingOrderIndex] = {
+      collectionOrders[existingOrderIndex] = {
         ...order,
         // Garantir que mantemos o número da ordem original
-        orderNumber: orders[existingOrderIndex].orderNumber
+        orderNumber: collectionOrders[existingOrderIndex].orderNumber
       };
     } else {
       // Adicionar nova ordem
-      orders.push(order);
+      collectionOrders.push(order);
     }
     
-    localStorage.setItem('collectionOrders', JSON.stringify(orders));
+    // Salvar no localStorage
+    setLocalStorageItem('collectionOrders', collectionOrders);
     
     // Sincronizar com IndexedDB se disponível
     try {
-      import('./sync/collectionOrderSync').then(module => {
-        module.saveCollectionOrderWithSync(order);
-      });
+      await saveCollectionOrderWithSync(order);
     } catch (error) {
       console.error("Erro ao sincronizar ordem de coleta:", error);
     }
@@ -338,14 +338,15 @@ export const saveCollectionOrder = async (order: CollectionOrder): Promise<void>
 
 export const deleteCollectionOrder = async (id: string): Promise<void> => {
   try {
-    // Usar função de sincronização aprimorada
-    await deleteCollectionOrderWithSync(id);
-  } catch (error) {
-    console.error("Erro ao excluir ordem de coleta:", error);
-    
-    // Fallback para localStorage em caso de erro
+    // Remover do localStorage imediatamente para garantir UI atualizada
     const collectionOrders = getLocalStorageItem<CollectionOrder[]>('collectionOrders', []);
     const updatedOrders = collectionOrders.filter(order => order.id !== id);
     setLocalStorageItem('collectionOrders', updatedOrders);
+    
+    // Usar função de sincronização para IndexedDB e outros armazenamentos
+    await deleteCollectionOrderWithSync(id);
+  } catch (error) {
+    console.error("Erro ao excluir ordem de coleta:", error);
+    throw error;
   }
 };
