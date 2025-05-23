@@ -23,7 +23,7 @@ const validatePWA = () => {
     });
 
   // Verificar critérios de instalação
-  if ('BeforeInstallPromptEvent' in window) {
+  if ('BeforeInstallPromptEvent' in window || 'onbeforeinstallprompt' in window) {
     results.installability = true;
   }
   
@@ -58,20 +58,64 @@ const isPWAInstalled = () => {
          window.navigator.standalone === true;
 };
 
+// Verificar disponibilidade para instalação
+const checkInstallability = async () => {
+  return new Promise(resolve => {
+    let isInstallable = false;
+    let installPromptReceived = false;
+    
+    // Definir um tempo limite para capturar o evento
+    const timeout = setTimeout(() => {
+      if (!installPromptReceived) {
+        resolve({
+          installable: isInstallable,
+          reason: "Evento de instalação não capturado"
+        });
+      }
+    }, 3000);
+    
+    // Tenta capturar o evento beforeinstallprompt
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      installPromptReceived = true;
+      isInstallable = true;
+      clearTimeout(timeout);
+      
+      resolve({
+        installable: true,
+        event: "beforeinstallprompt capturado"
+      });
+      
+      // Remover o listener após capturado
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+    
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  });
+};
+
 // Relatar resultados de validação
 const reportPWAStatus = async () => {
   const results = validatePWA();
   const notificationPermission = checkNotificationPermission();
   const networkConnected = await testNetworkConnectivity();
   const isInstalled = isPWAInstalled();
+  const installability = await checkInstallability();
   
   return {
     ...results,
     notificationPermission,
     networkConnected,
     isInstalled,
+    installability,
     timestamp: new Date().toISOString(),
-    userAgent: navigator.userAgent
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    display: {
+      standalone: window.matchMedia('(display-mode: standalone)').matches,
+      browser: window.matchMedia('(display-mode: browser)').matches,
+      windowControlsOverlay: window.matchMedia('(display-mode: window-controls-overlay)').matches
+    }
   };
 };
 
@@ -95,6 +139,7 @@ self.pwaValidator = {
   checkNotificationPermission,
   testNetworkConnectivity,
   isPWAInstalled,
+  checkInstallability,
   reportPWAStatus,
   sendStatusToServiceWorker
 };

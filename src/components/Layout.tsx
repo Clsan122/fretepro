@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -7,9 +8,12 @@ import BottomNavigation from "@/components/navigation/BottomNavigation";
 import SidebarNavigation from "./navigation/SidebarNavigation";
 import { navigationItems } from "./navigation/BottomNavigation";
 import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
+import { InstallBanner } from "./pwa/InstallBanner";
+
 interface LayoutProps {
   children: React.ReactNode;
 }
+
 const Layout: React.FC<LayoutProps> = ({
   children
 }) => {
@@ -22,9 +26,11 @@ const Layout: React.FC<LayoutProps> = ({
     }
     return "light";
   });
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -35,6 +41,7 @@ const Layout: React.FC<LayoutProps> = ({
       document.documentElement.classList.remove("dark");
     }
   };
+
   React.useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
@@ -47,13 +54,16 @@ const Layout: React.FC<LayoutProps> = ({
       document.documentElement.classList.add("dark");
     }
   }, []);
+
   const handleNavigate = (path: string) => {
     navigate(path);
     if (isMobile) {
       setSidebarOpen(false);
     }
   };
-  return <SidebarProvider>
+
+  return (
+    <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
         {/* Sidebar para desktop */}
         <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0">
@@ -93,8 +103,13 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="h-16 md:h-0"></div>
         </div>
         
+        {/* Banner de instalação do PWA */}
+        <InstallBanner />
+        
         <BottomNavigation />
       </div>
-    </SidebarProvider>;
+    </SidebarProvider>
+  );
 };
+
 export default Layout;
