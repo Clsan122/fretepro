@@ -9,12 +9,12 @@ import { InstallButton } from "../pwa/InstallButton";
 import { usePwaInstall } from "@/hooks/usePwaInstall";
 
 export const ProfileMenuGroup: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { isInstalled } = usePwaInstall();
   
   const handleSignOut = () => {
-    signOut();
+    logout();
     navigate("/login");
   };
   
