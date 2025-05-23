@@ -7,6 +7,7 @@ type ToastProps = {
   description?: React.ReactNode;
   action?: React.ReactNode;
   variant?: "default" | "destructive" | "success";
+  duration?: number; // Added the duration property
 };
 
 const TOAST_LIMIT = 1;
@@ -28,22 +29,25 @@ function genId() {
 }
 
 export function toast(props: ToastProps) {
-  const { variant } = props;
+  const { variant, duration } = props;
   
   if (variant === "destructive") {
     sonnerToast.error(props.title, {
       description: props.description,
       action: props.action,
+      duration: duration,
     });
   } else if (variant === "success") {
     sonnerToast.success(props.title, {
       description: props.description,
       action: props.action,
+      duration: duration,
     });
   } else {
     sonnerToast(props.title, {
       description: props.description,
       action: props.action,
+      duration: duration,
     });
   }
 }
