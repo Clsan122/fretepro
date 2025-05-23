@@ -54,8 +54,7 @@ export const useDriverForm = (driverToEdit?: Driver) => {
 
   const handlePhoneChange = (value: string) => {
     const phoneValue = value.replace(/\D/g, '');
-    const formattedPhone = formatBrazilianPhone(phoneValue);
-    setPhone(formattedPhone);
+    setPhone(phoneValue);
   };
 
   return {

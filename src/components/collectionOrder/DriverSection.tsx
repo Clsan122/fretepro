@@ -34,10 +34,10 @@ export const DriverSection: React.FC<DriverSectionProps> = ({
   form
 }) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Motorista</CardTitle>
-        <CardDescription>Selecione o motorista para esta coleta</CardDescription>
+    <Card className="border-freight-100 dark:border-freight-800">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-freight-700 dark:text-freight-300 text-xl">Motorista</CardTitle>
+        <CardDescription>Selecione o motorista responsável pela coleta</CardDescription>
       </CardHeader>
       <CardContent>
         <FormField
@@ -45,7 +45,7 @@ export const DriverSection: React.FC<DriverSectionProps> = ({
           name="driverId"
           render={({ field }) => (
             <FormItem>
-              <Label htmlFor="driverId">Motorista / Veículo</Label>
+              <Label htmlFor="driverId" variant="required">Motorista / Veículo</Label>
               <FormControl>
                 <Select
                   value={driverId}
@@ -54,7 +54,7 @@ export const DriverSection: React.FC<DriverSectionProps> = ({
                     field.onChange(value);
                   }}
                 >
-                  <SelectTrigger id="driverId">
+                  <SelectTrigger id="driverId" className="focus:ring-freight-500">
                     <SelectValue placeholder="Selecione um motorista" />
                   </SelectTrigger>
                   <SelectContent>

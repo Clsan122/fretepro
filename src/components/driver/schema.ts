@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const driverFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
-  cpf: z.string().min(11, "CPF inválido").max(11, "CPF inválido"),
+  cpf: z.string().min(11, "CPF deve conter 11 dígitos").max(11, "CPF deve conter 11 dígitos"),
   phone: z.string().min(1, "Telefone é obrigatório"),
   address: z.string().optional(),
   licensePlate: z.string().min(1, "Placa do veículo é obrigatória"),
