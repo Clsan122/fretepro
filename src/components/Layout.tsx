@@ -9,6 +9,8 @@ import SidebarNavigation from "./navigation/SidebarNavigation";
 import { navigationItems } from "./navigation/BottomNavigation";
 import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
 import { InstallBanner } from "./pwa/InstallBanner";
+import { UpdateNotification } from "./pwa/UpdateNotification";
+import { useUpdate } from "@/context/UpdateContext";
 import { useToast } from "@/hooks/use-toast";
 
 interface LayoutProps {
@@ -22,6 +24,7 @@ const Layout: React.FC<LayoutProps> = ({
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { toast } = useToast();
+  const { setIsUpdateAvailable, setUpdateServiceWorker } = useUpdate();
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem("theme") || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
@@ -41,6 +44,21 @@ const Layout: React.FC<LayoutProps> = ({
       localStorage.removeItem('pwa-just-installed');
     }
   }, [toast]);
+
+  // Ouvir eventos de atualização do Service Worker
+  useEffect(() => {
+    const handleUpdateAvailable = (event: CustomEvent) => {
+      console.log('Atualização detectada no Layout');
+      setIsUpdateAvailable(true);
+      setUpdateServiceWorker(event.detail.registration);
+    };
+
+    window.addEventListener('sw-update-available', handleUpdateAvailable as EventListener);
+
+    return () => {
+      window.removeEventListener('sw-update-available', handleUpdateAvailable as EventListener);
+    };
+  }, [setIsUpdateAvailable, setUpdateServiceWorker]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -120,6 +138,9 @@ const Layout: React.FC<LayoutProps> = ({
         
         {/* Banner de instalação do PWA - sempre visível quando aplicável */}
         <InstallBanner />
+        
+        {/* Componente de notificação de atualização */}
+        <UpdateNotification />
         
         <BottomNavigation />
       </div>

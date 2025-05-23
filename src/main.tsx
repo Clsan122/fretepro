@@ -161,6 +161,20 @@ if ('serviceWorker' in navigator) {
         }
       }
       
+      // Detectar atualizações do Service Worker
+      const checkForUpdates = () => {
+        if (registration.waiting) {
+          // Nova versão já disponível
+          console.log('Nova versão do Service Worker detectada');
+          window.dispatchEvent(new CustomEvent('sw-update-available', { 
+            detail: { registration } 
+          }));
+        }
+      };
+
+      // Verificar se já existe uma atualização pendente
+      checkForUpdates();
+      
       // Configurar nova versão do Service Worker
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
@@ -168,8 +182,11 @@ if ('serviceWorker' in navigator) {
           installingWorker.onstatechange = () => {
             if (installingWorker.state === 'installed') {
               if (navigator.serviceWorker.controller) {
-                // Service Worker atualizado, notificar usuário sem toast
-                console.log('Nova versão disponível! Recarregue a página para atualizar.');
+                // Service Worker atualizado, notificar sobre nova versão
+                console.log('Nova versão do Service Worker instalada');
+                window.dispatchEvent(new CustomEvent('sw-update-available', { 
+                  detail: { registration } 
+                }));
               } else {
                 // Primeiro Service Worker instalado
                 console.log('Aplicativo pronto para uso offline.');

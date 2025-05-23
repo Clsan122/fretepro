@@ -2,6 +2,7 @@
 import * as React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/auth";
+import { UpdateProvider } from "./context/UpdateContext";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import AppRoutes from "./routes/AppRoutes";
@@ -62,11 +63,13 @@ function App() {
       <BrowserRouter>
         <ConnectivityContext.Provider value={{ isOnline }}>
           <NotificationContext.Provider value={{ showNotificationButton, setShowNotificationButton }}>
-            <AuthProvider>
-              <AppRoutes />
-              <Toaster />
-              <SonnerToaster position="top-right" richColors />
-            </AuthProvider>
+            <UpdateProvider>
+              <AuthProvider>
+                <AppRoutes />
+                <Toaster />
+                <SonnerToaster position="top-right" richColors />
+              </AuthProvider>
+            </UpdateProvider>
           </NotificationContext.Provider>
         </ConnectivityContext.Provider>
       </BrowserRouter>
