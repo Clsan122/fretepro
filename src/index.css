@@ -1,243 +1,126 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
+ 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 210 64% 39%;
+ 
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-
+ 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
+ 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
+ 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
+ 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    --ring: 221.2 83.2% 53.3%;
+ 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --freight-50: 217 100% 97%;
+    --freight-100: 216 100% 94%;
+    --freight-200: 216 100% 87%;
+    --freight-300: 216 100% 77%;
+    --freight-400: 217 100% 67%;
+    --freight-500: 218 97% 58%;
+    --freight-600: 220 98% 51%;
+    --freight-700: 224 89% 41%;
+    --freight-800: 226 74% 27%;
+    --freight-900: 226 67% 18%;
+    --freight-950: 227 62% 12%;
   }
-
+ 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
+ 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
+ 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
+ 
+    --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
+ 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
+ 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
+ 
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
+ 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
+ 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 224.3 76.3% 48%;
+
+    --freight-50: 220 62% 12%;
+    --freight-100: 220 67% 18%;
+    --freight-200: 224 74% 27%;
+    --freight-300: 224 89% 41%;
+    --freight-400: 220 98% 51%;
+    --freight-500: 218 97% 58%;
+    --freight-600: 217 100% 67%;
+    --freight-700: 216 100% 77%;
+    --freight-800: 216 100% 87%;
+    --freight-900: 216 100% 94%;
+    --freight-950: 217 100% 97%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground font-inter;
-    /* Aplicar safe-area no corpo principal do documento */
-    padding-top: env(safe-area-inset-top, 0);
-    padding-bottom: env(safe-area-inset-bottom, 0);
-    padding-left: env(safe-area-inset-left, 0);
-    padding-right: env(safe-area-inset-right, 0);
-  }
-
-  /* Prevenir scrolling horizontal em dispositivos móveis */
-  html, body {
-    overflow-x: hidden;
-    width: 100%;
-    position: relative;
-  }
-  
-  /* Ajustar tamanho de fonte responsivo */
-  html {
-    font-size: 14px;
-  }
-  
-  @media (min-width: 768px) {
-    html {
-      font-size: 16px;
-    }
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Classe para garantir que os elementos respeitem as safe areas */
-.safe-area-inset {
-  padding-top: env(safe-area-inset-top, 0);
-  padding-bottom: env(safe-area-inset-bottom, 0);
-  padding-left: env(safe-area-inset-left, 0);
-  padding-right: env(safe-area-inset-right, 0);
-}
-
-.form-container {
-  @apply space-y-4 sm:space-y-6 p-3 sm:p-6 bg-white rounded-lg shadow-md;
-}
-
-.form-section {
-  @apply border-b pb-3 sm:pb-4 mb-3 sm:mb-4;
-}
-
-.form-section-title {
-  @apply text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3;
-}
-
-.input-group {
-  @apply grid gap-2 sm:gap-4;
-}
-
-@media (min-width: 640px) {
-  .input-group-2 {
-    @apply grid-cols-1 sm:grid-cols-2;
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
   }
-  
-  .input-group-3 {
-    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  50% {
+    transform: translateY(-5px);
   }
 }
 
-/* Classes para dispositivos específicos */
-@supports (padding: max(0px)) {
-  .has-notch {
-    padding-left: max(env(safe-area-inset-left), 16px);
-    padding-right: max(env(safe-area-inset-right), 16px);
-    padding-bottom: max(env(safe-area-inset-bottom), 16px);
-  }
+.animate-bounce-slow {
+  animation: bounce-slow 2s infinite;
 }
 
-/* Especificamente para iPhones com notch */
-@media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3),
-       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2),
-       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3),
-       screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3),
-       screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) {
-  .iphone-notch-friendly {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .content-inset {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
+/* Suporte para dispositivos com notch (iPhone X+) */
+.ios-device.has-notch {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Classes de grade responsiva customizada */
-.responsive-grid {
-  @apply grid gap-3 sm:gap-4;
-}
-
-.responsive-grid-2 {
-  @apply grid-cols-1 sm:grid-cols-2;
-}
-
-.responsive-grid-3 {
-  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
-}
-
-.responsive-grid-4 {
-  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
-}
-
-/* Ajustes para componentes específicos */
-.card-responsiva {
-  @apply p-3 sm:p-4 md:p-5;
-}
-
-.card-header-responsivo {
-  @apply pb-2 sm:pb-3;
-}
-
-/* Ajustes para tabelas em dispositivos móveis */
-@media (max-width: 640px) {
-  .table-responsiva {
-    @apply block w-full overflow-x-auto whitespace-nowrap;
-  }
-  
-  .table-cell-responsiva {
-    @apply px-2 py-1 text-xs;
-  }
-}
-
-/* Ajustes para formulários */
-.form-responsivo input,
-.form-responsivo select,
-.form-responsivo textarea {
-  @apply text-sm sm:text-base py-1.5 sm:py-2 px-2 sm:px-3;
-}
-
-/* Ajustes para botões */
-.btn-responsivo {
-  @apply text-sm sm:text-base py-1.5 sm:py-2 px-3 sm:px-4;
-}
-
-/* Classes para elementos fixos */
-.fixed-bottom-safe {
-  @apply fixed bottom-0 left-0 right-0;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-/* Corrigir problema de toque em dispositivos móveis */
-@media (max-width: 640px) {
-  button, a, [role="button"] {
-    @apply touch-manipulation;
-  }
+.iphone-notch-friendly {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }

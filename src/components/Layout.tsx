@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -9,6 +9,7 @@ import SidebarNavigation from "./navigation/SidebarNavigation";
 import { navigationItems } from "./navigation/BottomNavigation";
 import { ProfileMenuGroup } from "./sidebar/ProfileMenuGroup";
 import { InstallBanner } from "./pwa/InstallBanner";
+import { useToast } from "@/hooks/use-toast";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,12 +21,26 @@ const Layout: React.FC<LayoutProps> = ({
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { toast } = useToast();
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem("theme") || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
     }
     return "light";
   });
+
+  // Verificar se o app acabou de ser instalado
+  useEffect(() => {
+    const justInstalled = localStorage.getItem('pwa-just-installed');
+    if (justInstalled === 'true') {
+      toast({
+        title: "App Instalado com Sucesso!",
+        description: "Bem-vindo ao FreteValor. O aplicativo foi instalado em seu dispositivo.",
+        duration: 5000,
+      });
+      localStorage.removeItem('pwa-just-installed');
+    }
+  }, [toast]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -103,7 +118,7 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="h-16 md:h-0"></div>
         </div>
         
-        {/* Banner de instalação do PWA */}
+        {/* Banner de instalação do PWA - sempre visível quando aplicável */}
         <InstallBanner />
         
         <BottomNavigation />

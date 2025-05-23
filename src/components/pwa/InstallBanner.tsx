@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Download, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePwaInstall } from '@/hooks/usePwaInstall';
@@ -9,6 +9,21 @@ export const InstallBanner: React.FC = () => {
   const { isInstallable, isInstalled, installApp } = usePwaInstall();
   const [dismissed, setDismissed] = useState(false);
   const { toast } = useToast();
+  
+  // Check if banner was previously dismissed (but reset after 24 hours)
+  useEffect(() => {
+    const lastDismissed = localStorage.getItem('pwa-install-dismissed');
+    if (lastDismissed) {
+      const dismissedTime = parseInt(lastDismissed, 10);
+      const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+      
+      if (dismissedTime > twentyFourHoursAgo) {
+        setDismissed(true);
+      } else {
+        localStorage.removeItem('pwa-install-dismissed');
+      }
+    }
+  }, []);
   
   // Não mostrar se não for instalável, já estiver instalado ou for dispensado
   if (!isInstallable || isInstalled || dismissed) {
@@ -32,7 +47,7 @@ export const InstallBanner: React.FC = () => {
   
   return (
     <div className="fixed bottom-16 left-0 right-0 mx-auto max-w-md px-4 z-50 md:bottom-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-freight-500 dark:border-freight-700 p-4 flex items-center justify-between animate-bounce-slow">
         <div className="flex items-center space-x-3">
           <div className="bg-freight-100 dark:bg-freight-900 p-2 rounded-full">
             <Download className="h-5 w-5 text-freight-600 dark:text-freight-300" />
