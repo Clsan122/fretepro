@@ -6,10 +6,10 @@
   "lang": "pt-BR",
   "start_url": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
   "background_color": "#1E40AF",
   "theme_color": "#1E40AF",
-  "orientation": "portrait",
+  "orientation": "any",
   "scope": "/",
   "id": "fretevalor-app",
   "dir": "ltr",
@@ -26,6 +26,10 @@
       "platform": "play",
       "url": "https://play.google.com/store/apps/details?id=app.lovable.5a9941b135664df199580caf8b922a6c",
       "id": "app.lovable.5a9941b135664df199580caf8b922a6c"
+    },
+    {
+      "platform": "windows",
+      "url": "ms-appx-web://microsoft.com/fretevalor"
     }
   ],
   "scope_extensions": [
@@ -34,33 +38,46 @@
     }
   ],
   "launch_handler": {
-    "client_mode": ["navigate-existing", "auto"]
+    "client_mode": ["navigate-existing", "navigate-new", "auto"]
   },
   "handle_links": "preferred",
   "edge_side_panel": {
-    "preferred_width": 400
+    "preferred_width": 480,
+    "min_width": 320,
+    "max_width": 600
   },
   "file_handlers": [
     {
       "action": "/import",
       "accept": {
         "application/json": [".json"],
-        "text/csv": [".csv"]
+        "text/csv": [".csv"],
+        "application/vnd.ms-excel": [".xls", ".xlsx"]
       },
-      "name": "Importar dados de fretes"
+      "name": "Importar dados de fretes",
+      "icons": [
+        { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
     },
     {
       "action": "/view-pdf",
       "accept": {
         "application/pdf": [".pdf"]
       },
-      "name": "Visualizar recibos"
+      "name": "Visualizar recibos",
+      "icons": [
+        { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
     }
   ],
   "protocol_handlers": [
     {
       "protocol": "web+fretevalor",
       "url": "/%s"
+    },
+    {
+      "protocol": "mailto",
+      "url": "/share?email=%s"
     }
   ],
   "share_target": {
@@ -74,7 +91,7 @@
       "files": [
         {
           "name": "receipts",
-          "accept": ["application/pdf", "image/*"]
+          "accept": ["application/pdf", "image/*", "text/csv", "application/json"]
         }
       ]
     }
@@ -121,6 +138,20 @@
       "type": "image/png",
       "platform": "narrow",
       "label": "Cadastro de Motorista"
+    },
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "1366x768",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Dashboard desktop do FreteValor"
+    },
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1366x768",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Página inicial desktop"
     }
   ],
   "icons": [
@@ -171,52 +202,179 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-44.png",
+      "sizes": "44x44",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-150.png",
+      "sizes": "150x150",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-310x150.png",
+      "sizes": "310x150",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-310.png",
+      "sizes": "310x310",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "shortcuts": [
     {
       "name": "Novo Frete",
       "short_name": "Novo Frete",
-      "description": "Cadastrar novo frete",
-      "url": "/freights",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "description": "Cadastrar novo frete rapidamente",
+      "url": "/freights?action=new",
+      "icons": [
+        { 
+          "src": "/icons/icon-192.png", 
+          "sizes": "192x192", 
+          "type": "image/png" 
+        }
+      ]
     },
     {
       "name": "Ordem de Coleta",
       "short_name": "Coleta",
-      "description": "Gerar ordem de coleta",
+      "description": "Gerar nova ordem de coleta",
       "url": "/collection-order/new",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        { 
+          "src": "/icons/icon-192.png", 
+          "sizes": "192x192", 
+          "type": "image/png" 
+        }
+      ]
+    },
+    {
+      "name": "Relatórios",
+      "short_name": "Relatórios",
+      "description": "Visualizar relatórios financeiros",
+      "url": "/dashboard?tab=reports",
+      "icons": [
+        { 
+          "src": "/icons/icon-192.png", 
+          "sizes": "192x192", 
+          "type": "image/png" 
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "short_name": "Clientes",
+      "description": "Gerenciar clientes cadastrados",
+      "url": "/clients",
+      "icons": [
+        { 
+          "src": "/icons/icon-192.png", 
+          "sizes": "192x192", 
+          "type": "image/png" 
+        }
+      ]
     }
   ],
   "widgets": [
     {
       "name": "Resumo Financeiro",
       "tag": "financeiro",
-      "description": "Mostra um resumo financeiro dos últimos fretes",
+      "description": "Widget compacto que mostra o resumo financeiro dos últimos fretes com gráficos e valores",
+      "template": "resumo-financeiro",
+      "ms_ac_template": "adaptive-card",
+      "data": "financial-summary",
+      "type": "application/json",
       "screenshots": [
         {
+          "src": "/screenshots/widget-financeiro-landscape.png",
+          "sizes": "732x200",
+          "label": "Widget Resumo Financeiro - Landscape"
+        },
+        {
           "src": "/screenshots/dashboard-relatorios.png",
-          "sizes": "750x1334",
-          "label": "Resumo Financeiro"
+          "sizes": "366x200",
+          "label": "Widget Resumo Financeiro - Portrait"
         }
-      ]
+      ],
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ],
+      "auth": false,
+      "update": 3600
     },
     {
       "name": "Próximas Entregas",
       "tag": "entregas",
-      "description": "Exibe as próximas entregas agendadas",
+      "description": "Lista das próximas entregas agendadas com horários e destinos",
+      "template": "proximas-entregas", 
+      "ms_ac_template": "adaptive-card",
+      "data": "upcoming-deliveries",
+      "type": "application/json",
       "screenshots": [
         {
+          "src": "/screenshots/widget-entregas-landscape.png",
+          "sizes": "732x200",
+          "label": "Widget Próximas Entregas - Landscape"
+        },
+        {
           "src": "/screenshots/ordem-coleta-detalhes.png",
-          "sizes": "750x1334",
-          "label": "Próximas Entregas"
+          "sizes": "366x200",
+          "label": "Widget Próximas Entregas - Portrait"
         }
-      ]
+      ],
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ],
+      "auth": false,
+      "update": 1800
+    },
+    {
+      "name": "Status Rápido",
+      "tag": "status",
+      "description": "Visão geral rápida do status dos fretes e coletas do dia",
+      "template": "status-rapido",
+      "ms_ac_template": "adaptive-card", 
+      "data": "daily-status",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "/screenshots/widget-status-landscape.png",
+          "sizes": "366x200",
+          "label": "Widget Status Rápido"
+        }
+      ],
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ],
+      "auth": false,
+      "update": 900
     }
   ],
   "background_sync": {
     "periodic": true,
     "min_period": 86400
+  },
+  "ms_ac_template": {
+    "supportsAdaptiveCards": true,
+    "maxVersion": "1.5"
   }
 }

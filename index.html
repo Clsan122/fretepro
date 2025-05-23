@@ -7,6 +7,7 @@
     <title>FreteValor - Gerenciamento de Fretes</title>
     <meta name="description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
     <meta name="author" content="FreteValor" />
+    <meta name="keywords" content="frete, transporte, logística, motorista, caminhão, delivery" />
 
     <!-- Favicon principal -->
     <link rel="icon" href="/icons/icon-192.png" type="image/png" />
@@ -20,15 +21,20 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="FreteValor" />
 
-    <!-- PWA Manifesto -->
-    <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
-    
-    <!-- Windows/Microsoft específico -->
+    <!-- Windows 11 específico -->
     <meta name="msapplication-TileColor" content="#1E40AF">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="msapplication-tooltip" content="FreteValor - Gerenciamento de Fretes">
     <meta name="msapplication-starturl" content="/">
+    <meta name="msapplication-navbutton-color" content="#1E40AF">
+    <meta name="msapplication-square44x44logo" content="/icons/icon-44.png">
+    <meta name="msapplication-square150x150logo" content="/icons/icon-150.png">
+    <meta name="msapplication-wide310x150logo" content="/icons/icon-310x150.png">
+    <meta name="msapplication-square310x310logo" content="/icons/icon-310.png">
 
+    <!-- PWA Manifesto -->
+    <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
+    
     <!-- iOS splash screens -->
     <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
     <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-1668-2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
@@ -39,12 +45,16 @@
     <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-750-1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
     <link rel="apple-touch-startup-image" href="/icons/splash/apple-splash-640-1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 
-    <!-- Ícones adicionais para compatibilidade -->
+    <!-- Ícones completos para compatibilidade -->
+    <link rel="icon" sizes="44x44" href="/icons/icon-44.png" />
     <link rel="icon" sizes="48x48" href="/icons/icon-48.png" />
     <link rel="icon" sizes="72x72" href="/icons/icon-72.png" />
     <link rel="icon" sizes="96x96" href="/icons/icon-96.png" />
     <link rel="icon" sizes="144x144" href="/icons/icon-144.png" />
+    <link rel="icon" sizes="150x150" href="/icons/icon-150.png" />
     <link rel="icon" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" sizes="310x150" href="/icons/icon-310x150.png" />
+    <link rel="icon" sizes="310x310" href="/icons/icon-310.png" />
     <link rel="icon" sizes="512x512" href="/icons/icon-512.png" />
     
     <!-- Apple touch icons -->
@@ -59,11 +69,15 @@
     <meta property="og:description" content="Sistema de gerenciamento de fretes para motoristas e transportadoras" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://5a9941b1-3566-4df1-9958-0caf8b922a6c.lovableproject.com/icons/icon-512.png" />
+    <meta property="og:url" content="https://5a9941b1-3566-4df1-9958-0caf8b922a6c.lovableproject.com" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@fretevalor" />
     <meta name="twitter:image" content="https://5a9941b1-3566-4df1-9958-0caf8b922a6c.lovableproject.com/icons/icon-512.png" />
+    
+    <!-- SEO adicional -->
+    <link rel="canonical" href="https://5a9941b1-3566-4df1-9958-0caf8b922a6c.lovableproject.com" />
   </head>
 
   <body>
@@ -91,6 +105,27 @@
           // Verificar se tem notch
           if (window.screen.height >= 812 || window.screen.width >= 812) {
             document.body.classList.add('has-notch', 'iphone-notch-friendly');
+          }
+        }
+        
+        // Detectar Windows 11 e aplicar otimizações
+        const isWindows = navigator.platform.indexOf('Win') > -1;
+        const isEdge = /Edge|Edg/i.test(navigator.userAgent);
+        const isChrome = /Chrome/i.test(navigator.userAgent) && !isEdge;
+        
+        if (isWindows) {
+          document.body.classList.add('windows-device');
+          
+          if (isEdge) {
+            document.body.classList.add('edge-browser');
+          } else if (isChrome) {
+            document.body.classList.add('chrome-browser');
+          }
+          
+          // Verificar se está no modo standalone (instalado)
+          if (window.matchMedia('(display-mode: standalone)').matches || 
+              window.matchMedia('(display-mode: window-controls-overlay)').matches) {
+            document.body.classList.add('standalone-mode', 'pwa-installed');
           }
         }
       });
