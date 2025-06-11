@@ -1,5 +1,4 @@
 
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -19,17 +18,18 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
 
   return (
     <div className="space-y-1 print:space-y-0.5">
-      {/* Logo e Número da Ordem de Coleta */}
+      {/* Logo da Transportadora e Número da Ordem de Coleta */}
       <div className="flex flex-col items-center mb-2 print:mb-0.5">
-        {order.companyLogo && (
+        {/* Logo da transportadora no topo */}
+        {(order.senderLogo || order.companyLogo) && (
           <img 
-            src={order.companyLogo} 
+            src={order.senderLogo || order.companyLogo} 
             alt="Logo da Transportadora"
-            className="max-h-16 print:max-h-10 object-contain mb-1 print:mb-0"
+            className="max-h-20 print:max-h-12 object-contain mb-2 print:mb-1"
           />
         )}
         <div className="text-center">
-          <h2 className="text-xl font-bold text-freight-700 print:text-black mb-0 bg-gradient-to-r from-freight-600 to-freight-800 bg-clip-text text-transparent print:bg-none print:text-black">
+          <h2 className="text-xl font-bold text-freight-700 print:text-black mb-0">
             ORDEM DE COLETA
           </h2>
           <div className="flex items-center justify-center gap-1">
@@ -53,17 +53,17 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
           {/* Dados da Transportadora */}
           {order.sender && (
             <Card className="border border-freight-100 print:border-gray-200 print:border-0 print:shadow-none overflow-hidden mb-1 print:mb-0.5">
-              <CardContent className="p-2 print:p-0.5 bg-gradient-to-r from-freight-50 to-white print:bg-none">
+              <CardContent className="p-2 print:p-0.5 bg-white print:bg-none">
                 <h3 className="font-semibold text-freight-700 print:text-black mb-1 flex items-center gap-1">
                   <Truck className="h-3 w-3" />
                   DADOS DA TRANSPORTADORA:
                 </h3>
                 <div className="flex flex-col items-start text-xs">
                   {/* Logo da transportadora na seção de dados */}
-                  {order.senderLogo && (
+                  {(order.senderLogo || order.companyLogo) && (
                     <div className="mb-2 w-full flex justify-center">
                       <img 
-                        src={order.senderLogo} 
+                        src={order.senderLogo || order.companyLogo} 
                         alt="Logo da Transportadora" 
                         className="max-h-12 max-w-[120px] object-contain"
                       />
@@ -260,4 +260,3 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     </div>
   );
 };
-
