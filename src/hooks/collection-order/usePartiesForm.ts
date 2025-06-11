@@ -40,10 +40,10 @@ export const usePartiesForm = (initialData?: {
 
   // Transportadora pode ser a empresa do usuário ou um cliente
   const [selectedSenderType, setSelectedSenderType] = useState<'my-company' | 'client'>(
-    'my-company'
+    'client'
   );
   
-  const [selectedSenderId, setSelectedSenderId] = useState<string>(user ? user.id : 'none');
+  const [selectedSenderId, setSelectedSenderId] = useState<string>('none');
   const [senderLogo, setSenderLogo] = useState(initialData?.senderLogo || '');
 
   // Quando o tipo de transportadora muda
@@ -52,7 +52,7 @@ export const usePartiesForm = (initialData?: {
     if (type === 'my-company' && user) {
       // Se for a empresa do usuário, usar dados do usuário
       setSelectedSenderId(user.id);
-      setSender(user.name || '');
+      setSender(user.companyName || user.name || '');
       setSenderAddress(user.address || '');
       setSenderCnpj(user.cnpj || '');
       setSenderCity(user.city || '');
@@ -72,7 +72,9 @@ export const usePartiesForm = (initialData?: {
 
   // Quando seleciona um cliente como transportadora
   const handleSenderClientChange = (clientId: string, clients: Client[]) => {
-    if (clientId === 'none') {
+    setSelectedSenderId(clientId);
+    
+    if (clientId === 'none' || !clientId) {
       setSender('');
       setSenderAddress('');
       setSenderCnpj('');
@@ -90,7 +92,6 @@ export const usePartiesForm = (initialData?: {
       setSenderCity(selectedClient.city || '');
       setSenderState(selectedClient.state || '');
       setSenderLogo(selectedClient.logo || '');
-      setSelectedSenderId(clientId);
     }
   };
 
