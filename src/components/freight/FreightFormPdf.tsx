@@ -3,13 +3,13 @@ import React from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { Freight, Client, Driver } from '@/types';
-import { User as AuthUser } from '@/context/auth/types';
+import { User } from '@/types';
 
 interface FreightFormPdfProps {
   freight: Freight;
   client: Client | null;
   driver: Driver | null;
-  sender: AuthUser;
+  sender: User;
 }
 
 const FreightFormPdf: React.FC<FreightFormPdfProps> = ({ 

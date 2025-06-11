@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CollectionOrderFormValues } from '../schema';
-import { User } from '@/context/auth/types';
+import { User } from '@/types';
 
 interface CompanyDetailsSectionProps {
   selectedIssuerId: string;

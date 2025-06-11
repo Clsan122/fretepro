@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { User as AuthUser } from '@/context/auth/types';
+import { User } from '@/types';
 
 export interface ReceiptHeaderProps {
-  currentUser: AuthUser;
+  currentUser: User;
   dateRangeText?: string;
 }
 

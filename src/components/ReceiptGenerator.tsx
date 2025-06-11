@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from '@/utils/formatters';
-import { User as AuthUser } from '@/context/auth/types';
+import { User } from '@/types';
 import { Freight, Client, Driver } from '@/types';
 
 interface ReceiptGeneratorProps {
   freight?: Freight;
   freights?: Freight[];
   clients?: Client[];
-  user: AuthUser;
+  user: User;
   driver?: Driver;
   onClose?: () => void;
 }

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { usePartiesForm } from "./collection-order/usePartiesForm";
 import { Client } from "@/types";
-import { User } from "@/context/auth/types";
+import { User } from "@/types";
 
 interface UseCollectionOrderFormProps {
   clients: Client[];

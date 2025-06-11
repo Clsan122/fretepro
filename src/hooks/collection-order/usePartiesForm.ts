@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Client } from '@/types';
-import { User } from '@/context/auth/types';
+import { User } from '@/types';
 import { CollectionOrderFormData } from '@/components/collectionOrder/schema';
 
 interface UsePartiesFormProps {
