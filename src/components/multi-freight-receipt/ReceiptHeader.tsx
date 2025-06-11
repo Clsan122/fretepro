@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { User } from '@/types';
+import { User as AuthUser } from '@/context/auth/types';
 
 export interface ReceiptHeaderProps {
-  currentUser: User;
+  currentUser: AuthUser;
 }
 
 const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ currentUser }) => {

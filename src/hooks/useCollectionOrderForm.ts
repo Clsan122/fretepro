@@ -1,9 +1,6 @@
 
 import { useState } from "react";
 import { usePartiesForm } from "./collection-order/usePartiesForm";
-import { useLocationForm } from "./collection-order/useLocationForm";
-import { useCargoForm } from "./collection-order/useCargoForm";
-import { useAdditionalInfoForm } from "./collection-order/useAdditionalInfoForm";
 import { Client } from "@/types";
 import { User } from "@/context/auth/types";
 
@@ -14,29 +11,56 @@ interface UseCollectionOrderFormProps {
 
 export const useCollectionOrderForm = ({ clients, user }: UseCollectionOrderFormProps) => {
   const [orderNumber, setOrderNumber] = useState("");
+  
+  // Location form state
+  const [originCity, setOriginCity] = useState("");
+  const [originState, setOriginState] = useState("");
+  const [destinationCity, setDestinationCity] = useState("");
+  const [destinationState, setDestinationState] = useState("");
+  
+  // Cargo form state
+  const [volumes, setVolumes] = useState(0);
+  const [weight, setWeight] = useState(0);
+  const [value, setValue] = useState(0);
+  const [cargoDescription, setCargoDescription] = useState("");
+  
+  // Additional info form state
+  const [invoiceNotes, setInvoiceNotes] = useState("");
+  const [notes, setNotes] = useState("");
 
   // Use the individual form hooks
   const partiesForm = usePartiesForm({ clients, user });
-  const locationForm = useLocationForm();
-  const cargoForm = useCargoForm();
-  const additionalInfoForm = useAdditionalInfoForm();
 
   // Combine all form data
   const formData = {
     orderNumber,
+    originCity,
+    originState,
+    destinationCity,
+    destinationState,
+    volumes,
+    weight,
+    value,
+    cargoDescription,
+    invoiceNotes,
+    notes,
     ...partiesForm.formData,
-    ...locationForm.formData,
-    ...cargoForm.formData,
-    ...additionalInfoForm.formData,
   };
 
   // Combine all handlers
   const handlers = {
     setOrderNumber,
+    setOriginCity,
+    setOriginState,
+    setDestinationCity,
+    setDestinationState,
+    setVolumes,
+    setWeight,
+    setValue,
+    setCargoDescription,
+    setInvoiceNotes,
+    setNotes,
     ...partiesForm.handlers,
-    ...locationForm.handlers,
-    ...cargoForm.handlers,
-    ...additionalInfoForm.handlers,
   };
 
   // Auto-fill transporter info
