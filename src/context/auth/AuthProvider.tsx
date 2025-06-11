@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const profileData = await fetchUserProfile(supabaseUser.id);
-      const transformedUser = transformUser(supabaseUser, profileData);
+      const transformedUser = await transformUser(supabaseUser, profileData);
       setUser(transformedUser);
       console.log("User state updated:", transformedUser ? "User loaded" : "No user");
     } catch (err) {
