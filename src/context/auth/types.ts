@@ -1,19 +1,39 @@
 
-import { User as SupabaseUser, Session } from '@supabase/supabase-js';
-import { User } from '@/types';
-
 export interface AuthContextType {
   user: User | null;
-  session: Session | null;
   loading: boolean;
-  error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, name: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  isAuthenticated: boolean;
-  setUser: (user: User) => void;
+  logout: () => void;
+  register: (userData: any) => Promise<boolean>;
+  updateProfile: (profileData: any) => Promise<boolean>;
+  resetPassword: (email: string) => Promise<boolean>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
-export interface AuthProviderProps {
-  children: React.ReactNode;
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  cpf?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  avatar?: string;
+  pixKey?: string;
+  
+  // Driver/Vehicle Information
+  isDriver?: boolean;
+  licensePlate?: string;
+  trailerPlate?: string;
+  vehicleType?: string;
+  bodyType?: string;
+  anttCode?: string;
+  vehicleYear?: string;
+  vehicleModel?: string;
+  
+  // Profile metadata
+  created_at?: string;
+  updated_at?: string;
 }

@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { CollectionOrderFormData } from '../schema';
+import { CollectionOrderFormValues } from '../schema';
 
 interface OrderHeaderProps {
-  data: CollectionOrderFormData;
+  data: CollectionOrderFormValues;
   companyLogo?: string;
 }
 

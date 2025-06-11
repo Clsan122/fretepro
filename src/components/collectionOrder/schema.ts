@@ -1,30 +1,44 @@
 
 import { z } from "zod";
 
-export const collectionOrderSchema = z.object({
-  sender: z.string().min(1, { message: "Nome da transportadora é obrigatório" }),
-  senderAddress: z.string().min(1, { message: "Endereço da transportadora é obrigatório" }),
-  recipient: z.string().min(1, { message: "Nome do destinatário é obrigatório" }),
-  recipientAddress: z.string().min(1, { message: "Endereço do destinatário é obrigatório" }),
-  shipper: z.string().min(1, { message: "Nome do remetente é obrigatório" }),
-  shipperAddress: z.string().min(1, { message: "Endereço do remetente é obrigatório" }),
-  originCity: z.string().min(1, { message: "Cidade de origem é obrigatória" }),
-  originState: z.string().length(2, { message: "Estado de origem inválido" }),
-  destinationCity: z.string().min(1, { message: "Cidade de destino é obrigatória" }),
-  destinationState: z.string().length(2, { message: "Estado de destino inválido" }),
-  volumes: z.number().int().min(1, { message: "Quantidade de volumes deve ser maior que zero" }),
-  weight: z.number().min(0.1, { message: "Peso deve ser maior que zero" }),
+export const collectionOrderFormSchema = z.object({
+  orderNumber: z.string().min(1, "Número da ordem é obrigatório"),
   
-  // Campos opcionais
+  // Remetente
+  sender: z.string().min(1, "Nome do remetente é obrigatório"),
+  senderCnpj: z.string().optional(),
+  senderAddress: z.string().min(1, "Endereço do remetente é obrigatório"),
+  senderCity: z.string().min(1, "Cidade do remetente é obrigatória"),
+  senderState: z.string().min(1, "Estado do remetente é obrigatório"),
+  
+  // Destinatário
+  recipient: z.string().min(1, "Nome do destinatário é obrigatório"),
+  recipientAddress: z.string().min(1, "Endereço do destinatário é obrigatório"),
+  
+  // Expedidor
+  shipper: z.string().min(1, "Nome do expedidor é obrigatório"),
+  shipperAddress: z.string().min(1, "Endereço do expedidor é obrigatório"),
+  
+  // Recebedor
   receiver: z.string().optional(),
   receiverAddress: z.string().optional(),
-  senderCnpj: z.string().optional(),
-  senderCity: z.string().optional(),
-  senderState: z.string().optional(),
-  invoiceNumber: z.string().optional(),
-  observations: z.string().optional(),
-  driverId: z.string().optional(),
-  merchandiseValue: z.number().min(0).optional(),
+  
+  // Origem e destino
+  originCity: z.string().min(1, "Cidade de origem é obrigatória"),
+  originState: z.string().min(1, "Estado de origem é obrigatório"),
+  destinationCity: z.string().min(1, "Cidade de destino é obrigatória"),
+  destinationState: z.string().min(1, "Estado de destino é obrigatório"),
+  
+  // Carga
+  cargoDescription: z.string().min(1, "Descrição da carga é obrigatória"),
+  weight: z.number().min(0.01, "Peso deve ser maior que zero"),
+  volumes: z.number().int().min(1, "Deve ter pelo menos 1 volume"),
+  value: z.number().min(0, "Valor não pode ser negativo"),
+  
+  // Observações
+  notes: z.string().optional(),
+  invoiceNotes: z.string().optional(),
 });
 
-export type CollectionOrderFormValues = z.infer<typeof collectionOrderSchema>;
+export type CollectionOrderFormData = z.infer<typeof collectionOrderFormSchema>;
+export type CollectionOrderFormValues = CollectionOrderFormData;

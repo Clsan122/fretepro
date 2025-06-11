@@ -2,29 +2,39 @@
 import React from 'react';
 import { User } from '@/types';
 
-interface ReceiptHeaderProps {
-  user: User;
+export interface ReceiptHeaderProps {
+  currentUser: User;
 }
 
-const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ user }) => {
+const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ currentUser }) => {
   return (
-    <div className="receipt-header mb-6">
-      <div className="text-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-800">RECIBO DE FRETE</h1>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div className="receipt-header mb-6 border-b pb-4">
+      <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-lg font-semibold text-gray-700">Transportadora</h2>
-          <p className="text-gray-600">{user?.name || 'Não informado'}</p>
-          <p className="text-gray-600">CPF: {user?.cpf || 'Não informado'}</p>
-          {user?.phone && <p className="text-gray-600">Telefone: {user.phone}</p>}
-          {user?.address && <p className="text-gray-600">Endereço: {user.address}</p>}
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            RECIBO DE FRETES
+          </h1>
+          <div className="text-sm text-gray-600">
+            <p>Transportador: {currentUser?.name || 'Não informado'}</p>
+            {currentUser?.cpf && <p>CPF: {currentUser.cpf}</p>}
+            {currentUser?.email && <p>Email: {currentUser.email}</p>}
+            {currentUser?.phone && <p>Telefone: {currentUser.phone}</p>}
+          </div>
         </div>
         
-        <div className="text-right">
-          <p className="text-gray-600">Data de emissão: {new Date().toLocaleDateString('pt-BR')}</p>
-        </div>
+        {currentUser?.avatar && (
+          <div className="company-logo">
+            <img 
+              src={currentUser.avatar} 
+              alt="Logo do usuário" 
+              className="h-16 w-auto object-contain"
+            />
+          </div>
+        )}
+      </div>
+      
+      <div className="mt-4 text-sm text-gray-600">
+        <p>Data de emissão: {new Date().toLocaleDateString('pt-BR')}</p>
       </div>
     </div>
   );
