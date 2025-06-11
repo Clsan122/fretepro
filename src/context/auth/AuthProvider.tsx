@@ -8,6 +8,7 @@ import { fetchUserProfile, transformUser } from './utils';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAuthenticated: boolean; // Adicionando propriedade
   setUser: (user: User) => void;
   signOut: () => Promise<void>;
 }
@@ -17,6 +18,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Derivar isAuthenticated do estado do user
+  const isAuthenticated = !!user;
 
   useEffect(() => {
     // Get initial session
@@ -50,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, setUser, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isAuthenticated, setUser, signOut }}>
       {children}
     </AuthContext.Provider>
   );

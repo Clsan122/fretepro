@@ -31,10 +31,17 @@ const QuotationView: React.FC = () => {
   // Transform quotation to match QuotationData interface
   const quotationData: QuotationData = {
     ...quotation,
-    // Use existing fields or provide defaults
+    // Mapeando propriedades corretamente
     cargoWeight: quotation.weight || 0,
-    cubicMeasurement: quotation.cubicMeasurement || 1,
     measurements: quotation.measurements || [],
+    
+    // Removendo propriedades que não existem em QuotationData
+    // cargoWeight já foi mapeado acima
+    // cubicMeasurement não existe em QuotationData, usar o existente
+    // Mapeando propriedades de preço corretamente se existirem
+    ...(quotation.pricePerKm && { pricePerKm: quotation.pricePerKm }),
+    ...(quotation.tollCost && { tollCost: quotation.tollCost }),
+    ...(quotation.additionalCosts && { additionalCosts: quotation.additionalCosts }),
   };
 
   return (

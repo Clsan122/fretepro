@@ -2,40 +2,15 @@
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAuthenticated: boolean; // Adicionando propriedade faltante
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   register: (userData: any) => Promise<boolean>;
   updateProfile: (profileData: any) => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
-  setUser: (user: User) => void;
+  setUser: (user: User) => void; // Adicionando propriedade faltante
 }
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  cpf?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  avatar?: string;
-  pixKey?: string;
-  
-  // Driver/Vehicle Information
-  isDriver?: boolean;
-  licensePlate?: string;
-  trailerPlate?: string;
-  vehicleType?: string;
-  bodyType?: string;
-  anttCode?: string;
-  vehicleYear?: string;
-  vehicleModel?: string;
-  
-  // Profile metadata - make createdAt optional to match usage
-  createdAt?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+// Removendo a interface User duplicada - usar apenas a de src/types/index.ts
+export type { User } from '../types';

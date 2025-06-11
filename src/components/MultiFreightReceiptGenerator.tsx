@@ -3,7 +3,7 @@ import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Freight, Client } from "@/types";
+import { Freight, Client, User } from "@/types"; // Importando User do types correto
 import { useAuth } from "@/context/AuthContext";
 import { getClientById } from "@/utils/storage";
 import { format } from "date-fns";
@@ -46,6 +46,14 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   // Group freights by client for better organization in the receipt
   const freightsByClient = groupFreightsByClient(freights);
 
+  // Função para converter User do context para User dos types
+  const convertUser = (contextUser: any): User => {
+    return {
+      ...contextUser,
+      createdAt: contextUser.createdAt || contextUser.created_at || new Date().toISOString()
+    };
+  };
+
   // Corrigindo: Usando o propriedade correta 'contentRef'
   const handlePrint = useReactToPrint({
     documentTitle: "Recibo-Multiple-Fretes",
@@ -74,7 +82,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         
         <ReceiptHeader 
           dateRangeText={dateRangeText}
-          currentUser={user} 
+          currentUser={user ? convertUser(user) : null} 
         />
         
         <ClientDetailsSection 
@@ -87,7 +95,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
         
         <ReceiptFooter 
           totalAmount={totalAmount} 
-          currentUser={user}
+          currentUser={user ? convertUser(user) : null}
           requesterName={requesterName}
           paymentTerm={paymentTerm}
         />

@@ -111,7 +111,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       observations: data.notes || "",
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
-      issuerId: user.id, // Add the missing issuerId property
+      issuerId: user.id, // Adicionando o issuerId obrigatório
       syncId: orderToEdit?.syncId,
       syncVersion: orderToEdit ? (orderToEdit.syncVersion || 1) + 1 : 1
     } as CollectionOrder;
@@ -162,7 +162,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
           receiver={formData.receiver}
           receiverAddress={formData.receiverAddress}
           selectedSenderId=""
-          selectedSenderType="user"
+          selectedSenderType="my-company" // Alterando de "user" para "my-company"
           handleSenderTypeChange={() => {}}
           handleSenderClientChange={() => {}}
           clients={[]}

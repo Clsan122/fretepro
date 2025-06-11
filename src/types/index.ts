@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -6,7 +5,7 @@ export interface User {
   address?: string;
   city?: string;
   state?: string;
-  createdAt: string;
+  createdAt?: string; // Tornando opcional para compatibilidade
   // Personal data
   phone?: string;
   cpf?: string;
@@ -26,6 +25,10 @@ export interface User {
   anttCode?: string;
   vehicleYear?: string;
   vehicleModel?: string;
+  
+  // Profile metadata - make both optional for compatibility
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Client {

@@ -11,10 +11,20 @@ import AddressInfoCard from "@/components/profile/AddressInfoCard";
 import DriverVehicleCard from "@/components/profile/DriverVehicleCard";
 import { useProfileForm } from "@/components/profile/hooks/useProfileForm";
 import { useProfileActions } from "@/components/profile/hooks/useProfileActions";
+import { User as UserType } from "@/types"; // Importando User dos types
 
 const Profile: React.FC = () => {
   const { user, setUser } = useAuth();
-  const { formData, setters, resetForm } = useProfileForm(user);
+  
+  // Função para converter User do context para User dos types
+  const convertUser = (contextUser: any): UserType => {
+    return {
+      ...contextUser,
+      createdAt: contextUser.createdAt || contextUser.created_at || new Date().toISOString()
+    };
+  };
+
+  const { formData, setters, resetForm } = useProfileForm(user ? convertUser(user) : null);
   const { 
     isUpdating, 
     isChangingPassword, 
@@ -26,7 +36,7 @@ const Profile: React.FC = () => {
 
   // Atualizar o formulário quando o usuário mudar
   useEffect(() => {
-    resetForm(user);
+    resetForm(user ? convertUser(user) : null);
   }, [user, resetForm]);
 
   if (!user) {
@@ -46,7 +56,7 @@ const Profile: React.FC = () => {
   const handlePersonalInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleUpdateProfile({
-      ...user,
+      ...convertUser(user),
       name: formData.name,
       email: formData.email,
       cpf: formData.cpf,
@@ -59,7 +69,7 @@ const Profile: React.FC = () => {
   const handleAddressInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleUpdateProfile({
-      ...user,
+      ...convertUser(user),
       address: formData.address,
       city: formData.city,
       state: formData.state,
@@ -70,7 +80,7 @@ const Profile: React.FC = () => {
   const handleDriverVehicleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleUpdateProfile({
-      ...user,
+      ...convertUser(user),
       isDriver: formData.isDriver,
       licensePlate: formData.licensePlate,
       trailerPlate: formData.trailerPlate,
@@ -96,6 +106,8 @@ const Profile: React.FC = () => {
       setters.setConfirmPassword("");
     }
   };
+
+  const convertedUser = convertUser(user);
 
   return (
     <Layout>
@@ -128,9 +140,9 @@ const Profile: React.FC = () => {
 
           <TabsContent value="personal">
             <div className="space-y-6">
-              <AccountInfoCard user={user} />
+              <AccountInfoCard user={convertedUser} />
               <PersonalInfoCard
-                user={user}
+                user={convertedUser}
                 name={formData.name}
                 email={formData.email}
                 cpf={formData.cpf}
