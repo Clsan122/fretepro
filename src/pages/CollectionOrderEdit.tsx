@@ -53,15 +53,19 @@ const CollectionOrderEdit: React.FC = () => {
     try {
       setSaving(true);
       
-      // Garantir que preservamos o ID e o número da ordem original
+      // Garantir que preservamos o ID original e não criamos duplicata
       const orderToSave = {
         ...updatedOrder,
-        id: id, // Garantir que usamos o ID original
-        orderNumber: order?.orderNumber || updatedOrder.orderNumber, // Garantir que usamos o número original da ordem
-        syncVersion: (order?.syncVersion || 1) + 1 // Incrementar a versão para sincronização
+        id: id, // Usar sempre o ID original
+        orderNumber: order?.orderNumber || updatedOrder.orderNumber, // Preservar número original
+        createdAt: order?.createdAt || updatedOrder.createdAt, // Preservar data de criação original
+        updatedAt: new Date().toISOString(), // Atualizar data de modificação
+        syncVersion: (order?.syncVersion || 1) + 1 // Incrementar versão para sincronização
       };
       
-      // Salvar mantendo o mesmo ID para não duplicar
+      console.log("Salvando ordem com ID:", orderToSave.id);
+      
+      // Salvar usando a função que atualiza no lugar da original
       await saveCollectionOrder(orderToSave);
       
       toast.success("Ordem de coleta atualizada com sucesso!");

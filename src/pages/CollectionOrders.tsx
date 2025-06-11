@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
@@ -51,28 +50,28 @@ const CollectionOrders: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (user) {
-        try {
-          setLoading(true);
-          const userOrders = await getCollectionOrdersByUserId(user.id);
-          
-          // Sort orders by date (newest first)
-          const sortedOrders = userOrders.sort((a, b) => {
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          });
-          
-          setOrders(sortedOrders);
-        } catch (error) {
-          console.error("Erro ao buscar ordens de coleta:", error);
-          toast.error("Erro ao carregar ordens de coleta");
-        } finally {
-          setLoading(false);
-        }
+  const fetchOrders = async () => {
+    if (user) {
+      try {
+        setLoading(true);
+        const userOrders = await getCollectionOrdersByUserId(user.id);
+        
+        // Sort orders by date (newest first)
+        const sortedOrders = userOrders.sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        
+        setOrders(sortedOrders);
+      } catch (error) {
+        console.error("Erro ao buscar ordens de coleta:", error);
+        toast.error("Erro ao carregar ordens de coleta");
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchOrders();
   }, [user]);
 
@@ -99,11 +98,26 @@ const CollectionOrders: React.FC = () => {
   const handleDelete = async (orderId: string) => {
     try {
       setDeletingOrderId(orderId);
-      await deleteCollectionOrder(orderId);
+      console.log("Excluindo ordem de coleta com ID:", orderId);
       
-      // Immediately update the orders state to remove the deleted order
-      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
-      toast.success("Ordem de coleta excluída com sucesso");
+      // Excluir do storage
+      const success = await deleteCollectionOrder(orderId);
+      
+      if (success) {
+        // Remover imediatamente da lista local para feedback visual rápido
+        setOrders(prevOrders => {
+          const filteredOrders = prevOrders.filter(order => order.id !== orderId);
+          console.log("Ordens restantes após exclusão:", filteredOrders.length);
+          return filteredOrders;
+        });
+        
+        // Recarregar a lista do storage para garantir sincronização
+        await fetchOrders();
+        
+        toast.success("Ordem de coleta excluída com sucesso");
+      } else {
+        toast.error("Erro ao excluir ordem de coleta");
+      }
     } catch (error) {
       console.error("Erro ao excluir ordem de coleta:", error);
       toast.error("Erro ao excluir ordem de coleta");
@@ -155,13 +169,22 @@ const CollectionOrders: React.FC = () => {
     try {
       setIsDeletingMultiple(true);
       
-      // Delete all selected orders
+      console.log("Excluindo ordens selecionadas:", selectedOrders);
+      
+      // Excluir todas as ordens selecionadas
       for (const orderId of selectedOrders) {
         await deleteCollectionOrder(orderId);
       }
       
-      // Update orders state
-      setOrders(prevOrders => prevOrders.filter(order => !selectedOrders.includes(order.id)));
+      // Atualizar estado local removendo as ordens excluídas
+      setOrders(prevOrders => {
+        const filteredOrders = prevOrders.filter(order => !selectedOrders.includes(order.id));
+        console.log("Ordens restantes após exclusão múltipla:", filteredOrders.length);
+        return filteredOrders;
+      });
+      
+      // Recarregar lista para garantir sincronização
+      await fetchOrders();
       
       toast.success(`${selectedOrders.length} ordem(ns) excluída(s) com sucesso`);
       setSelectedOrders([]);
