@@ -17,6 +17,11 @@ export interface User {
   avatar?: string;
   role?: string;
   
+  // Company data
+  companyName?: string;
+  cnpj?: string;
+  companyLogo?: string;
+  
   // Driver data
   isDriver?: boolean;
   licensePlate?: string;

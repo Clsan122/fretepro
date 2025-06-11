@@ -59,7 +59,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({
       <div className="text-center">
         {issuer && (
           <p className="font-medium text-sm md:text-base">
-            {issuerName}
+            {issuerName || ""}
           </p>
         )}
         
