@@ -101,23 +101,19 @@ const CollectionOrders: React.FC = () => {
       console.log("Excluindo ordem de coleta com ID:", orderId);
       
       // Excluir do storage
-      const success = await deleteCollectionOrder(orderId);
+      await deleteCollectionOrder(orderId);
       
-      if (success) {
-        // Remover imediatamente da lista local para feedback visual rápido
-        setOrders(prevOrders => {
-          const filteredOrders = prevOrders.filter(order => order.id !== orderId);
-          console.log("Ordens restantes após exclusão:", filteredOrders.length);
-          return filteredOrders;
-        });
-        
-        // Recarregar a lista do storage para garantir sincronização
-        await fetchOrders();
-        
-        toast.success("Ordem de coleta excluída com sucesso");
-      } else {
-        toast.error("Erro ao excluir ordem de coleta");
-      }
+      // Remover imediatamente da lista local para feedback visual rápido
+      setOrders(prevOrders => {
+        const filteredOrders = prevOrders.filter(order => order.id !== orderId);
+        console.log("Ordens restantes após exclusão:", filteredOrders.length);
+        return filteredOrders;
+      });
+      
+      // Recarregar a lista do storage para garantir sincronização
+      await fetchOrders();
+      
+      toast.success("Ordem de coleta excluída com sucesso");
     } catch (error) {
       console.error("Erro ao excluir ordem de coleta:", error);
       toast.error("Erro ao excluir ordem de coleta");
@@ -173,9 +169,11 @@ const CollectionOrders: React.FC = () => {
       
       // Excluir todas as ordens selecionadas
       for (const orderId of selectedOrders) {
-        const success = await deleteCollectionOrder(orderId);
-        if (!success) {
-          console.error(`Falha ao excluir ordem ${orderId}`);
+        try {
+          await deleteCollectionOrder(orderId);
+          console.log(`Ordem ${orderId} excluída com sucesso`);
+        } catch (error) {
+          console.error(`Falha ao excluir ordem ${orderId}:`, error);
         }
       }
       
