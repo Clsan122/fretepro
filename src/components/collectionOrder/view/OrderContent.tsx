@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -52,12 +53,21 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
           {order.sender && (
             <Card className="border border-freight-100 print:border-gray-200 print:border-0 print:shadow-none overflow-hidden mb-1 print:mb-0.5">
               <CardContent className="p-2 print:p-0.5 bg-gradient-to-r from-freight-50 to-white print:bg-none">
-                <h3 className="font-semibold text-freight-700 print:text-black mb-0 flex items-center gap-1">
+                <h3 className="font-semibold text-freight-700 print:text-black mb-1 flex items-center gap-1">
                   <Truck className="h-3 w-3" />
                   DADOS DA TRANSPORTADORA:
                 </h3>
                 <div className="flex flex-col items-start text-xs">
-                  {/* Removido o logo aqui para evitar duplicação */}
+                  {/* Logo da transportadora na seção de dados */}
+                  {order.senderLogo && (
+                    <div className="mb-2 w-full flex justify-center">
+                      <img 
+                        src={order.senderLogo} 
+                        alt="Logo da Transportadora" 
+                        className="max-h-12 max-w-[120px] object-contain"
+                      />
+                    </div>
+                  )}
                   <p className="font-semibold">{order.sender}</p>
                   {order.senderCnpj && <p className="text-xs font-medium">CNPJ: {order.senderCnpj}</p>}
                   {order.senderAddress && <p className="text-xs">{order.senderAddress}</p>}
