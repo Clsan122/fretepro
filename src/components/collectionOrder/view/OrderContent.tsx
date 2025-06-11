@@ -1,4 +1,5 @@
 
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -101,6 +102,20 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Informações do Recebedor - Nova seção */}
+          {(order.receiver || order.receiverAddress) && (
+            <Card className="border border-freight-100 print:border-gray-200 print:border-0 print:shadow-none overflow-hidden mb-1 print:mb-0.5">
+              <CardContent className="p-2 print:p-0.5 text-xs">
+                <p className="font-semibold text-freight-700 print:text-black mb-0 flex items-center gap-1">
+                  <User className="h-2 w-2" />
+                  RECEBEDOR:
+                </p>
+                {order.receiver && <p className="text-xs">{order.receiver}</p>}
+                {order.receiverAddress && <p className="text-xs text-gray-600">{order.receiverAddress}</p>}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Locations - Layout compacto */}
           <Card className="border border-freight-100 print:border-gray-200 print:border-0 print:shadow-none overflow-hidden mb-1 print:mb-0.5">
@@ -245,3 +260,4 @@ export const OrderContent: React.FC<OrderContentProps> = ({ order }) => {
     </div>
   );
 };
+
