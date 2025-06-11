@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
@@ -16,6 +16,17 @@ interface CNPJLookupFieldProps {
     state: string;
   }) => void;
   initialValue?: string;
+}
+
+interface CNPJApiResponse {
+  razao_social: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  municipio: string;
+  uf: string;
+  cep: string;
+  cnpj: string;
 }
 
 export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
@@ -65,25 +76,49 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
 
     setIsLoading(true);
     try {
-      // Simular uma consulta à API de CNPJ
-      // Em um ambiente real, isso seria uma chamada à API
-      setTimeout(() => {
-        // Dados fictícios para demonstração
-        const companyData = {
-          name: "Transportadora " + cnpj.substring(0, 5),
-          address: "Av. Brasil, 1500 - Centro",
-          cnpj: cnpj,
-          city: "São Paulo",
-          state: "SP"
-        };
-        
-        onDataFetched(companyData);
-        toast.success("Dados da empresa encontrados!");
-        setIsLoading(false);
-      }, 1000);
+      console.log("Buscando dados do CNPJ:", cleanCnpj);
+      
+      const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("CNPJ não encontrado");
+        } else if (response.status === 429) {
+          throw new Error("Muitas consultas. Tente novamente em alguns segundos");
+        } else {
+          throw new Error("Erro na consulta. Tente novamente");
+        }
+      }
+
+      const data: CNPJApiResponse = await response.json();
+      console.log("Dados recebidos da API:", data);
+      
+      // Monta o endereço completo
+      const addressParts = [
+        data.logradouro,
+        data.numero,
+        data.bairro
+      ].filter(part => part && part.trim() !== "");
+      
+      const fullAddress = addressParts.join(", ");
+      
+      const companyData = {
+        name: data.razao_social || "",
+        address: fullAddress,
+        cnpj: cnpj, // Mantém o CNPJ formatado
+        city: data.municipio || "",
+        state: data.uf || ""
+      };
+      
+      console.log("Dados processados:", companyData);
+      onDataFetched(companyData);
+      toast.success("Dados da empresa encontrados!");
+      
     } catch (error) {
       console.error("Erro ao buscar dados do CNPJ:", error);
-      toast.error("Erro ao buscar dados. Tente novamente.");
+      const errorMessage = error instanceof Error ? error.message : "Erro ao buscar dados. Tente novamente.";
+      toast.error(errorMessage);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -107,7 +142,11 @@ export const CNPJLookupField: React.FC<CNPJLookupFieldProps> = ({
           variant="outline"
           size="icon"
         >
-          <Search className="h-4 w-4" />
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4" />
+          )}
         </Button>
       </div>
     </div>
