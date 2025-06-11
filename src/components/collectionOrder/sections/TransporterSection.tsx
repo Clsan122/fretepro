@@ -116,7 +116,7 @@ export const TransporterSection: React.FC<TransporterSectionProps> = ({
       </RadioGroup>
       
       {selectedSenderType === 'client' && <div className="mb-4">
-          <Label className="mb-1 block">Selecionar Cliente</Label>
+          
           <ClientAutocompleteInput clients={availableClients} onChange={handleClientSelect} placeholder="Buscar cliente..." />
         </div>}
       
