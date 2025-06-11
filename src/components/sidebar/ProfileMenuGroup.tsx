@@ -4,14 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Download } from "lucide-react";
-import { InstallButton } from "../pwa/InstallButton";
-import { usePwaInstall } from "@/hooks/usePwaInstall";
+import { LogOut, User } from "lucide-react";
 
 export const ProfileMenuGroup: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { isInstalled } = usePwaInstall();
   
   const handleSignOut = () => {
     logout();
@@ -45,9 +42,6 @@ export const ProfileMenuGroup: React.FC = () => {
           <User className="mr-2 h-4 w-4" />
           Perfil
         </Button>
-        
-        {/* Adicionar o botão de instalação de forma mais proeminente */}
-        {!isInstalled && <InstallButton variant="default" className="bg-freight-600 hover:bg-freight-700 text-white mt-2" />}
         
         <Button 
           variant="ghost" 

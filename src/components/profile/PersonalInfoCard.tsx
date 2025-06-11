@@ -112,18 +112,20 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="email" variant="required">E-mail</Label>
+            <Label htmlFor="email">E-mail</Label>
             <div className="flex items-center space-x-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={true} // Email não pode ser alterado após o cadastro
+                disabled={true}
+                className="bg-muted"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              O email não pode ser alterado após o cadastro
+            </p>
           </div>
           
           <div className="space-y-2">

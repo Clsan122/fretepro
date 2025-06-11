@@ -39,6 +39,7 @@ export const transformUser = (supabaseUser: SupabaseUser, profileData?: any): Us
     pixKey: profileData?.pix_key || '',
     bankInfo: profileData?.bank_info || '',
     avatar: profileData?.avatar_url || '',
+    companyLogo: profileData?.company_logo || '',
     createdAt: new Date(supabaseUser.created_at).toISOString(),
     updatedAt: new Date().toISOString()
   };
