@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -5,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Client } from '@/types';
+
 interface ClientAutocompleteInputProps {
   clients: Client[];
   value?: string;
   onChange: (value: string) => void;
   placeholder?: string;
 }
+
 export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = ({
   clients = [],
   value,
@@ -25,6 +28,7 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
 
   // Use correct ref type for button element
   const triggerRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (triggerRef.current && !triggerRef.current.contains(event.target as Node)) {
@@ -37,13 +41,30 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
     };
   }, []);
 
-  // Se não tivermos clientes, apenas renderizamos um botão desativado
+  // Se não tivermos clientes, renderizamos um botão desativado
   if (availableClients.length === 0) {
-    return;
+    return (
+      <Button 
+        variant="outline" 
+        disabled 
+        className="w-full justify-between"
+      >
+        Nenhum cliente disponível
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    );
   }
-  return <Popover open={open} onOpenChange={setOpen}>
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between" ref={triggerRef}>
+        <Button 
+          variant="outline" 
+          role="combobox" 
+          aria-expanded={open} 
+          className="w-full justify-between" 
+          ref={triggerRef}
+        >
           {selectedClient ? selectedClient.name : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -53,15 +74,27 @@ export const ClientAutocompleteInput: React.FC<ClientAutocompleteInputProps> = (
           <CommandInput placeholder="Buscar cliente..." />
           <CommandEmpty>Cliente não encontrado.</CommandEmpty>
           <CommandGroup>
-            {availableClients.map(client => <CommandItem key={client.id} value={client.id} onSelect={currentValue => {
-            onChange(currentValue === value ? "" : currentValue);
-            setOpen(false);
-          }}>
-                <Check className={cn("mr-2 h-4 w-4", value === client.id ? "opacity-100" : "opacity-0")} />
+            {availableClients.map(client => (
+              <CommandItem 
+                key={client.id} 
+                value={client.id} 
+                onSelect={(currentValue) => {
+                  onChange(currentValue === value ? "" : currentValue);
+                  setOpen(false);
+                }}
+              >
+                <Check 
+                  className={cn(
+                    "mr-2 h-4 w-4", 
+                    value === client.id ? "opacity-100" : "opacity-0"
+                  )} 
+                />
                 {client.name}
-              </CommandItem>)}
+              </CommandItem>
+            ))}
           </CommandGroup>
         </Command>
       </PopoverContent>
-    </Popover>;
+    </Popover>
+  );
 };
