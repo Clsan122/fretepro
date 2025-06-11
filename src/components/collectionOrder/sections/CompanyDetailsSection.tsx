@@ -1,32 +1,48 @@
 
-import React from "react";
-import { CompanyLogoSection } from "../CompanyLogoSection";
+import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
+import CompanyLogoSection from '../CompanyLogoSection';
+import { CollectionOrderFormData } from '../schema';
 
 interface CompanyDetailsSectionProps {
-  companyLogo: string;
-  selectedIssuerId: string;
-  onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onLogoRemove: () => void;
-  onIssuerChange: (id: string) => void;
-  isUploading?: boolean;
+  form: UseFormReturn<CollectionOrderFormData>;
+  logoFile: File | null;
+  onLogoChange: (file: File | null) => void;
 }
 
 export const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({
-  companyLogo,
-  selectedIssuerId,
-  onLogoUpload,
-  onLogoRemove,
-  onIssuerChange,
-  isUploading = false
+  form,
+  logoFile,
+  onLogoChange,
 }) => {
   return (
-    <CompanyLogoSection
-      companyLogo={companyLogo}
-      handleLogoUpload={onLogoUpload}
-      selectedIssuerId={selectedIssuerId}
-      onIssuerChange={onIssuerChange}
-      handleRemoveLogo={onLogoRemove}
-      isUploading={isUploading}
-    />
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Nome da Empresa
+          </label>
+          <Input
+            {...form.register('companyName')}
+            placeholder="Nome da empresa"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            CNPJ
+          </label>
+          <Input
+            {...form.register('companyCnpj')}
+            placeholder="00.000.000/0000-00"
+          />
+        </div>
+      </div>
+      
+      <CompanyLogoSection 
+        logoFile={logoFile}
+        onLogoChange={onLogoChange}
+      />
+    </div>
   );
 };

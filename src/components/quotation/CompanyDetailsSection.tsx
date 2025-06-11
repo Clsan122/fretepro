@@ -1,28 +1,25 @@
-import React from "react";
+
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { User } from '@/types';
 
 interface CompanyDetailsSectionProps {
   user: User | null;
-  onLogoUpload?: (file: File) => Promise<string | null>;
+  onLogoUpload: (file: File) => Promise<string | null>;
 }
 
-const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({ 
-  user, 
-  onLogoUpload 
-}) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [companyLogo, setCompanyLogo] = React.useState<string>(user?.avatar || '');
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({ user, onLogoUpload }) => {
+  const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && onLogoUpload) {
-      const logoUrl = await onLogoUpload(file);
-      if (logoUrl) {
-        setCompanyLogo(logoUrl);
+    if (file) {
+      try {
+        await onLogoUpload(file);
+      } catch (error) {
+        console.error('Erro ao fazer upload do logo:', error);
       }
     }
   };
@@ -30,89 +27,83 @@ const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Building className="h-5 w-5" />
-          Dados da Transportadora
-        </CardTitle>
+        <CardTitle>Informações do Transportador</CardTitle>
         <CardDescription>
-          Informações que aparecerão na cotação
+          Estas informações aparecerão na cotação
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Nome da Transportadora</Label>
-            <Input
-              value={user?.name || ''}
-              disabled
-              placeholder="Nome não informado"
+          <div>
+            <Label htmlFor="transporterName">Nome do Transportador</Label>
+            <Input 
+              id="transporterName" 
+              value={user?.name || ''} 
+              readOnly 
+              className="bg-gray-50"
             />
           </div>
-          
-          <div className="space-y-2">
-            <Label>CPF</Label>
-            <Input
-              value={user?.cpf || ''}
-              disabled
-              placeholder="CPF não informado"
+          <div>
+            <Label htmlFor="transporterCpf">CPF</Label>
+            <Input 
+              id="transporterCpf" 
+              value={user?.cpf || ''} 
+              readOnly 
+              className="bg-gray-50"
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="transporterEmail">Email</Label>
+            <Input 
+              id="transporterEmail" 
+              value={user?.email || ''} 
+              readOnly 
+              className="bg-gray-50"
+            />
+          </div>
+          <div>
+            <Label htmlFor="transporterPhone">Telefone</Label>
+            <Input 
+              id="transporterPhone" 
+              value={user?.phone || ''} 
+              readOnly 
+              className="bg-gray-50"
             />
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
-            {companyLogo ? (
-              <div className="text-center">
-                <img 
-                  src={companyLogo} 
-                  alt="Logo da empresa" 
-                  className="max-w-32 max-h-32 mx-auto mb-2 object-contain"
-                />
-                <p className="text-sm text-gray-600">Logo carregada</p>
-              </div>
-            ) : (
-              <div className="text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-600">
-                  Faça upload do logo da transportadora
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex gap-2">
+        <div>
+          <Label htmlFor="logo">Logo (Opcional)</Label>
+          <div className="mt-2">
+            <input
+              id="logo"
+              type="file"
+              accept="image/*"
+              onChange={handleLogoChange}
+              className="hidden"
+            />
             <Button
               type="button"
               variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex-1"
+              onClick={() => document.getElementById('logo')?.click()}
+              className="w-full"
             >
-              <Upload className="mr-2 h-4 w-4" />
-              {companyLogo ? 'Alterar Logo' : 'Selecionar Logo'}
+              <Upload className="h-4 w-4 mr-2" />
+              Fazer upload do logo
             </Button>
-            
-            {companyLogo && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setCompanyLogo('')}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
           </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-
-          <p className="text-xs text-gray-500">
-            Recomendado: PNG ou JPG, máximo 2MB
-          </p>
+          {user?.avatar && (
+            <div className="mt-2">
+              <img 
+                src={user.avatar} 
+                alt="Logo atual" 
+                className="h-16 w-16 object-contain border rounded"
+              />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

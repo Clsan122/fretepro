@@ -1,391 +1,289 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import { useAuth } from "@/context/AuthContext";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useToast } from "@/hooks/use-toast";
-import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CargoSection } from "@/components/quotation/CargoSection";
-import { LocationSection } from "@/components/quotation/LocationSection";
-import { FreightCompositionSection } from "@/components/quotation/FreightCompositionSection";
-import { CompanyDetailsSection } from "@/components/quotation/CompanyDetailsSection";
-import { Loader2, Save, ArrowLeft } from "lucide-react";
-import { getClientsByUserId } from "@/utils/storage";
-import { QuotationData, QuotationMeasurement } from "@/components/quotation/types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft } from "lucide-react";
+import { useAuth } from '@/context/auth/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
+import Layout from '@/components/Layout';
+import CompanyDetailsSection from '@/components/quotation/CompanyDetailsSection';
 
-const QuotationEdit: React.FC = () => {
+const quotationEditSchema = z.object({
+  originCity: z.string().min(2, { message: "A cidade de origem deve ter pelo menos 2 caracteres." }),
+  originState: z.string().length(2, { message: "O estado de origem deve ter 2 caracteres." }),
+  destinationCity: z.string().min(2, { message: "A cidade de destino deve ter pelo menos 2 caracteres." }),
+  destinationState: z.string().length(2, { message: "O estado de destino deve ter pelo menos 2 caracteres." }),
+  volumes: z.number().min(1, { message: "O número de volumes deve ser pelo menos 1." }),
+  weight: z.number().min(1, { message: "O peso deve ser pelo menos 1." }),
+  dimensions: z.string().min(3, { message: "As dimensões devem ter pelo menos 3 caracteres." }),
+  cubicMeasurement: z.number().min(0.01, { message: "A cubagem deve ser maior que 0." }),
+  cargoType: z.string().min(3, { message: "O tipo de carga deve ter pelo menos 3 caracteres." }),
+  vehicleType: z.string().min(3, { message: "O tipo de veículo deve ter pelo menos 3 caracteres." }),
+  pricePerKm: z.number().min(0.01, { message: "O preço por km deve ser maior que 0." }),
+  tollCost: z.number().min(0, { message: "O custo de pedágio deve ser pelo menos 0." }),
+  additionalCosts: z.number().min(0, { message: "Custos adicionais devem ser pelo menos 0." }),
+  totalPrice: z.number().min(0.01, { message: "O preço total deve ser maior que 0." }),
+  notes: z.string().optional(),
+});
+
+type QuotationEditValues = z.infer<typeof quotationEditSchema>;
+
+const QuotationEdit = () => {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
-  
-  // Form state
-  const [companyLogo, setCompanyLogo] = useState<string>("");
-  const [creatorId, setCreatorId] = useState<string>(user?.id || "");
-  const [creatorName, setCreatorName] = useState<string>(user?.name || "");
-  const [orderNumber, setOrderNumber] = useState<string>("");
-  
-  // Location information
-  const [originCity, setOriginCity] = useState<string>("");
-  const [originState, setOriginState] = useState<string>("");
-  const [destinationCity, setDestinationCity] = useState<string>("");
-  const [destinationState, setDestinationState] = useState<string>("");
-  
-  // Cargo information
-  const [volumes, setVolumes] = useState<number>(0);
-  const [weight, setWeight] = useState<number>(0);
-  const [measurements, setMeasurements] = useState<QuotationMeasurement[]>([
-    { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 }
-  ]);
-  const [cargoType, setCargoType] = useState<string>("general");
-  const [merchandiseValue, setMerchandiseValue] = useState<number>(0);
-  const [vehicleType, setVehicleType] = useState<string>("");
-  
-  // Freight composition
-  const [freightValue, setFreightValue] = useState<number>(0);
-  const [tollValue, setTollValue] = useState<number>(0);
-  const [insuranceValue, setInsuranceValue] = useState<number>(0);
-  const [insuranceRate, setInsuranceRate] = useState<number>(0.15);
-  const [otherCosts, setOtherCosts] = useState<number>(0);
-  const [totalValue, setTotalValue] = useState<number>(0);
-  const [notes, setNotes] = useState<string>("");
-  const [status, setStatus] = useState<"open" | "closed">("open");
-  const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
-  
-  // UI states
-  const [loading, setLoading] = useState<boolean>(false);
-  const [loadingQuotation, setLoadingQuotation] = useState<boolean>(true);
-  const [clients, setClients] = useState<any[]>([]);
-  
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const form = useForm<QuotationEditValues>({
+    resolver: zodResolver(quotationEditSchema),
+    defaultValues: {
+      originCity: "",
+      originState: "",
+      destinationCity: "",
+      destinationState: "",
+      volumes: 1,
+      weight: 1,
+      dimensions: "",
+      cubicMeasurement: 1,
+      cargoType: "",
+      vehicleType: "",
+      pricePerKm: 1,
+      tollCost: 0,
+      additionalCosts: 0,
+      totalPrice: 1,
+      notes: "",
+    },
+  });
+
+  const { control, handleSubmit, reset } = form;
+
   useEffect(() => {
-    // Calculate insurance value based on merchandise value and rate
-    if (merchandiseValue > 0) {
-      const calculatedInsurance = merchandiseValue * (insuranceRate / 100);
-      setInsuranceValue(calculatedInsurance);
-    }
-  }, [merchandiseValue, insuranceRate]);
-  
-  useEffect(() => {
-    // Calculate total value
-    const total = freightValue + tollValue + insuranceValue + otherCosts;
-    setTotalValue(total);
-  }, [freightValue, tollValue, insuranceValue, otherCosts]);
-  
-  useEffect(() => {
-    // Load clients for creator selection
-    if (user) {
-      const userClients = getClientsByUserId(user.id);
-      setClients(userClients);
-    }
-  }, [user]);
-  
-  useEffect(() => {
-    if (id) {
-      setLoadingQuotation(true);
+    const fetchQuotation = async () => {
+      if (!id) return;
+
       try {
-        const storedQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
-        console.log("All quotations:", storedQuotations);
-        console.log("Looking for quotation with ID:", id);
-        
-        // Find the quotation without filtering by user ID
-        const quotationToEdit = storedQuotations.find((q: any) => q.id === id);
-        console.log("Found quotation:", quotationToEdit);
-        
-        if (quotationToEdit) {
-          // Preencher o formulário com os dados da cotação
-          setCompanyLogo(quotationToEdit.creatorLogo || "");
-          setCreatorId(quotationToEdit.creatorId || user?.id || "");
-          setCreatorName(quotationToEdit.creatorName || "");
-          setOrderNumber(quotationToEdit.orderNumber || "");
-          setOriginCity(quotationToEdit.originCity || "");
-          setOriginState(quotationToEdit.originState || "");
-          setDestinationCity(quotationToEdit.destinationCity || "");
-          setDestinationState(quotationToEdit.destinationState || "");
-          setVolumes(quotationToEdit.volumes || 0);
-          setWeight(quotationToEdit.weight || 0);
-          setMeasurements(quotationToEdit.measurements || [
-            { id: uuidv4(), length: 0, width: 0, height: 0, quantity: 1 }
-          ]);
-          setCargoType(quotationToEdit.cargoType || "general");
-          setMerchandiseValue(quotationToEdit.merchandiseValue || 0);
-          setVehicleType(quotationToEdit.vehicleType || "");
-          setFreightValue(quotationToEdit.freightValue || 0);
-          setTollValue(quotationToEdit.tollValue || 0);
-          setInsuranceValue(quotationToEdit.insuranceValue || 0);
-          setInsuranceRate(quotationToEdit.insuranceRate || 0.15);
-          setOtherCosts(quotationToEdit.otherCosts || 0);
-          setTotalValue(quotationToEdit.totalValue || 0);
-          setNotes(quotationToEdit.notes || "");
-          setStatus(quotationToEdit.status || "open");
-          setCreatedAt(quotationToEdit.createdAt || new Date().toISOString());
-        } else {
+        const { data: quotation, error } = await supabase
+          .from('quotations')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          console.error("Erro ao buscar cotação:", error);
           toast({
-            title: "Erro",
-            description: "Cotação não encontrada",
-            variant: "destructive"
+            title: "Erro ao carregar cotação",
+            description: error.message,
+            variant: "destructive",
           });
-          navigate("/quotations");
+          navigate('/quotations');
+          return;
         }
-      } catch (error) {
-        console.error("Error loading quotation:", error);
+
+        if (quotation) {
+          reset({
+            originCity: quotation.originCity || "",
+            originState: quotation.originState || "",
+            destinationCity: quotation.destinationCity || "",
+            destinationState: quotation.destinationState || "",
+            volumes: quotation.volumes || 1,
+            weight: quotation.weight || 1,
+            dimensions: quotation.dimensions || "",
+            cubicMeasurement: quotation.cubicMeasurement || 1,
+            cargoType: quotation.cargoType || "",
+            vehicleType: quotation.vehicleType || "",
+            pricePerKm: quotation.pricePerKm || 1,
+            tollCost: quotation.tollCost || 0,
+            additionalCosts: quotation.additionalCosts || 0,
+            totalPrice: quotation.totalPrice || 1,
+            notes: quotation.notes || "",
+          });
+        }
+      } catch (error: any) {
+        console.error("Erro ao buscar cotação:", error);
         toast({
-          title: "Erro",
-          description: "Não foi possível carregar a cotação",
-          variant: "destructive"
+          title: "Erro ao carregar cotação",
+          description: "Ocorreu um erro ao carregar a cotação.",
+          variant: "destructive",
         });
+        navigate('/quotations');
       } finally {
-        setLoadingQuotation(false);
+        setIsLoading(false);
       }
-    }
-  }, [id, navigate, toast, user]);
-  
-  const handleMeasurementChange = (id: string, field: keyof QuotationMeasurement, value: number) => {
-    setMeasurements(
-      measurements.map(measurement =>
-        measurement.id === id ? { ...measurement, [field]: value } : measurement
-      )
-    );
-  };
-
-  const handleAddMeasurement = () => {
-    const newMeasurement: QuotationMeasurement = {
-      id: uuidv4(),
-      length: 0,
-      width: 0,
-      height: 0,
-      quantity: 1
     };
-    setMeasurements([...measurements, newMeasurement]);
-  };
 
-  const handleRemoveMeasurement = (id: string) => {
-    if (measurements.length > 1) {
-      setMeasurements(measurements.filter(measurement => measurement.id !== id));
-    }
-  };
-  
-  const handleLogoUpload = async (file: File): Promise<string | null> => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCompanyLogo(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-    return null;
-  };
-  
-  const handleCreatorChange = (id: string) => {
-    setCreatorId(id);
-    if (id === user?.id) {
-      setCreatorName(user?.name || "");
-      setCompanyLogo(user?.companyLogo || "");
-    } else {
-      const selectedClient = clients.find(client => client.id === id);
-      if (selectedClient) {
-        setCreatorName(selectedClient.name);
-        setCompanyLogo(selectedClient.logo || "");
-      }
-    }
-  };
-  
-  const handleSave = async () => {
+    fetchQuotation();
+  }, [id, reset, navigate, toast]);
+
+  const onSubmit = async (data: QuotationEditValues) => {
     if (!id) return;
-    
-    if (!originCity || !originState || !destinationCity || !destinationState) {
-      toast({
-        title: "Erro",
-        description: "Por favor, preencha os campos de origem e destino",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setLoading(true);
-    
+
+    setIsUpdating(true);
     try {
-      // Get existing quotations
-      const existingQuotations = JSON.parse(localStorage.getItem('quotations') || '[]');
-      
-      // Create updated quotation object
-      const updatedQuotation: QuotationData = {
-        id,
-        orderNumber,
-        creatorId,
-        creatorName,
-        creatorLogo: companyLogo,
-        originCity,
-        originState,
-        destinationCity,
-        destinationState,
-        volumes,
-        weight,
-        measurements,
-        cargoType,
-        merchandiseValue,
-        vehicleType,
-        freightValue,
-        tollValue,
-        insuranceValue,
-        insuranceRate,
-        otherCosts,
-        totalValue,
-        notes,
-        createdAt,
-        userId: user?.id || "",
-        status
-      };
-      
-      // Find and update the quotation, without filtering by userId
-      const updatedQuotations = existingQuotations.map((q: any) => 
-        q.id === id ? updatedQuotation : q
-      );
-      
-      // Save to localStorage
-      localStorage.setItem('quotations', JSON.stringify(updatedQuotations));
-      
+      const { error } = await supabase
+        .from('quotations')
+        .update({
+          originCity: data.originCity,
+          originState: data.originState,
+          destinationCity: data.destinationCity,
+          destinationState: data.destinationState,
+          volumes: data.volumes,
+          weight: data.weight,
+          dimensions: data.dimensions,
+          cubicMeasurement: data.cubicMeasurement,
+          cargoType: data.cargoType,
+          vehicleType: data.vehicleType,
+          pricePerKm: data.pricePerKm,
+          tollCost: data.tollCost,
+          additionalCosts: data.additionalCosts,
+          totalPrice: data.totalPrice,
+          notes: data.notes,
+          updatedAt: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) {
+        console.error("Erro ao atualizar cotação:", error);
+        toast({
+          title: "Erro ao atualizar cotação",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Cotação atualizada",
+          description: "Cotação atualizada com sucesso!",
+        });
+        navigate(`/quotations/${id}`);
+      }
+    } catch (error: any) {
+      console.error("Erro ao atualizar cotação:", error);
       toast({
-        title: "Sucesso",
-        description: "Cotação atualizada com sucesso"
-      });
-      
-      // Navigate to quotation list
-      navigate("/quotations");
-    } catch (error) {
-      console.error("Error updating quotation:", error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao atualizar a cotação",
-        variant: "destructive"
+        title: "Erro ao atualizar cotação",
+        description: error.message || "Ocorreu um erro ao atualizar a cotação.",
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsUpdating(false);
     }
   };
-  
-  if (loadingQuotation) {
+
+  const handleLogoUpload = async (file: File): Promise<string | null> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve("URL_TEMPORARIA_DO_LOGO");
+      }, 1000);
+    });
+  };
+
+  if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <p>Carregando cotação...</p>
+        <div className="container mx-auto p-4">
+          <div className="text-center">Carregando cotação...</div>
         </div>
       </Layout>
     );
   }
-  
+
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <Card className="bg-gradient-to-br from-card to-card/90 backdrop-blur-sm shadow-lg dark:from-gray-800 dark:to-gray-900/90">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-freight-700 dark:text-freight-300">
-                Editar Cotação de Frete
-              </CardTitle>
-              <CardDescription className="text-left">
-                Cotação #{orderNumber}
-              </CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/quotations")}
-              className="hidden md:flex items-center"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
-      
-      {/* Company Details Section */}
-      <CompanyDetailsSection 
-        user={user} 
-        onLogoUpload={handleLogoUpload}
-      />
-      
-      {/* Location Section */}
-      <LocationSection 
-        originCity={originCity}
-        originState={originState}
-        destinationCity={destinationCity}
-        destinationState={destinationState}
-        onOriginCityChange={setOriginCity}
-        onOriginStateChange={setOriginState}
-        onDestinationCityChange={setDestinationCity}
-        onDestinationStateChange={setDestinationState}
-      />
-      
-      {/* Cargo Section */}
-      <CargoSection 
-        volumes={volumes}
-        setVolumes={setVolumes}
-        weight={weight}
-        setWeight={setWeight}
-        merchandiseValue={merchandiseValue}
-        setMerchandiseValue={setMerchandiseValue}
-        cargoType={cargoType}
-        setCargoType={setCargoType}
-        vehicleType={vehicleType}
-        setVehicleType={setVehicleType}
-        measurements={measurements}
-        handleAddMeasurement={handleAddMeasurement}
-        handleRemoveMeasurement={handleRemoveMeasurement}
-        handleMeasurementChange={handleMeasurementChange}
-      />
-      
-      {/* Freight Composition Section - Updated to pass all required props */}
-      <FreightCompositionSection 
-        freightValue={freightValue}
-        setFreightValue={setFreightValue}
-        tollValue={tollValue}
-        setTollValue={setTollValue}
-        insuranceValue={insuranceValue}
-        setInsuranceValue={setInsuranceValue}
-        insuranceRate={insuranceRate}
-        setInsuranceRate={setInsuranceRate}
-        merchandiseValue={merchandiseValue}
-        otherCosts={otherCosts}
-        setOtherCosts={setOtherCosts}
-        totalValue={totalValue}
-        notes={notes}
-        setNotes={setNotes}
-        // Adding the missing required properties
-        originCity={originCity}
-        originState={originState}
-        destinationCity={destinationCity}
-        destinationState={destinationState}
-        volumes={volumes}
-        weight={weight}
-        vehicleType={vehicleType}
-        cargoType={cargoType}
-      />
-      
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4 justify-end pt-4 pb-20 md:pb-4">
-        <Button
-          variant="outline"
-          className="w-full md:w-auto"
-          onClick={() => navigate("/quotations")}
-        >
-          Cancelar
-        </Button>
+    <Layout>
+      <div className="container mx-auto p-4 space-y-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/quotations')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+          <h1 className="text-2xl font-bold">Editar Cotação</h1>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Editar Cotação</CardTitle>
+            <CardDescription>Modifique os detalhes da cotação abaixo.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="originCity">Cidade de Origem</Label>
+                  <Controller
+                    name="originCity"
+                    control={control}
+                    render={({ field }) => <Input id="originCity" placeholder="Ex: São Paulo" {...field} />}
+                  />
+                  {form.formState.errors.originCity && (
+                    <p className="text-red-500 text-sm">{form.formState.errors.originCity.message}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="originState">Estado de Origem</Label>
+                  <Controller
+                    name="originState"
+                    control={control}
+                    render={({ field }) => (
+                      <Input id="originState" placeholder="Ex: SP" maxLength={2} {...field} />
+                    )}
+                  />
+                  {form.formState.errors.originState && (
+                    <p className="text-red-500 text-sm">{form.formState.errors.originState.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="destinationCity">Cidade de Destino</Label>
+                  <Controller
+                    name="destinationCity"
+                    control={control}
+                    render={({ field }) => <Input id="destinationCity" placeholder="Ex: Rio de Janeiro" {...field} />}
+                  />
+                  {form.formState.errors.destinationCity && (
+                    <p className="text-red-500 text-sm">{form.formState.errors.destinationCity.message}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="destinationState">Estado de Destino</Label>
+                  <Controller
+                    name="destinationState"
+                    control={control}
+                    render={({ field }) => (
+                      <Input id="destinationState" placeholder="Ex: RJ" maxLength={2} {...field} />
+                    )}
+                  />
+                  {form.formState.errors.destinationState && (
+                    <p className="text-red-500 text-sm">{form.formState.errors.destinationState.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <Button disabled={isUpdating} type="submit">
+                {isUpdating ? "Atualizando..." : "Atualizar Cotação"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
         
-        <Button
-          className="w-full md:w-auto bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all"
-          onClick={handleSave}
-          disabled={loading}
-        >
-          {loading ? (
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-5 w-5" />
-          )}
-          Salvar Alterações
-        </Button>
+        <CompanyDetailsSection 
+          user={user} 
+          onLogoUpload={handleLogoUpload}
+        />
       </div>
-    </div>
+    </Layout>
   );
 };
 

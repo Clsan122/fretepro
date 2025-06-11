@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Building } from "lucide-react";
 import { useAuth } from '@/context/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
-import { CompanyDetailsSection } from '@/components/quotation/CompanyDetailsSection';
+import CompanyDetailsSection from '@/components/quotation/CompanyDetailsSection';
 
 const quotationFormSchema = z.object({
   originCity: z.string().min(2, { message: "A cidade de origem deve ter pelo menos 2 caracteres." }),
@@ -36,7 +36,7 @@ const quotationFormSchema = z.object({
 type QuotationFormValues = z.infer<typeof quotationFormSchema>;
 
 const QuotationForm = () => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
@@ -112,7 +112,7 @@ const QuotationForm = () => {
           title: "Cotação criada",
           description: "Cotação criada com sucesso!",
         });
-        router.push('/quotations');
+        navigate('/quotations');
       }
     } catch (error: any) {
       console.error("Erro ao criar cotação:", error);
