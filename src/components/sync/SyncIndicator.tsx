@@ -25,16 +25,16 @@ export const SyncIndicator: React.FC = () => {
 
   const getStatusText = () => {
     if (!isOnline) return 'Offline';
-    if (isSyncing) return 'Sincronizando...';
-    if (hasPendingOperations) return `${pendingOperations.length} pendente${pendingOperations.length > 1 ? 's' : ''}`;
-    return 'Sincronizado';
+    if (isSyncing) return 'Sync...';
+    if (hasPendingOperations) return `${pendingOperations.length}`;
+    return 'OK';
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Badge variant={getStatusColor()} className="flex items-center gap-1">
+    <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-1 shadow-sm border">
+      <Badge variant={getStatusColor()} className="flex items-center gap-1 text-[10px] px-2 py-1">
         {getStatusIcon()}
-        <span className="text-xs">{getStatusText()}</span>
+        <span className="hidden sm:inline">{getStatusText()}</span>
       </Badge>
       
       {isOnline && hasPendingOperations && !isSyncing && (
@@ -42,10 +42,10 @@ export const SyncIndicator: React.FC = () => {
           variant="outline" 
           size="sm" 
           onClick={syncPendingOperations}
-          className="h-6 px-2 text-xs"
+          className="h-6 w-6 p-0"
+          title="Sincronizar dados pendentes"
         >
-          <RefreshCw className="h-3 w-3 mr-1" />
-          Sync
+          <RefreshCw className="h-3 w-3" />
         </Button>
       )}
     </div>
