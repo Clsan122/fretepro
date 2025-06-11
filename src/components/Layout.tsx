@@ -1,8 +1,8 @@
 
 import React from "react";
-import { SidebarNavigation } from "./navigation/SidebarNavigation";
-import { Header } from "./navigation/Header";
-import { BottomNavigation } from "./navigation/BottomNavigation";
+import SidebarNavigation from "./navigation/SidebarNavigation";
+import Header from "./navigation/Header";
+import BottomNavigation from "./navigation/BottomNavigation";
 import { SyncIndicator } from "./sync/SyncIndicator";
 
 interface LayoutProps {

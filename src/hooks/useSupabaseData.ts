@@ -57,7 +57,7 @@ export const useSupabaseData = <T = any>({
         throw fetchError;
       }
 
-      setData(fetchedData || []);
+      setData((fetchedData as T[]) || []);
     } catch (err: any) {
       console.error(`Erro ao buscar dados da tabela ${table}:`, err);
       setError(err.message);
