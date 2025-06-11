@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -5,19 +6,26 @@ export interface User {
   address?: string;
   city?: string;
   state?: string;
-  cnpj?: string;
-  companyLogo?: string;
   createdAt: string;
-  // Additional properties needed
-  companyName?: string;
+  // Personal data
   phone?: string;
   cpf?: string;
   zipCode?: string;
   pixKey?: string;
   bankInfo?: string;
   updatedAt?: string;
-  avatar?: string; // Added missing avatar property
-  role?: string; // Added missing role property
+  avatar?: string;
+  role?: string;
+  
+  // Driver data
+  isDriver?: boolean;
+  licensePlate?: string;
+  trailerPlate?: string;
+  vehicleType?: string;
+  bodyType?: string;
+  anttCode?: string;
+  vehicleYear?: string;
+  vehicleModel?: string;
 }
 
 export interface Client {

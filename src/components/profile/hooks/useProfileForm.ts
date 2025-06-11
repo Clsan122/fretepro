@@ -11,16 +11,21 @@ export const useProfileForm = (user: User | null) => {
   const [avatar, setAvatar] = useState(user?.avatar || "");
   const [pixKey, setPixKey] = useState(user?.pixKey || "");
   
-  // Company Information
-  const [companyName, setCompanyName] = useState(user?.companyName || "");
-  const [cnpj, setCnpj] = useState(user?.cnpj || "");
-  const [companyLogo, setCompanyLogo] = useState(user?.companyLogo || "");
-  
   // Address Information
   const [address, setAddress] = useState(user?.address || "");
   const [city, setCity] = useState(user?.city || "");
   const [state, setState] = useState(user?.state || "");
   const [zipCode, setZipCode] = useState(user?.zipCode || "");
+  
+  // Driver and Vehicle Information
+  const [isDriver, setIsDriver] = useState(user?.isDriver || false);
+  const [licensePlate, setLicensePlate] = useState(user?.licensePlate || "");
+  const [trailerPlate, setTrailerPlate] = useState(user?.trailerPlate || "");
+  const [vehicleType, setVehicleType] = useState(user?.vehicleType || "");
+  const [bodyType, setBodyType] = useState(user?.bodyType || "");
+  const [anttCode, setAnttCode] = useState(user?.anttCode || "");
+  const [vehicleYear, setVehicleYear] = useState(user?.vehicleYear || "");
+  const [vehicleModel, setVehicleModel] = useState(user?.vehicleModel || "");
   
   // Security
   const [currentPassword, setCurrentPassword] = useState("");
@@ -36,13 +41,18 @@ export const useProfileForm = (user: User | null) => {
       setPhone(updatedUser.phone || "");
       setAvatar(updatedUser.avatar || "");
       setPixKey(updatedUser.pixKey || "");
-      setCompanyName(updatedUser.companyName || "");
-      setCnpj(updatedUser.cnpj || "");
-      setCompanyLogo(updatedUser.companyLogo || "");
       setAddress(updatedUser.address || "");
       setCity(updatedUser.city || "");
       setState(updatedUser.state || "");
       setZipCode(updatedUser.zipCode || "");
+      setIsDriver(updatedUser.isDriver || false);
+      setLicensePlate(updatedUser.licensePlate || "");
+      setTrailerPlate(updatedUser.trailerPlate || "");
+      setVehicleType(updatedUser.vehicleType || "");
+      setBodyType(updatedUser.bodyType || "");
+      setAnttCode(updatedUser.anttCode || "");
+      setVehicleYear(updatedUser.vehicleYear || "");
+      setVehicleModel(updatedUser.vehicleModel || "");
     }
   };
 
@@ -54,13 +64,18 @@ export const useProfileForm = (user: User | null) => {
       phone,
       avatar,
       pixKey,
-      companyName,
-      cnpj,
-      companyLogo,
       address,
       city,
       state,
       zipCode,
+      isDriver,
+      licensePlate,
+      trailerPlate,
+      vehicleType,
+      bodyType,
+      anttCode,
+      vehicleYear,
+      vehicleModel,
       currentPassword,
       newPassword,
       confirmPassword,
@@ -72,13 +87,18 @@ export const useProfileForm = (user: User | null) => {
       setPhone,
       setAvatar,
       setPixKey,
-      setCompanyName,
-      setCnpj,
-      setCompanyLogo,
       setAddress,
       setCity,
       setState,
       setZipCode,
+      setIsDriver,
+      setLicensePlate,
+      setTrailerPlate,
+      setVehicleType,
+      setBodyType,
+      setAnttCode,
+      setVehicleYear,
+      setVehicleModel,
       setCurrentPassword,
       setNewPassword,
       setConfirmPassword,

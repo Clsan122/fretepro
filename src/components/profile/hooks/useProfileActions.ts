@@ -27,17 +27,40 @@ export const useProfileActions = (setUser: (user: User) => void) => {
           city: updatedUser.city,
           state: updatedUser.state,
           zip_code: updatedUser.zipCode,
-          company_name: updatedUser.companyName,
-          cnpj: updatedUser.cnpj,
           pix_key: updatedUser.pixKey,
           avatar_url: updatedUser.avatar,
-          company_logo: updatedUser.companyLogo,
           updated_at: new Date().toISOString()
         });
 
       if (profileError) {
         console.error('Erro ao atualizar perfil:', profileError);
         throw profileError;
+      }
+
+      // Se for motorista, atualizar dados na tabela drivers
+      if (updatedUser.isDriver && updatedUser.licensePlate) {
+        const { error: driverError } = await supabase
+          .from('drivers')
+          .upsert({
+            user_id: updatedUser.id,
+            name: updatedUser.name,
+            cpf: updatedUser.cpf,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
+            license_plate: updatedUser.licensePlate,
+            trailer_plate: updatedUser.trailerPlate,
+            vehicle_type: updatedUser.vehicleType,
+            body_type: updatedUser.bodyType,
+            antt_code: updatedUser.anttCode,
+            vehicle_year: updatedUser.vehicleYear,
+            vehicle_model: updatedUser.vehicleModel,
+            updated_at: new Date().toISOString()
+          });
+
+        if (driverError) {
+          console.error('Erro ao atualizar dados de motorista:', driverError);
+          throw driverError;
+        }
       }
 
       console.log('Perfil atualizado com sucesso');
@@ -154,44 +177,6 @@ export const useProfileActions = (setUser: (user: User) => void) => {
     }
   };
 
-  const handleCompanyLogoUpload = async (file: File): Promise<string | null> => {
-    setIsUploading(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `company-logos/${fileName}`;
-
-      console.log('Fazendo upload do logo da empresa:', filePath);
-
-      const { error: uploadError } = await supabase.storage
-        .from('company-logos')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        console.error('Erro no upload do logo:', uploadError);
-        throw uploadError;
-      }
-
-      const { data } = supabase.storage
-        .from('company-logos')
-        .getPublicUrl(filePath);
-
-      console.log('Logo da empresa uploaded com sucesso:', data.publicUrl);
-
-      return data.publicUrl;
-    } catch (error: any) {
-      console.error("Erro ao fazer upload do logo:", error);
-      toast({
-        title: "Erro no upload",
-        description: error.message || "Erro ao fazer upload da imagem.",
-        variant: "destructive",
-      });
-      return null;
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   return {
     isUpdating,
     isChangingPassword,
@@ -199,6 +184,5 @@ export const useProfileActions = (setUser: (user: User) => void) => {
     handleUpdateProfile,
     handleChangePassword,
     handleAvatarUpload,
-    handleCompanyLogoUpload,
   };
 };
