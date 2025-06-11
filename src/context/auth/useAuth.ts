@@ -1,5 +1,13 @@
 
-// Este arquivo não é mais necessário - o hook useAuth foi movido para AuthProvider.tsx
-// Mantido apenas para compatibilidade com imports existentes
+import { useContext } from 'react';
+import { AuthContext } from './AuthContext';
 
-export { useAuth } from './AuthProvider';
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  
+  return context;
+};

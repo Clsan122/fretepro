@@ -1,45 +1,31 @@
 
-import React from 'react';
-import { User } from '@/types';
+import React from "react";
+import { User } from "@/types";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-export interface ReceiptHeaderProps {
-  currentUser: User;
-  dateRangeText?: string;
+interface ReceiptHeaderProps {
+  dateRangeText: string;
+  currentUser: User | null;
 }
 
-const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ currentUser, dateRangeText }) => {
+const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ dateRangeText, currentUser }) => {
   return (
-    <div className="receipt-header mb-6 border-b pb-4">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            RECIBO DE FRETES
-          </h1>
-          {dateRangeText && (
-            <p className="text-sm text-gray-600 mb-2">{dateRangeText}</p>
-          )}
-          <div className="text-sm text-gray-600">
-            <p>Transportador: {currentUser?.name || 'Não informado'}</p>
-            {currentUser?.cpf && <p>CPF: {currentUser.cpf}</p>}
-            {currentUser?.email && <p>Email: {currentUser.email}</p>}
-            {currentUser?.phone && <p>Telefone: {currentUser.phone}</p>}
-          </div>
-        </div>
-        
-        {currentUser?.avatar && (
-          <div className="company-logo">
-            <img 
-              src={currentUser.avatar} 
-              alt="Logo do usuário" 
-              className="h-16 w-auto object-contain"
-            />
-          </div>
-        )}
+    <div className="flex flex-col sm:flex-row justify-between mb-2 print-compact">
+      <div>
+        <h1 className="text-xl font-bold">RECIBO DE FRETE</h1>
+        <p className="text-gray-500 text-xs">Período: {dateRangeText}</p>
       </div>
       
-      <div className="mt-4 text-sm text-gray-600">
-        <p>Data de emissão: {new Date().toLocaleDateString('pt-BR')}</p>
-      </div>
+      {currentUser && (
+        <div className="text-right text-xs print-small-text">
+          {currentUser.companyName && <p className="font-semibold">{currentUser.companyName}</p>}
+          {currentUser.cnpj && <p>CNPJ: {currentUser.cnpj}</p>}
+          {currentUser.phone && <p>Tel: {currentUser.phone}</p>}
+          {currentUser.address && <p>{currentUser.address}</p>}
+          {currentUser.city && currentUser.state && <p>{currentUser.city} - {currentUser.state}</p>}
+        </div>
+      )}
     </div>
   );
 };

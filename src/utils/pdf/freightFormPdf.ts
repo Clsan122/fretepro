@@ -1,86 +1,125 @@
 
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import { Freight, Client, Driver, User } from '@/types';
+/**
+ * Freight Form PDF generation utilities
+ */
 
-export const generateFreightFormPdf = (elementId: string, freight: Freight, options: { sender: User }) => {
-  const doc = new jsPDF();
-  const { sender } = options;
+import { Freight, Client, Driver, User } from "@/types";
+import { generateCanvasFromElement, generatePdfFromCanvas, openPdfInNewWindow } from "./pdfCore";
+import { getClientById, getDriverById } from "@/utils/storage";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { formatCurrency } from "@/utils/formatters";
 
-  // Configurações gerais do documento
-  doc.setFontSize(12);
-  doc.setTextColor(40);
+interface FreightPdfOptions {
+  savePdf?: boolean;
+  openInNewTab?: boolean;
+  filename?: string;
+  sender?: User;
+}
 
-  // Usar nome do usuário em vez de companyName
-  const transporterName = sender?.name || 'Transportadora';
-
-  // Título do formulário
-  doc.setFontSize(16);
-  doc.setTextColor(40);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Formulário de Frete', 105, 20, { align: 'center' });
-
-  // Informações do Frete
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Informações do Frete', 14, 35);
-
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Cidade de Origem: ${freight?.originCity || 'Não informado'}`, 14, 45);
-  doc.text(`Estado de Origem: ${freight?.originState || 'Não informado'}`, 14, 52);
-  doc.text(`Cidade de Destino: ${freight?.destinationCity || 'Não informado'}`, 14, 59);
-  doc.text(`Estado de Destino: ${freight?.destinationState || 'Não informado'}`, 14, 66);
-  doc.text(`Data de Partida: ${freight?.departureDate || 'Não informado'}`, 14, 73);
-  doc.text(`Data de Chegada: ${freight?.arrivalDate || 'Não informado'}`, 14, 80);
-
-  // Valores do Frete
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Valores do Frete', 14, 94);
-
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Valor do Frete: R$ ${freight?.freightValue?.toFixed(2) || '0,00'}`, 14, 104);
-  doc.text(`Taxa Diária: R$ ${freight?.dailyRate?.toFixed(2) || '0,00'}`, 14, 111);
-  doc.text(`Outros Custos: R$ ${freight?.otherCosts?.toFixed(2) || '0,00'}`, 14, 118);
-  doc.text(`Custos de Pedágio: R$ ${freight?.tollCosts?.toFixed(2) || '0,00'}`, 14, 125);
-  doc.text(`Valor Total: R$ ${freight?.totalValue?.toFixed(2) || '0,00'}`, 14, 132);
-
-  // Informações da Transportadora
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Informações da Transportadora', 14, 146);
-
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Nome: ${transporterName || 'Não informado'}`, 14, 156);
-  doc.text(`Email: ${sender?.email || 'Não informado'}`, 14, 163);
-  doc.text(`Telefone: ${sender?.phone || 'Não informado'}`, 14, 170);
-
-  // Retorna o documento PDF como blob
-  return doc.output('blob');
+// Prepare document for printing/PDF
+export const prepareFreightFormForPdf = (
+  containerId: string,
+  freight: Freight,
+  user?: User
+) => {
+  // Configure container for print
+  const container = document.getElementById(containerId);
+  if (!container) return false;
+  
+  // Apply any specific styling needed for printing
+  container.classList.add('print-mode');
+  
+  return true;
 };
 
-export const exportFreightFormPdf = async (elementId: string, freight: Freight, sender: User): Promise<void> => {
+// Restore after printing/PDF generation
+export const restoreFreightFormFromPdf = (containerId: string) => {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  // Remove print-specific styling
+  container.classList.remove('print-mode');
+};
+
+// Generate PDF from Freight Form
+export const generateFreightFormPdf = async (
+  containerId: string,
+  freight: Freight,
+  options: FreightPdfOptions = {}
+): Promise<Blob> => {
   try {
-    const pdfBlob = await generateFreightFormPdf(elementId, freight, { sender });
+    const prepared = prepareFreightFormForPdf(containerId, freight, options.sender);
+    if (!prepared) throw new Error("Failed to prepare freight form for PDF generation");
     
-    // Criar nome do arquivo
-    const clientName = freight.clientId || 'cliente';
-    const fileName = `frete-${clientName}.pdf`;
+    // Generate canvas from the print container
+    const canvas = await generateCanvasFromElement(containerId, {
+      scale: 2,
+      setWidth: "800px",
+      restoreWidth: true,
+    });
     
-    // Criar URL e fazer download
-    const url = URL.createObjectURL(pdfBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Generate PDF from canvas
+    const client = freight.clientId ? getClientById(freight.clientId) : null;
+    const clientName = client ? client.name : "Cliente";
+    
+    // Default filename if not provided
+    const defaultFilename = `frete-${clientName}-${format(new Date(), "dd-MM-yyyy")}.pdf`;
+    
+    const pdf = generatePdfFromCanvas(canvas, {
+      filename: options.savePdf ? options.filename || defaultFilename : undefined,
+      title: `Formulário de Frete - ${clientName}`,
+      subject: `Frete de ${freight.originCity}/${freight.originState} para ${freight.destinationCity}/${freight.destinationState}`,
+      author: options.sender?.companyName || options.sender?.name || "FreteValor",
+      creator: "FreteValor - Sistema de Gerenciamento de Fretes",
+    });
+    
+    // Open in a new tab if requested
+    if (options.openInNewTab) {
+      openPdfInNewWindow(pdf);
+    }
+    
+    // Restore the container to its original state
+    restoreFreightFormFromPdf(containerId);
+    
+    return pdf.output('blob');
   } catch (error) {
-    console.error('Erro ao exportar PDF:', error);
+    console.error("Error generating freight form PDF:", error);
+    restoreFreightFormFromPdf(containerId);
+    throw error;
+  }
+};
+
+// Preview PDF directly in a new tab
+export const previewFreightFormPdf = async (
+  containerId: string,
+  freight: Freight,
+  user?: User
+): Promise<void> => {
+  try {
+    await generateFreightFormPdf(containerId, freight, {
+      openInNewTab: true,
+      sender: user,
+    });
+  } catch (error) {
+    console.error("Error previewing freight form PDF:", error);
+    throw error;
+  }
+};
+
+// Export the PDF to a file for download
+export const exportFreightFormPdf = async (
+  containerId: string,
+  freight: Freight,
+  user?: User
+): Promise<void> => {
+  try {
+    await generateFreightFormPdf(containerId, freight, {
+      savePdf: true,
+      sender: user,
+    });
+  } catch (error) {
+    console.error("Error exporting freight form PDF:", error);
     throw error;
   }
 };

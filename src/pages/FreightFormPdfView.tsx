@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { getFreightById, getClientById, getDriverById } from "@/utils/storage";
 import { useAuth } from "@/context/AuthContext";
-import { Freight, Client, Driver, User } from "@/types"; // Importando User correto
+import { Freight, Client, Driver } from "@/types";
 import Layout from "@/components/Layout";
 import FreightFormPdf from "@/components/freight/FreightFormPdf";
 import { 
@@ -23,14 +23,6 @@ const FreightFormPdfView: React.FC = () => {
   const [client, setClient] = useState<Client | null>(null);
   const [driver, setDriver] = useState<Driver | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Função para converter User do context para User dos types
-  const convertUser = (contextUser: any): User => {
-    return {
-      ...contextUser,
-      createdAt: contextUser.createdAt || contextUser.created_at || new Date().toISOString()
-    };
-  };
 
   useEffect(() => {
     if (!user) return;
@@ -80,7 +72,7 @@ const FreightFormPdfView: React.FC = () => {
     });
     
     try {
-      await exportFreightFormPdf('freight-form-print', freight, convertUser(user));
+      await exportFreightFormPdf('freight-form-print', freight, user);
       toast({
         title: "Sucesso",
         description: "O PDF foi gerado e baixado com sucesso.",
@@ -105,7 +97,7 @@ const FreightFormPdfView: React.FC = () => {
     
     try {
       // Gerar o PDF primeiro
-      const pdf = await generateFreightFormPdf('freight-form-print', freight, { sender: convertUser(user) });
+      const pdf = await generateFreightFormPdf('freight-form-print', freight, { sender: user });
       
       // Verificar se o navegador suporta compartilhamento
       if (navigator.share) {
@@ -190,7 +182,7 @@ const FreightFormPdfView: React.FC = () => {
               freight={freight}
               client={client}
               driver={driver}
-              sender={convertUser(user)}
+              sender={user}
             />
           </div>
         ) : (

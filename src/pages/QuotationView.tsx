@@ -6,7 +6,6 @@ import QuotationViewActions from "@/components/quotation/view/QuotationViewActio
 import QuotationContent from "@/components/quotation/view/QuotationContent";
 import QuotationLoading from "@/components/quotation/view/QuotationLoading";
 import { useQuotationView } from "@/hooks/quotation/useQuotationView";
-import { QuotationData } from "@/components/quotation/types";
 
 const QuotationView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,36 +27,6 @@ const QuotationView: React.FC = () => {
     return <QuotationLoading isLoading={loading} notFound={!loading && !quotation} />;
   }
 
-  // Transform quotation to match QuotationData interface
-  const quotationData: QuotationData = {
-    id: quotation.id,
-    orderNumber: quotation.orderNumber || `COT-${quotation.id.substring(0, 8)}`,
-    creatorId: quotation.userId || quotation.creatorId,
-    creatorName: quotation.creatorName || 'Transportadora',
-    creatorLogo: quotation.creatorLogo,
-    originCity: quotation.originCity,
-    originState: quotation.originState,
-    destinationCity: quotation.destinationCity,
-    destinationState: quotation.destinationState,
-    volumes: quotation.volumes || 0,
-    weight: quotation.weight || 0,
-    measurements: quotation.measurements || [],
-    cargoType: quotation.cargoType || '',
-    merchandiseValue: quotation.merchandiseValue || 0,
-    vehicleType: quotation.vehicleType || '',
-    freightValue: quotation.freightValue || quotation.totalValue || 0,
-    tollValue: quotation.tollValue || 0,
-    insuranceValue: quotation.insuranceValue || 0,
-    insuranceRate: quotation.insuranceRate || 0,
-    otherCosts: quotation.otherCosts || 0,
-    totalValue: quotation.totalValue || quotation.freightValue || 0,
-    notes: quotation.notes || '',
-    createdAt: quotation.createdAt,
-    userId: quotation.userId,
-    status: quotation.status || 'open',
-    pdfGenerated: quotation.pdfGenerated || false,
-  };
-
   return (
     <Layout>
       <div className="w-full max-w-7xl mx-auto pb-20 md:pb-10 px-2 sm:px-4">
@@ -75,7 +44,7 @@ const QuotationView: React.FC = () => {
         
         {/* Conteúdo do PDF */}
         <div className="print-container">
-          <QuotationContent quotation={quotationData} />
+          <QuotationContent quotation={quotation} />
         </div>
       </div>
     </Layout>

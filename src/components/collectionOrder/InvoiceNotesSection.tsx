@@ -13,6 +13,7 @@ import {
 import { FileText, FilePen } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { CollectionOrderFormValues } from "./schema";
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 
 interface InvoiceNotesSectionProps {
   invoiceNumber: string;
@@ -26,7 +27,8 @@ export const InvoiceNotesSection: React.FC<InvoiceNotesSectionProps> = ({
   invoiceNumber,
   setInvoiceNumber,
   observations,
-  setObservations
+  setObservations,
+  form
 }) => {
   return (
     <Card>
@@ -36,36 +38,56 @@ export const InvoiceNotesSection: React.FC<InvoiceNotesSectionProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div>
-            <Label htmlFor="invoiceNumber" className="flex items-center gap-1.5">
-              <FileText className="h-4 w-4" />
-              Número da NF/Pedido
-            </Label>
-            <Input
-              id="invoiceNumber"
-              value={invoiceNumber}
-              onChange={(e) => {
-                setInvoiceNumber(e.target.value);
-              }}
-              placeholder="Informe o número da nota fiscal ou pedido"
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="invoiceNumber"
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="invoiceNumber" className="flex items-center gap-1.5">
+                  <FileText className="h-4 w-4" />
+                  Número da NF/Pedido
+                </Label>
+                <FormControl>
+                  <Input
+                    id="invoiceNumber"
+                    value={invoiceNumber}
+                    onChange={(e) => {
+                      setInvoiceNumber(e.target.value);
+                      field.onChange(e.target.value);
+                    }}
+                    placeholder="Informe o número da nota fiscal ou pedido"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           
-          <div>
-            <Label htmlFor="observations" className="flex items-center gap-1.5">
-              <FilePen className="h-4 w-4" />
-              Observações
-            </Label>
-            <Textarea
-              id="observations"
-              value={observations}
-              onChange={(e) => {
-                setObservations(e.target.value);
-              }}
-              placeholder="Observações adicionais sobre esta ordem de coleta"
-              rows={3}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="observations"
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="observations" className="flex items-center gap-1.5">
+                  <FilePen className="h-4 w-4" />
+                  Observações
+                </Label>
+                <FormControl>
+                  <Textarea
+                    id="observations"
+                    value={observations}
+                    onChange={(e) => {
+                      setObservations(e.target.value);
+                      field.onChange(e.target.value);
+                    }}
+                    placeholder="Observações adicionais sobre esta ordem de coleta"
+                    rows={3}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </CardContent>
     </Card>

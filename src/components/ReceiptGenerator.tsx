@@ -1,121 +1,80 @@
 
-import React, { useRef } from 'react';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import { Button } from "@/components/ui/button";
-import { DialogClose } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { formatCurrency } from '@/utils/formatters';
-import { User } from '@/types';
-import { Freight, Client, Driver } from '@/types';
+import React from "react";
+import { Freight, Client, User, Driver } from "@/types";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface ReceiptGeneratorProps {
-  freight?: Freight;
-  freights?: Freight[];
-  clients?: Client[];
-  user: User;
+  freight: Freight;
+  clients: Client[];
+  user: User | null;
   driver?: Driver;
-  onClose?: () => void;
 }
 
-const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ 
-  freight, 
-  freights, 
-  clients, 
-  user, 
-  driver, 
-  onClose 
-}) => {
-  const { toast } = useToast();
-  const pdfRef = useRef(null);
-
-  const generatePdf = () => {
-    const freightList = freights || (freight ? [freight] : []);
-    
-    if (!user || freightList.length === 0) return;
-
-    const doc = new jsPDF();
-
-    // Configurações de estilo
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(40, 40, 40);
-    doc.setLineWidth(0.2);
-
-    // Cabeçalho com dados do usuário
-    doc.setFontSize(16);
-    doc.text(user.name || 'Usuário', 20, 30);
-
-    if (user.cpf) {
-      doc.setFontSize(10);
-      doc.text(`CPF: ${user.cpf}`, 20, 40);
-    }
-
-    // Tabela de fretes
-    const tableColumn = ["ID", "Origem", "Destino", "Valor"];
-    const tableRows: any[] = [];
-
-    freightList.forEach((freightItem) => {
-      tableRows.push([
-        freightItem.id,
-        `${freightItem.originCity} - ${freightItem.originState}`,
-        `${freightItem.destinationCity} - ${freightItem.destinationState}`,
-        formatCurrency(freightItem.freightValue)
-      ]);
-    });
-
-    // Adiciona a tabela ao PDF
-    (doc as any).autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 50,
-      headStyles: { fillColor: [41, 128, 185] },
-      columnStyles: { 0: { halign: 'center' } }
-    });
-
-    // Calcular valor total dos fretes
-    const totalValue = freightList.reduce((acc, freightItem) => acc + freightItem.freightValue, 0);
-
-    // Adicionar o valor total ao PDF
-    doc.setFontSize(12);
-    doc.text(`Valor Total: ${formatCurrency(totalValue)}`, 20, (doc as any).autoTable.previous.finalY + 10);
-
-    // Rodapé - using correct jsPDF API
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.text(
-        `Página ${i} de ${pageCount}`,
-        doc.internal.pageSize.getWidth() - 40,
-        doc.internal.pageSize.getHeight() - 10
-      );
-    }
-
-    // Salvar o PDF
-    try {
-      doc.save(`recibo_de_fretes_${new Date().toLocaleDateString()}.pdf`);
-      if (onClose) onClose();
-    } catch (error) {
-      console.error("Erro ao salvar o PDF:", error);
-      toast({
-        title: "Erro ao gerar PDF",
-        description: "Houve um problema ao gerar o PDF. Por favor, tente novamente.",
-        variant: "destructive",
-      });
-    }
-  };
+const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freight, clients, user, driver }) => {
+  const client = clients.length > 0 ? clients[0] : null;
 
   return (
-    <div ref={pdfRef} className="receipt-generator">
-      <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={generatePdf}>
-          Gerar PDF
-        </Button>
-        {onClose && (
-          <DialogClose asChild>
-            <Button variant="secondary">Fechar</Button>
-          </DialogClose>
+    <div className="p-4 max-w-4xl mx-auto bg-white">
+      <div className="text-center mb-4">
+        <h1 className="text-2xl font-bold">RECIBO DE PRESTAÇÃO DE SERVIÇO DE TRANSPORTE</h1>
+      </div>
+
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">Informações do Cliente</h2>
+        {client ? (
+          <>
+            <p><strong>Nome:</strong> {client.name}</p>
+            {client.cnpj && <p><strong>CNPJ:</strong> {client.cnpj}</p>}
+            {client.address && <p><strong>Endereço:</strong> {client.address}</p>}
+            <p><strong>Cidade:</strong> {client.city} - {client.state}</p>
+          </>
+        ) : (
+          <p>Cliente não encontrado.</p>
         )}
+      </div>
+
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">Detalhes do Frete</h2>
+        <p><strong>Origem:</strong> {freight.originCity} - {freight.originState}</p>
+        <p><strong>Destino:</strong> {freight.destinationCity} - {freight.destinationState}</p>
+        <p><strong>Data de Criação:</strong> {format(new Date(freight.createdAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+        <p><strong>Valor Total:</strong> R$ {freight.totalValue.toFixed(2)}</p>
+        <p><strong>Tipo de Carga:</strong> {freight.cargoType}</p>
+        {freight.cargoWeight && <p><strong>Peso da Carga:</strong> {freight.cargoWeight} kg</p>}
+        {freight.cargoDescription && <p><strong>Descrição da Carga:</strong> {freight.cargoDescription}</p>}
+      </div>
+
+      {driver && (
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">Informações do Motorista</h2>
+          <p><strong>Nome:</strong> {driver.name}</p>
+          <p><strong>CPF:</strong> {driver.cpf}</p>
+          <p><strong>Placa do Veículo:</strong> {driver.licensePlate}</p>
+        </div>
+      )}
+
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">Informações de Pagamento</h2>
+        {freight.requesterName && <p><strong>Solicitante:</strong> {freight.requesterName}</p>}
+        {freight.pixKey && <p><strong>Chave PIX:</strong> {freight.pixKey}</p>}
+        {freight.paymentTerm && <p><strong>Prazo de Pagamento:</strong> {freight.paymentTerm}</p>}
+      </div>
+
+      {user && (
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">Informações da Empresa</h2>
+          <p><strong>Nome da Empresa:</strong> {user.companyName || user.name}</p>
+          {user.cnpj && <p><strong>CNPJ:</strong> {user.cnpj}</p>}
+          {user.address && <p><strong>Endereço:</strong> {user.address}</p>}
+          <p><strong>Cidade:</strong> {user.city || ""} - {user.state || ""}</p>
+        </div>
+      )}
+      
+      {/* Signature section */}
+      <div className="mt-8">
+        <p className="text-center">__________________________________________</p>
+        <p className="text-center">Assinatura</p>
       </div>
     </div>
   );

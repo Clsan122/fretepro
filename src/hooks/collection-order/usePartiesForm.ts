@@ -1,108 +1,139 @@
 
-import { useState } from 'react';
-import { Client } from '@/types';
-import { User } from '@/types';
-import { CollectionOrderFormData } from '@/components/collectionOrder/schema';
+import { useState } from "react";
+import { Client } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
-interface UsePartiesFormProps {
-  clients: Client[];
-  user: User | null;
-}
-
-export const usePartiesForm = ({ clients, user }: UsePartiesFormProps) => {
-  // Sender (Remetente)
-  const [sender, setSender] = useState("");
-  const [senderAddress, setSenderAddress] = useState("");
-  const [senderCnpj, setSenderCnpj] = useState("");
-  const [senderCity, setSenderCity] = useState("");
-  const [senderState, setSenderState] = useState("");
+export const usePartiesForm = (initialData?: {
+  sender?: string;
+  senderAddress?: string;
+  senderCnpj?: string;
+  senderCity?: string;
+  senderState?: string;
+  recipient?: string;
+  recipientAddress?: string;
+  shipper?: string;
+  shipperAddress?: string;
+  receiver?: string;
+  receiverAddress?: string;
+  senderLogo?: string;
+}) => {
+  const { user } = useAuth();
   
-  // Recipient (Destinatário)
-  const [recipient, setRecipient] = useState("");
-  const [recipientAddress, setRecipientAddress] = useState("");
+  // Transportadora (sender)
+  const [sender, setSender] = useState(initialData?.sender || "");
+  const [senderAddress, setSenderAddress] = useState(initialData?.senderAddress || "");
+  const [senderCnpj, setSenderCnpj] = useState(initialData?.senderCnpj || "");
+  const [senderCity, setSenderCity] = useState(initialData?.senderCity || "");
+  const [senderState, setSenderState] = useState(initialData?.senderState || "");
   
-  // Shipper (Expedidor)
-  const [shipper, setShipper] = useState("");
-  const [shipperAddress, setShipperAddress] = useState("");
+  // Destinatário
+  const [recipient, setRecipient] = useState(initialData?.recipient || "");
+  const [recipientAddress, setRecipientAddress] = useState(initialData?.recipientAddress || "");
   
-  // Receiver (Recebedor)
-  const [receiver, setReceiver] = useState("");
-  const [receiverAddress, setReceiverAddress] = useState("");
+  // Remetente (expedidor)
+  const [shipper, setShipper] = useState(initialData?.shipper || "");
+  const [shipperAddress, setShipperAddress] = useState(initialData?.shipperAddress || "");
   
-  // Logo and Issuer Selection
-  const [senderLogo, setSenderLogo] = useState("");
-  const [selectedSenderId, setSelectedSenderId] = useState("");
-  const [selectedSenderType, setSelectedSenderType] = useState<"client" | "user">("user");
+  // Recebedor
+  const [receiver, setReceiver] = useState(initialData?.receiver || "");
+  const [receiverAddress, setReceiverAddress] = useState(initialData?.receiverAddress || "");
+
+  // Transportadora pode ser a empresa do usuário ou um cliente
+  const [selectedSenderType, setSelectedSenderType] = useState<'my-company' | 'client'>(
+    'my-company'
+  );
   
-  // Receiver form state
-  const [showReceiverForm, setShowReceiverForm] = useState(false);
+  const [selectedSenderId, setSelectedSenderId] = useState<string>(user ? user.id : 'none');
+  const [senderLogo, setSenderLogo] = useState(initialData?.senderLogo || '');
 
-  const handleAddReceiver = () => {
-    setShowReceiverForm(true);
-  };
-
-  const handleCancelReceiver = () => {
-    setShowReceiverForm(false);
-    setReceiver("");
-    setReceiverAddress("");
-  };
-
-  const handleSaveReceiver = () => {
-    setShowReceiverForm(false);
-  };
-
-  const autoFillTransporter = () => {
-    if (user) {
-      setSender(user.name || "");
-      setSenderAddress(user.address || "");
-      setSenderCnpj(user.cpf || "");
-      setSenderCity(user.city || "");
-      setSenderState(user.state || "");
-      setSenderLogo(user.avatar || "");
+  // Quando o tipo de transportadora muda
+  const handleSenderTypeChange = (type: 'my-company' | 'client') => {
+    setSelectedSenderType(type);
+    if (type === 'my-company' && user) {
+      // Se for a empresa do usuário, usar dados do usuário
+      setSelectedSenderId(user.id);
+      setSender(user.name || '');
+      setSenderAddress(user.address || '');
+      setSenderCnpj(user.cnpj || '');
+      setSenderCity(user.city || '');
+      setSenderState(user.state || '');
+      setSenderLogo(user.companyLogo || '');
+    } else {
+      // Se for cliente, limpar os campos
+      setSelectedSenderId('none');
+      setSender('');
+      setSenderAddress('');
+      setSenderCnpj('');
+      setSenderCity('');
+      setSenderState('');
+      setSenderLogo('');
     }
   };
 
-  const formData = {
-    sender,
-    senderAddress,
-    senderCnpj,
-    senderCity,
-    senderState,
-    recipient,
-    recipientAddress,
-    shipper,
-    shipperAddress,
-    receiver,
-    receiverAddress,
-    selectedSenderId,
-    selectedSenderType,
-    senderLogo,
-  };
+  // Quando seleciona um cliente como transportadora
+  const handleSenderClientChange = (clientId: string, clients: Client[]) => {
+    if (clientId === 'none') {
+      setSender('');
+      setSenderAddress('');
+      setSenderCnpj('');
+      setSenderCity('');
+      setSenderState('');
+      setSenderLogo('');
+      return;
+    }
 
-  const handlers = {
-    setSender,
-    setSenderAddress,
-    setSenderCnpj,
-    setSenderCity,
-    setSenderState,
-    setRecipient,
-    setRecipientAddress,
-    setShipper,
-    setShipperAddress,
-    setReceiver,
-    setReceiverAddress,
-    setSelectedSenderId,
-    setSelectedSenderType,
-    setSenderLogo,
+    const selectedClient = clients.find(c => c.id === clientId);
+    if (selectedClient) {
+      setSender(selectedClient.name);
+      setSenderAddress(selectedClient.address || '');
+      setSenderCnpj(selectedClient.cnpj || '');
+      setSenderCity(selectedClient.city || '');
+      setSenderState(selectedClient.state || '');
+      setSenderLogo(selectedClient.logo || '');
+      setSelectedSenderId(clientId);
+    }
   };
 
   return {
-    formData,
-    handlers,
-    showReceiverForm,
-    handleAddReceiver,
-    handleCancelReceiver,
-    handleSaveReceiver,
-    autoFillTransporter,
+    // Transportadora
+    sender,
+    setSender,
+    senderAddress,
+    setSenderAddress,
+    senderCnpj,
+    setSenderCnpj,
+    senderCity,
+    setSenderCity,
+    senderState,
+    setSenderState,
+    
+    // Destinatário
+    recipient,
+    setRecipient,
+    recipientAddress,
+    setRecipientAddress,
+    
+    // Remetente (expedidor)
+    shipper,
+    setShipper,
+    shipperAddress,
+    setShipperAddress,
+    
+    // Recebedor
+    receiver,
+    setReceiver,
+    receiverAddress,
+    setReceiverAddress,
+    
+    // Seleção de transportadora
+    selectedSenderId,
+    selectedSenderType,
+    senderLogo,
+    setSenderLogo,
+    
+    handlers: {
+      handleSenderTypeChange,
+      handleSenderClientChange
+    }
   };
 };

@@ -1,113 +1,134 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import React, { useRef } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
-import { User } from '@/types';
+import { Label } from "@/components/ui/label";
+import { Upload, Image } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface CompanyDetailsSectionProps {
-  user: User | null;
-  onLogoUpload: (file: File) => Promise<string | null>;
+  companyLogo: string;
+  handleLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  creatorId: string;
+  onCreatorChange: (id: string) => void;
+  clients: any[];
 }
 
-const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({ user, onLogoUpload }) => {
-  const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        await onLogoUpload(file);
-      } catch (error) {
-        console.error('Erro ao fazer upload do logo:', error);
-      }
-    }
+export const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({
+  companyLogo,
+  handleLogoUpload,
+  creatorId,
+  onCreatorChange,
+  clients,
+}) => {
+  const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleRemoveLogo = () => {
+    onCreatorChange(creatorId); // Reset to default logo for current creator
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Informações do Transportador</CardTitle>
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md border-freight-100 dark:border-freight-800">
+      <CardHeader className="bg-freight-50/50 dark:bg-freight-900/50">
+        <CardTitle className="text-freight-700 dark:text-freight-300">
+          Dados do Emissor
+        </CardTitle>
         <CardDescription>
-          Estas informações aparecerão na cotação
+          Selecione quem está emitindo a cotação e adicione um logotipo
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="transporterName">Nome do Transportador</Label>
-            <Input 
-              id="transporterName" 
-              value={user?.name || ''} 
-              readOnly 
-              className="bg-gray-50"
-            />
-          </div>
-          <div>
-            <Label htmlFor="transporterCpf">CPF</Label>
-            <Input 
-              id="transporterCpf" 
-              value={user?.cpf || ''} 
-              readOnly 
-              className="bg-gray-50"
-            />
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="transporterEmail">Email</Label>
-            <Input 
-              id="transporterEmail" 
-              value={user?.email || ''} 
-              readOnly 
-              className="bg-gray-50"
-            />
-          </div>
-          <div>
-            <Label htmlFor="transporterPhone">Telefone</Label>
-            <Input 
-              id="transporterPhone" 
-              value={user?.phone || ''} 
-              readOnly 
-              className="bg-gray-50"
-            />
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="logo">Logo (Opcional)</Label>
-          <div className="mt-2">
-            <input
-              id="logo"
-              type="file"
-              accept="image/*"
-              onChange={handleLogoChange}
-              className="hidden"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => document.getElementById('logo')?.click()}
-              className="w-full"
+      <CardContent className="pt-6 pb-4 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <Label htmlFor="creator" className="text-base">Emissor da Cotação</Label>
+            <Select
+              value={creatorId}
+              onValueChange={onCreatorChange}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Fazer upload do logo
-            </Button>
+              <SelectTrigger id="creator" className="w-full">
+                <SelectValue placeholder="Selecione o emissor" />
+              </SelectTrigger>
+              <SelectContent>
+                {user && (
+                  <SelectItem value={user.id} className="cursor-pointer">
+                    {user.companyName || user.name || "Minha Empresa"}
+                  </SelectItem>
+                )}
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id} className="cursor-pointer">
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          {user?.avatar && (
-            <div className="mt-2">
-              <img 
-                src={user.avatar} 
-                alt="Logo atual" 
-                className="h-16 w-16 object-contain border rounded"
-              />
+
+          <div className="space-y-4">
+            <Label htmlFor="logo" className="text-base">Logotipo</Label>
+            <div className="flex items-center gap-4">
+              <div className="w-40 h-24 border-2 border-dashed border-freight-200 dark:border-freight-700 rounded-md flex items-center justify-center bg-white dark:bg-freight-800/50 p-2 overflow-hidden">
+                {companyLogo ? (
+                  <img
+                    src={companyLogo}
+                    alt="Logotipo"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center text-freight-400 dark:text-freight-500">
+                    <Image className="h-8 w-8 mb-2" />
+                    <span className="text-xs text-center">Sem logotipo</span>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {companyLogo ? "Trocar logo" : "Enviar logo"}
+                </Button>
+                {companyLogo && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveLogo}
+                    className="w-full text-destructive hover:text-destructive"
+                  >
+                    Remover logo
+                  </Button>
+                )}
+                <input
+                  type="file"
+                  id="logo"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                />
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 };
-
-export default CompanyDetailsSection;

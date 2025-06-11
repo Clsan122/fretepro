@@ -34,5 +34,7 @@ export { sendQuotationByEmail } from "./emailPdf";
 
 // Freight Form PDF functions
 export {
-  generateFreightFormPdf
+  generateFreightFormPdf,
+  previewFreightFormPdf,
+  exportFreightFormPdf
 } from "./freightFormPdf";

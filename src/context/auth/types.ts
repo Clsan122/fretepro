@@ -1,15 +1,19 @@
 
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { User } from '@/types';
 
 export interface AuthContextType {
   user: User | null;
+  session: Session | null;
   loading: boolean;
-  isAuthenticated: boolean;
+  error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  register: (userData: any) => Promise<boolean>;
-  updateProfile: (profileData: any) => Promise<boolean>;
-  resetPassword: (email: string) => Promise<boolean>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  signup: (email: string, password: string, name: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  isAuthenticated: boolean;
   setUser: (user: User) => void;
+}
+
+export interface AuthProviderProps {
+  children: React.ReactNode;
 }

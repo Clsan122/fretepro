@@ -6,7 +6,7 @@ import { SenderRecipientSection } from "./SenderRecipientSection";
 import { InvoiceNotesSection } from "./InvoiceNotesSection";
 import { DriverSection } from "./DriverSection";
 import { FormActions } from "../freight/FormActions";
-import CompanyDetailsSection from "./sections/CompanyDetailsSection";
+import { CompanyDetailsSection } from "./sections/CompanyDetailsSection";
 import { CargoDetailsSection } from "./sections/CargoDetailsSection";
 import { LocationDetailsSection } from "./sections/LocationDetailsSection";
 import { v4 as uuidv4 } from "uuid";
@@ -15,7 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { collectionOrderFormSchema, CollectionOrderFormValues } from "./schema";
+import { collectionOrderSchema, CollectionOrderFormValues } from "./schema";
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 
@@ -24,7 +24,7 @@ interface CollectionOrderFormContainerProps {
   onCancel: () => void;
   orderToEdit?: CollectionOrder;
   initialData?: Partial<CollectionOrder>;
-  isSaving?: boolean;
+  isSaving?: boolean; // Added isSaving prop to the interface
 }
 
 const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> = ({
@@ -32,20 +32,19 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
   onCancel,
   orderToEdit,
   initialData,
-  isSaving = false
+  isSaving = false // Added with default value of false
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { formData, handlers } = useCollectionOrderForm({ 
-    clients: [],
-    user
+  const { formData, setters } = useCollectionOrderForm({ 
+    orderToEdit, 
+    initialData 
   });
 
   // Configurar o formulário com validação
   const form = useForm<CollectionOrderFormValues>({
-    resolver: zodResolver(collectionOrderFormSchema),
+    resolver: zodResolver(collectionOrderSchema),
     defaultValues: {
-      orderNumber: formData.orderNumber || "",
       sender: formData.sender,
       senderAddress: formData.senderAddress,
       senderCnpj: formData.senderCnpj || "",
@@ -57,16 +56,16 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       shipperAddress: formData.shipperAddress,
       receiver: formData.receiver || "",
       receiverAddress: formData.receiverAddress || "",
-      originCity: formData.originCity || "",
-      originState: formData.originState || "",
-      destinationCity: formData.destinationCity || "",
-      destinationState: formData.destinationState || "",
-      cargoDescription: formData.cargoDescription || "",
-      weight: formData.weight || 0,
+      originCity: formData.originCity,
+      originState: formData.originState,
+      destinationCity: formData.destinationCity,
+      destinationState: formData.destinationState,
       volumes: formData.volumes || 0,
-      value: formData.value || 0,
-      notes: formData.notes || "",
-      invoiceNotes: formData.invoiceNotes || ""
+      weight: formData.weight || 0,
+      merchandiseValue: formData.merchandiseValue || 0,
+      invoiceNumber: formData.invoiceNumber || "",
+      observations: formData.observations || "",
+      driverId: formData.driverId || ""
     }
   });
 
@@ -76,7 +75,14 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       return;
     }
 
+    // Encontrar o motorista selecionado
+    const selectedDriver = formData.drivers.find(d => d.id === data.driverId);
+
+    // Usar o logo do cliente selecionado se o tipo for 'client'
+    const logoToUse = formData.selectedSenderType === 'client' ? formData.senderLogo : formData.companyLogo;
+
     // Manter o ID e orderNumber originais se estivermos editando
+    // Caso contrário, gerar novos
     const id = orderToEdit ? orderToEdit.id : uuidv4();
     const orderNumber = orderToEdit ? orderToEdit.orderNumber : generateOrderNumber();
 
@@ -88,37 +94,39 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       senderCnpj: data.senderCnpj || undefined,
       senderCity: data.senderCity || undefined,
       senderState: data.senderState || undefined,
+      senderLogo: formData.senderLogo, // Adicionando o logo do remetente
       recipient: data.recipient,
       recipientAddress: data.recipientAddress,
-      shipper: data.shipper,
-      shipperAddress: data.shipperAddress,
-      receiver: data.receiver,
-      receiverAddress: data.receiverAddress,
       originCity: data.originCity,
       originState: data.originState,
       destinationCity: data.destinationCity,
       destinationState: data.destinationState,
-      cargoDescription: data.cargoDescription,
-      weight: data.weight,
+      receiver: data.receiver,
+      receiverAddress: data.receiverAddress,
       volumes: data.volumes,
-      value: data.value,
-      notes: data.notes,
-      invoiceNotes: data.invoiceNotes,
-      measurements: [],
-      cubicMeasurement: 0,
-      merchandiseValue: data.value,
-      invoiceNumber: data.invoiceNotes || "",
-      observations: data.notes || "",
+      weight: data.weight,
+      measurements: formData.measurements,
+      cubicMeasurement: formData.cubicMeasurement,
+      merchandiseValue: data.merchandiseValue,
+      invoiceNumber: data.invoiceNumber,
+      observations: data.observations,
+      driverId: data.driverId !== "none" ? data.driverId : undefined,
+      driverName: selectedDriver?.name,
+      driverCpf: selectedDriver?.cpf,
+      licensePlate: selectedDriver?.licensePlate,
+      companyLogo: logoToUse, // Usar o logo escolhido com base no tipo
+      issuerId: formData.selectedIssuerId,
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
-      issuerId: user.id, // Adicionando o issuerId obrigatório
+      shipper: data.shipper,
+      shipperAddress: data.shipperAddress,
       syncId: orderToEdit?.syncId,
       syncVersion: orderToEdit ? (orderToEdit.syncVersion || 1) + 1 : 1
-    } as CollectionOrder;
+    };
 
     console.log('Salvando ordem:', newOrder);
 
-    onSave(newOrder);
+    onSave(newOrder as CollectionOrder);
   });
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +134,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Handle logo upload
+        setters.setCompanyLogo(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -142,11 +150,11 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
         </div>
 
         <CompanyDetailsSection
-          selectedIssuerId=""
+          companyLogo={formData.companyLogo}
+          selectedIssuerId={formData.selectedIssuerId}
           onLogoUpload={handleLogoUpload}
-          onLogoRemove={() => {}}
-          onIssuerChange={() => {}}
-          user={user}
+          onLogoRemove={() => setters.setCompanyLogo("")}
+          onIssuerChange={setters.setSelectedIssuerId}
         />
 
         <SenderRecipientSection
@@ -161,66 +169,66 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
           shipperAddress={formData.shipperAddress}
           receiver={formData.receiver}
           receiverAddress={formData.receiverAddress}
-          selectedSenderId=""
-          selectedSenderType="my-company" // Alterando de "user" para "my-company"
-          handleSenderTypeChange={() => {}}
-          handleSenderClientChange={() => {}}
-          clients={[]}
-          setSender={handlers.setSender}
-          setSenderAddress={handlers.setSenderAddress}
-          setSenderCnpj={handlers.setSenderCnpj}
-          setSenderCity={handlers.setSenderCity}
-          setSenderState={handlers.setSenderState}
-          setRecipient={handlers.setRecipient}
-          setRecipientAddress={handlers.setRecipientAddress}
-          setShipper={handlers.setShipper}
-          setShipperAddress={handlers.setShipperAddress}
-          setReceiver={handlers.setReceiver}
-          setReceiverAddress={handlers.setReceiverAddress}
+          selectedSenderId={formData.selectedSenderId}
+          selectedSenderType={formData.selectedSenderType}
+          handleSenderTypeChange={setters.handleSenderTypeChange}
+          handleSenderClientChange={setters.handleSenderClientChange}
+          clients={formData.clients}
+          setSender={setters.setSender}
+          setSenderAddress={setters.setSenderAddress}
+          setSenderCnpj={setters.setSenderCnpj}
+          setSenderCity={setters.setSenderCity}
+          setSenderState={setters.setSenderState}
+          setRecipient={setters.setRecipient}
+          setRecipientAddress={setters.setRecipientAddress}
+          setShipper={setters.setShipper}
+          setShipperAddress={setters.setShipperAddress}
+          setReceiver={setters.setReceiver}
+          setReceiverAddress={setters.setReceiverAddress}
           form={form}
-          senderLogo=""
-          setSenderLogo={() => {}}
+          senderLogo={formData.senderLogo}
+          setSenderLogo={setters.setSenderLogo}
         />
 
         <LocationDetailsSection
-          originCity={formData.originCity || ""}
-          originState={formData.originState || ""}
-          destinationCity={formData.destinationCity || ""}
-          destinationState={formData.destinationState || ""}
-          onOriginCityChange={() => {}}
-          onOriginStateChange={() => {}}
-          onDestinationCityChange={() => {}}
-          onDestinationStateChange={() => {}}
+          originCity={formData.originCity}
+          originState={formData.originState}
+          destinationCity={formData.destinationCity}
+          destinationState={formData.destinationState}
+          onOriginCityChange={setters.setOriginCity}
+          onOriginStateChange={setters.setOriginState}
+          onDestinationCityChange={setters.setDestinationCity}
+          onDestinationStateChange={setters.setDestinationState}
           form={form}
         />
 
         <CargoDetailsSection
-          volumes={formData.volumes || 0}
-          weight={formData.weight || 0}
-          merchandiseValue={formData.value || 0}
-          cubicMeasurement={0}
-          measurements={[]}
-          onVolumesChange={() => {}}
-          onWeightChange={() => {}}
-          onMerchandiseValueChange={() => {}}
-          onMeasurementChange={() => {}}
-          onAddMeasurement={() => {}}
-          onRemoveMeasurement={() => {}}
+          volumes={formData.volumes}
+          weight={formData.weight}
+          merchandiseValue={formData.merchandiseValue}
+          cubicMeasurement={formData.cubicMeasurement}
+          measurements={formData.measurements}
+          onVolumesChange={setters.setVolumes}
+          onWeightChange={setters.setWeight}
+          onMerchandiseValueChange={setters.setMerchandiseValue}
+          onMeasurementChange={setters.handleMeasurementChange}
+          onAddMeasurement={setters.handleAddMeasurement}
+          onRemoveMeasurement={setters.handleRemoveMeasurement}
           form={form}
         />
 
         <InvoiceNotesSection
-          invoiceNumber={formData.invoiceNotes || ""}
-          setInvoiceNumber={() => {}}
-          observations={formData.notes || ""}
-          setObservations={() => {}}
+          invoiceNumber={formData.invoiceNumber}
+          setInvoiceNumber={setters.setInvoiceNumber}
+          observations={formData.observations}
+          setObservations={setters.setObservations}
           form={form}
         />
 
         <DriverSection
-          driverId=""
-          drivers={[]}
-          setDriverId={() => {}}
+          driverId={formData.driverId}
+          drivers={formData.drivers}
+          setDriverId={setters.setDriverId}
           form={form}
         />
 
@@ -228,7 +236,7 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
           onCancel={onCancel}
           isEditing={Boolean(orderToEdit)}
           submitLabel={orderToEdit ? "Atualizar Ordem" : "Cadastrar Ordem"}
-          isSubmitting={isSaving}
+          isSubmitting={isSaving} // Use the isSaving prop here to show loading state
         />
       </form>
     </Form>

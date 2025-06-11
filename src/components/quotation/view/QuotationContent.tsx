@@ -1,8 +1,9 @@
 
-import React from 'react';
-import { QuotationData } from '../types';
-import { useAuth } from '@/context/auth/AuthProvider';
-import { FreightQuotationPdf } from '../FreightQuotationPdf';
+import React from "react";
+import { FreightQuotationPdf } from "../FreightQuotationPdf";
+import { PrintPreviewStyles } from "../PrintPreviewStyles";
+import { QuotationData } from "../types";
+import { useAuth } from "@/context/AuthContext";
 
 interface QuotationContentProps {
   quotation: QuotationData;
@@ -10,21 +11,24 @@ interface QuotationContentProps {
 
 const QuotationContent: React.FC<QuotationContentProps> = ({ quotation }) => {
   const { user } = useAuth();
-
+  
+  // Prepare creator info from user data
   const creatorInfo = {
-    name: user?.name || 'Transportadora',
-    cpf: user?.cpf || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    address: user?.address || '',
-    avatar: user?.avatar || undefined,
+    name: user?.companyName || quotation.creatorName || user?.name || "",
+    document: user?.cnpj || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+    city: user?.city || "",
+    state: user?.state || ""
   };
-
+  
   return (
-    <div className="bg-white">
-      <FreightQuotationPdf 
-        quotation={quotation} 
-        creatorInfo={creatorInfo} 
+    <div id="quotation-content" data-quotation={JSON.stringify(quotation)}>
+      <PrintPreviewStyles />
+      <FreightQuotationPdf
+        quotation={quotation}
+        creatorInfo={creatorInfo}
       />
     </div>
   );

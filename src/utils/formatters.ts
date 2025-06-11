@@ -1,4 +1,3 @@
-
 /**
  * Formata um valor numérico como moeda (R$)
  */
@@ -64,15 +63,6 @@ export const formatCPF = (value: string): string => {
   if (cpf.length <= 6) return `${cpf.slice(0, 3)}.${cpf.slice(3)}`;
   if (cpf.length <= 9) return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6)}`;
   return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9, 11)}`;
-};
-
-/**
- * Formata um CEP (00000-000)
- */
-export const formatCEP = (value: string): string => {
-  const cep = value.replace(/\D/g, '').slice(0, 8);
-  if (cep.length <= 5) return cep;
-  return `${cep.slice(0, 5)}-${cep.slice(5)}`;
 };
 
 /**
