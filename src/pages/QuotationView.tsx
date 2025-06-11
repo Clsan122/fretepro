@@ -30,18 +30,32 @@ const QuotationView: React.FC = () => {
 
   // Transform quotation to match QuotationData interface
   const quotationData: QuotationData = {
-    ...quotation,
-    // Mapeando propriedades corretamente
-    cargoWeight: quotation.weight || 0,
+    id: quotation.id,
+    orderNumber: quotation.orderNumber || `COT-${quotation.id.substring(0, 8)}`,
+    creatorId: quotation.userId || quotation.creatorId,
+    creatorName: quotation.creatorName || 'Transportadora',
+    creatorLogo: quotation.creatorLogo,
+    originCity: quotation.originCity,
+    originState: quotation.originState,
+    destinationCity: quotation.destinationCity,
+    destinationState: quotation.destinationState,
+    volumes: quotation.volumes || 0,
+    weight: quotation.weight || 0,
     measurements: quotation.measurements || [],
-    
-    // Removendo propriedades que não existem em QuotationData
-    // cargoWeight já foi mapeado acima
-    // cubicMeasurement não existe em QuotationData, usar o existente
-    // Mapeando propriedades de preço corretamente se existirem
-    ...(quotation.pricePerKm && { pricePerKm: quotation.pricePerKm }),
-    ...(quotation.tollCost && { tollCost: quotation.tollCost }),
-    ...(quotation.additionalCosts && { additionalCosts: quotation.additionalCosts }),
+    cargoType: quotation.cargoType || '',
+    merchandiseValue: quotation.merchandiseValue || 0,
+    vehicleType: quotation.vehicleType || '',
+    freightValue: quotation.freightValue || quotation.totalPrice || 0,
+    tollValue: quotation.tollValue || 0,
+    insuranceValue: quotation.insuranceValue || 0,
+    insuranceRate: quotation.insuranceRate || 0,
+    otherCosts: quotation.otherCosts || 0,
+    totalValue: quotation.totalValue || quotation.totalPrice || 0,
+    notes: quotation.notes || '',
+    createdAt: quotation.createdAt,
+    userId: quotation.userId,
+    status: quotation.status || 'open',
+    pdfGenerated: quotation.pdfGenerated || false,
   };
 
   return (
