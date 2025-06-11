@@ -13,6 +13,8 @@ export const useProfileActions = (setUser: (user: User) => void) => {
   const handleUpdateProfile = async (updatedUser: User) => {
     setIsUpdating(true);
     try {
+      console.log('Atualizando perfil com dados:', updatedUser);
+      
       // Atualizar o perfil na tabela profiles
       const { error: profileError } = await supabase
         .from('profiles')
@@ -34,8 +36,11 @@ export const useProfileActions = (setUser: (user: User) => void) => {
         });
 
       if (profileError) {
+        console.error('Erro ao atualizar perfil:', profileError);
         throw profileError;
       }
+
+      console.log('Perfil atualizado com sucesso');
 
       // Atualizar o estado local
       setUser(updatedUser);
@@ -118,11 +123,14 @@ export const useProfileActions = (setUser: (user: User) => void) => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
+      console.log('Fazendo upload do avatar:', filePath);
+
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
 
       if (uploadError) {
+        console.error('Erro no upload:', uploadError);
         throw uploadError;
       }
 
@@ -130,6 +138,8 @@ export const useProfileActions = (setUser: (user: User) => void) => {
         .from('avatars')
         .getPublicUrl(filePath);
 
+      console.log('Avatar uploaded com sucesso:', data.publicUrl);
+      
       return data.publicUrl;
     } catch (error: any) {
       console.error("Erro ao fazer upload do avatar:", error);
@@ -151,17 +161,22 @@ export const useProfileActions = (setUser: (user: User) => void) => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `company-logos/${fileName}`;
 
+      console.log('Fazendo upload do logo da empresa:', filePath);
+
       const { error: uploadError } = await supabase.storage
         .from('company-logos')
         .upload(filePath, file);
 
       if (uploadError) {
+        console.error('Erro no upload do logo:', uploadError);
         throw uploadError;
       }
 
       const { data } = supabase.storage
         .from('company-logos')
         .getPublicUrl(filePath);
+
+      console.log('Logo da empresa uploaded com sucesso:', data.publicUrl);
 
       return data.publicUrl;
     } catch (error: any) {

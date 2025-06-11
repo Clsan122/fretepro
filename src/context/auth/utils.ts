@@ -5,6 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const fetchUserProfile = async (userId: string): Promise<any | null> => {
   try {
+    console.log('Buscando perfil do usuário:', userId);
+    
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -16,6 +18,7 @@ export const fetchUserProfile = async (userId: string): Promise<any | null> => {
       return null;
     }
     
+    console.log('Perfil encontrado:', data);
     return data;
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -24,7 +27,9 @@ export const fetchUserProfile = async (userId: string): Promise<any | null> => {
 };
 
 export const transformUser = (supabaseUser: SupabaseUser, profileData?: any): User => {
-  return {
+  console.log('Transformando dados do usuário:', { supabaseUser, profileData });
+  
+  const user = {
     id: supabaseUser.id,
     email: supabaseUser.email || '',
     name: profileData?.full_name || supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || '',
@@ -43,4 +48,7 @@ export const transformUser = (supabaseUser: SupabaseUser, profileData?: any): Us
     createdAt: new Date(supabaseUser.created_at).toISOString(),
     updatedAt: new Date().toISOString()
   };
+  
+  console.log('Usuário transformado:', user);
+  return user;
 };
