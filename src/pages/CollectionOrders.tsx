@@ -173,7 +173,10 @@ const CollectionOrders: React.FC = () => {
       
       // Excluir todas as ordens selecionadas
       for (const orderId of selectedOrders) {
-        await deleteCollectionOrder(orderId);
+        const success = await deleteCollectionOrder(orderId);
+        if (!success) {
+          console.error(`Falha ao excluir ordem ${orderId}`);
+        }
       }
       
       // Atualizar estado local removendo as ordens excluídas
