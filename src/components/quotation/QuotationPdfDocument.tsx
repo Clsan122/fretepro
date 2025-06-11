@@ -1,94 +1,70 @@
-
-import React, { useEffect } from "react";
-import { QuotationData } from "./types";
-import { FreightQuotationPdf } from "./FreightQuotationPdf";
-import { useAuth } from "@/context/AuthContext";
+import React from 'react';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import { Quotation } from '@/types';
 
 interface QuotationPdfDocumentProps {
-  quotation: QuotationData;
+  quotationData: Quotation;
+  user: any;
 }
 
-/**
- * Detects Safari mobile for specific styling
- */
-const isSafariMobile = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  const userAgent = navigator.userAgent;
-  const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
-  const isMobile = /iPhone|iPad|iPod/.test(userAgent);
-  return isSafari && isMobile;
-};
+const QuotationPdfDocument: React.FC<QuotationPdfDocumentProps> = ({ 
+  quotationData, 
+  user 
+}) => {
+  const generatePdf = () => {
+    const doc = new jsPDF();
+    
+    // Dados da empresa (agora usando dados do usuário)
+    const companyName = user?.name || 'Transportadora';
+    const companyCpf = user?.cpf || '';
 
-export const QuotationPdfDocument: React.FC<QuotationPdfDocumentProps> = ({ quotation }) => {
-  const { user } = useAuth();
-  
-  // Prepare creator info from user data
-  const creatorInfo = {
-    name: user?.companyName || quotation.creatorName || user?.name || "",
-    document: user?.cnpj || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    address: user?.address || "",
-    city: user?.city || "",
-    state: user?.state || ""
+    doc.setFontSize(20);
+    doc.text(`Cotação de Frete`, 20, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Emitido por: ${companyName}`, 20, 30);
+    doc.text(`CPF: ${companyCpf}`, 20, 35);
+    doc.text(`Data de emissão: ${new Date().toLocaleDateString()}`, 20, 40);
+
+    const columns = [
+      { title: "Origem", dataKey: "origin" },
+      { title: "Destino", dataKey: "destination" },
+      { title: "Volumes", dataKey: "volumes" },
+      { title: "Peso (kg)", dataKey: "weight" },
+      { title: "Tipo de Carga", dataKey: "cargoType" },
+      { title: "Tipo de Veículo", dataKey: "vehicleType" },
+      { title: "Preço Total (R$)", dataKey: "totalPrice" },
+    ];
+
+    const data = [
+      {
+        origin: `${quotationData.originCity}, ${quotationData.originState}`,
+        destination: `${quotationData.destinationCity}, ${quotationData.destinationState}`,
+        volumes: quotationData.volumes,
+        weight: quotationData.weight,
+        cargoType: quotationData.cargoType,
+        vehicleType: quotationData.vehicleType,
+        totalPrice: quotationData.totalPrice.toFixed(2),
+      },
+    ];
+
+    (doc as any).autoTable(columns, data, {
+      startY: 50,
+      margin: { horizontal: 20 },
+    });
+
+    doc.setFontSize(14);
+    doc.text(`Observações: ${quotationData.notes || 'Nenhuma'}`, 20, (doc as any).autoTable.previous.finalY + 10);
+
+    doc.save(`cotacao_frete_${new Date().toISOString()}.pdf`);
   };
 
-  // Apply Safari mobile optimizations
-  useEffect(() => {
-    if (isSafariMobile()) {
-      // Add Safari-specific styles
-      const style = document.createElement('style');
-      style.id = 'safari-mobile-pdf-styles';
-      style.innerHTML = `
-        #quotation-pdf {
-          -webkit-font-smoothing: antialiased !important;
-          -webkit-transform: translateZ(0) !important;
-          -webkit-backface-visibility: hidden !important;
-          width: 210mm !important;
-          max-width: 210mm !important;
-          min-height: 297mm !important;
-          margin: 0 auto !important;
-          background: white !important;
-          font-size: 12px !important;
-          line-height: 1.4 !important;
-        }
-        
-        #quotation-pdf * {
-          -webkit-font-smoothing: antialiased !important;
-          box-sizing: border-box !important;
-        }
-        
-        #quotation-pdf img {
-          max-width: 100% !important;
-          height: auto !important;
-          -webkit-transform: translateZ(0) !important;
-        }
-        
-        @media screen and (max-width: 768px) {
-          #quotation-pdf {
-            transform: scale(0.8) !important;
-            transform-origin: top left !important;
-            width: 262.5mm !important;
-          }
-        }
-      `;
-      
-      document.head.appendChild(style);
-      
-      // Cleanup on unmount
-      return () => {
-        const existingStyle = document.getElementById('safari-mobile-pdf-styles');
-        if (existingStyle) {
-          document.head.removeChild(existingStyle);
-        }
-      };
-    }
-  }, []);
-
   return (
-    <FreightQuotationPdf
-      quotation={quotation}
-      creatorInfo={creatorInfo}
-    />
+    <button onClick={generatePdf}>
+      Gerar PDF
+    </button>
   );
 };
+
+export default QuotationPdfDocument;

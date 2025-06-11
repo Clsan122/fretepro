@@ -1,31 +1,30 @@
-
-import React from "react";
-import { User } from "@/types";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import React from 'react';
+import { User } from '@/types';
 
 interface ReceiptHeaderProps {
-  dateRangeText: string;
-  currentUser: User | null;
+  user: User;
 }
 
-const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ dateRangeText, currentUser }) => {
+const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ user }) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between mb-2 print-compact">
-      <div>
-        <h1 className="text-xl font-bold">RECIBO DE FRETE</h1>
-        <p className="text-gray-500 text-xs">Período: {dateRangeText}</p>
+    <div className="receipt-header mb-6">
+      <div className="text-center mb-4">
+        <h1 className="text-2xl font-bold text-gray-800">RECIBO DE FRETE</h1>
       </div>
       
-      {currentUser && (
-        <div className="text-right text-xs print-small-text">
-          {currentUser.companyName && <p className="font-semibold">{currentUser.companyName}</p>}
-          {currentUser.cnpj && <p>CNPJ: {currentUser.cnpj}</p>}
-          {currentUser.phone && <p>Tel: {currentUser.phone}</p>}
-          {currentUser.address && <p>{currentUser.address}</p>}
-          {currentUser.city && currentUser.state && <p>{currentUser.city} - {currentUser.state}</p>}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-700">Transportadora</h2>
+          <p className="text-gray-600">{user?.name || 'Não informado'}</p>
+          <p className="text-gray-600">CPF: {user?.cpf || 'Não informado'}</p>
+          {user?.phone && <p className="text-gray-600">Telefone: {user.phone}</p>}
+          {user?.address && <p className="text-gray-600">Endereço: {user.address}</p>}
         </div>
-      )}
+        
+        <div className="text-right">
+          <p className="text-gray-600">Data de emissão: {new Date().toLocaleDateString('pt-BR')}</p>
+        </div>
+      </div>
     </div>
   );
 };

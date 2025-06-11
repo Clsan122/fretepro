@@ -1,134 +1,122 @@
-
-import React, { useRef } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, Image } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { Building, Upload } from "lucide-react";
 
 interface CompanyDetailsSectionProps {
-  companyLogo: string;
-  handleLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  creatorId: string;
-  onCreatorChange: (id: string) => void;
-  clients: any[];
+  user: User | null;
+  onLogoUpload?: (file: File) => Promise<string | null>;
 }
 
-export const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({
-  companyLogo,
-  handleLogoUpload,
-  creatorId,
-  onCreatorChange,
-  clients,
+const CompanyDetailsSection: React.FC<CompanyDetailsSectionProps> = ({ 
+  user, 
+  onLogoUpload 
 }) => {
-  const { user } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [companyLogo, setCompanyLogo] = React.useState<string>(user?.avatar || '');
 
-  const handleRemoveLogo = () => {
-    onCreatorChange(creatorId); // Reset to default logo for current creator
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && onLogoUpload) {
+      const logoUrl = await onLogoUpload(file);
+      if (logoUrl) {
+        setCompanyLogo(logoUrl);
+      }
+    }
   };
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md border-freight-100 dark:border-freight-800">
-      <CardHeader className="bg-freight-50/50 dark:bg-freight-900/50">
-        <CardTitle className="text-freight-700 dark:text-freight-300">
-          Dados do Emissor
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Building className="h-5 w-5" />
+          Dados da Transportadora
         </CardTitle>
         <CardDescription>
-          Selecione quem está emitindo a cotação e adicione um logotipo
+          Informações que aparecerão na cotação
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6 pb-4 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <Label htmlFor="creator" className="text-base">Emissor da Cotação</Label>
-            <Select
-              value={creatorId}
-              onValueChange={onCreatorChange}
-            >
-              <SelectTrigger id="creator" className="w-full">
-                <SelectValue placeholder="Selecione o emissor" />
-              </SelectTrigger>
-              <SelectContent>
-                {user && (
-                  <SelectItem value={user.id} className="cursor-pointer">
-                    {user.companyName || user.name || "Minha Empresa"}
-                  </SelectItem>
-                )}
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id} className="cursor-pointer">
-                    {client.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Nome da Transportadora</Label>
+            <Input
+              value={user?.name || ''}
+              disabled
+              placeholder="Nome não informado"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>CPF</Label>
+            <Input
+              value={user?.cpf || ''}
+              disabled
+              placeholder="CPF não informado"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
+            {companyLogo ? (
+              <div className="text-center">
+                <img 
+                  src={companyLogo} 
+                  alt="Logo da empresa" 
+                  className="max-w-32 max-h-32 mx-auto mb-2 object-contain"
+                />
+                <p className="text-sm text-gray-600">Logo carregada</p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-2 text-sm text-gray-600">
+                  Faça upload do logo da transportadora
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-4">
-            <Label htmlFor="logo" className="text-base">Logotipo</Label>
-            <div className="flex items-center gap-4">
-              <div className="w-40 h-24 border-2 border-dashed border-freight-200 dark:border-freight-700 rounded-md flex items-center justify-center bg-white dark:bg-freight-800/50 p-2 overflow-hidden">
-                {companyLogo ? (
-                  <img
-                    src={companyLogo}
-                    alt="Logotipo"
-                    className="max-w-full max-h-full object-contain"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center text-freight-400 dark:text-freight-500">
-                    <Image className="h-8 w-8 mb-2" />
-                    <span className="text-xs text-center">Sem logotipo</span>
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {companyLogo ? "Trocar logo" : "Enviar logo"}
-                </Button>
-                {companyLogo && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveLogo}
-                    className="w-full text-destructive hover:text-destructive"
-                  >
-                    Remover logo
-                  </Button>
-                )}
-                <input
-                  type="file"
-                  id="logo"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                />
-              </div>
-            </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {companyLogo ? 'Alterar Logo' : 'Selecionar Logo'}
+            </Button>
+            
+            {companyLogo && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCompanyLogo('')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+
+          <p className="text-xs text-gray-500">
+            Recomendado: PNG ou JPG, máximo 2MB
+          </p>
         </div>
       </CardContent>
     </Card>
   );
 };
+
+export default CompanyDetailsSection;

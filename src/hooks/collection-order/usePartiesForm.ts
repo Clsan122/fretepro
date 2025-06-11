@@ -1,9 +1,8 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Client } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 
-export const usePartiesForm = (initialData?: {
+export const usePartiesForm = (user: User | null, initialData?: {
   sender?: string;
   senderAddress?: string;
   senderCnpj?: string;
@@ -17,7 +16,7 @@ export const usePartiesForm = (initialData?: {
   receiverAddress?: string;
   senderLogo?: string;
 }) => {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
   
   // Transportadora (sender)
   const [sender, setSender] = useState(initialData?.sender || "");
@@ -43,21 +42,21 @@ export const usePartiesForm = (initialData?: {
     'my-company'
   );
   
-  const [selectedSenderId, setSelectedSenderId] = useState<string>(user ? user.id : 'none');
+  const [selectedSenderId, setSelectedSenderId] = useState<string>(authUser ? authUser.id : 'none');
   const [senderLogo, setSenderLogo] = useState(initialData?.senderLogo || '');
 
   // Quando o tipo de transportadora muda
   const handleSenderTypeChange = (type: 'my-company' | 'client') => {
     setSelectedSenderType(type);
-    if (type === 'my-company' && user) {
+    if (type === 'my-company' && authUser) {
       // Se for a empresa do usuário, usar dados do usuário
-      setSelectedSenderId(user.id);
-      setSender(user.name || '');
-      setSenderAddress(user.address || '');
-      setSenderCnpj(user.cnpj || '');
-      setSenderCity(user.city || '');
-      setSenderState(user.state || '');
-      setSenderLogo(user.companyLogo || '');
+      setSelectedSenderId(authUser.id);
+      setSender(authUser.name || '');
+      setSenderAddress(authUser.address || '');
+      setSenderCnpj(authUser.cnpj || '');
+      setSenderCity(authUser.city || '');
+      setSenderState(authUser.state || '');
+      setSenderLogo(authUser.companyLogo || '');
     } else {
       // Se for cliente, limpar os campos
       setSelectedSenderId('none');
@@ -93,6 +92,15 @@ export const usePartiesForm = (initialData?: {
       setSelectedSenderId(clientId);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      setSender(user.name || '');
+      setSenderAddress(user.address || '');
+      // Remover referências a CNPJ e companyLogo pois não existem mais
+      setSenderLogo(user.avatar || '');
+    }
+  }, [user]);
 
   return {
     // Transportadora

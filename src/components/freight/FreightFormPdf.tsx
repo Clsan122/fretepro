@@ -1,179 +1,139 @@
-
-import React from "react";
-import { Freight, Client, User, Driver } from "@/types";
+import React from 'react';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import { Freight, User } from '@/types';
 
 interface FreightFormPdfProps {
-  freight: Freight;
-  client: Client | null;
-  driver?: Driver | null;
-  sender: User;
+  formData: Freight | null;
+  client: any;
+  driver: any;
+  user: User | null;
+  onClose: () => void;
 }
 
-const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
-  freight,
-  client,
-  driver,
-  sender,
+const FreightFormPdf: React.FC<FreightFormPdfProps> = ({ 
+  formData, 
+  client, 
+  driver, 
+  user, 
+  onClose 
 }) => {
-  return (
-    <>
-      <style type="text/css">
-        {`
-          @media print {
-            body {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              color-adjust: exact !important;
-              background-color: white !important;
-            }
-            * {
-              box-sizing: border-box !important;
-            }
-            .text-xs, .text-sm, .text-base {
-              font-size: 9px !important;
-              line-height: 1.1 !important;
-            }
-            .text-lg {
-              font-size: 11px !important;
-              line-height: 1.2 !important;
-            }
-            .text-xl {
-              font-size: 12px !important;
-              line-height: 1.2 !important;
-            }
-            img {
-              max-width: 150px !important;
-              max-height: 80px !important;
-              object-fit: contain !important;
-            }
-            .border-b {
-              border-bottom-width: 1px !important;
-            }
-            .border-t {
-              border-top-width: 1px !important;
-            }
-            table {
-              page-break-inside: avoid !important;
-              font-size: 9px !important;
-            }
-            .mb-6 {
-              margin-bottom: 10px !important;
-            }
-            .pb-4 {
-              padding-bottom: 8px !important;
-            }
-            .p-8 {
-              padding: 10px !important;
-            }
-            #freight-form-print {
-              zoom: 0.9;
-              width: 210mm !important;
-              max-width: 210mm !important;
-              font-size: 9px !important;
-            }
-            td, th {
-              padding: 4px 6px !important;
-            }
+  const generatePdf = () => {
+    if (!formData) return;
+
+    const doc = new jsPDF();
+    
+    // Configurações gerais do PDF
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+
+    // Margens
+    const margin = 10;
+
+    // Largura da página
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Logo da empresa (agora usando avatar do usuário se disponível)
+    if (user?.avatar) {
+      try {
+        doc.addImage(user.avatar, 'JPEG', 150, 10, 40, 30);
+      } catch (error) {
+        console.warn('Erro ao adicionar logo:', error);
+      }
+    }
+
+    // Dados da empresa (agora usando dados do usuário)
+    doc.setFontSize(14);
+    doc.text(user?.name || 'Transportadora', 20, 30);
+    if (user?.cpf) {
+      doc.setFontSize(10);
+      doc.text(`CPF: ${user.cpf}`, 20, 40);
+    }
+
+    // Título do formulário
+    doc.setFontSize(16);
+    doc.text('Formulário de Frete', margin, 50);
+
+    // Informações do frete
+    let y = 60;
+    const lineHeight = 8;
+
+    doc.setFontSize(12);
+    doc.text(`Cliente: ${client?.name || 'Não informado'}`, margin, y);
+    y += lineHeight;
+    doc.text(`Motorista: ${driver?.name || 'Não informado'}`, margin, y);
+    y += lineHeight;
+    doc.text(`Origem: ${formData.originCity}, ${formData.originState}`, margin, y);
+    y += lineHeight;
+    doc.text(`Destino: ${formData.destinationCity}, ${formData.destinationState}`, margin, y);
+    y += lineHeight;
+    doc.text(`Data de Partida: ${new Date(formData.departureDate).toLocaleDateString('pt-BR')}`, margin, y);
+    y += lineHeight;
+    doc.text(`Data de Chegada: ${new Date(formData.arrivalDate).toLocaleDateString('pt-BR')}`, margin, y);
+    y += lineHeight;
+
+    // Detalhes financeiros
+    doc.setFontSize(14);
+    doc.text('Detalhes Financeiros', margin, y + 10);
+    y += 20;
+
+    doc.setFontSize(12);
+    doc.text(`Valor do Frete: R$ ${formData.freightValue.toFixed(2)}`, margin, y);
+    y += lineHeight;
+    doc.text(`Taxa Diária: R$ ${formData.dailyRate.toFixed(2)}`, margin, y);
+    y += lineHeight;
+    doc.text(`Outros Custos: R$ ${formData.otherCosts.toFixed(2)}`, margin, y);
+    y += lineHeight;
+    doc.text(`Custos de Pedágio: R$ ${formData.tollCosts.toFixed(2)}`, margin, y);
+    y += lineHeight;
+    doc.setFontSize(13);
+    doc.text(`Valor Total: R$ ${formData.totalValue.toFixed(2)}`, margin, y);
+
+    // Adicione a tabela de despesas se existirem
+    if (formData.expenses && formData.expenses.length > 0) {
+      const expensesData = formData.expenses.map(expense => [
+        expense.type,
+        expense.description,
+        `R$ ${expense.value.toFixed(2)}`,
+        new Date(expense.createdAt).toLocaleDateString('pt-BR')
+      ]);
+
+      (doc as any).autoTable({
+        head: [['Tipo', 'Descrição', 'Valor', 'Data']],
+        body: expensesData,
+        startY: y + 20,
+        margin: { left: margin, right: margin },
+        styles: {
+          fontSize: 10,
+          cellPadding: 3,
+        },
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+        },
+        didParseCell: function(data: any) {
+          if (data.section === 'head') {
+            data.cell.styles.fontStyle = 'bold';
           }
-        `}
-      </style>
-      
-      <div id="freight-form-print" className="p-8 bg-white min-h-screen">
-        {/* Cabeçalho com informações da empresa */}
-        <div className="flex justify-between items-start mb-6 border-b border-gray-200 pb-4">
-          {/* Logo e informações do emissor */}
-          <div className="flex flex-col">
-          {sender.companyLogo && (
-            <img 
-              src={sender.companyLogo} 
-              alt="Logo da Empresa" 
-              className="w-[150px] h-[80px] object-contain mb-0" 
-            />
-          )}
-            <div className="text-sm">
-              <div className="font-bold">{sender.companyName || sender.name}</div>
-              <div>{sender.address}, {sender.city}/{sender.state}</div>
-              <div>CNPJ: {sender.cnpj}</div>
-              <div>Telefone: {sender.phone}</div>
-              <div>Email: {sender.email}</div>
-            </div>
-          </div>
+        },
+      });
+    }
 
-          {/* Informações do formulário */}
-          <div className="text-right">
-            <h2 className="text-xl font-bold mb-2">Formulário de Frete</h2>
-            <div>Data de Emissão: {new Date().toLocaleDateString()}</div>
-            <div>Número do Frete: {freight.id}</div>
-          </div>
-        </div>
+    // Notas adicionais
+    doc.setFontSize(12);
+    doc.text('Observações:', margin, doc.internal.pageSize.getHeight() - 30);
+    doc.text(formData.cargoDescription || 'Nenhuma observação.', margin, doc.internal.pageSize.getHeight() - 20);
 
-        {/* Informações do Cliente */}
-        <div className="mb-6 border-b border-gray-200 pb-4">
-          <h3 className="text-lg font-bold mb-2">Informações do Cliente</h3>
-          <div>Nome: {client?.name}</div>
-          <div>CNPJ/CPF: {client?.cnpj || client?.cpf}</div>
-          <div>Endereço: {client?.address}, {client?.city}/{client?.state}</div>
-          <div>Telefone: {client?.phone}</div>
-          <div>Email: {client?.email}</div>
-        </div>
+    // Salvar o PDF
+    doc.save(`freight-form-${formData.id}.pdf`);
+    onClose();
+  };
 
-        {/* Informações do Motorista */}
-        {driver && (
-          <div className="mb-6 border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-bold mb-2">Informações do Motorista</h3>
-            <div>Nome: {driver.name}</div>
-            <div>CPF: {driver.cpf}</div>
-            <div>Telefone: {driver.phone}</div>
-            <div>Email: {driver.email}</div>
-          </div>
-        )}
-
-        {/* Detalhes da Carga */}
-        <div className="mb-6 border-b border-gray-200 pb-4">
-          <h3 className="text-lg font-bold mb-2">Detalhes da Carga</h3>
-          <table className="w-full">
-            <tbody>
-              <tr>
-                <td className="font-bold">Origem:</td>
-                <td>{freight.originCity}, {freight.originState}</td>
-                <td className="font-bold">Destino:</td>
-                <td>{freight.destinationCity}, {freight.destinationState}</td>
-              </tr>
-              <tr>
-                <td className="font-bold">Data de Saída:</td>
-                <td>{freight.departureDate}</td>
-                <td className="font-bold">Data de Entrega:</td>
-                <td>{freight.arrivalDate}</td>
-              </tr>
-              <tr>
-                <td className="font-bold">Tipo de Carga:</td>
-                <td>{freight.cargoType}</td>
-                <td className="font-bold">Peso Total:</td>
-                <td>{freight.weight} kg</td>
-              </tr>
-              <tr>
-                <td className="font-bold">Valor da Carga:</td>
-                <td>R$ {freight.totalValue}</td>
-                <td className="font-bold">Observações:</td>
-                <td>{freight.cargoDescription || "—"}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* Assinaturas */}
-        <div className="flex justify-between items-end">
-          <div className="text-center">
-            <div className="border-t border-gray-500 w-64 mx-auto"></div>
-            <div className="mt-2">Assinatura do Cliente</div>
-          </div>
-          <div className="text-center">
-            <div className="border-t border-gray-500 w-64 mx-auto"></div>
-            <div className="mt-2">Assinatura do Motorista</div>
-          </div>
-        </div>
-      </div>
-    </>
+  return (
+    <div>
+      <button onClick={generatePdf}>Gerar PDF</button>
+    </div>
   );
 };
 

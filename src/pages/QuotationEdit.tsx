@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -166,8 +165,7 @@ const QuotationEdit: React.FC = () => {
     }
   };
   
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleLogoUpload = async (file: File): Promise<string | null> => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -175,6 +173,7 @@ const QuotationEdit: React.FC = () => {
       };
       reader.readAsDataURL(file);
     }
+    return null;
   };
   
   const handleCreatorChange = (id: string) => {
@@ -276,124 +275,117 @@ const QuotationEdit: React.FC = () => {
   }
   
   return (
-    <Layout>
-      <div className="w-full max-w-7xl mx-auto">
-        <div className="flex flex-col space-y-6">
-          <Card className="bg-gradient-to-br from-card to-card/90 backdrop-blur-sm shadow-lg dark:from-gray-800 dark:to-gray-900/90">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-2xl md:text-3xl font-bold text-freight-700 dark:text-freight-300">
-                    Editar Cotação de Frete
-                  </CardTitle>
-                  <CardDescription className="text-left">
-                    Cotação #{orderNumber}
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/quotations")}
-                  className="hidden md:flex items-center"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Voltar
-                </Button>
-              </div>
-            </CardHeader>
-          </Card>
-          
-          {/* Company Details Section */}
-          <CompanyDetailsSection
-            companyLogo={companyLogo}
-            handleLogoUpload={handleLogoUpload}
-            creatorId={creatorId}
-            onCreatorChange={handleCreatorChange}
-            clients={clients}
-          />
-          
-          {/* Location Section */}
-          <LocationSection 
-            originCity={originCity}
-            originState={originState}
-            destinationCity={destinationCity}
-            destinationState={destinationState}
-            onOriginCityChange={setOriginCity}
-            onOriginStateChange={setOriginState}
-            onDestinationCityChange={setDestinationCity}
-            onDestinationStateChange={setDestinationState}
-          />
-          
-          {/* Cargo Section */}
-          <CargoSection 
-            volumes={volumes}
-            setVolumes={setVolumes}
-            weight={weight}
-            setWeight={setWeight}
-            merchandiseValue={merchandiseValue}
-            setMerchandiseValue={setMerchandiseValue}
-            cargoType={cargoType}
-            setCargoType={setCargoType}
-            vehicleType={vehicleType}
-            setVehicleType={setVehicleType}
-            measurements={measurements}
-            handleAddMeasurement={handleAddMeasurement}
-            handleRemoveMeasurement={handleRemoveMeasurement}
-            handleMeasurementChange={handleMeasurementChange}
-          />
-          
-          {/* Freight Composition Section - Updated to pass all required props */}
-          <FreightCompositionSection 
-            freightValue={freightValue}
-            setFreightValue={setFreightValue}
-            tollValue={tollValue}
-            setTollValue={setTollValue}
-            insuranceValue={insuranceValue}
-            setInsuranceValue={setInsuranceValue}
-            insuranceRate={insuranceRate}
-            setInsuranceRate={setInsuranceRate}
-            merchandiseValue={merchandiseValue}
-            otherCosts={otherCosts}
-            setOtherCosts={setOtherCosts}
-            totalValue={totalValue}
-            notes={notes}
-            setNotes={setNotes}
-            // Adding the missing required properties
-            originCity={originCity}
-            originState={originState}
-            destinationCity={destinationCity}
-            destinationState={destinationState}
-            volumes={volumes}
-            weight={weight}
-            vehicleType={vehicleType}
-            cargoType={cargoType}
-          />
-          
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4 justify-end pt-4 pb-20 md:pb-4">
+    <div className="container mx-auto p-4 space-y-6">
+      <Card className="bg-gradient-to-br from-card to-card/90 backdrop-blur-sm shadow-lg dark:from-gray-800 dark:to-gray-900/90">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-2xl md:text-3xl font-bold text-freight-700 dark:text-freight-300">
+                Editar Cotação de Frete
+              </CardTitle>
+              <CardDescription className="text-left">
+                Cotação #{orderNumber}
+              </CardDescription>
+            </div>
             <Button
               variant="outline"
-              className="w-full md:w-auto"
               onClick={() => navigate("/quotations")}
+              className="hidden md:flex items-center"
             >
-              Cancelar
-            </Button>
-            
-            <Button
-              className="w-full md:w-auto bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all"
-              onClick={handleSave}
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-5 w-5" />
-              )}
-              Salvar Alterações
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar
             </Button>
           </div>
-        </div>
+        </CardHeader>
+      </Card>
+      
+      {/* Company Details Section */}
+      <CompanyDetailsSection 
+        user={user} 
+        onLogoUpload={handleLogoUpload}
+      />
+      
+      {/* Location Section */}
+      <LocationSection 
+        originCity={originCity}
+        originState={originState}
+        destinationCity={destinationCity}
+        destinationState={destinationState}
+        onOriginCityChange={setOriginCity}
+        onOriginStateChange={setOriginState}
+        onDestinationCityChange={setDestinationCity}
+        onDestinationStateChange={setDestinationState}
+      />
+      
+      {/* Cargo Section */}
+      <CargoSection 
+        volumes={volumes}
+        setVolumes={setVolumes}
+        weight={weight}
+        setWeight={setWeight}
+        merchandiseValue={merchandiseValue}
+        setMerchandiseValue={setMerchandiseValue}
+        cargoType={cargoType}
+        setCargoType={setCargoType}
+        vehicleType={vehicleType}
+        setVehicleType={setVehicleType}
+        measurements={measurements}
+        handleAddMeasurement={handleAddMeasurement}
+        handleRemoveMeasurement={handleRemoveMeasurement}
+        handleMeasurementChange={handleMeasurementChange}
+      />
+      
+      {/* Freight Composition Section - Updated to pass all required props */}
+      <FreightCompositionSection 
+        freightValue={freightValue}
+        setFreightValue={setFreightValue}
+        tollValue={tollValue}
+        setTollValue={setTollValue}
+        insuranceValue={insuranceValue}
+        setInsuranceValue={setInsuranceValue}
+        insuranceRate={insuranceRate}
+        setInsuranceRate={setInsuranceRate}
+        merchandiseValue={merchandiseValue}
+        otherCosts={otherCosts}
+        setOtherCosts={setOtherCosts}
+        totalValue={totalValue}
+        notes={notes}
+        setNotes={setNotes}
+        // Adding the missing required properties
+        originCity={originCity}
+        originState={originState}
+        destinationCity={destinationCity}
+        destinationState={destinationState}
+        volumes={volumes}
+        weight={weight}
+        vehicleType={vehicleType}
+        cargoType={cargoType}
+      />
+      
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-4 justify-end pt-4 pb-20 md:pb-4">
+        <Button
+          variant="outline"
+          className="w-full md:w-auto"
+          onClick={() => navigate("/quotations")}
+        >
+          Cancelar
+        </Button>
+        
+        <Button
+          className="w-full md:w-auto bg-gradient-to-r from-freight-600 to-freight-800 hover:from-freight-700 hover:to-freight-900 hover:shadow-lg transition-all"
+          onClick={handleSave}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          ) : (
+            <Save className="mr-2 h-5 w-5" />
+          )}
+          Salvar Alterações
+        </Button>
       </div>
-    </Layout>
+    </div>
   );
 };
 
