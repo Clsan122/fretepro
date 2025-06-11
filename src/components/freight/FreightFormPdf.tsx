@@ -1,25 +1,25 @@
+
 import React from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { Freight, User } from '@/types';
+import { Freight, Client, Driver } from '@/types';
+import { User as AuthUser } from '@/context/auth/types';
 
 interface FreightFormPdfProps {
-  formData: Freight | null;
-  client: any;
-  driver: any;
-  user: User | null;
-  onClose: () => void;
+  freight: Freight;
+  client: Client | null;
+  driver: Driver | null;
+  sender: AuthUser;
 }
 
 const FreightFormPdf: React.FC<FreightFormPdfProps> = ({ 
-  formData, 
+  freight, 
   client, 
   driver, 
-  user, 
-  onClose 
+  sender
 }) => {
   const generatePdf = () => {
-    if (!formData) return;
+    if (!freight) return;
 
     const doc = new jsPDF();
     
@@ -34,9 +34,9 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
     const pageWidth = doc.internal.pageSize.getWidth();
 
     // Logo da empresa (agora usando avatar do usuário se disponível)
-    if (user?.avatar) {
+    if (sender?.avatar) {
       try {
-        doc.addImage(user.avatar, 'JPEG', 150, 10, 40, 30);
+        doc.addImage(sender.avatar, 'JPEG', 150, 10, 40, 30);
       } catch (error) {
         console.warn('Erro ao adicionar logo:', error);
       }
@@ -44,10 +44,10 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
 
     // Dados da empresa (agora usando dados do usuário)
     doc.setFontSize(14);
-    doc.text(user?.name || 'Transportadora', 20, 30);
-    if (user?.cpf) {
+    doc.text(sender?.name || 'Transportadora', 20, 30);
+    if (sender?.cpf) {
       doc.setFontSize(10);
-      doc.text(`CPF: ${user.cpf}`, 20, 40);
+      doc.text(`CPF: ${sender.cpf}`, 20, 40);
     }
 
     // Título do formulário
@@ -63,13 +63,13 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
     y += lineHeight;
     doc.text(`Motorista: ${driver?.name || 'Não informado'}`, margin, y);
     y += lineHeight;
-    doc.text(`Origem: ${formData.originCity}, ${formData.originState}`, margin, y);
+    doc.text(`Origem: ${freight.originCity}, ${freight.originState}`, margin, y);
     y += lineHeight;
-    doc.text(`Destino: ${formData.destinationCity}, ${formData.destinationState}`, margin, y);
+    doc.text(`Destino: ${freight.destinationCity}, ${freight.destinationState}`, margin, y);
     y += lineHeight;
-    doc.text(`Data de Partida: ${new Date(formData.departureDate).toLocaleDateString('pt-BR')}`, margin, y);
+    doc.text(`Data de Partida: ${new Date(freight.departureDate).toLocaleDateString('pt-BR')}`, margin, y);
     y += lineHeight;
-    doc.text(`Data de Chegada: ${new Date(formData.arrivalDate).toLocaleDateString('pt-BR')}`, margin, y);
+    doc.text(`Data de Chegada: ${new Date(freight.arrivalDate).toLocaleDateString('pt-BR')}`, margin, y);
     y += lineHeight;
 
     // Detalhes financeiros
@@ -78,20 +78,20 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
     y += 20;
 
     doc.setFontSize(12);
-    doc.text(`Valor do Frete: R$ ${formData.freightValue.toFixed(2)}`, margin, y);
+    doc.text(`Valor do Frete: R$ ${freight.freightValue.toFixed(2)}`, margin, y);
     y += lineHeight;
-    doc.text(`Taxa Diária: R$ ${formData.dailyRate.toFixed(2)}`, margin, y);
+    doc.text(`Taxa Diária: R$ ${freight.dailyRate.toFixed(2)}`, margin, y);
     y += lineHeight;
-    doc.text(`Outros Custos: R$ ${formData.otherCosts.toFixed(2)}`, margin, y);
+    doc.text(`Outros Custos: R$ ${freight.otherCosts.toFixed(2)}`, margin, y);
     y += lineHeight;
-    doc.text(`Custos de Pedágio: R$ ${formData.tollCosts.toFixed(2)}`, margin, y);
+    doc.text(`Custos de Pedágio: R$ ${freight.tollCosts.toFixed(2)}`, margin, y);
     y += lineHeight;
     doc.setFontSize(13);
-    doc.text(`Valor Total: R$ ${formData.totalValue.toFixed(2)}`, margin, y);
+    doc.text(`Valor Total: R$ ${freight.totalValue.toFixed(2)}`, margin, y);
 
     // Adicione a tabela de despesas se existirem
-    if (formData.expenses && formData.expenses.length > 0) {
-      const expensesData = formData.expenses.map(expense => [
+    if (freight.expenses && freight.expenses.length > 0) {
+      const expensesData = freight.expenses.map(expense => [
         expense.type,
         expense.description,
         `R$ ${expense.value.toFixed(2)}`,
@@ -123,16 +123,19 @@ const FreightFormPdf: React.FC<FreightFormPdfProps> = ({
     // Notas adicionais
     doc.setFontSize(12);
     doc.text('Observações:', margin, doc.internal.pageSize.getHeight() - 30);
-    doc.text(formData.cargoDescription || 'Nenhuma observação.', margin, doc.internal.pageSize.getHeight() - 20);
+    doc.text(freight.cargoDescription || 'Nenhuma observação.', margin, doc.internal.pageSize.getHeight() - 20);
 
     // Salvar o PDF
-    doc.save(`freight-form-${formData.id}.pdf`);
-    onClose();
+    doc.save(`freight-form-${freight.id}.pdf`);
   };
 
   return (
-    <div>
-      <button onClick={generatePdf}>Gerar PDF</button>
+    <div id="freight-form-print" className="p-6 bg-white">
+      {/* PDF content would be rendered here for print preview */}
+      <div className="text-center mb-4">
+        <h1 className="text-2xl font-bold">Formulário de Frete</h1>
+      </div>
+      {/* Content for PDF generation */}
     </div>
   );
 };

@@ -7,20 +7,32 @@ import { DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from '@/utils/formatters';
 import { User as AuthUser } from '@/context/auth/types';
-import { Freight } from '@/types';
+import { Freight, Client, Driver } from '@/types';
 
 interface ReceiptGeneratorProps {
-  freights: Freight[];
-  onClose: () => void;
+  freight?: Freight;
+  freights?: Freight[];
+  clients?: Client[];
   user: AuthUser;
+  driver?: Driver;
+  onClose?: () => void;
 }
 
-const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freights, onClose, user }) => {
+const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ 
+  freight, 
+  freights, 
+  clients, 
+  user, 
+  driver, 
+  onClose 
+}) => {
   const { toast } = useToast();
   const pdfRef = useRef(null);
 
   const generatePdf = () => {
-    if (!user || freights.length === 0) return;
+    const freightList = freights || (freight ? [freight] : []);
+    
+    if (!user || freightList.length === 0) return;
 
     const doc = new jsPDF();
 
@@ -42,12 +54,12 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freights, onClose, 
     const tableColumn = ["ID", "Origem", "Destino", "Valor"];
     const tableRows: any[] = [];
 
-    freights.forEach((freight) => {
+    freightList.forEach((freightItem) => {
       tableRows.push([
-        freight.id,
-        `${freight.originCity} - ${freight.originState}`,
-        `${freight.destinationCity} - ${freight.destinationState}`,
-        formatCurrency(freight.freightValue)
+        freightItem.id,
+        `${freightItem.originCity} - ${freightItem.originState}`,
+        `${freightItem.destinationCity} - ${freightItem.destinationState}`,
+        formatCurrency(freightItem.freightValue)
       ]);
     });
 
@@ -61,14 +73,14 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freights, onClose, 
     });
 
     // Calcular valor total dos fretes
-    const totalValue = freights.reduce((acc, freight) => acc + freight.freightValue, 0);
+    const totalValue = freightList.reduce((acc, freightItem) => acc + freightItem.freightValue, 0);
 
     // Adicionar o valor total ao PDF
     doc.setFontSize(12);
     doc.text(`Valor Total: ${formatCurrency(totalValue)}`, 20, (doc as any).autoTable.previous.finalY + 10);
 
-    // Rodapé
-    const pageCount = doc.internal.getNumberOfPages();
+    // Rodapé - using correct jsPDF API
+    const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(10);
@@ -82,6 +94,7 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freights, onClose, 
     // Salvar o PDF
     try {
       doc.save(`recibo_de_fretes_${new Date().toLocaleDateString()}.pdf`);
+      if (onClose) onClose();
     } catch (error) {
       console.error("Erro ao salvar o PDF:", error);
       toast({
@@ -98,9 +111,11 @@ const ReceiptGenerator: React.FC<ReceiptGeneratorProps> = ({ freights, onClose, 
         <Button type="button" variant="outline" onClick={generatePdf}>
           Gerar PDF
         </Button>
-        <DialogClose asChild>
-          <Button variant="secondary">Fechar</Button>
-        </DialogClose>
+        {onClose && (
+          <DialogClose asChild>
+            <Button variant="secondary">Fechar</Button>
+          </DialogClose>
+        )}
       </div>
     </div>
   );

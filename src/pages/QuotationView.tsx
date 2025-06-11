@@ -31,12 +31,10 @@ const QuotationView: React.FC = () => {
   // Transform quotation to match QuotationData interface
   const quotationData: QuotationData = {
     ...quotation,
-    // Add missing required fields with defaults
-    dimensions: quotation.dimensions || "1x1x1",
+    // Use existing fields or provide defaults
+    cargoWeight: quotation.weight || 0,
     cubicMeasurement: quotation.cubicMeasurement || 1,
-    pricePerKm: quotation.pricePerKm || 0,
-    tollCost: quotation.tollCost || 0,
-    additionalCosts: quotation.additionalCosts || 0,
+    measurements: quotation.measurements || [],
   };
 
   return (

@@ -4,9 +4,10 @@ import { User as AuthUser } from '@/context/auth/types';
 
 export interface ReceiptHeaderProps {
   currentUser: AuthUser;
+  dateRangeText?: string;
 }
 
-const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ currentUser }) => {
+const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ currentUser, dateRangeText }) => {
   return (
     <div className="receipt-header mb-6 border-b pb-4">
       <div className="flex justify-between items-start">
@@ -14,6 +15,9 @@ const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({ currentUser }) => {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             RECIBO DE FRETES
           </h1>
+          {dateRangeText && (
+            <p className="text-sm text-gray-600 mb-2">{dateRangeText}</p>
+          )}
           <div className="text-sm text-gray-600">
             <p>Transportador: {currentUser?.name || 'Não informado'}</p>
             {currentUser?.cpf && <p>CPF: {currentUser.cpf}</p>}

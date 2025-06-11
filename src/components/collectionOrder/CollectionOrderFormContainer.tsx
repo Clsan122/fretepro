@@ -111,13 +111,14 @@ const CollectionOrderFormContainer: React.FC<CollectionOrderFormContainerProps> 
       observations: data.notes || "",
       createdAt: orderToEdit ? orderToEdit.createdAt : new Date().toISOString(),
       userId: user.id,
+      issuerId: user.id, // Add the missing issuerId property
       syncId: orderToEdit?.syncId,
       syncVersion: orderToEdit ? (orderToEdit.syncVersion || 1) + 1 : 1
-    };
+    } as CollectionOrder;
 
     console.log('Salvando ordem:', newOrder);
 
-    onSave(newOrder as CollectionOrder);
+    onSave(newOrder);
   });
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

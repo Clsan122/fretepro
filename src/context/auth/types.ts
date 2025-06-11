@@ -8,6 +8,7 @@ export interface AuthContextType {
   updateProfile: (profileData: any) => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  setUser: (user: User) => void;
 }
 
 export interface User {
@@ -33,7 +34,8 @@ export interface User {
   vehicleYear?: string;
   vehicleModel?: string;
   
-  // Profile metadata
+  // Profile metadata - make createdAt optional to match usage
+  createdAt?: string;
   created_at?: string;
   updated_at?: string;
 }
