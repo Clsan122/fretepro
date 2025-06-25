@@ -19,11 +19,11 @@ import {
   Eye, 
   Pencil, 
   Truck, 
-  FileText,
   Trash2,
   AlertTriangle,
   CheckSquare,
-  XSquare
+  XSquare,
+  MoreVertical
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -37,6 +37,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const CollectionOrders: React.FC = () => {
@@ -56,7 +62,6 @@ const CollectionOrders: React.FC = () => {
         setLoading(true);
         const userOrders = await getCollectionOrdersByUserId(user.id);
         
-        // Sort orders by date (newest first)
         const sortedOrders = userOrders.sort((a, b) => {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
@@ -100,17 +105,14 @@ const CollectionOrders: React.FC = () => {
       setDeletingOrderId(orderId);
       console.log("Excluindo ordem de coleta com ID:", orderId);
       
-      // Excluir do storage
       await deleteCollectionOrder(orderId);
       
-      // Remover imediatamente da lista local para feedback visual rápido
       setOrders(prevOrders => {
         const filteredOrders = prevOrders.filter(order => order.id !== orderId);
         console.log("Ordens restantes após exclusão:", filteredOrders.length);
         return filteredOrders;
       });
       
-      // Recarregar a lista do storage para garantir sincronização
       await fetchOrders();
       
       toast.success("Ordem de coleta excluída com sucesso");
@@ -153,10 +155,8 @@ const CollectionOrders: React.FC = () => {
   
   const selectAllOrders = () => {
     if (selectedOrders.length === orders.length) {
-      // Deselect all
       setSelectedOrders([]);
     } else {
-      // Select all
       setSelectedOrders(orders.map(order => order.id));
     }
   };
@@ -167,7 +167,6 @@ const CollectionOrders: React.FC = () => {
       
       console.log("Excluindo ordens selecionadas:", selectedOrders);
       
-      // Excluir todas as ordens selecionadas
       for (const orderId of selectedOrders) {
         try {
           await deleteCollectionOrder(orderId);
@@ -177,14 +176,12 @@ const CollectionOrders: React.FC = () => {
         }
       }
       
-      // Atualizar estado local removendo as ordens excluídas
       setOrders(prevOrders => {
         const filteredOrders = prevOrders.filter(order => !selectedOrders.includes(order.id));
         console.log("Ordens restantes após exclusão múltipla:", filteredOrders.length);
         return filteredOrders;
       });
       
-      // Recarregar lista para garantir sincronização
       await fetchOrders();
       
       toast.success(`${selectedOrders.length} ordem(ns) excluída(s) com sucesso`);
@@ -198,16 +195,112 @@ const CollectionOrders: React.FC = () => {
     }
   };
 
+  // Mobile Card Component
+  const MobileOrderCard = ({ order }: { order: CollectionOrder }) => (
+    <div 
+      className={`bg-white rounded-lg border shadow-sm p-4 mb-3 ${
+        isSelectionMode && selectedOrders.includes(order.id) ? "border-freight-500 bg-freight-50" : ""
+      }`}
+      onClick={() => isSelectionMode ? toggleOrderSelection(order.id) : handleView(order.id)}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            {isSelectionMode && (
+              <Checkbox
+                checked={selectedOrders.includes(order.id)}
+                onCheckedChange={() => toggleOrderSelection(order.id)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+            <p className="font-medium text-gray-900 truncate">{order.sender}</p>
+          </div>
+          <p className="text-sm text-gray-500">
+            {new Date(order.createdAt).toLocaleDateString('pt-BR')}
+          </p>
+        </div>
+        
+        {!isSelectionMode && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-white border shadow-lg">
+              <DropdownMenuItem onClick={() => handleView(order.id)}>
+                <Eye className="h-4 w-4 mr-2" />
+                Visualizar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleEdit(order.id)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleGenerateFreight(order.id)}>
+                <Truck className="h-4 w-4 mr-2" />
+                Gerar Frete
+              </DropdownMenuItem>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem 
+                    onSelect={(e) => e.preventDefault()}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-destructive" />
+                      Excluir Ordem de Coleta
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja excluir esta ordem de coleta? Esta ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => handleDelete(order.id)} 
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      disabled={deletingOrderId === order.id}
+                    >
+                      {deletingOrderId === order.id ? 'Excluindo...' : 'Excluir'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+      
+      <div className="space-y-1 text-sm text-gray-600">
+        <p><span className="font-medium">Rota:</span> {order.originCity}/{order.originState} → {order.destinationCity}/{order.destinationState}</p>
+        <div className="flex gap-4">
+          <p><span className="font-medium">Volumes:</span> {order.volumes}</p>
+          <p><span className="font-medium">Peso:</span> {order.weight} kg</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <Layout>
-      <div className="p-4 md:p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold mb-4 sm:mb-0">Ordens de Coleta</h1>
-          <div className="flex gap-2 w-full sm:w-auto">
+      <div className="p-3 md:p-6 h-full">
+        <div className="flex flex-col gap-4 mb-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl md:text-2xl font-bold">Ordens de Coleta</h1>
+          </div>
+          
+          <div className="flex gap-2">
             <Button 
               onClick={toggleSelectionMode}
               variant={isSelectionMode ? "destructive" : "outline"}
-              className="flex-1 sm:flex-auto"
+              size="sm"
+              className="flex-1 sm:flex-none"
             >
               {isSelectionMode ? (
                 <>
@@ -221,7 +314,8 @@ const CollectionOrders: React.FC = () => {
             </Button>
             <Button 
               onClick={() => navigate("/collection-order/new")}
-              className="bg-freight-600 hover:bg-freight-700 flex-1 sm:flex-auto"
+              className="bg-freight-600 hover:bg-freight-700 flex-1 sm:flex-none"
+              size="sm"
             >
               <Plus className="mr-2 h-4 w-4" /> Nova Ordem
             </Button>
@@ -231,11 +325,12 @@ const CollectionOrders: React.FC = () => {
         {isSelectionMode && selectedOrders.length > 0 && (
           <div className="bg-muted/30 border rounded-lg p-3 mb-4 flex flex-col sm:flex-row justify-between items-center gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-medium">{selectedOrders.length} {selectedOrders.length === 1 ? 'ordem selecionada' : 'ordens selecionadas'}</span>
+              <span className="font-medium text-sm">{selectedOrders.length} {selectedOrders.length === 1 ? 'ordem selecionada' : 'ordens selecionadas'}</span>
               <Button 
                 size="sm" 
                 variant="ghost" 
                 onClick={selectAllOrders}
+                className="text-xs"
               >
                 {selectedOrders.length === orders.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
               </Button>
@@ -288,130 +383,140 @@ const CollectionOrders: React.FC = () => {
             <p className="text-gray-500 mb-6">Comece criando sua primeira ordem de coleta.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {isSelectionMode && (
-                    <TableHead className="w-10">
-                      <Checkbox
-                        checked={selectedOrders.length === orders.length && orders.length > 0}
-                        onCheckedChange={selectAllOrders}
-                        aria-label="Selecionar todas as ordens"
-                      />
-                    </TableHead>
-                  )}
-                  <TableHead>Data</TableHead>
-                  <TableHead>Remetente</TableHead>
-                  <TableHead className="hidden md:table-cell">Rota</TableHead>
-                  <TableHead className="hidden sm:table-cell">Volumes</TableHead>
-                  <TableHead className="hidden sm:table-cell">Peso</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => (
-                  <TableRow 
-                    key={order.id}
-                    className={isSelectionMode && selectedOrders.includes(order.id) ? "bg-muted/40" : ""}
-                    onClick={() => isSelectionMode ? toggleOrderSelection(order.id) : handleView(order.id)}
-                  >
+          <>
+            {/* Mobile View */}
+            <div className="md:hidden">
+              {orders.map((order) => (
+                <MobileOrderCard key={order.id} order={order} />
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {isSelectionMode && (
-                      <TableCell className="w-10" onClick={(e) => e.stopPropagation()}>
+                      <TableHead className="w-10">
                         <Checkbox
-                          checked={selectedOrders.includes(order.id)}
-                          onCheckedChange={() => toggleOrderSelection(order.id)}
-                          aria-label={`Selecionar ordem de ${order.sender}`}
+                          checked={selectedOrders.length === orders.length && orders.length > 0}
+                          onCheckedChange={selectAllOrders}
+                          aria-label="Selecionar todas as ordens"
                         />
-                      </TableCell>
+                      </TableHead>
                     )}
-                    <TableCell>{new Date(order.createdAt).toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell>
-                      <div className="max-w-[150px] truncate">
-                        {order.sender}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{order.originCity}/{order.originState} → {order.destinationCity}/{order.destinationState}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{order.volumes}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{order.weight} kg</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1 md:gap-2">
-                        {!isSelectionMode ? (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => { e.stopPropagation(); handleView(order.id); }}
-                              title="Visualizar"
-                              className="h-8 w-8 p-0"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => handleEdit(order.id, e)}
-                              title="Editar"
-                              className="h-8 w-8 p-0"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => handleGenerateFreight(order.id, e)}
-                              title="Gerar Frete"
-                              className="h-8 w-8 p-0"
-                            >
-                              <Truck className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
-                                  title="Excluir"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle className="flex items-center gap-2">
-                                    <AlertTriangle className="h-5 w-5 text-destructive" />
-                                    Excluir Ordem de Coleta
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tem certeza que deseja excluir esta ordem de coleta? Esta ação não pode ser desfeita.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => handleDelete(order.id)} 
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    disabled={deletingOrderId === order.id}
-                                  >
-                                    {deletingOrderId === order.id ? 'Excluindo...' : 'Excluir'}
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </>
-                        ) : (
-                          <span className="text-xs text-muted-foreground pr-2">
-                            Clique para selecionar
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Remetente</TableHead>
+                    <TableHead className="hidden md:table-cell">Rota</TableHead>
+                    <TableHead className="hidden sm:table-cell">Volumes</TableHead>
+                    <TableHead className="hidden sm:table-cell">Peso</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {orders.map((order) => (
+                    <TableRow 
+                      key={order.id}
+                      className={isSelectionMode && selectedOrders.includes(order.id) ? "bg-muted/40" : ""}
+                      onClick={() => isSelectionMode ? toggleOrderSelection(order.id) : handleView(order.id)}
+                    >
+                      {isSelectionMode && (
+                        <TableCell className="w-10" onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={selectedOrders.includes(order.id)}
+                            onCheckedChange={() => toggleOrderSelection(order.id)}
+                            aria-label={`Selecionar ordem de ${order.sender}`}
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell>{new Date(order.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                      <TableCell>
+                        <div className="max-w-[150px] truncate">
+                          {order.sender}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{order.originCity}/{order.originState} → {order.destinationCity}/{order.destinationState}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{order.volumes}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{order.weight} kg</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1 md:gap-2">
+                          {!isSelectionMode ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); handleView(order.id); }}
+                                title="Visualizar"
+                                className="h-8 w-8 p-0"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => handleEdit(order.id, e)}
+                                title="Editar"
+                                className="h-8 w-8 p-0"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => handleGenerateFreight(order.id, e)}
+                                title="Gerar Frete"
+                                className="h-8 w-8 p-0"
+                              >
+                                <Truck className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0"
+                                    title="Excluir"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="flex items-center gap-2">
+                                      <AlertTriangle className="h-5 w-5 text-destructive" />
+                                      Excluir Ordem de Coleta
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Tem certeza que deseja excluir esta ordem de coleta? Esta ação não pode ser desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleDelete(order.id)} 
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      disabled={deletingOrderId === order.id}
+                                    >
+                                      {deletingOrderId === order.id ? 'Excluindo...' : 'Excluir'}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </>
+                          ) : (
+                            <span className="text-xs text-muted-foreground pr-2">
+                              Clique para selecionar
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </div>
     </Layout>
