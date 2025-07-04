@@ -8,25 +8,30 @@ import { AuthProvider } from "@/context/auth";
 import { SyncProvider } from "@/context/SyncProvider";
 import { UpdateProvider } from "@/context/UpdateContext";
 import AppRoutes from "@/routes/AppRoutes";
+import { usePwaAutoInstall } from "@/hooks/usePwaAutoInstall";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <SyncProvider>
-            <UpdateProvider>
-              <AppRoutes />
-            </UpdateProvider>
-          </SyncProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  usePwaAutoInstall();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <SyncProvider>
+              <UpdateProvider>
+                <AppRoutes />
+              </UpdateProvider>
+            </SyncProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

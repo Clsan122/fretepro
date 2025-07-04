@@ -117,141 +117,144 @@ const Dashboard: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          
-          <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="month-select" className="sr-only">Mês</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="month-select"
-                    variant={"outline"}
-                    className={cn(
-                      "justify-start text-left font-normal",
-                      !selectedMonth && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedMonth ? (
-                      format(selectedMonth, "MMMM yyyy", { locale: ptBR })
-                    ) : (
-                      <span>Selecione o mês</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 pointer-events-auto">
-                  <Calendar
-                    mode="single"
-                    selected={selectedMonth}
-                    onSelect={setSelectedMonth}
-                    initialFocus
-                    month={selectedMonth}
-                    onMonthChange={setSelectedMonth}
-                    ISOWeek={true}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+      <div className="p-3 lg:p-6 space-y-4">
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight">Dashboard</h1>
             
-            <div className="flex items-center gap-2">
-              <Label htmlFor="client-select" className="sr-only">Cliente</Label>
-              <Select
-                value={selectedClient}
-                onValueChange={setSelectedClient}
-              >
-                <SelectTrigger id="client-select" className="min-w-[180px]">
-                  <SelectValue placeholder="Todos os clientes" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os clientes</SelectItem>
-                  {clients.map(client => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-2 mt-4 sm:mt-0">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="month-select" className="sr-only">Mês</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="month-select"
+                      variant={"outline"}
+                      size="sm"
+                      className={cn(
+                        "justify-start text-left font-normal flex-1 sm:flex-none",
+                        !selectedMonth && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedMonth ? (
+                        format(selectedMonth, "MMM yyyy", { locale: ptBR })
+                      ) : (
+                        <span>Mês</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 pointer-events-auto">
+                    <Calendar
+                      mode="single"
+                      selected={selectedMonth}
+                      onSelect={setSelectedMonth}
+                      initialFocus
+                      month={selectedMonth}
+                      onMonthChange={setSelectedMonth}
+                      ISOWeek={true}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Label htmlFor="client-select" className="sr-only">Cliente</Label>
+                <Select
+                  value={selectedClient}
+                  onValueChange={setSelectedClient}
+                >
+                  <SelectTrigger id="client-select" className="flex-1 sm:min-w-[180px]">
+                    <SelectValue placeholder="Todos os clientes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os clientes</SelectItem>
+                    {clients.map(client => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
 
         <Tabs defaultValue="overview" onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="profit">Relatório de Lucro</TabsTrigger>
-            <TabsTrigger value="quotations">Cotações Fechadas</TabsTrigger>
+          <TabsList className="mb-4 w-full grid grid-cols-3">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Visão Geral</TabsTrigger>
+            <TabsTrigger value="profit" className="text-xs sm:text-sm">Relatório</TabsTrigger>
+            <TabsTrigger value="quotations" className="text-xs sm:text-sm">Cotações</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Fretes no Período</CardTitle>
-                  <Package className="h-4 w-4 text-muted-foreground" />
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+              <Card className="p-3">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 mb-2">
+                  <CardTitle className="text-xs font-medium">Fretes</CardTitle>
+                  <Package className="h-3 w-3 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{totalFreights}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Total de fretes no mês selecionado
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold">{totalFreights}</div>
+                  <p className="text-[10px] text-muted-foreground">
+                    No período
                   </p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <Card className="p-3">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 mb-2">
+                  <CardTitle className="text-xs font-medium">Receita</CardTitle>
+                  <DollarSign className="h-3 w-3 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Receita dos fretes no período
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold">{formatCurrency(totalRevenue)}</div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Total
                   </p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Custos</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <Card className="p-3">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 mb-2">
+                  <CardTitle className="text-xs font-medium">Custos</CardTitle>
+                  <TrendingUp className="h-3 w-3 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{formatCurrency(totalExpenses)}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Custos associados aos fretes
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold">{formatCurrency(totalExpenses)}</div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Despesas
                   </p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Lucro</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+              <Card className="p-3">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0 mb-2">
+                  <CardTitle className="text-xs font-medium">Lucro</CardTitle>
+                  <Users className="h-3 w-3 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{formatCurrency(totalProfit)}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Lucro total do período
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold">{formatCurrency(totalProfit)}</div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Líquido
                   </p>
                 </CardContent>
               </Card>
             </div>
             
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2">
               <Card>
-                <CardHeader>
-                  <CardTitle>Receita por Dia</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Receita por Dia</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
+                  <div className="h-[200px] md:h-[300px]">
                     {revenueChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={revenueChartData}>
-                          <XAxis dataKey="date" />
-                          <YAxis />
+                          <XAxis dataKey="date" fontSize={12} />
+                          <YAxis fontSize={12} />
                           <Tooltip
                             formatter={(value: number) => [formatCurrency(value), 'Valor']}
                             labelFormatter={(label) => `Data: ${label}`}
@@ -265,7 +268,7 @@ const Dashboard: React.FC = () => {
                       </ResponsiveContainer>
                     ) : (
                       <div className="flex items-center justify-center h-full">
-                        <p className="text-muted-foreground">Nenhum dado disponível para o período selecionado</p>
+                        <p className="text-muted-foreground text-sm text-center">Nenhum dado disponível para o período selecionado</p>
                       </div>
                     )}
                   </div>

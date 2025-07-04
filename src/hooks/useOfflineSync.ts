@@ -72,20 +72,20 @@ export const useOfflineSync = () => {
           
           switch (op.operation) {
             case 'insert':
-              query = supabase.from(op.table).insert({
+              query = supabase.from(op.table as any).insert({
                 ...op.data,
                 user_id: user.id
               });
               break;
               
             case 'update':
-              query = supabase.from(op.table).update(op.data)
+              query = supabase.from(op.table as any).update(op.data)
                 .eq('id', op.data.id)
                 .eq('user_id', user.id);
               break;
               
             case 'delete':
-              query = supabase.from(op.table).delete()
+              query = supabase.from(op.table as any).delete()
                 .eq('id', op.data.id)
                 .eq('user_id', user.id);
               break;

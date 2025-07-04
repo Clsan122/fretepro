@@ -117,12 +117,12 @@ const Clients: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Clientes</h1>
+      <div className="p-3 lg:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">Clientes</h1>
           
-          <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1 sm:flex-none">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -140,53 +140,104 @@ const Clients: React.FC = () => {
           </div>
         </div>
 
+        {/* Mobile/Desktop responsive layout for clients */}
         {filteredClients.length > 0 ? (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Cidade</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredClients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="font-medium">{client.name}</TableCell>
-                    <TableCell>{client.city}</TableCell>
-                    <TableCell>{client.state}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedClient(client);
-                            setIsEditDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => {
-                            setSelectedClient(client);
-                            setIsDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          <>
+            {/* Mobile Cards View */}
+            <div className="block md:hidden space-y-3">
+              {filteredClients.map((client) => (
+                <div key={client.id} className="bg-white rounded-lg border shadow-sm p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">{client.name}</h3>
+                      <p className="text-sm text-gray-500">{client.city}/{client.state}</p>
+                      {client.phone && (
+                        <p className="text-xs text-gray-400 mt-1">{client.phone}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 ml-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => {
+                          setSelectedClient(client);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive h-8 w-8 p-0"
+                        onClick={() => {
+                          setSelectedClient(client);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  {client.cnpj && (
+                    <p className="text-xs text-gray-500">CNPJ: {client.cnpj}</p>
+                  )}
+                  {client.cpf && (
+                    <p className="text-xs text-gray-500">CPF: {client.cpf}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Cidade</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredClients.map((client) => (
+                    <TableRow key={client.id}>
+                      <TableCell className="font-medium">{client.name}</TableCell>
+                      <TableCell>{client.city}</TableCell>
+                      <TableCell>{client.state}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedClient(client);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => {
+                              setSelectedClient(client);
+                              setIsDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-center text-muted-foreground">

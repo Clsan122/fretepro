@@ -22,11 +22,6 @@ export const navigationItems: NavigationItem[] = [
     icon: Home,
   },
   {
-    name: "Motoristas",
-    path: "/drivers",
-    icon: Truck,
-  },
-  {
     name: "Fretes",
     path: "/freights",
     icon: Truck,
@@ -40,6 +35,11 @@ export const navigationItems: NavigationItem[] = [
     name: "Clientes",
     path: "/clients",
     icon: UserRound,
+  },
+  {
+    name: "Motoristas",
+    path: "/drivers",
+    icon: Truck,
   }
 ];
 
@@ -57,13 +57,13 @@ const BottomNavigation = () => {
         paddingRight: 'env(safe-area-inset-right, 0)'
       }}
     >
-      <div className="grid h-16 grid-cols-5 max-w-lg mx-auto font-medium">
+      <div className="grid h-16 grid-cols-5 max-w-full mx-auto font-medium">
         {navigationItems.map((item) => (
           <button
             key={item.name}
             type="button"
             onClick={() => navigate(item.path)}
-            className={`inline-flex flex-col items-center justify-center px-2 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 group transition-colors touch-manipulation ${
+            className={`inline-flex flex-col items-center justify-center px-1 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 group transition-colors touch-manipulation min-h-[60px] ${
               currentPath.startsWith(item.path)
                 ? "text-freight-700 bg-freight-50 dark:text-freight-300"
                 : "text-gray-500 dark:text-gray-400"
@@ -74,7 +74,7 @@ const BottomNavigation = () => {
                 ? "text-freight-600 dark:text-freight-400"
                 : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
             }`} />
-            <span className="text-xs leading-tight truncate max-w-full">{item.name}</span>
+            <span className="text-[10px] leading-tight truncate max-w-full text-center">{item.name}</span>
           </button>
         ))}
       </div>

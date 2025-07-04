@@ -36,7 +36,7 @@ export const useSupabaseData = <T = any>({
       setError(null);
 
       let query = supabase
-        .from(table)
+        .from(table as any)
         .select(select);
 
       // Aplicar filtros
@@ -87,7 +87,7 @@ export const useSupabaseData = <T = any>({
       if (item.id) {
         // Atualizar item existente
         const { data, error } = await supabase
-          .from(table)
+          .from(table as any)
           .update(dataToSave)
           .eq('id', item.id)
           .eq('user_id', user.id)
@@ -99,7 +99,7 @@ export const useSupabaseData = <T = any>({
       } else {
         // Criar novo item
         const { data, error } = await supabase
-          .from(table)
+          .from(table as any)
           .insert(dataToSave)
           .select()
           .single();
@@ -142,7 +142,7 @@ export const useSupabaseData = <T = any>({
 
     try {
       const { error } = await supabase
-        .from(table)
+        .from(table as any)
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);

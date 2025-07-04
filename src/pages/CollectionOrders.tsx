@@ -23,7 +23,8 @@ import {
   AlertTriangle,
   CheckSquare,
   XSquare,
-  MoreVertical
+  MoreVertical,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import {
