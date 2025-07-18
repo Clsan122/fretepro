@@ -103,19 +103,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       setError(null);
       setLoading(true);
       
       console.log("Attempting login for:", email);
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
       
       if (error) {
         console.error("Login error:", error.message);
         setError(error.message);
         setLoading(false);
         return false;
+      }
+      
+      // Registrar acesso no log TMS
+      if (data.user) {
+        try {
+          // Atualizar informações do dispositivo no perfil
+          const deviceInfo = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            lastAccess: new Date().toISOString()
+          };
+
+          await supabase
+            .from('profiles')
+            .update({ 
+              last_device_info: deviceInfo,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', data.user.id);
+        } catch (profileError) {
+          console.warn("Erro ao atualizar informações do dispositivo:", profileError);
+        }
       }
       
       console.log("Login successful, session established");

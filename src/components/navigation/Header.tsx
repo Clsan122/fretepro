@@ -5,6 +5,7 @@ import { MenuIcon, Moon, Sun, LogOut } from "lucide-react";
 import { useAuth } from "@/context/auth";
 import { useNavigate } from "react-router-dom";
 import SidebarNavigation from "./SidebarNavigation";
+import { TMSSyncIndicator } from "@/components/tms/TMSSyncIndicator";
 
 const Header: React.FC = () => {
   const { logout } = useAuth();
@@ -50,7 +51,9 @@ const Header: React.FC = () => {
             </h1>
           </div>
           
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-3">
+            <TMSSyncIndicator />
+            
             <Button 
               variant="ghost" 
               size="icon" 

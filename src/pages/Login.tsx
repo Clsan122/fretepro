@@ -3,20 +3,25 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AtSign, Lock, Eye, EyeOff, Truck, Package, FileText, Route } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { AtSign, Lock, Eye, EyeOff, Truck, Package, FileText, Route, Smartphone, Monitor, Tablet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/auth";
+import { useTMSDevice } from "@/hooks/useTMSDevice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { login, isAuthenticated, user, loading } = useAuth();
+  const { deviceInfo, isRegistered, registerDevice } = useTMSDevice();
 
   // Simplificar a lógica de redirecionamento
   useEffect(() => {
@@ -200,15 +205,41 @@ const Login = () => {
                       )}
                     </button>
                   </div>
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  className="w-full bg-freight-600 hover:bg-freight-700 text-white"
-                  disabled={isLoggingIn}
-                >
-                  {isLoggingIn ? "Entrando..." : "Entrar"}
-                </Button>
+                 </div>
+
+                 {/* Informações do dispositivo TMS */}
+                 {deviceInfo && (
+                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
+                     <div className="flex items-center gap-2">
+                       {deviceInfo.type === 'mobile' && <Smartphone className="h-4 w-4" />}
+                       {deviceInfo.type === 'tablet' && <Tablet className="h-4 w-4" />}
+                       {deviceInfo.type === 'desktop' && <Monitor className="h-4 w-4" />}
+                       <span className="text-sm">{deviceInfo.name}</span>
+                     </div>
+                     <Badge variant={isRegistered ? "default" : "secondary"}>
+                       {isRegistered ? "Dispositivo conhecido" : "Novo dispositivo"}
+                     </Badge>
+                   </div>
+                 )}
+
+                 <div className="flex items-center space-x-2">
+                   <Checkbox 
+                     id="remember" 
+                     checked={rememberMe}
+                     onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                   />
+                   <Label htmlFor="remember" className="text-sm text-freight-700 dark:text-freight-300">
+                     Lembrar deste dispositivo
+                   </Label>
+                 </div>
+                 
+                 <Button 
+                   type="submit" 
+                   className="w-full bg-freight-600 hover:bg-freight-700 text-white"
+                   disabled={isLoggingIn}
+                 >
+                   {isLoggingIn ? "Entrando..." : "Entrar"}
+                 </Button>
 
                 <div className="text-center text-sm text-freight-600 dark:text-freight-400">
                   Não tem uma conta?{' '}

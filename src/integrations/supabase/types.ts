@@ -497,11 +497,16 @@ export type Database = {
           company_name: string | null
           cpf: string | null
           created_at: string | null
+          created_devices_count: number | null
+          default_company_settings: Json | null
           full_name: string | null
           id: string
+          last_device_info: Json | null
+          notification_settings: Json | null
           phone: string | null
           pix_key: string | null
           state: string | null
+          ui_preferences: Json | null
           updated_at: string | null
           zip_code: string | null
         }
@@ -515,11 +520,16 @@ export type Database = {
           company_name?: string | null
           cpf?: string | null
           created_at?: string | null
+          created_devices_count?: number | null
+          default_company_settings?: Json | null
           full_name?: string | null
           id: string
+          last_device_info?: Json | null
+          notification_settings?: Json | null
           phone?: string | null
           pix_key?: string | null
           state?: string | null
+          ui_preferences?: Json | null
           updated_at?: string | null
           zip_code?: string | null
         }
@@ -533,11 +543,16 @@ export type Database = {
           company_name?: string | null
           cpf?: string | null
           created_at?: string | null
+          created_devices_count?: number | null
+          default_company_settings?: Json | null
           full_name?: string | null
           id?: string
+          last_device_info?: Json | null
+          notification_settings?: Json | null
           phone?: string | null
           pix_key?: string | null
           state?: string | null
+          ui_preferences?: Json | null
           updated_at?: string | null
           zip_code?: string | null
         }
@@ -584,6 +599,91 @@ export type Database = {
           vehicle_year?: string | null
         }
         Relationships: []
+      }
+      user_devices: {
+        Row: {
+          browser_info: Json | null
+          created_at: string | null
+          device_fingerprint: string
+          device_name: string | null
+          device_type: string | null
+          id: string
+          is_trusted: boolean | null
+          last_accessed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          browser_info?: Json | null
+          created_at?: string | null
+          device_fingerprint: string
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          is_trusted?: boolean | null
+          last_accessed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          browser_info?: Json | null
+          created_at?: string | null
+          device_fingerprint?: string
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          is_trusted?: boolean | null
+          last_accessed_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_settings: {
+        Row: {
+          created_at: string | null
+          device_fingerprint: string | null
+          device_specific: boolean | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          device_specific?: boolean | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          device_specific?: boolean | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
