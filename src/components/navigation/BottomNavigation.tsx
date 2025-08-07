@@ -32,6 +32,11 @@ export const navigationItems: NavigationItem[] = [
     icon: FileText,
   },
   {
+    name: "Cotações",
+    path: "/quotations",
+    icon: Calculator,
+  },
+  {
     name: "Clientes",
     path: "/clients",
     icon: UserRound,
@@ -57,7 +62,7 @@ const BottomNavigation = () => {
         paddingRight: 'env(safe-area-inset-right, 0)'
       }}
     >
-      <div className="grid h-16 grid-cols-5 max-w-full mx-auto font-medium">
+      <div className="grid h-16 grid-cols-6 max-w-full mx-auto font-medium">
         {navigationItems.map((item) => (
           <button
             key={item.name}
