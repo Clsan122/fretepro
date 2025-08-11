@@ -86,6 +86,7 @@ export interface Freight {
   clientId: string;
   userId: string;
   driverId?: string;
+  driverName?: string;
   originCity: string;
   originState: string;
   destinationCity: string;

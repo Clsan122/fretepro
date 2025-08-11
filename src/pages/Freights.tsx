@@ -25,11 +25,12 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { MoreHorizontal, Plus, FileText, Edit, Trash, Truck, Receipt, Download } from "lucide-react";
 import FreightForm from "@/components/FreightForm";
 import { formatCurrency } from "@/utils/formatters";
+import SimpleFreightForm from "@/components/freight/SimpleFreightForm";
 
 const Freights: React.FC = () => {
   const { user } = useAuth();
@@ -37,6 +38,7 @@ const Freights: React.FC = () => {
   const navigate = useNavigate();
   const [freights, setFreights] = useState<Freight[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCreateSimpleDialogOpen, setIsCreateSimpleDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
@@ -97,6 +99,16 @@ const Freights: React.FC = () => {
     navigate("/freight/selection");
   };
 
+  const filteredFreights = React.useMemo(() => {
+    const now = new Date();
+    const start = startOfMonth(now);
+    const end = endOfMonth(now);
+    return freights.filter((f) => {
+      const dateStr = f.departureDate || f.createdAt;
+      const d = parseISO(dateStr);
+      return isWithinInterval(d, { start, end });
+    });
+  }, [freights]);
   return (
     <Layout>
       <div className="container mx-auto py-6 pb-20">
@@ -115,6 +127,14 @@ const Freights: React.FC = () => {
               Recibo Múltiplo
             </Button>
             <Button 
+              onClick={() => setIsCreateSimpleDialogOpen(true)}
+              variant="outline"
+              className="gap-2 w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4" />
+              Frete Simples
+            </Button>
+            <Button 
               onClick={() => setIsCreateDialogOpen(true)} 
               className="gap-2 w-full sm:w-auto"
             >
@@ -124,11 +144,11 @@ const Freights: React.FC = () => {
           </div>
         </div>
 
-        {freights.length === 0 ? (
+        {filteredFreights.length === 0 ? (
           <Card>
             <CardHeader>
-              <CardTitle>Nenhum frete cadastrado</CardTitle>
-              <CardDescription>Cadastre seu primeiro frete clicando no botão acima.</CardDescription>
+              <CardTitle>Nenhum frete no mês atual</CardTitle>
+              <CardDescription>Cadastre um frete simples ou completo clicando nos botões acima.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex justify-center py-6">
@@ -140,7 +160,7 @@ const Freights: React.FC = () => {
           <>
             {/* Cards para Mobile */}
             <div className="lg:hidden space-y-4">
-              {freights.map((freight) => {
+              {filteredFreights.map((freight) => {
                 const client = getClientById(freight.clientId);
                 const driver = freight.driverId ? getDriverById(freight.driverId) : null;
                 const netProfit = freight.netProfit !== undefined 
@@ -157,7 +177,7 @@ const Freights: React.FC = () => {
                         <div>
                           <p className="font-semibold text-freight-700">{client?.name || "Cliente não encontrado"}</p>
                           <p className="text-sm text-muted-foreground">
-                            {format(parseISO(freight.createdAt), "dd/MM/yyyy", { locale: ptBR })}
+                            {format(parseISO(freight.departureDate || freight.createdAt), "dd/MM/yyyy", { locale: ptBR })}
                           </p>
                         </div>
                         <div className="text-right">
@@ -177,7 +197,7 @@ const Freights: React.FC = () => {
                       
                       <div className="flex justify-between items-center">
                         <p className="text-sm text-muted-foreground">
-                          Motorista: {driver?.name || "Não atribuído"}
+                          Motorista: {driver?.name || freight.driverName || "Não atribuído"}
                         </p>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -241,7 +261,7 @@ const Freights: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {freights.map((freight) => {
+                    {filteredFreights.map((freight) => {
                       const client = getClientById(freight.clientId);
                       const driver = freight.driverId ? getDriverById(freight.driverId) : null;
                       const netProfit = freight.netProfit !== undefined 
@@ -251,12 +271,12 @@ const Freights: React.FC = () => {
                       return (
                         <TableRow key={freight.id}>
                           <TableCell className="font-medium">
-                            {format(parseISO(freight.createdAt), "dd/MM/yyyy")}
+                            {format(parseISO(freight.departureDate || freight.createdAt), "dd/MM/yyyy")}
                           </TableCell>
                           <TableCell>{client?.name || "Cliente não encontrado"}</TableCell>
                           <TableCell>{freight.originCity}/{freight.originState}</TableCell>
                           <TableCell>{freight.destinationCity}/{freight.destinationState}</TableCell>
-                          <TableCell>{driver?.name || "Não atribuído"}</TableCell>
+                          <TableCell>{driver?.name || freight.driverName || "Não atribuído"}</TableCell>
                           <TableCell className="text-right">{formatCurrency(freight.totalValue)}</TableCell>
                           <TableCell className={`text-right ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {formatCurrency(netProfit)}
@@ -320,6 +340,18 @@ const Freights: React.FC = () => {
             <FreightForm 
               onSave={handleCreateFreight} 
               onCancel={() => setIsCreateDialogOpen(false)} 
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isCreateSimpleDialogOpen} onOpenChange={setIsCreateSimpleDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Frete Simples</DialogTitle>
+            </DialogHeader>
+            <SimpleFreightForm 
+              onSave={handleCreateFreight} 
+              onCancel={() => setIsCreateSimpleDialogOpen(false)} 
             />
           </DialogContent>
         </Dialog>
@@ -388,9 +420,9 @@ const Freights: React.FC = () => {
                         <div>
                           <h4 className="font-semibold mb-2">Informações Gerais</h4>
                           <div className="space-y-2 text-sm">
-                            <p><strong>Data:</strong> {format(parseISO(selectedFreight.createdAt), "dd/MM/yyyy", { locale: ptBR })}</p>
+                            <p><strong>Data:</strong> {format(parseISO(selectedFreight.departureDate || selectedFreight.createdAt), "dd/MM/yyyy", { locale: ptBR })}</p>
                             <p><strong>Cliente:</strong> {client?.name || "Cliente não encontrado"}</p>
-                            <p><strong>Motorista:</strong> {driver?.name || "Não atribuído"}</p>
+                            <p><strong>Motorista:</strong> {driver?.name || selectedFreight.driverName || "Não atribuído"}</p>
                             <p><strong>Status:</strong> {selectedFreight.status}</p>
                           </div>
                         </div>
