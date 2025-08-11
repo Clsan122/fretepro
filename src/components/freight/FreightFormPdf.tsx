@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Freight, Client, User, Driver } from "@/types";
+import { formatCurrency } from "@/utils/formatters";
 
 interface FreightFormPdfProps {
   freight: Freight;
