@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
+import { PricingSection } from "@/components/freight/PricingSection";
 const schema = z.object({
   originCity: z.string().optional(),
   destinationCity: z.string().optional(),
@@ -37,6 +37,12 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
     },
   });
 
+  const [freightValue, setFreightValue] = React.useState<number>(0);
+  const [dailyRate, setDailyRate] = React.useState<number>(0);
+  const [otherCosts, setOtherCosts] = React.useState<number>(0);
+  const [tollCosts, setTollCosts] = React.useState<number>(0);
+  const totalValue = freightValue + dailyRate + otherCosts + tollCosts;
+
   const handleSubmit = (values: FormValues) => {
     if (!user) return;
     const nowIso = new Date().toISOString();
@@ -61,11 +67,11 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
       cubicMeasurement: 0,
       cargoType: "",
       vehicleType: "",
-      freightValue: 0,
-      dailyRate: 0,
-      otherCosts: 0,
-      tollCosts: 0,
-      totalValue: 0,
+      freightValue,
+      dailyRate,
+      otherCosts,
+      tollCosts,
+      totalValue,
       status: "pending",
       paymentStatus: "pending",
       createdAt: nowIso,
@@ -148,6 +154,18 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
             )}
           />
         </div>
+
+        <PricingSection
+          freightValue={freightValue}
+          setFreightValue={setFreightValue}
+          dailyRate={dailyRate}
+          setDailyRate={setDailyRate}
+          otherCosts={otherCosts}
+          setOtherCosts={setOtherCosts}
+          tollCosts={tollCosts}
+          setTollCosts={setTollCosts}
+          totalValue={totalValue}
+        />
 
         <div className="flex justify-end gap-3 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
