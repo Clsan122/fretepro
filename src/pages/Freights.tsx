@@ -126,6 +126,14 @@ const Freights: React.FC = () => {
               <Receipt className="h-4 w-4" />
               Recibo Múltiplo
             </Button>
+            <Button
+              onClick={() => navigate('/simple-freight/selection')}
+              variant="outline"
+              className="gap-2 w-full sm:w-auto"
+            >
+              <Receipt className="h-4 w-4" />
+              Recibo Simples
+            </Button>
             <Button 
               onClick={() => setIsCreateSimpleDialogOpen(true)}
               variant="outline"

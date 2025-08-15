@@ -21,6 +21,8 @@ import DriverEdit from "@/pages/DriverEdit";
 import Clients from "@/pages/Clients";
 import Freights from "@/pages/Freights";
 import FreightSelection from "@/pages/FreightSelection";
+import SimpleFreightSelection from "@/pages/SimpleFreightSelection";
+import SimpleFreightReceipt from "@/pages/SimpleFreightReceipt";
 import CollectionOrders from "@/pages/CollectionOrders";
 import CollectionOrder from "@/pages/CollectionOrder";
 import CollectionOrderView from "@/pages/CollectionOrderView";
@@ -51,6 +53,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/drivers/edit/:id" element={<PrivateRoute><DriverEdit /></PrivateRoute>} />
       <Route path="/freights" element={<PrivateRoute><Freights /></PrivateRoute>} />
       <Route path="/freight/selection" element={<PrivateRoute><FreightSelection /></PrivateRoute>} />
+      <Route path="/simple-freight/selection" element={<PrivateRoute><SimpleFreightSelection /></PrivateRoute>} />
+      <Route path="/simple-freight-receipt" element={<PrivateRoute><SimpleFreightReceipt /></PrivateRoute>} />
       <Route path="/freight/receipt" element={<PrivateRoute><FreightReceipt /></PrivateRoute>} />
       <Route path="/freight/:id/receipt" element={<PrivateRoute><FreightReceipt /></PrivateRoute>} />
       <Route path="/freight-form/pdf" element={<PrivateRoute><FreightFormPdfView /></PrivateRoute>} />
