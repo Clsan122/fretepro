@@ -18,7 +18,7 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
   const { user } = useAuth();
   const printRef = useRef<HTMLDivElement>(null);
 
-  const totalAmount = freights.reduce((sum, freight) => sum + freight.totalValue, 0);
+  const totalAmount = freights.reduce((sum, freight) => sum + (freight.totalValue || 0), 0);
   const requesterName = freights[0]?.requesterName || "";
 
   const formatDateToDDMMAAAA = (dateString: string) => {
@@ -151,10 +151,7 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
                 <strong>Recebi de:</strong> {requesterName || "Cliente"}
               </div>
               <div>
-                <strong>A quantia de:</strong> {formatCurrency(totalAmount)} ({totalAmount.toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                }).replace(/R\$\s?/, '')} reais)
+                <strong>A quantia de:</strong> {formatCurrency(totalAmount)} ({totalAmount.toFixed(2).replace('.', ',')} reais)
               </div>
               <div>
                 <strong>Referente a:</strong> Prestação de serviços de transporte {getDateRangeText()}
@@ -186,11 +183,11 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
                     <td className="text-xs">{freight.originCity || "-"}</td>
                     <td className="text-xs">{freight.destinationCity || "-"}</td>
                     <td className="text-xs">{freight.driverName || "-"}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.freightValue)}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.dailyRate)}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.otherCosts)}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.tollCosts)}</td>
-                    <td className="text-right text-xs font-bold">{formatCurrency(freight.totalValue)}</td>
+                    <td className="text-right text-xs">{formatCurrency(freight.freightValue || 0)}</td>
+                    <td className="text-right text-xs">{formatCurrency(freight.dailyRate || 0)}</td>
+                    <td className="text-right text-xs">{formatCurrency(freight.otherCosts || 0)}</td>
+                    <td className="text-right text-xs">{formatCurrency(freight.tollCosts || 0)}</td>
+                    <td className="text-right text-xs font-bold">{formatCurrency(freight.totalValue || 0)}</td>
                   </tr>
                 ))}
               </tbody>
