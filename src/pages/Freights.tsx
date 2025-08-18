@@ -28,16 +28,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { MoreHorizontal, Plus, FileText, Edit, Trash, Truck, Receipt, Download } from "lucide-react";
-import FreightForm from "@/components/FreightForm";
+
 import { formatCurrency } from "@/utils/formatters";
 import SimpleFreightForm from "@/components/freight/SimpleFreightForm";
+import SimpleFreightEditForm from "@/components/freight/SimpleFreightEditForm";
 
 const Freights: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [freights, setFreights] = useState<Freight[]>([]);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCreateSimpleDialogOpen, setIsCreateSimpleDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -54,7 +54,7 @@ const Freights: React.FC = () => {
   const handleCreateFreight = (newFreight: Freight) => {
     saveFreight(newFreight);
     setFreights(prevFreights => [newFreight, ...prevFreights]);
-    setIsCreateDialogOpen(false);
+    setIsCreateSimpleDialogOpen(false);
     toast({
       title: "Frete cadastrado",
       description: "O frete foi cadastrado com sucesso!"
@@ -119,31 +119,15 @@ const Freights: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Button
-              onClick={handleMultipleReceipt}
+              onClick={() => navigate('/simple-freight/selection')}
               variant="outline"
               className="gap-2 w-full sm:w-auto"
             >
               <Receipt className="h-4 w-4" />
               Recibo Múltiplo
             </Button>
-            <Button
-              onClick={() => navigate('/simple-freight/selection')}
-              variant="outline"
-              className="gap-2 w-full sm:w-auto"
-            >
-              <Receipt className="h-4 w-4" />
-              Recibo Simples
-            </Button>
             <Button 
               onClick={() => setIsCreateSimpleDialogOpen(true)}
-              variant="outline"
-              className="gap-2 w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4" />
-              Frete Simples
-            </Button>
-            <Button 
-              onClick={() => setIsCreateDialogOpen(true)} 
               className="gap-2 w-full sm:w-auto"
             >
               <Plus className="h-4 w-4" />
@@ -156,7 +140,7 @@ const Freights: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Nenhum frete no mês atual</CardTitle>
-              <CardDescription>Cadastre um frete simples ou completo clicando nos botões acima.</CardDescription>
+              <CardDescription>Cadastre um frete clicando no botão acima.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex justify-center py-6">
@@ -340,22 +324,10 @@ const Freights: React.FC = () => {
           </>
         )}
 
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Novo Frete</DialogTitle>
-            </DialogHeader>
-            <FreightForm 
-              onSave={handleCreateFreight} 
-              onCancel={() => setIsCreateDialogOpen(false)} 
-            />
-          </DialogContent>
-        </Dialog>
-
         <Dialog open={isCreateSimpleDialogOpen} onOpenChange={setIsCreateSimpleDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Frete Simples</DialogTitle>
+              <DialogTitle>Novo Frete</DialogTitle>
             </DialogHeader>
             <SimpleFreightForm 
               onSave={handleCreateFreight} 
@@ -365,18 +337,18 @@ const Freights: React.FC = () => {
         </Dialog>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Editar Frete</DialogTitle>
             </DialogHeader>
             {selectedFreight && (
-              <FreightForm 
+              <SimpleFreightEditForm 
+                freightToEdit={selectedFreight}
                 onSave={handleEditFreight} 
                 onCancel={() => {
                   setIsEditDialogOpen(false);
                   setSelectedFreight(null);
                 }} 
-                freightToEdit={selectedFreight}
               />
             )}
           </DialogContent>

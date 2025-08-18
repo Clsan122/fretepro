@@ -21,6 +21,9 @@ interface PricingProps {
   tollCosts: number;
   setTollCosts: (value: number) => void;
   totalValue: number;
+  driverExpenses?: number;
+  setDriverExpenses?: (value: number) => void;
+  netProfit?: number;
 }
 
 export const PricingSection: React.FC<PricingProps> = ({
@@ -32,7 +35,10 @@ export const PricingSection: React.FC<PricingProps> = ({
   setOtherCosts,
   tollCosts,
   setTollCosts,
-  totalValue
+  totalValue,
+  driverExpenses,
+  setDriverExpenses,
+  netProfit,
 }) => {
   return (
     <Card>
@@ -91,11 +97,34 @@ export const PricingSection: React.FC<PricingProps> = ({
           </div>
         </div>
 
-        <div className="mt-6 p-4 bg-muted rounded-lg">
-          <div className="flex justify-between items-center">
-            <span className="font-semibold">Total:</span>
-            <span className="text-xl font-bold">{formatCurrency(totalValue)}</span>
+        {driverExpenses !== undefined && setDriverExpenses && (
+          <div className="space-y-2 mt-4">
+            <Label htmlFor="driverExpenses">Despesas com Motorista (R$)</Label>
+            <Input
+              id="driverExpenses"
+              type="number"
+              step="0.01"
+              min="0"
+              value={driverExpenses}
+              onChange={(e) => setDriverExpenses(Number(e.target.value) || 0)}
+              placeholder="0,00"
+            />
           </div>
+        )}
+
+        <div className="bg-muted p-4 rounded-lg space-y-2 mt-6">
+          <div className="text-center">
+            <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
+            <p className="text-2xl font-bold text-primary">{formatCurrency(totalValue)}</p>
+          </div>
+          {netProfit !== undefined && (
+            <div className="text-center border-t pt-2">
+              <p className="text-sm font-medium text-muted-foreground">Lucro Líquido</p>
+              <p className={`text-xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {formatCurrency(netProfit)}
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

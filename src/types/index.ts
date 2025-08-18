@@ -125,6 +125,8 @@ export interface Freight {
   accommodationExpenses?: number;
   totalExpenses?: number;
   netProfit?: number;
+  driverExpenses?: number;
+  observations?: string;
 }
 
 export interface Expense {

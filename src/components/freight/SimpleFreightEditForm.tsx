@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from "uuid";
 import { Freight } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { PricingSection } from "@/components/freight/PricingSection";
 import { Textarea } from "@/components/ui/textarea";
+import { PricingSection } from "@/components/freight/PricingSection";
+
 const schema = z.object({
   originCity: z.string().optional(),
   destinationCity: z.string().optional(),
@@ -21,57 +21,49 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-interface SimpleFreightFormProps {
+interface SimpleFreightEditFormProps {
   onSave: (freight: Freight) => void;
   onCancel: () => void;
+  freightToEdit: Freight;
 }
 
-const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel }) => {
+const SimpleFreightEditForm: React.FC<SimpleFreightEditFormProps> = ({ 
+  onSave, 
+  onCancel, 
+  freightToEdit 
+}) => {
   const { user } = useAuth();
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      originCity: "",
-      destinationCity: "",
-      driverName: "",
-      requesterName: "",
-      departureDate: new Date().toISOString().slice(0, 10),
-      observations: "",
+      originCity: freightToEdit.originCity || "",
+      destinationCity: freightToEdit.destinationCity || "",
+      driverName: freightToEdit.driverName || "",
+      requesterName: freightToEdit.requesterName || "",
+      departureDate: freightToEdit.departureDate ? new Date(freightToEdit.departureDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+      observations: freightToEdit.observations || "",
     },
   });
 
-  const [freightValue, setFreightValue] = React.useState<number>(0);
-  const [dailyRate, setDailyRate] = React.useState<number>(0);
-  const [otherCosts, setOtherCosts] = React.useState<number>(0);
-  const [tollCosts, setTollCosts] = React.useState<number>(0);
-  const [driverExpenses, setDriverExpenses] = React.useState<number>(0);
+  const [freightValue, setFreightValue] = React.useState<number>(freightToEdit.freightValue || 0);
+  const [dailyRate, setDailyRate] = React.useState<number>(freightToEdit.dailyRate || 0);
+  const [otherCosts, setOtherCosts] = React.useState<number>(freightToEdit.otherCosts || 0);
+  const [tollCosts, setTollCosts] = React.useState<number>(freightToEdit.tollCosts || 0);
+  const [driverExpenses, setDriverExpenses] = React.useState<number>(freightToEdit.driverExpenses || 0);
   const totalValue = freightValue + dailyRate + otherCosts + tollCosts;
   const netProfit = totalValue - driverExpenses;
 
   const handleSubmit = (values: FormValues) => {
     if (!user) return;
-    const nowIso = new Date().toISOString();
 
-    const newFreight: Freight = {
-      id: uuidv4(),
-      userId: user.id,
-      clientId: "unknown-client",
-      driverId: undefined,
-      driverName: values.driverName || undefined,
+    const updatedFreight: Freight = {
+      ...freightToEdit,
       originCity: values.originCity || "",
-      originState: "",
       destinationCity: values.destinationCity || "",
-      destinationState: "",
+      driverName: values.driverName || undefined,
+      requesterName: values.requesterName || undefined,
       departureDate: new Date(values.departureDate).toISOString(),
-      arrivalDate: new Date(values.departureDate).toISOString(),
-      distance: 0,
-      price: 0,
-      volumes: 0,
-      weight: 0,
-      dimensions: "",
-      cubicMeasurement: 0,
-      cargoType: "",
-      vehicleType: "",
+      observations: values.observations || undefined,
       freightValue,
       dailyRate,
       otherCosts,
@@ -79,15 +71,9 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
       totalValue,
       driverExpenses,
       netProfit,
-      status: "pending",
-      paymentStatus: "pending",
-      createdAt: nowIso,
-      expenses: [],
-      requesterName: values.requesterName || undefined,
-      observations: values.observations || undefined,
     };
 
-    onSave(newFreight);
+    onSave(updatedFreight);
     onCancel();
   };
 
@@ -200,11 +186,11 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
-          <Button type="submit">Salvar Frete</Button>
+          <Button type="submit">Salvar Alterações</Button>
         </div>
       </form>
     </Form>
   );
 };
 
-export default SimpleFreightForm;
+export default SimpleFreightEditForm;
