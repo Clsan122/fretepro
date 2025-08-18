@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import CollectionOrderForm from "@/components/CollectionOrderForm";
+import SimpleCollectionOrderForm from "@/components/collectionOrder/SimpleCollectionOrderForm";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { CollectionOrder } from "@/types";
 import { getCollectionOrderById, saveCollectionOrder } from "@/utils/storage";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const CollectionOrderEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +13,6 @@ const CollectionOrderEdit: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     async function fetchOrder() {
@@ -109,7 +107,7 @@ const CollectionOrderEdit: React.FC = () => {
     <Layout>
       <div className="p-4 md:p-6 safe-area-inset">
         <h1 className="text-2xl font-bold mb-6">Editar Ordem de Coleta</h1>
-        <CollectionOrderForm 
+        <SimpleCollectionOrderForm 
           onSave={handleSaveOrder} 
           onCancel={handleCancel}
           orderToEdit={order}
