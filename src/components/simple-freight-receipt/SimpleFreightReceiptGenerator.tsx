@@ -200,15 +200,12 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
               <thead>
                 <tr className="border-b">
                   <th className="text-left">Data</th>
+                  <th className="text-left">Solicitante</th>
                   <th className="text-left">Cliente</th>
                   <th className="text-left">Origem</th>
                   <th className="text-left">Destino</th>
                   <th className="text-left">Motorista</th>
-                  <th className="text-right">Valor do Frete</th>
-                  <th className="text-right">Diária</th>
-                  <th className="text-right">Outros Custos</th>
-                  <th className="text-right">Pedágios</th>
-                  <th className="text-right">Total</th>
+                  <th className="text-right">Valor Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -217,14 +214,11 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
                   return (
                     <tr key={freight.id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
                       <td className="text-xs">{formatDateToDDMMAAAA(freight.departureDate)}</td>
+                      <td className="text-xs">{freight.requesterName || "-"}</td>
                       <td className="text-xs">{client?.name || "-"}</td>
                       <td className="text-xs">{freight.originCity || "-"}</td>
                       <td className="text-xs">{freight.destinationCity || "-"}</td>
                       <td className="text-xs">{freight.driverName || "-"}</td>
-                      <td className="text-right text-xs">{formatCurrency(freight.freightValue || 0)}</td>
-                      <td className="text-right text-xs">{formatCurrency(freight.dailyRate || 0)}</td>
-                      <td className="text-right text-xs">{formatCurrency(freight.otherCosts || 0)}</td>
-                      <td className="text-right text-xs">{formatCurrency(freight.tollCosts || 0)}</td>
                       <td className="text-right text-xs font-bold">{formatCurrency(freight.totalValue || 0)}</td>
                     </tr>
                   );
@@ -232,7 +226,7 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
               </tbody>
               <tfoot>
                 <tr className="border-t border-t-2">
-                  <td colSpan={9} className="text-right font-bold">TOTAL GERAL:</td>
+                  <td colSpan={6} className="text-right font-bold">TOTAL GERAL:</td>
                   <td className="text-right font-bold text-lg">{formatCurrency(totalAmount)}</td>
                 </tr>
               </tfoot>

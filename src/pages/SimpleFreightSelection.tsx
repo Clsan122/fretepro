@@ -167,13 +167,22 @@ const SimpleFreightSelection: React.FC = () => {
                         className="mt-1"
                       />
                       
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div>
                           <div className="font-semibold">
                             {format(parseISO(freight.departureDate), "dd/MM/yyyy", { locale: ptBR })}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             Data do Serviço
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="font-medium">
+                            {freight.requesterName || "Não informado"}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Solicitante
                           </div>
                         </div>
                         
@@ -200,9 +209,7 @@ const SimpleFreightSelection: React.FC = () => {
                             {formatCurrency(freight.totalValue)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {freight.requesterName && (
-                              <div>Cliente: {freight.requesterName}</div>
-                            )}
+                            Valor Total
                           </div>
                         </div>
                       </div>
