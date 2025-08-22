@@ -7,6 +7,7 @@ import { Printer, Download } from "lucide-react";
 import { formatCurrency } from "@/utils/formatters";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { getClientById } from "@/utils/storage";
 
 interface SimpleFreightReceiptGeneratorProps {
   freights: Freight[];
@@ -20,6 +21,11 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
 
   const totalAmount = freights.reduce((sum, freight) => sum + (freight.totalValue || 0), 0);
   const requesterName = freights[0]?.requesterName || "";
+  
+  // Verificar se todos os fretes são do mesmo cliente
+  const uniqueClientIds = [...new Set(freights.map(f => f.clientId))];
+  const isSingleClient = uniqueClientIds.length === 1;
+  const firstClient = freights[0] ? getClientById(freights[0].clientId) : null;
 
   const formatDateToDDMMAAAA = (dateString: string) => {
     const date = new Date(dateString);
@@ -144,11 +150,39 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
             </div>
           </div>
 
+          {/* Informações do Cliente */}
+          {isSingleClient && firstClient && (
+            <div className="mb-6 border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-bold mb-2 text-lg">DADOS DO CLIENTE</h3>
+              <div className="text-sm space-y-1">
+                <div><strong>Nome/Razão Social:</strong> {firstClient.name}</div>
+                {firstClient.cnpj && <div><strong>CNPJ:</strong> {firstClient.cnpj}</div>}
+                {firstClient.address && (
+                  <div><strong>Endereço:</strong> {firstClient.address}</div>
+                )}
+                {firstClient.city && firstClient.state && (
+                  <div><strong>Cidade/UF:</strong> {firstClient.city}/{firstClient.state}</div>
+                )}
+                {firstClient.phone && <div><strong>Telefone:</strong> {firstClient.phone}</div>}
+                {firstClient.email && <div><strong>Email:</strong> {firstClient.email}</div>}
+              </div>
+            </div>
+          )}
+
+          {!isSingleClient && (
+            <div className="mb-6 border rounded-lg p-4 bg-yellow-50">
+              <h3 className="font-bold mb-2 text-lg">CLIENTES DIVERSOS</h3>
+              <div className="text-sm">
+                <p>Este recibo contém fretes de múltiplos clientes. Consulte a tabela detalhada abaixo.</p>
+              </div>
+            </div>
+          )}
+
           {/* Informações do Recibo */}
           <div className="mb-6">
             <div className="text-sm space-y-2">
               <div>
-                <strong>Recebi de:</strong> {requesterName || "Cliente"}
+                <strong>Recebi de:</strong> {isSingleClient ? (firstClient?.name || requesterName || "Cliente") : "Clientes diversos"}
               </div>
               <div>
                 <strong>A quantia de:</strong> {formatCurrency(totalAmount)} ({totalAmount.toFixed(2).replace('.', ',')} reais)
@@ -166,6 +200,7 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
               <thead>
                 <tr className="border-b">
                   <th className="text-left">Data</th>
+                  <th className="text-left">Cliente</th>
                   <th className="text-left">Origem</th>
                   <th className="text-left">Destino</th>
                   <th className="text-left">Motorista</th>
@@ -177,23 +212,27 @@ const SimpleFreightReceiptGenerator: React.FC<SimpleFreightReceiptGeneratorProps
                 </tr>
               </thead>
               <tbody>
-                {freights.map((freight, index) => (
-                  <tr key={freight.id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
-                    <td className="text-xs">{formatDateToDDMMAAAA(freight.departureDate)}</td>
-                    <td className="text-xs">{freight.originCity || "-"}</td>
-                    <td className="text-xs">{freight.destinationCity || "-"}</td>
-                    <td className="text-xs">{freight.driverName || "-"}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.freightValue || 0)}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.dailyRate || 0)}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.otherCosts || 0)}</td>
-                    <td className="text-right text-xs">{formatCurrency(freight.tollCosts || 0)}</td>
-                    <td className="text-right text-xs font-bold">{formatCurrency(freight.totalValue || 0)}</td>
-                  </tr>
-                ))}
+                {freights.map((freight, index) => {
+                  const client = getClientById(freight.clientId);
+                  return (
+                    <tr key={freight.id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                      <td className="text-xs">{formatDateToDDMMAAAA(freight.departureDate)}</td>
+                      <td className="text-xs">{client?.name || "-"}</td>
+                      <td className="text-xs">{freight.originCity || "-"}</td>
+                      <td className="text-xs">{freight.destinationCity || "-"}</td>
+                      <td className="text-xs">{freight.driverName || "-"}</td>
+                      <td className="text-right text-xs">{formatCurrency(freight.freightValue || 0)}</td>
+                      <td className="text-right text-xs">{formatCurrency(freight.dailyRate || 0)}</td>
+                      <td className="text-right text-xs">{formatCurrency(freight.otherCosts || 0)}</td>
+                      <td className="text-right text-xs">{formatCurrency(freight.tollCosts || 0)}</td>
+                      <td className="text-right text-xs font-bold">{formatCurrency(freight.totalValue || 0)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="border-t border-t-2">
-                  <td colSpan={8} className="text-right font-bold">TOTAL GERAL:</td>
+                  <td colSpan={9} className="text-right font-bold">TOTAL GERAL:</td>
                   <td className="text-right font-bold text-lg">{formatCurrency(totalAmount)}</td>
                 </tr>
               </tfoot>

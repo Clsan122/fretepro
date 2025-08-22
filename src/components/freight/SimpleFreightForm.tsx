@@ -10,7 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { PricingSection } from "@/components/freight/PricingSection";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getClientsByUserId } from "@/utils/storage";
 const schema = z.object({
+  clientId: z.string().nonempty("Selecione um cliente"),
   originCity: z.string().optional(),
   destinationCity: z.string().optional(),
   driverName: z.string().optional(),
@@ -28,9 +31,12 @@ interface SimpleFreightFormProps {
 
 const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel }) => {
   const { user } = useAuth();
+  const clients = user ? getClientsByUserId(user.id) : [];
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
+      clientId: "",
       originCity: "",
       destinationCity: "",
       driverName: "",
@@ -55,7 +61,7 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
     const newFreight: Freight = {
       id: uuidv4(),
       userId: user.id,
-      clientId: "unknown-client",
+      clientId: values.clientId,
       driverId: undefined,
       driverName: values.driverName || undefined,
       originCity: values.originCity || "",
@@ -97,6 +103,30 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="clientId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cliente *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um cliente" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="departureDate"
             render={({ field }) => (
               <FormItem>
@@ -108,7 +138,6 @@ const SimpleFreightForm: React.FC<SimpleFreightFormProps> = ({ onSave, onCancel 
               </FormItem>
             )}
           />
-          <div />
           <FormField
             control={form.control}
             name="originCity"

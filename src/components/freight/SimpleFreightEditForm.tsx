@@ -9,8 +9,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PricingSection } from "@/components/freight/PricingSection";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getClientsByUserId } from "@/utils/storage";
 
 const schema = z.object({
+  clientId: z.string().nonempty("Selecione um cliente"),
   originCity: z.string().optional(),
   destinationCity: z.string().optional(),
   driverName: z.string().optional(),
@@ -33,9 +36,12 @@ const SimpleFreightEditForm: React.FC<SimpleFreightEditFormProps> = ({
   freightToEdit 
 }) => {
   const { user } = useAuth();
+  const clients = user ? getClientsByUserId(user.id) : [];
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
+      clientId: freightToEdit.clientId || "",
       originCity: freightToEdit.originCity || "",
       destinationCity: freightToEdit.destinationCity || "",
       driverName: freightToEdit.driverName || "",
@@ -58,6 +64,7 @@ const SimpleFreightEditForm: React.FC<SimpleFreightEditFormProps> = ({
 
     const updatedFreight: Freight = {
       ...freightToEdit,
+      clientId: values.clientId,
       originCity: values.originCity || "",
       destinationCity: values.destinationCity || "",
       driverName: values.driverName || undefined,
@@ -83,6 +90,30 @@ const SimpleFreightEditForm: React.FC<SimpleFreightEditFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="clientId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cliente *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um cliente" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="departureDate"
             render={({ field }) => (
               <FormItem>
@@ -94,7 +125,6 @@ const SimpleFreightEditForm: React.FC<SimpleFreightEditFormProps> = ({
               </FormItem>
             )}
           />
-          <div />
           <FormField
             control={form.control}
             name="originCity"
