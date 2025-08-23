@@ -19,12 +19,8 @@ const SimpleFreightReceipt: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const isSimpleFreight = (freight: Freight): boolean => {
-    return freight.freightValue > 0 || 
-           freight.dailyRate > 0 || 
-           freight.otherCosts > 0 || 
-           freight.tollCosts > 0 ||
-           !freight.clientId || 
-           freight.clientId === "unknown-client";
+    // Considera qualquer frete válido como frete simples para recibo múltiplo
+    return freight.totalValue > 0;
   };
 
   useEffect(() => {
