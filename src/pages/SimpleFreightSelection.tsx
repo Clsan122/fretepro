@@ -28,7 +28,13 @@ const SimpleFreightSelection: React.FC = () => {
   useEffect(() => {
     if (user) {
       const userFreights = getFreightsByUserId(user.id);
+      console.log('Total fretes encontrados:', userFreights.length);
+      console.log('Fretes do usuário:', userFreights);
+      
       const simple = userFreights.filter(isSimpleFreight);
+      console.log('Fretes simples filtrados:', simple.length);
+      console.log('Fretes simples:', simple);
+      
       setSimpleFreights(simple);
     }
   }, [user]);
@@ -89,9 +95,14 @@ const SimpleFreightSelection: React.FC = () => {
         {simpleFreights.length === 0 ? (
           <Card>
             <CardHeader>
-              <CardTitle>Nenhum frete simples encontrado</CardTitle>
+              <CardTitle>Nenhum frete encontrado</CardTitle>
               <CardDescription>
-                Cadastre fretes simples para poder gerar recibos múltiplos.
+                Cadastre fretes para poder gerar recibos múltiplos. 
+                {user && (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Usuário: {user.id}
+                  </div>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
