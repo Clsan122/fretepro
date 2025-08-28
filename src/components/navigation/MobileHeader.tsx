@@ -35,12 +35,38 @@ const MobileHeader: React.FC = () => {
 
   const handleSync = async () => {
     try {
-      await syncPendingOperations();
-      toast({
-        title: "Sincronização concluída",
-        description: "Dados atualizados com sucesso",
-      });
+      // Importar dinamicamente a função de sincronização forçada
+      const { forceDataSync } = await import('@/utils/forceSync');
+      
+      if (!user?.id) {
+        toast({
+          title: "Erro",
+          description: "Usuário não encontrado",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Executar sincronização forçada primeiro
+      const syncResult = await forceDataSync(user.id);
+      
+      if (syncResult.success) {
+        // Depois executar sincronização normal
+        await syncPendingOperations();
+        
+        toast({
+          title: "Sincronização concluída",
+          description: syncResult.message,
+        });
+      } else {
+        toast({
+          title: "Erro na sincronização",
+          description: syncResult.message,
+          variant: "destructive",
+        });
+      }
     } catch (error) {
+      console.error('Erro na sincronização:', error);
       toast({
         title: "Erro na sincronização",
         description: "Não foi possível sincronizar os dados",
@@ -132,7 +158,7 @@ const MobileHeader: React.FC = () => {
             className={`text-freight-600 dark:text-freight-400 hover:bg-freight-50 dark:hover:bg-freight-900 touch-manipulation h-10 w-10 ${hasPendingOperations ? 'bg-orange-100 dark:bg-orange-900 text-orange-600' : ''}`}
             onClick={handleSync}
             disabled={isSyncing}
-            title={hasPendingOperations ? `Sincronizar ${hasPendingOperations ? 'dados pendentes' : ''}` : 'Atualizar dados'}
+            title={`${hasPendingOperations ? 'Sincronizar dados pendentes' : 'Atualizar dados do servidor'}`}
           >
             <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
           </Button>

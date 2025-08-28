@@ -17,6 +17,28 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   const { user } = useAuth();
   const printRef = useRef<HTMLDivElement>(null);
 
+  console.log('=== DEBUG MultiFreightReceiptGenerator ===');
+  console.log('Freights received:', freights);
+  console.log('User:', user);
+
+  if (!freights || freights.length === 0) {
+    console.log('Nenhum frete fornecido para o gerador');
+    return (
+      <div className="p-8 text-center">
+        <p className="text-lg text-gray-600">Nenhum frete encontrado para gerar o recibo.</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    console.log('Usuário não encontrado');
+    return (
+      <div className="p-8 text-center">
+        <p className="text-lg text-gray-600">Erro: usuário não autenticado.</p>
+      </div>
+    );
+  }
+
   const totalAmount = freights.reduce((sum, freight) => sum + (freight.totalValue || 0), 0);
 
   const formatDateToDDMMAAAA = (dateString: string) => {
