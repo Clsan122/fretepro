@@ -30,6 +30,11 @@ export const SyncIndicator: React.FC = () => {
     return 'OK';
   };
 
+  // Ocultar o SyncIndicator em desktop já que agora temos o botão no header
+  if (window.innerWidth >= 1024) {
+    return null;
+  }
+
   return (
     <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-1 shadow-sm border">
       <Badge variant={getStatusColor()} className="flex items-center gap-1 text-[10px] px-2 py-1">

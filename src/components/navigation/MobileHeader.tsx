@@ -1,9 +1,11 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MenuIcon, LogOut, User } from "lucide-react";
+import { MenuIcon, LogOut, User, RefreshCw } from "lucide-react";
 import { useAuth } from "@/context/auth";
 import { useNavigate } from "react-router-dom";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { useToast } from "@/hooks/use-toast";
 import {
   Sheet,
   SheetContent,
@@ -17,6 +19,8 @@ const MobileHeader: React.FC = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const { syncPendingOperations, isSyncing, hasPendingOperations } = useOfflineSync();
+  const { toast } = useToast();
 
   const handleLogout = async () => {
     await logout();
@@ -27,6 +31,22 @@ const MobileHeader: React.FC = () => {
   const handleNavigate = (path: string) => {
     navigate(path);
     setIsOpen(false);
+  };
+
+  const handleSync = async () => {
+    try {
+      await syncPendingOperations();
+      toast({
+        title: "Sincronização concluída",
+        description: "Dados atualizados com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro na sincronização",
+        description: "Não foi possível sincronizar os dados",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -105,7 +125,17 @@ const MobileHeader: React.FC = () => {
           </h1>
         </div>
         
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={`text-freight-600 dark:text-freight-400 hover:bg-freight-50 dark:hover:bg-freight-900 touch-manipulation h-10 w-10 ${hasPendingOperations ? 'bg-orange-100 dark:bg-orange-900 text-orange-600' : ''}`}
+            onClick={handleSync}
+            disabled={isSyncing}
+            title={hasPendingOperations ? `Sincronizar ${hasPendingOperations ? 'dados pendentes' : ''}` : 'Atualizar dados'}
+          >
+            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          </Button>
           <Button 
             variant="ghost" 
             size="icon" 

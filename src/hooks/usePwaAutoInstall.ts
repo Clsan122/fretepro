@@ -14,24 +14,9 @@ export const usePwaAutoInstall = () => {
       e.preventDefault();
       deferredPrompt = e as BeforeInstallPromptEvent;
       
-      // Aguardar um pouco e tentar instalar automaticamente
-      setTimeout(async () => {
-        if (deferredPrompt) {
-          try {
-            // Tentar instalar automaticamente sem mostrar o prompt
-            await deferredPrompt.prompt();
-            const choiceResult = await deferredPrompt.userChoice;
-            
-            if (choiceResult.outcome === 'accepted') {
-              console.log('PWA instalado automaticamente');
-            }
-            
-            deferredPrompt = null;
-          } catch (error) {
-            console.log('Instalação automática não foi possível');
-          }
-        }
-      }, 3000); // Aguarda 3 segundos após a página carregar
+      // NÃO instalar automaticamente para evitar o botão "OK" 
+      // O usuário pode instalar manualmente se desejar
+      console.log('Prompt de instalação PWA bloqueado');
     };
 
     const handleAppInstalled = () => {
