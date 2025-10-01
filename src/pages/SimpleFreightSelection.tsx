@@ -12,7 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatCurrency } from "@/utils/formatters";
-import DataDebugger from "@/components/debug/DataDebugger";
 
 const SimpleFreightSelection: React.FC = () => {
   const { user } = useAuth();
@@ -28,25 +27,9 @@ const SimpleFreightSelection: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      console.log('=== DEBUG SimpleFreightSelection ===');
-      console.log('User:', user.id);
-      
       const userFreights = getFreightsByUserId(user.id);
-      console.log('Total fretes encontrados:', userFreights.length);
-      console.log('Fretes do usuário:', userFreights);
-      
-      // Verificar se há dados no localStorage
-      const localStorageFreights = localStorage.getItem('freights');
-      console.log('Dados brutos no localStorage:', localStorageFreights);
-      
       const simple = userFreights.filter(isSimpleFreight);
-      console.log('Fretes simples filtrados:', simple.length);
-      console.log('Fretes simples:', simple);
-      
       setSimpleFreights(simple);
-    } else {
-      console.log('=== DEBUG SimpleFreightSelection ===');
-      console.log('User não encontrado');
     }
   }, [user]);
 
@@ -103,19 +86,12 @@ const SimpleFreightSelection: React.FC = () => {
           </div>
         </div>
 
-        <DataDebugger />
-
         {simpleFreights.length === 0 ? (
           <Card>
             <CardHeader>
               <CardTitle>Nenhum frete encontrado</CardTitle>
               <CardDescription>
-                Cadastre fretes para poder gerar recibos múltiplos. 
-                {user && (
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    Usuário: {user.id}
-                  </div>
-                )}
+                Cadastre fretes para poder gerar recibos múltiplos.
               </CardDescription>
             </CardHeader>
             <CardContent>

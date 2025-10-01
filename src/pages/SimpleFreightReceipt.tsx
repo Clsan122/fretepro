@@ -24,20 +24,13 @@ const SimpleFreightReceipt: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('=== DEBUG SimpleFreightReceipt ===');
-    console.log('User:', user?.id);
-    console.log('SearchParams:', searchParams.toString());
-    
     if (!user) {
-      console.log('User não encontrado, redirecionando...');
       return;  
     }
     
     const ids = searchParams.get('ids');
-    console.log('IDs from searchParams:', ids);
     
     if (!ids) {
-      console.log('Nenhum ID encontrado nos searchParams');
       toast({
         title: "Seleção não encontrada",
         description: "Nenhum frete selecionado para gerar o recibo múltiplo.",
@@ -48,29 +41,17 @@ const SimpleFreightReceipt: React.FC = () => {
     }
     
     const freightIds = ids.split(',');
-    console.log('FreightIds array:', freightIds);
-    
     const loadedFreights: Freight[] = [];
     
     freightIds.forEach(id => {
       const freight = getFreightById(id);
-      console.log(`Freight ${id}:`, freight);
       
       if (freight && freight.userId === user.id && isSimpleFreight(freight)) {
         loadedFreights.push(freight);
-      } else {
-        console.log(`Freight ${id} rejeitado:`, {
-          exists: !!freight,
-          correctUser: freight?.userId === user.id,
-          isSimple: freight ? isSimpleFreight(freight) : false
-        });
       }
     });
     
-    console.log('Loaded freights:', loadedFreights);
-    
     if (loadedFreights.length === 0) {
-      console.log('Nenhum frete simples carregado');
       toast({
         title: "Nenhum frete simples encontrado",
         description: "Os fretes selecionados não foram encontrados ou não são fretes simples.",
@@ -84,8 +65,6 @@ const SimpleFreightReceipt: React.FC = () => {
     const sortedFreights = loadedFreights.sort((a, b) => {
       return new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime();
     });
-    
-    console.log('Sorted freights:', sortedFreights);
     
     setFreights(sortedFreights);
     setLoading(false);
