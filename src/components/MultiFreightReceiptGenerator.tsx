@@ -67,7 +67,7 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   return (
     <div className="space-y-6">
       {/* Botão de ação */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex gap-3 mb-6 print-hidden">
         <Button 
           onClick={() => handlePrint()} 
           className="flex items-center gap-2 px-6 py-3"
@@ -90,6 +90,12 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
                 font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
               }
               * { box-sizing: border-box; }
+              
+              /* Ocultar elementos de navegação e UI */
+              header, nav, footer, button, .print-hidden,
+              [role="navigation"], [role="banner"], [role="contentinfo"] {
+                display: none !important;
+              }
               .print-container { 
                 width: 210mm; 
                 min-height: 297mm; 
