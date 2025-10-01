@@ -73,14 +73,14 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
   return (
     <div className="space-y-6">
       {/* Botão de ação */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 mb-6">
         <Button 
           onClick={() => handlePrint()} 
-          className="bg-gradient-to-r from-freight-600 to-accent hover:from-freight-700 hover:to-accent-dark text-white px-8 py-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+          className="flex items-center gap-2 px-6 py-3"
           size="lg"
         >
-          <Printer className="h-5 w-5 mr-2" />
-          Gerar PDF do Recibo Múltiplo
+          <Printer className="h-5 w-5" />
+          Gerar PDF do Recibo
         </Button>
       </div>
 
@@ -93,168 +93,188 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
                 margin: 0; 
                 padding: 0; 
                 background: white !important; 
-                font-family: 'Arial', sans-serif;
+                font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
               }
               * { box-sizing: border-box; }
               .print-container { 
                 width: 210mm; 
                 min-height: 297mm; 
-                padding: 20mm;
-                font-size: 12px;
-                line-height: 1.5;
-                color: #000;
+                padding: 15mm;
+                font-size: 11px;
+                line-height: 1.6;
+                color: #1f2937;
                 background: white;
                 page-break-inside: avoid;
               }
               .print-hidden { display: none !important; }
               .header-section { 
-                background: linear-gradient(135deg, #0c96e6 0%, #ff6b35 100%) !important; 
-                color: white !important;
-                padding: 25px;
-                border-radius: 15px;
-                margin-bottom: 25px;
+                background: white !important;
+                border-bottom: 3px solid #0c96e6;
+                padding: 20px 0;
+                margin-bottom: 30px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+              }
+              .company-logo {
+                max-width: 80px;
+                max-height: 80px;
+                object-fit: contain;
+                margin-right: 20px;
+              }
+              .header-title {
+                color: #0c96e6;
+                font-size: 28px;
+                font-weight: 700;
+                margin: 0;
+                letter-spacing: -0.5px;
               }
               .receipt-table { 
                 width: 100%; 
                 border-collapse: collapse; 
-                margin: 20px 0;
-                border: 3px solid #0c96e6;
-                border-radius: 12px;
-                overflow: hidden;
+                margin: 25px 0;
+                border: 2px solid #e5e7eb;
               }
               .receipt-table th { 
-                background: linear-gradient(135deg, #0c96e6 0%, #ff6b35 100%);
-                color: white;
-                padding: 15px 12px; 
+                background: #f8fafc;
+                color: #1f2937;
+                padding: 12px 10px; 
                 text-align: left; 
-                font-weight: bold;
-                font-size: 11px;
+                font-weight: 600;
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border-bottom: 2px solid #0c96e6;
               }
               .receipt-table td { 
-                padding: 12px; 
+                padding: 10px; 
                 border-bottom: 1px solid #e5e7eb;
-                font-size: 11px;
+                font-size: 10px;
+                color: #374151;
               }
               .receipt-table tbody tr:nth-child(even) { 
-                background: #f8fafc; 
-              }
-              .receipt-table tbody tr:hover { 
-                background: #e0f2fe; 
+                background: #fafafa; 
               }
               .total-section {
-                background: linear-gradient(135deg, #ff6b35 0%, #0c96e6 100%);
-                color: white;
-                padding: 30px;
-                border-radius: 15px;
+                background: #f8fafc;
+                border: 2px solid #0c96e6;
+                padding: 25px;
                 text-align: center;
                 margin: 30px 0;
-                box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+              }
+              .total-label {
+                font-size: 14px;
+                color: #6b7280;
+                font-weight: 500;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
               }
               .total-value {
-                font-size: 48px;
-                font-weight: 900;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-                margin: 15px 0;
+                font-size: 36px;
+                font-weight: 700;
+                color: #0c96e6;
+                margin: 10px 0;
               }
-              .company-info {
-                border: 2px solid #0c96e6;
-                border-radius: 12px;
-                padding: 20px;
+              .info-box {
+                border: 1px solid #e5e7eb;
+                padding: 15px;
                 margin: 20px 0;
-                background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+                background: #fafafa;
+              }
+              .info-title {
+                font-size: 12px;
+                font-weight: 600;
+                color: #0c96e6;
+                margin-bottom: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
               }
               .signature-area {
-                margin-top: 50px;
-                padding-top: 30px;
-                border-top: 3px solid #0c96e6;
+                margin-top: 60px;
+                padding-top: 20px;
+                border-top: 2px solid #e5e7eb;
                 text-align: center;
               }
               .signature-line { 
-                border-top: 2px solid #333; 
+                border-top: 2px solid #1f2937; 
                 width: 300px; 
-                margin: 50px auto 0; 
+                margin: 60px auto 0; 
                 text-align: center; 
-                padding-top: 10px; 
-                font-weight: bold;
+                padding-top: 8px; 
+                font-weight: 600;
+                font-size: 11px;
               }
             }
           `}
         </style>
 
-        <div className="print-container bg-white text-black">
-          {/* Cabeçalho com gradiente */}
+        <div className="print-container bg-white text-gray-900">
+          {/* Cabeçalho Clean */}
           <div className="header-section">
-            <div className="flex justify-between items-start">
-              <div className="flex items-start space-x-6">
-                {user?.companyLogo && (
-                  <img 
-                    src={user.companyLogo} 
-                    alt="Logo da Empresa" 
-                    className="w-24 h-24 object-contain bg-white rounded-xl p-3 shadow-lg" 
-                  />
-                )}
-                <div className="space-y-2">
-                  <div className="text-2xl font-bold">{user?.companyName || user?.name}</div>
-                  {user?.address && <div className="text-sm opacity-90">{user.address}</div>}
-                  {user?.city && user?.state && <div className="text-sm opacity-90">{user.city}/{user.state}</div>}
-                  {user?.cnpj && <div className="text-sm opacity-90">CNPJ: {user.cnpj}</div>}
-                  {user?.phone && <div className="text-sm opacity-90">Tel: {user.phone}</div>}
-                  {user?.email && <div className="text-sm opacity-90">{user.email}</div>}
+            <div className="flex items-start gap-6">
+              {user?.companyLogo && (
+                <img 
+                  src={user.companyLogo} 
+                  alt="Logo" 
+                  className="company-logo" 
+                />
+              )}
+              <div className="flex-1">
+                <div className="text-xl font-semibold text-gray-900 mb-2">{user?.companyName || user?.name}</div>
+                <div className="space-y-1 text-xs text-gray-600">
+                  {user?.address && <div>{user.address}</div>}
+                  {user?.city && user?.state && <div>{user.city}/{user.state}</div>}
+                  {user?.cnpj && <div>CNPJ: {user.cnpj}</div>}
+                  {user?.phone && <div>Tel: {user.phone}</div>}
+                  {user?.email && <div>{user.email}</div>}
                 </div>
               </div>
-              <div className="text-right">
-                <h1 className="text-3xl font-black mb-3">RECIBO DE FRETES</h1>
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-sm">Data: {formatDateToDDMMAAAA(new Date().toISOString())}</div>
-                  <div className="text-sm">Nº: {formatDateToDDMMAAAA(new Date().toISOString()).replace(/\//g, '')}-{freights.length.toString().padStart(3, '0')}</div>
-                </div>
+            </div>
+            <div className="text-right mt-4">
+              <h1 className="header-title">RECIBO DE FRETES</h1>
+              <div className="text-xs text-gray-600 mt-2">
+                <div>Data: {formatDateToDDMMAAAA(new Date().toISOString())}</div>
+                <div>Nº: {formatDateToDDMMAAAA(new Date().toISOString()).replace(/\//g, '')}-{freights.length.toString().padStart(3, '0')}</div>
               </div>
             </div>
           </div>
 
           {/* Informações do recibo */}
-          <div className="company-info">
-            <h3 className="text-xl font-bold mb-4 text-freight-700 flex items-center">
-              <FileText className="h-6 w-6 mr-3" />
-              INFORMAÇÕES DO RECIBO
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div><strong>A quantia de:</strong> {formatCurrency(totalAmount)} ({totalAmount.toFixed(2).replace('.', ',')} reais)</div>
+          <div className="info-box">
+            <h3 className="info-title">Informações do Recibo</h3>
+            <div className="space-y-2 text-xs">
+              <div><strong>Valor:</strong> {formatCurrency(totalAmount)}</div>
               <div><strong>Referente a:</strong> Prestação de serviços de transporte {getDateRangeText()}</div>
-              <div><strong>Quantidade de fretes:</strong> {freights.length} {freights.length === 1 ? 'frete' : 'fretes'}</div>
+              <div><strong>Quantidade:</strong> {freights.length} {freights.length === 1 ? 'frete' : 'fretes'}</div>
             </div>
           </div>
 
-          {/* Tabela principal com as informações solicitadas */}
-          <div className="mb-8">
-            <h3 className="text-xl font-bold mb-6 text-freight-700 flex items-center">
-              <MapPin className="h-6 w-6 mr-3" />
-              DISCRIMINAÇÃO DOS SERVIÇOS
-            </h3>
+          {/* Tabela de serviços */}
+          <div className="mb-6">
+            <h3 className="info-title mb-3">Discriminação dos Serviços</h3>
             <table className="receipt-table">
               <thead>
                 <tr>
-                  <th className="w-20"><Calendar className="h-4 w-4 inline mr-2" />Data</th>
-                  <th><User className="h-4 w-4 inline mr-2" />Cliente</th>
-                  <th><MapPin className="h-4 w-4 inline mr-2" />Origem → Destino</th>
-                  <th><User className="h-4 w-4 inline mr-2" />Solicitante</th>
-                  <th className="w-32 text-right"><CreditCard className="h-4 w-4 inline mr-2" />Valor do Frete</th>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Origem → Destino</th>
+                  <th>Solicitante</th>
+                  <th className="text-right">Valor</th>
                 </tr>
               </thead>
               <tbody>
-                {freights.map((freight, index) => {
+                {freights.map((freight) => {
                   const client = getClientById(freight.clientId);
                   return (
                     <tr key={freight.id}>
-                      <td className="font-medium text-center">{formatDateToDDMMAAAA(freight.departureDate)}</td>
-                      <td className="font-medium">{client?.name || "Cliente não identificado"}</td>
+                      <td className="text-center">{formatDateToDDMMAAAA(freight.departureDate)}</td>
+                      <td>{client?.name || "Cliente não identificado"}</td>
                       <td>
-                        <div className="font-medium text-freight-700">
-                          {freight.originCity || "N/A"} → {freight.destinationCity || "N/A"}
-                        </div>
+                        {freight.originCity || "N/A"} → {freight.destinationCity || "N/A"}
                       </td>
                       <td>{freight.requesterName || "Não informado"}</td>
-                      <td className="text-right font-bold text-lg text-freight-700">
+                      <td className="text-right font-semibold">
                         {formatCurrency(freight.totalValue || 0)}
                       </td>
                     </tr>
@@ -264,45 +284,45 @@ const MultiFreightReceiptGenerator: React.FC<MultiFreightReceiptGeneratorProps> 
             </table>
           </div>
 
-          {/* Valor Total em destaque grande */}
+          {/* Valor Total */}
           <div className="total-section">
-            <div className="text-xl mb-2">VALOR TOTAL DOS FRETES</div>
+            <div className="total-label">Valor Total</div>
             <div className="total-value">{formatCurrency(totalAmount)}</div>
-            <div className="text-lg mt-2 opacity-90">
-              ({freights.length} {freights.length === 1 ? 'frete processado' : 'fretes processados'})
+            <div className="text-xs text-gray-600 mt-2">
+              {freights.length} {freights.length === 1 ? 'frete processado' : 'fretes processados'}
             </div>
           </div>
 
           {/* Informações adicionais */}
-          <div className="company-info">
-            <div className="grid grid-cols-2 gap-6 text-sm">
+          <div className="info-box">
+            <div className="grid grid-cols-2 gap-4 text-xs mb-3">
               <div><strong>Forma de Pagamento:</strong> Conforme acordado</div>
-              <div><strong>Data de Vencimento:</strong> Conforme contrato</div>
+              <div><strong>Vencimento:</strong> Conforme contrato</div>
             </div>
-            <div className="mt-4">
-              <strong>Observações:</strong> Recibo referente aos serviços de transporte prestados conforme discriminado na tabela acima. Todos os valores estão expressos em reais (R$).
+            <div className="text-xs">
+              <strong>Observações:</strong> Recibo referente aos serviços de transporte prestados conforme discriminado acima.
             </div>
           </div>
 
           {/* Seção de assinatura */}
           <div className="signature-area">
-            <div className="text-sm space-y-2 mb-8">
-              <div><strong>Dados do Prestador:</strong></div>
-              <div><strong>Nome:</strong> {user?.name}</div>
-              {user?.cpf && <div><strong>CPF:</strong> {user.cpf}</div>}
-              {user?.phone && <div><strong>Contato:</strong> {user.phone}</div>}
+            <div className="text-xs space-y-1 mb-6 text-gray-700">
+              <div className="font-semibold">Prestador de Serviços:</div>
+              <div>{user?.name}</div>
+              {user?.cpf && <div>CPF: {user.cpf}</div>}
+              {user?.phone && <div>Contato: {user.phone}</div>}
             </div>
 
             <div className="signature-line">
-              {user?.name}<br />
-              <span className="text-sm font-normal">Prestador de Serviços de Transporte</span>
+              {user?.name}
+              <div className="text-xs font-normal text-gray-600 mt-1">Prestador de Serviços</div>
             </div>
           </div>
 
           {/* Rodapé */}
-          <div className="text-center text-sm mt-10 pt-6 border-t-2 border-freight-200 text-freight-600">
+          <div className="text-center text-xs mt-8 pt-4 border-t border-gray-300 text-gray-600">
             <div>{user?.city && user?.state ? `${user.city}/${user.state}` : ''} - {formatDateToDDMMAAAA(new Date().toISOString())}</div>
-            <div className="mt-2 font-medium">Este documento foi gerado eletronicamente</div>
+            <div className="mt-1">Documento gerado eletronicamente</div>
           </div>
         </div>
       </div>
