@@ -5,8 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { getFreightsByUserId, getClientsByUserId } from "@/utils/storage";
 import { Freight, Client } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { format, startOfMonth, endOfMonth, parseISO, isWithinInterval } from "date-fns";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { format, startOfMonth, endOfMonth, parseISO, isWithinInterval, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, Package, Users, DollarSign, TrendingUp, BarChart2, Truck, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,9 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [freights, setFreights] = useState<Freight[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
+  const [periodType, setPeriodType] = useState<string>("month");
+  const [startDate, setStartDate] = useState<Date>(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState<Date>(endOfMonth(new Date()));
   const [selectedClient, setSelectedClient] = useState<string>("all");
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
   const [activeTab, setActiveTab] = useState<string>("overview");
@@ -38,18 +40,30 @@ const Dashboard: React.FC = () => {
     }
   }, [user]);
 
-  // Filter freights by month and client
+  // Update date range based on period type
+  useEffect(() => {
+    const today = new Date();
+    if (periodType === "7days") {
+      setStartDate(subDays(today, 7));
+      setEndDate(today);
+    } else if (periodType === "30days") {
+      setStartDate(subDays(today, 30));
+      setEndDate(today);
+    } else if (periodType === "month") {
+      setStartDate(startOfMonth(today));
+      setEndDate(endOfMonth(today));
+    }
+  }, [periodType]);
+
+  // Filter freights by date range and client
   useEffect(() => {
     if (freights.length > 0) {
       let filtered = [...freights];
       
-      // Filter by month
-      const monthStart = startOfMonth(selectedMonth);
-      const monthEnd = endOfMonth(selectedMonth);
-      
+      // Filter by date range
       filtered = filtered.filter(freight => {
         const freightDate = parseISO(freight.createdAt);
-        return isWithinInterval(freightDate, { start: monthStart, end: monthEnd });
+        return isWithinInterval(freightDate, { start: startDate, end: endDate });
       });
       
       // Filter by client
@@ -59,7 +73,7 @@ const Dashboard: React.FC = () => {
       
       setFilteredFreights(filtered);
     }
-  }, [freights, selectedMonth, selectedClient]);
+  }, [freights, startDate, endDate, selectedClient]);
 
   // Prepare chart data
   const revenueChartData = filteredFreights.map(freight => ({
@@ -124,39 +138,71 @@ const Dashboard: React.FC = () => {
             
             <div className="flex flex-col gap-2 mt-4 sm:mt-0">
               <div className="flex items-center gap-2">
-                <Label htmlFor="month-select" className="sr-only">Mês</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="month-select"
-                      variant={"outline"}
-                      size="sm"
-                      className={cn(
-                        "justify-start text-left font-normal flex-1 sm:flex-none",
-                        !selectedMonth && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedMonth ? (
-                        format(selectedMonth, "MMM yyyy", { locale: ptBR })
-                      ) : (
-                        <span>Mês</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 pointer-events-auto">
-                    <Calendar
-                      mode="single"
-                      selected={selectedMonth}
-                      onSelect={setSelectedMonth}
-                      initialFocus
-                      month={selectedMonth}
-                      onMonthChange={setSelectedMonth}
-                      ISOWeek={true}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Label htmlFor="period-select" className="sr-only">Período</Label>
+                <Select value={periodType} onValueChange={setPeriodType}>
+                  <SelectTrigger id="period-select" className="flex-1 sm:min-w-[180px]">
+                    <SelectValue placeholder="Selecione o período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7days">Últimos 7 dias</SelectItem>
+                    <SelectItem value="30days">Últimos 30 dias</SelectItem>
+                    <SelectItem value="month">Mês atual</SelectItem>
+                    <SelectItem value="custom">Período personalizado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              
+              {periodType === "custom" && (
+                <div className="flex items-center gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        size="sm"
+                        className={cn(
+                          "justify-start text-left font-normal flex-1",
+                          !startDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "dd/MM/yyyy") : <span>Data início</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 pointer-events-auto">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={(date) => date && setStartDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        size="sm"
+                        className={cn(
+                          "justify-start text-left font-normal flex-1",
+                          !endDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "dd/MM/yyyy") : <span>Data fim</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 pointer-events-auto">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={(date) => date && setEndDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
               
               <div className="flex items-center gap-2">
                 <Label htmlFor="client-select" className="sr-only">Cliente</Label>
@@ -355,45 +401,50 @@ const Dashboard: React.FC = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Detalhamento de Despesas</CardTitle>
+                  <CardTitle>Despesas Mensais</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-sm">
-                      <span>Motorista Terceiro:</span>
-                      <span>{formatCurrency(expenseBreakdown.thirdPartyDriver)}</span>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-sm border-b pb-2">
+                      <span className="font-medium">Motorista Terceiro</span>
+                      <span className="font-semibold">{formatCurrency(expenseBreakdown.thirdPartyDriver)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span>Pedágio:</span>
-                      <span>{formatCurrency(expenseBreakdown.toll)}</span>
+                    <div className="flex justify-between items-center text-sm border-b pb-2">
+                      <span className="font-medium">Pedágio</span>
+                      <span className="font-semibold">{formatCurrency(expenseBreakdown.toll)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span>Abastecimento:</span>
-                      <span>{formatCurrency(expenseBreakdown.fuel)}</span>
+                    <div className="flex justify-between items-center text-sm border-b pb-2">
+                      <span className="font-medium">Abastecimento</span>
+                      <span className="font-semibold">{formatCurrency(expenseBreakdown.fuel)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span>Refeição:</span>
-                      <span>{formatCurrency(expenseBreakdown.meals)}</span>
+                    <div className="flex justify-between items-center text-sm border-b pb-2">
+                      <span className="font-medium">Refeição</span>
+                      <span className="font-semibold">{formatCurrency(expenseBreakdown.meals)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span>Ajudante:</span>
-                      <span>{formatCurrency(expenseBreakdown.helpers)}</span>
+                    <div className="flex justify-between items-center text-sm border-b pb-2">
+                      <span className="font-medium">Ajudante</span>
+                      <span className="font-semibold">{formatCurrency(expenseBreakdown.helpers)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span>Hotel/Pousada:</span>
-                      <span>{formatCurrency(expenseBreakdown.accommodation)}</span>
+                    <div className="flex justify-between items-center text-sm border-b pb-2">
+                      <span className="font-medium">Hotel/Pousada</span>
+                      <span className="font-semibold">{formatCurrency(expenseBreakdown.accommodation)}</span>
                     </div>
                     
                     {expenseBreakdown.other > 0 && (
-                      <div className="flex justify-between items-center text-sm">
-                        <span>Outros (fretes antigos):</span>
-                        <span>{formatCurrency(expenseBreakdown.other)}</span>
+                      <div className="flex justify-between items-center text-sm border-b pb-2">
+                        <span className="font-medium">Outras despesas</span>
+                        <span className="font-semibold">{formatCurrency(expenseBreakdown.other)}</span>
                       </div>
                     )}
                     
-                    <div className="pt-2 mt-2 border-t flex justify-between items-center font-medium">
-                      <span>Total:</span>
-                      <span>{formatCurrency(totalExpenses)}</span>
+                    <div className="border-t-2 pt-3 mt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-base">Total</span>
+                        <span className="text-red-600 font-bold text-lg">{formatCurrency(totalExpenses)}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Período: {format(startDate, "dd/MM/yyyy")} - {format(endDate, "dd/MM/yyyy")}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -402,7 +453,7 @@ const Dashboard: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="quotations" className="space-y-4">
-            <ClosedQuotationsReport month={selectedMonth} />
+            <ClosedQuotationsReport startDate={startDate} endDate={endDate} />
           </TabsContent>
         </Tabs>
       </div>

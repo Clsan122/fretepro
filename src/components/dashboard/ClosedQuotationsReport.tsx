@@ -24,10 +24,11 @@ import { FileText, ArrowUpRight } from "lucide-react";
 import { ptBR } from "date-fns/locale";
 
 interface ClosedQuotationsReportProps {
-  month: Date;
+  startDate: Date;
+  endDate: Date;
 }
 
-export const ClosedQuotationsReport: React.FC<ClosedQuotationsReportProps> = ({ month }) => {
+export const ClosedQuotationsReport: React.FC<ClosedQuotationsReportProps> = ({ startDate, endDate }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [closedQuotations, setClosedQuotations] = useState<QuotationData[]>([]);
@@ -44,13 +45,10 @@ export const ClosedQuotationsReport: React.FC<ClosedQuotationsReportProps> = ({ 
           (quotation: QuotationData) => quotation.userId === user.id && quotation.status === "closed"
         );
 
-        // Filtrar pelo mês selecionado
-        const monthStart = startOfMonth(month);
-        const monthEnd = endOfMonth(month);
-        
+        // Filtrar pelo período selecionado
         const filteredQuotations = userQuotations.filter(quotation => {
           const quotationDate = parseISO(quotation.createdAt);
-          return isWithinInterval(quotationDate, { start: monthStart, end: monthEnd });
+          return isWithinInterval(quotationDate, { start: startDate, end: endDate });
         });
         
         // Ordenar por data de criação (mais recentes primeiro)
@@ -67,7 +65,7 @@ export const ClosedQuotationsReport: React.FC<ClosedQuotationsReportProps> = ({ 
         console.error("Erro ao carregar estatísticas de cotações:", error);
       }
     }
-  }, [user, month]);
+  }, [user, startDate, endDate]);
 
   const handleViewQuotation = (id: string) => {
     navigate(`/quotation/view/${id}`);
@@ -78,7 +76,7 @@ export const ClosedQuotationsReport: React.FC<ClosedQuotationsReportProps> = ({ 
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-medium flex items-center">
           <FileText className="mr-2 h-5 w-5 text-freight-600" />
-          Cotações Fechadas - {format(month, "MMMM yyyy", { locale: ptBR })}
+          Cotações Fechadas - {format(startDate, "dd/MM/yyyy")} a {format(endDate, "dd/MM/yyyy")}
         </h2>
         <Button 
           variant="outline" 
