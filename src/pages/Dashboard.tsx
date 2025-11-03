@@ -112,22 +112,33 @@ const Dashboard: React.FC = () => {
     }
   }, 0);
 
-  // Detailed expense breakdown
-  const expenseBreakdown = {
-    thirdPartyDriver: filteredFreights.reduce((sum, f) => sum + (f.thirdPartyDriverCost || 0), 0),
-    toll: filteredFreights.reduce((sum, f) => sum + (f.tollExpenses || 0), 0),
-    fuel: filteredFreights.reduce((sum, f) => sum + (f.fuelExpenses || 0), 0),
-    meals: filteredFreights.reduce((sum, f) => sum + (f.mealExpenses || 0), 0),
-    helpers: filteredFreights.reduce((sum, f) => sum + (f.helperExpenses || 0), 0),
-    accommodation: filteredFreights.reduce((sum, f) => sum + (f.accommodationExpenses || 0), 0),
-    other: filteredFreights.reduce((sum, f) => {
-      // For old freight records that don't have detailed expenses
-      if (f.totalExpenses === undefined) {
-        return sum + f.dailyRate + f.otherCosts + f.tollCosts;
-      }
-      return sum;
-    }, 0)
-  };
+  // Mapeamento de campos de despesas com labels amigáveis
+  const expenseFields = [
+    { key: 'thirdPartyDriverCost', label: 'Motorista Terceirizado' },
+    { key: 'driverExpenses', label: 'Despesas do Motorista' },
+    { key: 'tollExpenses', label: 'Pedágio' },
+    { key: 'fuelExpenses', label: 'Abastecimento/Combustível' },
+    { key: 'mealExpenses', label: 'Refeições' },
+    { key: 'helperExpenses', label: 'Ajudante' },
+    { key: 'accommodationExpenses', label: 'Hotel/Hospedagem' },
+    { key: 'dailyRate', label: 'Diária' },
+    { key: 'otherCosts', label: 'Outros Custos' },
+    { key: 'tollCosts', label: 'Custos de Pedágio (antigo)' }
+  ];
+
+  // Calcular despesas de forma dinâmica
+  const expenseBreakdown = expenseFields.map(field => {
+    const total = filteredFreights.reduce((sum, freight) => {
+      const value = (freight as any)[field.key] || 0;
+      return sum + value;
+    }, 0);
+    
+    return {
+      label: field.label,
+      value: total,
+      key: field.key
+    };
+  }).filter(expense => expense.value > 0); // Mostrar apenas despesas com valor
 
   return (
     <Layout>
@@ -401,52 +412,41 @@ const Dashboard: React.FC = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Despesas Mensais</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Demonstrativo de Despesas</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {expenseBreakdown.length} {expenseBreakdown.length === 1 ? 'categoria' : 'categorias'}
+                    </span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm border-b pb-2">
-                      <span className="font-medium">Motorista Terceiro</span>
-                      <span className="font-semibold">{formatCurrency(expenseBreakdown.thirdPartyDriver)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm border-b pb-2">
-                      <span className="font-medium">Pedágio</span>
-                      <span className="font-semibold">{formatCurrency(expenseBreakdown.toll)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm border-b pb-2">
-                      <span className="font-medium">Abastecimento</span>
-                      <span className="font-semibold">{formatCurrency(expenseBreakdown.fuel)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm border-b pb-2">
-                      <span className="font-medium">Refeição</span>
-                      <span className="font-semibold">{formatCurrency(expenseBreakdown.meals)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm border-b pb-2">
-                      <span className="font-medium">Ajudante</span>
-                      <span className="font-semibold">{formatCurrency(expenseBreakdown.helpers)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm border-b pb-2">
-                      <span className="font-medium">Hotel/Pousada</span>
-                      <span className="font-semibold">{formatCurrency(expenseBreakdown.accommodation)}</span>
-                    </div>
-                    
-                    {expenseBreakdown.other > 0 && (
-                      <div className="flex justify-between items-center text-sm border-b pb-2">
-                        <span className="font-medium">Outras despesas</span>
-                        <span className="font-semibold">{formatCurrency(expenseBreakdown.other)}</span>
+                  {expenseBreakdown.length > 0 ? (
+                    <div className="space-y-3">
+                      {expenseBreakdown.map((expense, index) => (
+                        <div 
+                          key={expense.key} 
+                          className="flex justify-between items-center text-sm border-b pb-2 hover:bg-accent/50 px-2 -mx-2 rounded transition-colors"
+                        >
+                          <span className="font-medium">{expense.label}</span>
+                          <span className="font-semibold text-red-600">{formatCurrency(expense.value)}</span>
+                        </div>
+                      ))}
+                      
+                      <div className="border-t-2 pt-3 mt-3">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-base">Total de Despesas</span>
+                          <span className="text-red-600 font-bold text-lg">{formatCurrency(totalExpenses)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Período: {format(startDate, "dd/MM/yyyy")} - {format(endDate, "dd/MM/yyyy")}
+                        </p>
                       </div>
-                    )}
-                    
-                    <div className="border-t-2 pt-3 mt-3">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-base">Total</span>
-                        <span className="text-red-600 font-bold text-lg">{formatCurrency(totalExpenses)}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Período: {format(startDate, "dd/MM/yyyy")} - {format(endDate, "dd/MM/yyyy")}
-                      </p>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p className="text-sm">Nenhuma despesa registrada no período</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
