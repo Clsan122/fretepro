@@ -33,6 +33,11 @@ import QuotationForm from "@/pages/QuotationForm";
 import QuotationView from "@/pages/QuotationView";
 import QuotationEdit from "@/pages/QuotationEdit";
 
+// SaaS Dashboards
+import DriverDashboard from "@/pages/DriverDashboard";
+import CompanyDashboard from "@/pages/CompanyDashboard";
+import SuperAdminDashboard from "@/pages/SuperAdminDashboard";
+
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
@@ -46,6 +51,9 @@ const AppRoutes: React.FC = () => {
 
       {/* Protected Routes */}
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Route path="/driver-dashboard" element={<PrivateRoute><DriverDashboard /></PrivateRoute>} />
+      <Route path="/company-dashboard" element={<PrivateRoute><CompanyDashboard /></PrivateRoute>} />
+      <Route path="/superadmin-dashboard" element={<PrivateRoute><SuperAdminDashboard /></PrivateRoute>} />
       <Route path="/clients" element={<PrivateRoute><Clients /></PrivateRoute>} />
       <Route path="/drivers" element={<PrivateRoute><Drivers /></PrivateRoute>} />
       <Route path="/drivers/new" element={<PrivateRoute><DriverRegister /></PrivateRoute>} />
