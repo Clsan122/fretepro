@@ -19,6 +19,7 @@ export type Database = {
           address: string | null
           city: string
           cnpj: string | null
+          company_id: string | null
           cpf: string | null
           created_at: string
           email: string | null
@@ -38,6 +39,7 @@ export type Database = {
           address?: string | null
           city: string
           cnpj?: string | null
+          company_id?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null
@@ -57,6 +59,7 @@ export type Database = {
           address?: string | null
           city?: string
           cnpj?: string | null
+          company_id?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null
@@ -72,10 +75,19 @@ export type Database = {
           user_id?: string
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       collection_orders: {
         Row: {
+          company_id: string | null
           company_logo: string
           created_at: string
           cubic_measurement: number
@@ -111,6 +123,7 @@ export type Database = {
           weight: number
         }
         Insert: {
+          company_id?: string | null
           company_logo: string
           created_at?: string
           cubic_measurement: number
@@ -146,6 +159,7 @@ export type Database = {
           weight: number
         }
         Update: {
+          company_id?: string | null
           company_logo?: string
           created_at?: string
           cubic_measurement?: number
@@ -180,16 +194,260 @@ export type Database = {
           volumes?: number
           weight?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "collection_orders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companies: {
+        Row: {
+          additional_docs_urls: Json | null
+          address: string | null
+          approval_notes: string | null
+          approved_at: string | null
+          approved_by: string | null
+          city: string | null
+          cnpj: string
+          created_at: string | null
+          email: string
+          id: string
+          license_document_url: string | null
+          logo_url: string | null
+          monthly_freight_limit: number | null
+          name: string
+          phone: string
+          primary_color: string | null
+          registration_document_url: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          settings: Json | null
+          state: string | null
+          status: Database["public"]["Enums"]["company_status"]
+          subscription_expires_at: string | null
+          subscription_plan:
+            | Database["public"]["Enums"]["subscription_plan_type"]
+            | null
+          subscription_status: string | null
+          trial_ends_at: string | null
+          updated_at: string | null
+          user_limit: number | null
+          zip_code: string | null
+        }
+        Insert: {
+          additional_docs_urls?: Json | null
+          address?: string | null
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          city?: string | null
+          cnpj: string
+          created_at?: string | null
+          email: string
+          id?: string
+          license_document_url?: string | null
+          logo_url?: string | null
+          monthly_freight_limit?: number | null
+          name: string
+          phone: string
+          primary_color?: string | null
+          registration_document_url?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          settings?: Json | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["company_status"]
+          subscription_expires_at?: string | null
+          subscription_plan?:
+            | Database["public"]["Enums"]["subscription_plan_type"]
+            | null
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string | null
+          user_limit?: number | null
+          zip_code?: string | null
+        }
+        Update: {
+          additional_docs_urls?: Json | null
+          address?: string | null
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          city?: string | null
+          cnpj?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          license_document_url?: string | null
+          logo_url?: string | null
+          monthly_freight_limit?: number | null
+          name?: string
+          phone?: string
+          primary_color?: string | null
+          registration_document_url?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          settings?: Json | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["company_status"]
+          subscription_expires_at?: string | null
+          subscription_plan?:
+            | Database["public"]["Enums"]["subscription_plan_type"]
+            | null
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string | null
+          user_limit?: number | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companies_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_ratings: {
+        Row: {
+          assignment_id: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          driver_id: string
+          id: string
+          rating: number
+          review: string | null
+        }
+        Insert: {
+          assignment_id?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          driver_id: string
+          id?: string
+          rating: number
+          review?: string | null
+        }
+        Update: {
+          assignment_id?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          driver_id?: string
+          id?: string
+          rating?: number
+          review?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_ratings_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "freight_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ratings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ratings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ratings_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_ratings: {
+        Row: {
+          assignment_id: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          driver_id: string
+          id: string
+          rating: number
+          review: string | null
+        }
+        Insert: {
+          assignment_id?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          driver_id: string
+          id?: string
+          rating: number
+          review?: string | null
+        }
+        Update: {
+          assignment_id?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          driver_id?: string
+          id?: string
+          rating?: number
+          review?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_ratings_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "freight_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_ratings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_ratings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_ratings_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       drivers: {
         Row: {
           address: string | null
           antt_code: string
           body_type: string
+          company_id: string | null
           cpf: string
           created_at: string
           id: string
+          is_independent: boolean | null
           license_plate: string
           name: string
           phone: string
@@ -206,9 +464,11 @@ export type Database = {
           address?: string | null
           antt_code: string
           body_type: string
+          company_id?: string | null
           cpf: string
           created_at?: string
           id?: string
+          is_independent?: boolean | null
           license_plate: string
           name: string
           phone: string
@@ -225,9 +485,11 @@ export type Database = {
           address?: string | null
           antt_code?: string
           body_type?: string
+          company_id?: string | null
           cpf?: string
           created_at?: string
           id?: string
+          is_independent?: boolean | null
           license_plate?: string
           name?: string
           phone?: string
@@ -240,7 +502,190 @@ export type Database = {
           vehicle_type?: string
           vehicle_year?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "drivers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freight_assignments: {
+        Row: {
+          assigned_price: number
+          bid_id: string | null
+          company_id: string
+          completed_at: string | null
+          created_at: string | null
+          delivery_proof: string | null
+          driver_id: string
+          freight_id: string
+          id: string
+          pickup_proof: string | null
+          rating_company: number | null
+          rating_driver: number | null
+          review_company: string | null
+          review_driver: string | null
+          started_at: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_price: number
+          bid_id?: string | null
+          company_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          delivery_proof?: string | null
+          driver_id: string
+          freight_id: string
+          id?: string
+          pickup_proof?: string | null
+          rating_company?: number | null
+          rating_driver?: number | null
+          review_company?: string | null
+          review_driver?: string | null
+          started_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_price?: number
+          bid_id?: string | null
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          delivery_proof?: string | null
+          driver_id?: string
+          freight_id?: string
+          id?: string
+          pickup_proof?: string | null
+          rating_company?: number | null
+          rating_driver?: number | null
+          review_company?: string | null
+          review_driver?: string | null
+          started_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freight_assignments_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "freight_bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_assignments_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_assignments_freight_id_fkey"
+            columns: ["freight_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_freights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freight_bids: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string | null
+          driver_id: string
+          estimated_delivery_date: string | null
+          estimated_pickup_date: string | null
+          freight_id: string
+          id: string
+          message: string | null
+          proposed_price: number
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["bid_status"] | null
+          updated_at: string | null
+          user_id: string
+          withdrawn_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string | null
+          driver_id: string
+          estimated_delivery_date?: string | null
+          estimated_pickup_date?: string | null
+          freight_id: string
+          id?: string
+          message?: string | null
+          proposed_price: number
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["bid_status"] | null
+          updated_at?: string | null
+          user_id: string
+          withdrawn_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string | null
+          driver_id?: string
+          estimated_delivery_date?: string | null
+          estimated_pickup_date?: string | null
+          freight_id?: string
+          id?: string
+          message?: string | null
+          proposed_price?: number
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["bid_status"] | null
+          updated_at?: string | null
+          user_id?: string
+          withdrawn_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freight_bids_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_bids_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_bids_freight_id_fkey"
+            columns: ["freight_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_freights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_bids_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       freight_expenses: {
         Row: {
@@ -289,6 +734,60 @@ export type Database = {
           },
         ]
       }
+      freight_tracking: {
+        Row: {
+          assignment_id: string
+          created_at: string | null
+          driver_id: string
+          heading: number | null
+          id: string
+          latitude: number
+          longitude: number
+          notes: string | null
+          speed: number | null
+          status: string | null
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string | null
+          driver_id: string
+          heading?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          notes?: string | null
+          speed?: number | null
+          status?: string | null
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string | null
+          driver_id?: string
+          heading?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          notes?: string | null
+          speed?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freight_tracking_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "freight_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_tracking_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       freights: {
         Row: {
           accommodation_expenses: number | null
@@ -297,6 +796,7 @@ export type Database = {
           cargo_type: string
           cargo_weight: number | null
           client_id: string
+          company_id: string | null
           created_at: string
           cubic_measurement: number | null
           daily_rate: number | null
@@ -337,6 +837,7 @@ export type Database = {
           updated_at: string
           user_id: string
           vehicle_type: string | null
+          visibility: string | null
           volumes: number | null
           weight: number | null
         }
@@ -347,6 +848,7 @@ export type Database = {
           cargo_type: string
           cargo_weight?: number | null
           client_id: string
+          company_id?: string | null
           created_at?: string
           cubic_measurement?: number | null
           daily_rate?: number | null
@@ -387,6 +889,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           vehicle_type?: string | null
+          visibility?: string | null
           volumes?: number | null
           weight?: number | null
         }
@@ -397,6 +900,7 @@ export type Database = {
           cargo_type?: string
           cargo_weight?: number | null
           client_id?: string
+          company_id?: string | null
           created_at?: string
           cubic_measurement?: number | null
           daily_rate?: number | null
@@ -437,10 +941,145 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vehicle_type?: string | null
+          visibility?: string | null
           volumes?: number | null
           weight?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "freights_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_freights: {
+        Row: {
+          bids_count: number | null
+          body_type: string | null
+          cargo_description: string | null
+          cargo_type: string
+          company_id: string
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string
+          created_at: string | null
+          delivery_deadline: string | null
+          destination_address: string | null
+          destination_city: string
+          destination_state: string
+          dimensions: string | null
+          distance: number | null
+          expires_at: string | null
+          id: string
+          origin_address: string | null
+          origin_city: string
+          origin_state: string
+          pickup_date: string | null
+          posted_by: string
+          price_negotiable: boolean | null
+          requires_insurance: boolean | null
+          requires_tracking: boolean | null
+          special_requirements: string | null
+          status: Database["public"]["Enums"]["freight_status"]
+          suggested_price: number | null
+          updated_at: string | null
+          vehicle_type: string | null
+          views_count: number | null
+          visibility: string | null
+          volumes: number | null
+          weight: number | null
+        }
+        Insert: {
+          bids_count?: number | null
+          body_type?: string | null
+          cargo_description?: string | null
+          cargo_type: string
+          company_id: string
+          contact_email?: string | null
+          contact_name: string
+          contact_phone: string
+          created_at?: string | null
+          delivery_deadline?: string | null
+          destination_address?: string | null
+          destination_city: string
+          destination_state: string
+          dimensions?: string | null
+          distance?: number | null
+          expires_at?: string | null
+          id?: string
+          origin_address?: string | null
+          origin_city: string
+          origin_state: string
+          pickup_date?: string | null
+          posted_by: string
+          price_negotiable?: boolean | null
+          requires_insurance?: boolean | null
+          requires_tracking?: boolean | null
+          special_requirements?: string | null
+          status?: Database["public"]["Enums"]["freight_status"]
+          suggested_price?: number | null
+          updated_at?: string | null
+          vehicle_type?: string | null
+          views_count?: number | null
+          visibility?: string | null
+          volumes?: number | null
+          weight?: number | null
+        }
+        Update: {
+          bids_count?: number | null
+          body_type?: string | null
+          cargo_description?: string | null
+          cargo_type?: string
+          company_id?: string
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string | null
+          delivery_deadline?: string | null
+          destination_address?: string | null
+          destination_city?: string
+          destination_state?: string
+          dimensions?: string | null
+          distance?: number | null
+          expires_at?: string | null
+          id?: string
+          origin_address?: string | null
+          origin_city?: string
+          origin_state?: string
+          pickup_date?: string | null
+          posted_by?: string
+          price_negotiable?: boolean | null
+          requires_insurance?: boolean | null
+          requires_tracking?: boolean | null
+          special_requirements?: string | null
+          status?: Database["public"]["Enums"]["freight_status"]
+          suggested_price?: number | null
+          updated_at?: string | null
+          vehicle_type?: string | null
+          views_count?: number | null
+          visibility?: string | null
+          volumes?: number | null
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_freights_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_freights_posted_by_fkey"
+            columns: ["posted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       measurements: {
         Row: {
@@ -486,6 +1125,114 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          attachments: Json | null
+          created_at: string | null
+          freight_id: string | null
+          id: string
+          message: string
+          read: boolean | null
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string | null
+          freight_id?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          read_at?: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string | null
+          freight_id?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          read_at?: string | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_freight_id_fkey"
+            columns: ["freight_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_freights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          action_label: string | null
+          action_url: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          message: string
+          read: boolean | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_label?: string | null
+          action_url?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_label?: string | null
+          action_url?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -493,6 +1240,7 @@ export type Database = {
           bank_info: string | null
           city: string | null
           cnpj: string | null
+          company_id: string | null
           company_logo: string | null
           company_name: string | null
           cpf: string | null
@@ -516,6 +1264,7 @@ export type Database = {
           bank_info?: string | null
           city?: string | null
           cnpj?: string | null
+          company_id?: string | null
           company_logo?: string | null
           company_name?: string | null
           cpf?: string | null
@@ -539,6 +1288,7 @@ export type Database = {
           bank_info?: string | null
           city?: string | null
           cnpj?: string | null
+          company_id?: string | null
           company_logo?: string | null
           company_name?: string | null
           cpf?: string | null
@@ -555,6 +1305,137 @@ export type Database = {
           ui_preferences?: Json | null
           updated_at?: string | null
           zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_history: {
+        Row: {
+          amount_paid: number | null
+          billing_period: string | null
+          canceled_at: string | null
+          company_id: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          payment_id: string | null
+          payment_method: string | null
+          payment_status: string | null
+          plan_id: string | null
+          plan_type: Database["public"]["Enums"]["subscription_plan_type"]
+          started_at: string | null
+        }
+        Insert: {
+          amount_paid?: number | null
+          billing_period?: string | null
+          canceled_at?: string | null
+          company_id: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          plan_id?: string | null
+          plan_type: Database["public"]["Enums"]["subscription_plan_type"]
+          started_at?: string | null
+        }
+        Update: {
+          amount_paid?: number | null
+          billing_period?: string | null
+          canceled_at?: string | null
+          company_id?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          plan_id?: string | null
+          plan_type?: Database["public"]["Enums"]["subscription_plan_type"]
+          started_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_history_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_history_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          has_api_access: boolean | null
+          has_custom_branding: boolean | null
+          has_marketplace_access: boolean | null
+          has_priority_support: boolean | null
+          id: string
+          monthly_freight_limit: number | null
+          name: string
+          plan_type: Database["public"]["Enums"]["subscription_plan_type"]
+          price_monthly: number
+          price_yearly: number
+          storage_limit_gb: number | null
+          updated_at: string | null
+          user_limit: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          has_api_access?: boolean | null
+          has_custom_branding?: boolean | null
+          has_marketplace_access?: boolean | null
+          has_priority_support?: boolean | null
+          id?: string
+          monthly_freight_limit?: number | null
+          name: string
+          plan_type: Database["public"]["Enums"]["subscription_plan_type"]
+          price_monthly?: number
+          price_yearly?: number
+          storage_limit_gb?: number | null
+          updated_at?: string | null
+          user_limit?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          has_api_access?: boolean | null
+          has_custom_branding?: boolean | null
+          has_marketplace_access?: boolean | null
+          has_priority_support?: boolean | null
+          id?: string
+          monthly_freight_limit?: number | null
+          name?: string
+          plan_type?: Database["public"]["Enums"]["subscription_plan_type"]
+          price_monthly?: number
+          price_yearly?: number
+          storage_limit_gb?: number | null
+          updated_at?: string | null
+          user_limit?: number | null
         }
         Relationships: []
       }
@@ -644,6 +1525,55 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_settings: {
         Row: {
           created_at: string | null
@@ -690,10 +1620,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      user_has_company_access: {
+        Args: { _company_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "superadmin"
+        | "company_admin"
+        | "company_user"
+        | "driver"
+        | "shipper"
+      bid_status: "pending" | "accepted" | "rejected" | "withdrawn"
+      company_status:
+        | "pending_approval"
+        | "active"
+        | "suspended"
+        | "rejected"
+        | "canceled"
+      freight_status:
+        | "draft"
+        | "pending_approval"
+        | "open"
+        | "in_negotiation"
+        | "assigned"
+        | "in_transit"
+        | "completed"
+        | "canceled"
+      subscription_plan_type: "free" | "basic" | "pro" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -820,6 +1782,33 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "superadmin",
+        "company_admin",
+        "company_user",
+        "driver",
+        "shipper",
+      ],
+      bid_status: ["pending", "accepted", "rejected", "withdrawn"],
+      company_status: [
+        "pending_approval",
+        "active",
+        "suspended",
+        "rejected",
+        "canceled",
+      ],
+      freight_status: [
+        "draft",
+        "pending_approval",
+        "open",
+        "in_negotiation",
+        "assigned",
+        "in_transit",
+        "completed",
+        "canceled",
+      ],
+      subscription_plan_type: ["free", "basic", "pro", "enterprise"],
+    },
   },
 } as const
