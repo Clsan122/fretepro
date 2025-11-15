@@ -1,7 +1,8 @@
 
 import React from "react";
 import { Driver } from "@/types";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,7 @@ const DriverForm: React.FC<DriverFormProps> = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
@@ -89,24 +90,60 @@ const DriverForm: React.FC<DriverFormProps> = ({
       return;
     }
     
-    const newDriver: Driver = {
-      id: driverToEdit ? driverToEdit.id : uuidv4(),
-      name,
-      cpf,
-      licensePlate,
-      trailerPlate: trailerPlate || undefined,
-      vehicleType: vehicleType as any,
-      bodyType: bodyType as any,
-      address: address || undefined,
-      phone,
-      anttCode,
-      vehicleYear,
-      vehicleModel,
-      createdAt: driverToEdit ? driverToEdit.createdAt : new Date().toISOString(),
-      userId: user.id
-    };
-    
-    onSave(newDriver);
+    try {
+      const driverData = {
+        name,
+        cpf,
+        phone,
+        license_plate: licensePlate,
+        trailer_plate: trailerPlate || null,
+        vehicle_type: vehicleType,
+        body_type: bodyType,
+        antt_code: anttCode,
+        vehicle_year: vehicleYear,
+        vehicle_model: vehicleModel,
+        address: address || null,
+        user_id: user.id,
+        company_id: user.companyId || null,
+        is_independent: !user.companyId,
+      };
+
+      if (driverToEdit?.id) {
+        // UPDATE
+        const { error } = await supabase
+          .from('drivers')
+          .update(driverData)
+          .eq('id', driverToEdit.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Motorista atualizado!",
+          description: "O motorista foi atualizado com sucesso."
+        });
+      } else {
+        // INSERT
+        const { error } = await supabase
+          .from('drivers')
+          .insert(driverData);
+
+        if (error) throw error;
+
+        toast({
+          title: "Motorista cadastrado!",
+          description: "O motorista foi cadastrado com sucesso."
+        });
+      }
+
+      onCancel(); // Fechar formulário ou navegar
+    } catch (error: any) {
+      console.error("Erro ao salvar motorista:", error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível salvar o motorista.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
