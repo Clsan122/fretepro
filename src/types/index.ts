@@ -16,6 +16,8 @@ export interface User {
   updatedAt?: string;
   avatar?: string;
   role?: string;
+  roles?: string[];
+  companyId?: string | null;
   
   // Company data
   companyName?: string;

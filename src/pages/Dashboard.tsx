@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/context/AuthContext";
 import { getFreightsByUserId, getClientsByUserId } from "@/utils/storage";
@@ -22,6 +23,25 @@ import { ClosedQuotationsReport } from "@/components/dashboard/ClosedQuotationsR
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect based on user role
+  useEffect(() => {
+    if (user?.roles) {
+      if (user.roles.includes('superadmin')) {
+        navigate('/superadmin');
+        return;
+      }
+      if (user.roles.includes('company_admin') || user.roles.includes('company_user')) {
+        navigate('/company-dashboard');
+        return;
+      }
+      if (user.roles.includes('driver')) {
+        navigate('/driver-dashboard');
+        return;
+      }
+    }
+  }, [user, navigate]);
   const [freights, setFreights] = useState<Freight[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [periodType, setPeriodType] = useState<string>("month");

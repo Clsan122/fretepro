@@ -57,6 +57,24 @@ export const transformUser = async (supabaseUser: SupabaseUser, profileData?: an
   if (!profileData?.license_plate) {
     driverData = await fetchDriverData(supabaseUser.id);
   }
+
+  // Fetch user roles and company
+  let roles: string[] = [];
+  let companyId: string | null = null;
+  
+  try {
+    const { data: rolesData } = await supabase
+      .from('user_roles')
+      .select('role, company_id')
+      .eq('user_id', supabaseUser.id);
+    
+    if (rolesData && rolesData.length > 0) {
+      roles = rolesData.map(r => r.role);
+      companyId = rolesData[0]?.company_id || null;
+    }
+  } catch (error) {
+    console.error('Error fetching user roles:', error);
+  }
   
   const user = {
     id: supabaseUser.id,
@@ -71,6 +89,8 @@ export const transformUser = async (supabaseUser: SupabaseUser, profileData?: an
     pixKey: profileData?.pix_key || '',
     bankInfo: profileData?.bank_info || '',
     avatar: profileData?.avatar_url || '',
+    roles,
+    companyId,
     
     // Dados de motorista
     isDriver: !!driverData || !!profileData?.license_plate,

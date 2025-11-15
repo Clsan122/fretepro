@@ -43,10 +43,11 @@ export const RegistrationForm = () => {
 
       toast({
         title: "Conta criada com sucesso!",
-        description: "Você já pode fazer login.",
+        description: "Agora você precisa cadastrar sua empresa.",
       });
       
-      navigate("/login");
+      // Redirect to company registration
+      navigate("/register/company");
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
