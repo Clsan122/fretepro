@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "@/components/auth/PrivateRoute";
 
 // Public Pages
+import LandingPage from "@/pages/LandingPage";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
@@ -46,8 +47,8 @@ import { RoleGuard } from "@/components/shared/RoleGuard";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public Routes - Redirecionar raiz para login */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

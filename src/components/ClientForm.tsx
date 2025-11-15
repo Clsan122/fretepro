@@ -3,10 +3,12 @@ import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types";
 import { ClientFormData } from "@/types/client";
 import { v4 as uuidv4 } from "uuid";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -92,25 +94,69 @@ const ClientForm: React.FC<ClientFormProps> = ({
     }
   }, [watchedCity, setValue]);
 
-  const onSubmit = (data: FormData) => {
-    if (!user) return;
+  const { toast } = useToast();
 
-    const client: Client = {
-      id: initialData?.id || uuidv4(),
-      name: data.name,
-      city: data.city,
-      state: data.state,
-      cnpj: personType === 'legal' ? data.cnpj : undefined,
-      cpf: personType === 'physical' ? data.cpf : undefined,
-      address: data.address || undefined,
-      phone: data.phone || undefined,
-      createdAt: initialData?.createdAt || new Date().toISOString(),
-      userId: user.id,
-      logo: logo || undefined,
-      personType: personType, // Add the missing personType property
-    };
+  const onSubmit = async (data: FormData) => {
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado!",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    onSave(client);
+    try {
+      const clientData = {
+        name: data.name,
+        city: data.city,
+        state: data.state,
+        person_type: personType,
+        cnpj: personType === 'legal' ? data.cnpj : null,
+        cpf: personType === 'physical' ? data.cpf : null,
+        address: data.address || null,
+        phone: data.phone || null,
+        logo: logo || null,
+        user_id: user.id,
+        company_id: user.companyId || null,
+      };
+
+      if (initialData?.id) {
+        // UPDATE
+        const { error } = await supabase
+          .from('clients')
+          .update(clientData)
+          .eq('id', initialData.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Cliente atualizado!",
+          description: "O cliente foi atualizado com sucesso."
+        });
+      } else {
+        // INSERT
+        const { error } = await supabase
+          .from('clients')
+          .insert(clientData);
+
+        if (error) throw error;
+
+        toast({
+          title: "Cliente cadastrado!",
+          description: "O cliente foi cadastrado com sucesso."
+        });
+      }
+
+      onCancel(); // Fechar formulário
+    } catch (error: any) {
+      console.error("Erro ao salvar cliente:", error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível salvar o cliente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSetState = (value: string) => {
