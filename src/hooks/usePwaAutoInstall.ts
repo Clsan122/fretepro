@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import * as React from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -6,7 +6,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export const usePwaAutoInstall = () => {
-  useEffect(() => {
+  React.useEffect(() => {
     let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
     const handleBeforeInstallPrompt = (e: Event) => {
